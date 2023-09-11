@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/ico" href="/favicon.ico" />
+    <link rel="bookmark" type="image/ico" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link href="/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="/Content/select2/css/select2.css" rel="stylesheet" />
+    <link href="/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="/Content/jquery/jquery.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="/Content/layui/layui.js"></script>
+    <script src="/Content/select2/js/select2.min.js"></script>
+    <script src="/Content/framework/js/global.js"></script>
+</head>
+<body>
+
+    <div class="alert alert-warning">
+        提醒：日志删除后无法恢复，请谨慎操作。
+    </div>
+    <form id="form" class="layui-form" style="margin: 20px">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <input type="hidden" id="type" name="type" />
+                <input type="radio" name="index" value="1" title="保留最近1个月">
+                <input type="radio" name="index" value="2" title="保留最近7天">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <input type="radio" name="index" value="3" title="保留最近3个月">
+                <input type="radio" name="index" value="4" title="全部清空">
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <div class="layui-input-inline">
+                <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="add">提交</button>
+            </div>
+        </div>
+    </form>
+
+    <script type="text/javascript">
+        layui.use('form', function () {
+            var form = layui.form;
+
+            var type = $.getQueryString("type");
+            if (type) {
+                $("#type").val(type);
+            }
+
+            form.on('submit(add)', function (data) {
+                $.formSubmit({
+                    url: "/system/log/delete",
+                    data: data.field
+                });
+                return false;
+            });
+        });
+    </script>
+</body>
+</html>

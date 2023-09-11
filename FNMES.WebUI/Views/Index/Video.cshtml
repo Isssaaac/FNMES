@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>设备监控</title>
+    <script src="/Content/jquery/jquery.min.js"></script>  
+	<script type="text/javascript" src="/Content/ckplayer/ckplayer.js" charset="UTF-8"></script>
+    <style>
+        #up_left {
+            height: calc(100% - 15px);
+            margin-left: 10px;
+            float: left;
+            margin-top: 10px;
+            width: calc(50% - 15px);
+        }
+
+        #up_right {
+            margin-top: 10px;
+            margin-right: 10px;
+            float: right;
+            width: calc(50% - 15px);
+            height: calc(100% - 15px);
+        }
+
+        #down_left {
+            height: calc(100% - 15px);
+            margin-left: 10px;
+            float: left;
+            margin-top: 5px;
+            width: calc(50% - 15px);
+        }
+
+        #down_right {
+            margin-top: 5px;
+            margin-right: 10px;
+            float: right;
+            width: calc(50% - 15px);
+            height: calc(100% - 15px);
+        }
+    </style>
+</head>
+<body>
+    <div id="up" style="width:100%;height:100px;">
+        <div id="up_left" class="left">
+            <div id="video1" style="width: 100%; height: 100%;"></div>
+        </div>
+        <div id="up_right" class="right">
+             <div id="video2" style="width: 100%; height: 100%;"></div>
+        </div>
+    </div>
+    <div id="down" style="width:100%;height:100px;">
+        <div id="down_left" class="left">
+            <div id="video3" style="width: 100%; height: 100%;"></div>
+        </div>
+        <div id="down_right" class="right">
+			<div id="video4" style="width: 100%; height: 100%;"></div>
+        </div>
+    </div>
+    <script type="text/javascript"> 
+		$(document).ready(function(){
+			$("#up").height($(window).height() / 2 - 8);
+			$("#down").height($(window).height() / 2 - 8);
+			$(window).resize(function () {
+			    $("#up").height($(window).height() / 2 - 8);
+			    $("#down").height($(window).height() / 2 - 8);
+			}); 
+			
+			playVideo1();
+			playVideo2();
+			playVideo3();
+			//playVideo4();
+		});
+		
+		function playVideo1(){
+			//定义一个变量：videoObject，用来做为视频初始化配置
+			var videoObject1 = {
+				container: '#video1', //容器的ID或className
+				variable: 'player1',
+				loop: true, //播放结束是否循环播放
+				autoplay: false,//是否自动播放 
+				title:'MP4播放',
+				menu:null,
+				video: 'http://ckplayer-video.oss-cn-shanghai.aliyuncs.com/sample-mp4/05cacb4e02f9d9e.mp4'//视频地址
+			};
+			var player1 = new ckplayer(videoObject1);//初始化播放器 
+		}
+		
+		function playVideo2(){
+			var videoObject2 = {
+				container: '#video2', //容器的ID或className
+				variable: 'player2',//播放函数名称
+				autoplay:true,
+				live:true,
+				video: 'rtmp://live.hkstv.hk.lxdns.com/live/hks'
+			};
+			var player2 = new ckplayer(videoObject2);
+		}
+		
+		function playVideo3(){
+			var videoObject3 = {
+				container: '#video3', //容器的ID或className
+				variable: 'player3',//播放函数名称
+				flashplayer:false,
+				autoplay:true,
+				html5m3u8:true,
+				live:false,
+				video: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8'
+			};
+			var player3 = new ckplayer(videoObject3);
+		}
+		
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+ 
+		
