@@ -80,7 +80,7 @@ namespace FNMES.Utility.Core
                         object value = row[column.ColumnName];
                         prop.SetValue(obj, value, null);
                     }
-                    catch (Exception ex)
+                    catch (Exception )
                     {  //You can log something here     
                        //throw;    
                     }

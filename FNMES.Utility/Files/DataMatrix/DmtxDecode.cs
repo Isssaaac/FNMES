@@ -292,7 +292,7 @@ namespace DataMatrix.net
             int num4 = 0;
             DmtxFollow followBeg = this.FollowSeekLoc(loc0);
             line.LocNeg = loc2 = followBeg.Loc;
-            line.LocPos = loc2 = loc2;
+            line.LocPos = loc2 ;
             DmtxPixelLoc loc = line.LocBeg = loc2;
             line.StepNeg = num11 = 0;
             line.StepBeg = line.StepPos = num11;

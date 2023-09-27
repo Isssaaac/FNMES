@@ -3,13 +3,13 @@ using System.IO;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CCS.WebUI; 
-using FNMES.Logic.Base;
 using FNMES.Service.WebService;
 using FNMES.Utility.Core;
 using FNMES.Utility.Extension;
 using FNMES.Utility.Extension.SqlSugar;
 using FNMES.Utility.Logs;
 using FNMES.Utility.MiddleWare;
+using FNMES.Utility.Other;
 using FNMES.WebUI;
 using FNMES.WebUI.Filters;
 using Google.Protobuf.WellKnownTypes;
@@ -26,7 +26,9 @@ using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Serialization;
 using SoapCore;
+using SqlSugar;
 using UEditorNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -68,11 +70,27 @@ builder.Services.AddSession(options =>
 //使用缓存
 builder.Services.AddMemoryCache();
 builder.Services.AddMvc();
-builder.Services.AddSqlsugarServer(AppSetting.DBType, AppSetting.DbConnectionString);
-builder.Services.AddControllers();
-builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+//添加基础数据库实例
+builder.Services.AddSqlsugarServer(AppSetting.sysConnection);
+//配置AP 使用json.net
+builder.Services.AddControllers().AddNewtonsoftJson(opt =>
+{
+    //忽略循环引用
+    opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    //不改变字段大小
+    opt.SerializerSettings.ContractResolver = new DefaultContractResolver();
+});
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation().AddJsonOptions( o =>
+{
+    o.JsonSerializerOptions.PropertyNamingPolicy = null;
+});
 builder.Services.AddHostedService<BackgroundServices>();
 builder.Services.AddUEditorService("Configs/ueditor.json");
+
+
+//设置雪花ID的WorkId,每台必须不一样。
+SnowFlakeSingle.WorkId = AppSetting.WorkId;
+
 //services.AddRazorPages();
 //注册Swagger生成器，定义一个和多个Swagger 文档
 builder.Services.AddSwaggerGen(c =>
@@ -127,7 +145,6 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
-
 
 app.UseEndpoints(endpoints =>
 {

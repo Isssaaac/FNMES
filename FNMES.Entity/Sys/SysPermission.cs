@@ -1,61 +1,74 @@
-﻿using SqlSugar;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using SqlSugar;
 namespace FNMES.Entity.Sys
 {
-
+    /// <summary>
+    /// 
+    ///</summary>
     [SugarTable("Sys_Permission")]
-    public partial class SysPermission : BaseModelEntity
+    public class SysPermission:BaseModelEntity
     {
-        [SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
-        public string Id { get; set; }
-
-
-        [SugarColumn(ColumnName = "ParentId")]
-        public string ParentId { get; set; }
-
-        [SugarColumn(ColumnName = "Layer")]
-        public int? Layer { get; set; }
-
-        [SugarColumn(ColumnName = "EnCode")]
-        public string EnCode { get; set; }
-
-        [SugarColumn(ColumnName = "Name")]
-        public string Name { get; set; }
-
-
-        [SugarColumn(ColumnName = "JsEvent")]
-        public string JsEvent { get; set; }
-
-        [SugarColumn(ColumnName = "Icon")]
-        public string Icon { get; set; }
-
-        [SugarColumn(ColumnName = "SymbolIndex")]
-        public int SymbolIndex { get; set; }
-
-
-        [SugarColumn(ColumnName = "Url")]
-        public string Url { get; set; }
-
-
-        [SugarColumn(ColumnName = "Remark")]
-        public string Remark { get; set; }
-
-        [SugarColumn(ColumnName = "Type")]
-        public int? Type { get; set; }
-
-        [SugarColumn(ColumnName = "SortCode")]
-        public int? SortCode { get; set; }
-
-        [SugarColumn(ColumnName = "IsPublic")]
-        public string IsPublic { get; set; }
-
-        [SugarColumn(ColumnName = "IsEdit")]
-        public string IsEdit { get; set; }
+        /// <summary>
+        /// 主键 
+        ///</summary>
+        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
+        [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]
+         public long Id { get; set; }
+        /// <summary>
+        /// 父级 
+        ///</summary>
+        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
+        [SugarColumn(ColumnName="parentId"    )]
+         public long ParentId { get; set; }
+        /// <summary>
+        /// 层次 
+        ///</summary>
+         [SugarColumn(ColumnName="layer"    )]
+         public int? Layer { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+         [SugarColumn(ColumnName="enCode"    )]
+         public string EnCode { get; set; }
+        /// <summary>
+        /// 名称 
+        ///</summary>
+         [SugarColumn(ColumnName="name"    )]
+         public string Name { get; set; }
+        /// <summary>
+        /// 事件 
+        ///</summary>
+         [SugarColumn(ColumnName="jsEvent"    )]
+         public string JsEvent { get; set; }
+        /// <summary>
+        /// 图标 
+        ///</summary>
+         [SugarColumn(ColumnName="icon"    )]
+         public string Icon { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+         [SugarColumn(ColumnName="symbolIndex"    )]
+         public int? SymbolIndex { get; set; }
+        /// <summary>
+        /// 链接 
+        ///</summary>
+         [SugarColumn(ColumnName="url"    )]
+         public string Url { get; set; }
+        
+        /// <summary>
+        /// 2-主菜单，0-子菜单，1-按钮 
+        ///</summary>
+         [SugarColumn(ColumnName="type"    )]
+         public int? Type { get; set; }
+        
+        /// <summary>
+        /// 允许编辑 
+        ///</summary>
+         [SugarColumn(ColumnName="isEdit"    )]
+         public string IsEdit { get; set; }
 
     }
 }

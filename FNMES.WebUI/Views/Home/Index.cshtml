@@ -64,7 +64,7 @@
                 </a>
                 </li>*@
                 <li class="layui-nav-item" style="margin-right: 10px">
-                    <a class="layui-header-user" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;"><img style="width: 45px;height: 45px;border-radius: 50%;" src="@ViewBag.CurrentUser.Avatar" />&nbsp;@ViewBag.CurrentUser.NickName</a>
+                    <a class="layui-header-user" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;"><img style="width: 45px;height: 45px;border-radius: 50%;" src="/avatar.png" />&nbsp;@ViewBag.CurrentUser.Name</a>
                     <dl class="layui-nav-child">
                         <dd>
                             <a class="user-card" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp;账户管理</a>
@@ -122,7 +122,7 @@
         <script type="text/template" class="layui-lock-tpl">
             <div class="layui-lock-box" id="lock-box">
                 <div class="layui-lock-img">
-                    <img id="lockHeadIcon" src="@ViewBag.CurrentUser.Avatar" />
+                    <img id="lockHeadIcon" src="/avatar.png" />
                 </div>
                 <div id="lockUserName" class="layui-lock-name">@ViewBag.CurrentUser.Account</div>
                 <input id="lockPassword" type="text" class="layui-lock-input" value="输入密码解锁.." />

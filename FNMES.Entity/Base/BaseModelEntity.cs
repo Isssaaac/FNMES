@@ -6,36 +6,53 @@ namespace FNMES.Entity
 {
     public class BaseModelEntity
     {
+        [SugarColumn(ColumnName = "enableFlag")]
+        public string EnableFlag { get; set; }
+
+        [SugarColumn(IsIgnore = true)]
+        public bool IsEnabled
+        {
+            get
+            {
+                return EnableFlag == "1" ? true : false;
+            }
+            set
+            {
+                EnableFlag = value ? "1" : "0";
+            }
+        }
         /// <summary>
-        /// 是否启用
-        /// </summary>
-        [SugarColumn(ColumnName = "IsEnabled", ColumnDescription = "是否启用", IsNullable = true, Length = 1)]
-        public virtual string EnableFlag { get; set; }
+        /// 排序码 
+        ///</summary>
+        [SugarColumn(ColumnName = "sortCode")]
+        public int? SortCode { get; set; }
         /// <summary>
-        /// 是否删除
-        /// </summary>
-        [SugarColumn(ColumnName = "DeleteMark", ColumnDescription = "是否删除", IsNullable = true, Length = 1)]
-        public virtual string DeleteFlag { get; set; }
+        /// 备注 
+        ///</summary>
+        [SugarColumn(ColumnName = "description")]
+        public string Description { get; set; }
         /// <summary>
-        /// 创建人
-        /// </summary>
-        [SugarColumn(ColumnName = "CreateUser", ColumnDescription = "创建人", IsNullable = true, Length = 255)]
-        public virtual string CreateUserId { get; set; }
+        /// 创建人 
+        ///</summary>
+        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
+        [SugarColumn(ColumnName = "createUser")]
+        public long CreateUserId { get; set; }
         /// <summary>
-        /// 创建时间
-        /// </summary>
-        [SugarColumn(ColumnName = "CreateTime", ColumnDescription = "创建时间", IsNullable = true, Length = 3)]
-        public virtual DateTime? CreateTime { get; set; }
+        /// 创建时间 
+        ///</summary>
+        [SugarColumn(ColumnName = "createTime")]
+        public DateTime? CreateTime { get; set; }
         /// <summary>
-        /// 更新人
-        /// </summary>
-        [SugarColumn(ColumnName = "ModifyUser", ColumnDescription = "更新人", IsNullable = true, Length = 255)]
-        public virtual string ModifyUserId { get; set; }
+        /// 修改人 
+        ///</summary>
+        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
+        [SugarColumn(ColumnName = "modifyUser")]
+        public long ModifyUserId { get; set; }
         /// <summary>
-        /// 更新时间
-        /// </summary>
-        [SugarColumn(ColumnName = "ModifyTime", ColumnDescription = "更新时间", IsNullable = true, Length = 3)]
-        public virtual DateTime? ModifyTime { get; set; }
+        /// 修改时间 
+        ///</summary>
+        [SugarColumn(ColumnName = "modifyTime")]
+        public DateTime? ModifyTime { get; set; }
 
         /// <summary>
         /// 创建人
@@ -54,7 +71,7 @@ namespace FNMES.Entity
         {
             get
             {
-                return CreateUser == null ? "" : CreateUser.RealName;
+                return CreateUser == null ? "" : CreateUser.Name;
             }
         }
         [SugarColumn(IsIgnore = true)]
@@ -62,30 +79,12 @@ namespace FNMES.Entity
         {
             get
             {
-                return ModifyUser == null ? "" : ModifyUser.RealName;
+                return ModifyUser == null ? "" : ModifyUser.Name;
             }
         }
 
-        [SugarColumn(IsIgnore = true)]
-        public bool IsDeleted
-        {
-            get
-            {
-                return DeleteFlag == "Y" ? true : false;
-            }
-        }
+       
 
-        [SugarColumn(IsIgnore = true)]
-        public bool IsEnabled
-        {
-            get
-            {
-                return EnableFlag == "Y" ? true : false;
-            }
-            set
-            {
-                EnableFlag = value ? "Y" : "N";
-            }
-        }
+       
     }
 }

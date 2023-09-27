@@ -45,7 +45,6 @@
                         <th>编码</th>
                         <th>名称</th>
                         <th>类型</th>
-                        <th>所属机构</th>
                         <th>排序码</th>
                         <th>状态</th>
                         <th>备注</th>
@@ -68,19 +67,14 @@
           <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
       <td>{{item.EnCode}}</td>
       <td>{{item.Name}}</td>
-      <td>{{# if(item.Type==0){ }} 系统角色
-          {{# }else if(item.Type==1){ }} 业务角色
-          {{# }else{ }} 其他角色
-          {{# } }}
-      </td>
-      <td>{{item.DeptName}}</td>
+      <td>{{item.Type}}</td>
       <td>{{item.SortCode}}</td>
       <td>{{# if(item.IsEnabled==true){ }}  <span class="label label-success label-sm">启用</span>
           {{# }else{ }}  <span class="label label-dark label-sm">禁用</span>
           {{# } }}
       </td>
-      <td>{{# if(item.Remark==null){ }}无
-          {{# }else{ }}{{item.Remark}}
+      <td>{{# if(item.Description==null){ }}无
+            {{# }else{ }}{{item.Description}}
           {{# } }}
       </td>
   </tr>

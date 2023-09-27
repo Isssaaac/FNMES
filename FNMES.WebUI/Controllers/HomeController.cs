@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using FNMES.Entity.Enum;
 using FNMES.Entity.Sys;
-using FNMES.Logic.Sys;
 using FNMES.Utility.Files;
 using FNMES.Utility.Operator;
 using FNMES.Utility.ResponseModels;
@@ -16,6 +15,7 @@ using FNMES.Utility;
 using FNMES.Utility.Core;
 using FNMES.WebUI.Controllers;
 using CCS.WebUI;
+using FNMES.WebUI.Logic.Sys;
 
 namespace FNMES.WebUI.Controllers
 {
@@ -23,16 +23,14 @@ namespace FNMES.WebUI.Controllers
     public class HomeController : BaseController
     {
         private SysUserLogic userLogic;
-        private SysItemsDetailLogic itemDetailLogic;
         private SysUserLogOnLogic userLogOnLogic;
-        private SysPermissionLogic permissionLogic;
+        private UnitProcedureLogic permissionLogic;
 
         public HomeController()
         {
             userLogic = new SysUserLogic();
-            itemDetailLogic = new SysItemsDetailLogic();
             userLogOnLogic = new SysUserLogOnLogic();
-            permissionLogic = new SysPermissionLogic();
+            permissionLogic = new UnitProcedureLogic();
         }
 
         /// <summary>
@@ -85,7 +83,7 @@ namespace FNMES.WebUI.Controllers
             }
             else
             {
-                string userId = OperatorProvider.Instance.Current.UserId;
+                long userId = long.Parse(OperatorProvider.Instance.Current.UserId);
                 listModules = permissionLogic.GetList(userId);
             }
             foreach (var item in listModules.Where(c => c.Type == ModuleType.Menu && c.Layer == 0).ToList())
@@ -114,30 +112,7 @@ namespace FNMES.WebUI.Controllers
             {
                 return Content(permissionLogic.GetList().ToJson());
             }
-            return Content(permissionLogic.GetList(OperatorProvider.Instance.Current.UserId).ToJson());
-        }
-
-        /// <summary>
-        /// 获取用户权限信息
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        [Route("app/home/getPermission")]
-        [HttpGet]
-        public ActionResult AppGetPermission(string userId)
-        {
-            try
-            {
-                if (new SysUserLogic().ContainsUser("admin", userId))
-                {
-                    return AppSuccess<List<SysPermission>>(permissionLogic.GetList());
-                }
-                return AppSuccess<List<SysPermission>>(permissionLogic.GetList(userId));
-            }
-            catch (Exception ex)
-            {
-                return AppError(ex);
-            }
+            return Content(permissionLogic.GetList(long.Parse(OperatorProvider.Instance.Current.UserId)).ToJson());
         }
     }
 }

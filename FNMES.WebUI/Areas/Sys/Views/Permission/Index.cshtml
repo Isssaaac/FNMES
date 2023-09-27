@@ -49,7 +49,6 @@
                         <th>连接</th>
                         <th>类型</th>
                         <th>排序码</th>
-                        <th>公共</th>
                         <th>状态</th>
                         <th>备注</th>
                     </tr>
@@ -85,23 +84,21 @@
         <td>
             {{# if(item.Type==2){ }} 主菜单
             {{# }else if(item.Type==0){ }} 子菜单
-            {{# }else{ }} 按钮
+            {{# }else if(item.Type==1){ }} 按钮
+            {{# }else if(item.Type==3){ }} 程序主菜单
+            {{# }else if(item.Type==4){ }} 程序子菜单
+            {{# }else if(item.Type==5){ }} 程序按钮
             {{# } }}
         </td>
         <td>{{item.SortCode}}</td>
-        <td>
-            {{# if(item.IsPublic==true){ }}  <span class="label label-success label-sm">是</span>
-            {{# }else{ }}  <span class="label label-dark label-sm">否</span>
-            {{# } }}
-        </td>
         <td>
             {{# if(item.IsEnabled==true){ }}  <span class="label label-success label-sm">启用</span>
             {{# }else{ }}  <span class="label label-dark label-sm">禁用</span>
             {{# } }}
         </td>
         <td>
-            {{# if(item.Remark==null){ }}无
-            {{# }else{ }}{{item.Remark}}
+            {{# if(item.Description==null){ }}无
+            {{# }else{ }}{{item.Description}}
             {{# } }}
         </td>
     </tr>

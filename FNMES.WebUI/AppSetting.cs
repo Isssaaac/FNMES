@@ -1,18 +1,32 @@
-﻿using FNMES.Utility.Extension;
+﻿using FNMES.Utility.Core;
+using FNMES.Utility.Extension;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using SqlSugar;
 using System;
 using System.IO;
+using  FNMES.Utility;
 
 namespace CCS.WebUI
 {
     public static class AppSetting
     {
         public static IConfiguration Configuration { get; private set; }
-        private static Connection _connection;
+        private static MyConnectionConFig _connection;
+        private static MyConnectionConFig[] _LineConnections;
+
+        public static MyConnectionConFig sysConnection 
+        {
+            get { return _connection; } 
+        }
+        public static MyConnectionConFig[] lineConnections
+        {
+            get { return _LineConnections; }
+        }
+
 
         public static string DbConnectionString
         {
@@ -25,6 +39,8 @@ namespace CCS.WebUI
 
         public static string WebSoftwareName { get; set; }
 
+        public static int WorkId { get; set; }
+
         public static string Copyright { get; set; }
 
         public static int LogOutDateDays { get; set; }
@@ -33,15 +49,19 @@ namespace CCS.WebUI
         {
             Configuration = configuration;
             services.Configure<Secret>(configuration.GetSection("Secret"));
-            services.Configure<Connection>(configuration.GetSection("Connection"));
+            services.Configure<MyConnectionConFig>(configuration.GetSection("SysConnection"));
             var provider = services.BuildServiceProvider();
             IWebHostEnvironment environment = provider.GetRequiredService<IWebHostEnvironment>();
-            _connection = provider.GetRequiredService<IOptions<Connection>>().Value;
+            _connection = provider.GetRequiredService<IOptions<MyConnectionConFig>>().Value;
+            string s = _connection.ToJson();
+            _LineConnections =  configuration.GetSection("LineConnections").Get<MyConnectionConFig[]>();
+            s = _LineConnections.ToJson();
             MyEnvironment.Init(Path.Combine(environment.ContentRootPath, ""));
             WebSoftwareName = (configuration["WebSoftwareName"] ?? "");
             Copyright = (configuration["Copyright"] ?? "");
             LogOutDateDays = Convert.ToInt32(configuration["LogOutDateDays"] ?? "30");
             SessionTimeout = Convert.ToInt32(configuration["SessionTimeout"] ?? "20");
+            WorkId = Convert.ToInt32(configuration["WorkId"] ?? "1");
             if (string.IsNullOrEmpty(_connection.DbConnectionString))
                 throw new Exception("未配置好数据库默认连接");
         }
@@ -56,10 +76,5 @@ namespace CCS.WebUI
             return Configuration.GetSection(key);
         }
     }
-
-    public class Connection
-    {
-        public string DBType { get; set; }
-        public string DbConnectionString { get; set; }
-    }
+   
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServiceStack;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -122,28 +123,30 @@ namespace FNMES.Utility.Core
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
-        public static DateTime StartDateTime(this DateTime dateTime)
+        public static DateTime StartDateTime(this DateTime? dateTime)
         {
-            if (dateTime == null)
+            if (!dateTime.HasValue)
             {
                 throw new ArgumentNullException();
             }
 
-            return new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 0, 0, 0);
+            DateTime nonNullableDateTime = dateTime.Value;
+            return new DateTime(nonNullableDateTime.Year, nonNullableDateTime.Month, nonNullableDateTime.Day, 0, 0, 0);
         }
         /// <summary>
         ///  返回指定日期结束时间。
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
-        public static DateTime EndDateTime(this DateTime dateTime)
+        public static DateTime EndDateTime(this DateTime? dateTime)
         {
-            if (dateTime == null)
+            if (!dateTime.HasValue)
             {
                 throw new ArgumentNullException();
             }
 
-            return new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 23, 59, 59);
+            DateTime nonNullableDateTime = dateTime.Value;
+            return new DateTime(nonNullableDateTime.Year, nonNullableDateTime.Month, nonNullableDateTime.Day, 23, 59, 59);
         }
 
 

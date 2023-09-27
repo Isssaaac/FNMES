@@ -1,60 +1,80 @@
-﻿using SqlSugar;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using SqlSugar;
 namespace FNMES.Entity.Sys
 {
+    /// <summary>
+    /// 
+    ///</summary>
     [SugarTable("Sys_UserLogOn")]
-    public partial class SysUserLogOn : BaseModelEntity
+    public class SysUserLogOn
     {
-        [SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
-        public string Id { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
+        [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]
+         public long Id { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
+        [SugarColumn(ColumnName="userId"    )]
+         public long UserId { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+         [SugarColumn(ColumnName="password"    )]
+         public string Password { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+         [SugarColumn(ColumnName="secretKey"    )]
+         public string SecretKey { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+         [SugarColumn(ColumnName="prevVisitTime"    )]
+         public DateTime? PrevVisitTime { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+         [SugarColumn(ColumnName="lastVisitTime"    )]
+         public DateTime? LastVisitTime { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+         [SugarColumn(ColumnName="changePwdTime"    )]
+         public DateTime? ChangePwdTime { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+         [SugarColumn(ColumnName="loginCount"    )]
+         public int? LoginCount { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+         [SugarColumn(ColumnName="allowMultiUserOnline"    )]
+         public string AllowMultiUserOnline { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+         [SugarColumn(ColumnName="isOnLine"    )]
+         public string IsOnLine { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+         [SugarColumn(ColumnName="theme"    )]
+         public string Theme { get; set; }
 
-        [SugarColumn(ColumnName = "UserId")]
-        public string UserId { get; set; }
-
-        [SugarColumn(ColumnName = "Password")]
-        public string Password { get; set; }
-
-        [SugarColumn(ColumnName = "SecretKey")]
-        public string SecretKey { get; set; }
-
-        [SugarColumn(ColumnName = "PrevVisitTime")]
-        public DateTime? PrevVisitTime { get; set; }
-
-        [SugarColumn(ColumnName = "LastVisitTime")]
-        public DateTime? LastVisitTime { get; set; }
-
-        [SugarColumn(ColumnName = "ChangePwdTime")]
-        public DateTime? ChangePwdTime { get; set; }
-
-        [SugarColumn(ColumnName = "LoginCount")]
-        public int LoginCount { get; set; }
-
-        [SugarColumn(ColumnName = "AllowMultiUserOnline")]
-        public string AllowMultiUserOnline { get; set; }
-
-
-        [SugarColumn(ColumnName = "IsOnLine")]
-        public string IsOnLine { get; set; }
-
-        [SugarColumn(ColumnName = "Question")]
-        public string Question { get; set; }
-
-        [SugarColumn(ColumnName = "AnswerQuestion")]
-        public string AnswerQuestion { get; set; }
-
-        [SugarColumn(ColumnName = "CheckIPAddress")]
-        public string CheckIPAddress { get; set; }
-
-        [SugarColumn(ColumnName = "Language")]
-        public string Language { get; set; }
-
-        [SugarColumn(ColumnName = "Theme")]
-        public string Theme { get; set; }
-
+        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
+        [SugarColumn(ColumnName = "modifyUser")]
+        public long ModifyUserId { get; set; }
+        /// <summary>
+        /// 修改时间 
+        ///</summary>
+        [SugarColumn(ColumnName = "modifyTime")]
+        public DateTime? ModifyTime { get; set; }
     }
 }

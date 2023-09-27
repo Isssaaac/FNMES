@@ -1,7 +1,6 @@
-﻿using FNMES.Logic;
-using FNMES.Logic.Sys;
-using FNMES.Utility.Logs;
+﻿using FNMES.Utility.Logs;
 using FNMES.WebUI.Filters;
+using FNMES.WebUI.Logic;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using System;

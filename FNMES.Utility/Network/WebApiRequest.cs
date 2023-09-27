@@ -64,16 +64,16 @@ namespace FNMES.Utility.Network
 
     public class RetMessage<T>
     {
-        public RetCode code { get; set; }
+        public string messageType { get; set; }
         public string message { get; set; }
         public T data { get; set; }
 
     }
 
 
-    public enum RetCode
+    public class RetCode
     {
-        success = 1,
-        error = 2
+        public const string success = "S";
+        public const string error = "E";
     }
 }

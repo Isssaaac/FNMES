@@ -65,9 +65,9 @@ namespace FNMES.WebUI.Controllers
             return AppResult<T>(RetCode.error, message, data);
         }
 
-        protected ActionResult AppResult<T>(RetCode code, string message, T data)
+        protected ActionResult AppResult<T>(string code, string message, T data)
         {
-            return Content(new RetMessage<T> { code = code, message = message, data = data }.ToJson());
+            return Content(new RetMessage<T> { messageType = code, message = message, data = data }.ToJson());
         }
         #endregion
     }

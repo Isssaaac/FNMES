@@ -2,7 +2,6 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using FNMES.WebUI.Filters;
-using FNMES.Logic.Sys;
 using FNMES.Entity.Sys;
 using FNMES.Utility.ResponseModels;
 using FNMES.Utility.Core;
@@ -10,8 +9,9 @@ using FNMES.Utility.Operator;
 using FNMES.WebUI.Controllers;
 using System.Collections.Generic;
 using FNMES.Utility.Security;
-using FNMES.Logic;
-using FNMES.Entity.DTO.Parms;
+using System.Diagnostics;
+using FNMES.WebUI.Logic.Sys;
+using FNMES.WebUI.Logic;
 
 namespace MES.WebUI.Areas.Sys.Controllers
 {
@@ -68,21 +68,19 @@ namespace MES.WebUI.Areas.Sys.Controllers
         [HttpPost, AuthorizeChecked]
         public ActionResult Form(SysUser model)
         {
-            if (model.Id.IsNullOrEmpty())
+            
+            
+            if (model.Id==0)
             {
                 DateTime defaultDt = DateTime.Today;
-                DateTime.TryParse(model.StrBirthday + " 00:00:00", out defaultDt);
-                model.Birthday = defaultDt;
-                int row = userLogic.Insert(model, model.password, OperatorProvider.Instance.Current.UserId, model.roleIds.SplitToList().ToArray());
+                int row = userLogic.Insert(model, model.password, long.Parse(OperatorProvider.Instance.Current.UserId), model.roleIds.SplitToList().ToArray());
                 return row > 0 ? Success() : Error();
             }
             else
             {
                 DateTime defaultDt = DateTime.Today;
-                DateTime.TryParse(model.StrBirthday + " 00:00:00", out defaultDt);
-                model.Birthday = defaultDt;
                 //更新用户基本信息。
-                int row = userLogic.UpdateAndSetRole(model, OperatorProvider.Instance.Current.UserId, model.roleIds.SplitToList().ToArray());
+                int row = userLogic.UpdateAndSetRole(model, long.Parse(OperatorProvider.Instance.Current.UserId), model.roleIds.SplitToList().Select(it => long.Parse(it)).ToArray());
                 //更新用户角色信息。
                 return row > 0 ? Success() : Error();
             }
@@ -104,10 +102,10 @@ namespace MES.WebUI.Areas.Sys.Controllers
         [HttpPost, LoginChecked]
         public ActionResult GetForm(string primaryKey)
         {
-            SysUser entity = userLogic.Get(primaryKey);
-            entity.StrBirthday = entity.Birthday.Value.ToString("yyyy-MM-dd");
-            entity.RoleId = userRoleRelationLogic.GetList(entity.Id).Select(c => c.RoleId).ToList();
-
+            SysUser entity = userLogic.Get(long.Parse(primaryKey));
+            entity.RoleId = userRoleRelationLogic.GetList(entity.Id).Select(c => c.RoleId.ToString()).ToList();
+            entity.roleIds = string.Join(",", entity.RoleId);
+            Logger.RunningInfo("获取用户表单成功");
             return Content(entity.ToJson());
         }
 
@@ -125,14 +123,16 @@ namespace MES.WebUI.Areas.Sys.Controllers
             {
                 return Error("系统管理员用户不能删除");
             }
-            if (userIdList.Contains(OperatorProvider.Instance.Current.UserId))
+            if (userIdList.Contains(OperatorProvider.Instance.Current.UserId.ToString()))
             {
                 return Error("不能删除自己");
             }
             //多用户删除。
-            int row = userLogic.Delete(userIdList);
-            userRoleRelationLogic.Delete(userIdList);
-            userLogOnLogic.Delete(userIdList);
+            List<long> users = userIdList.Select(it => long.Parse(it)).ToList(); 
+            int row = userLogic.Delete(users);
+            userRoleRelationLogic.Delete(users);
+            userLogOnLogic.Delete(users);
+            Logger.RunningInfo("删除用户表单成功");
             return row > 0 ? Success() : Error();
         } 
 
@@ -153,103 +153,11 @@ namespace MES.WebUI.Areas.Sys.Controllers
         public ActionResult Reset(string primaryKey)
         {
             //根据用户Id得到用户SecurityKey
-            SysUserLogOn sysUserLogOn = userLogOnLogic.GetByAccount(primaryKey);
+            SysUserLogOn sysUserLogOn = userLogOnLogic.GetByAccount(long.Parse(primaryKey));
             sysUserLogOn.Password = "123456".MD5Encrypt().DESEncrypt(sysUserLogOn.SecretKey).MD5Encrypt();
             int row = userLogOnLogic.UpdatePassword(sysUserLogOn);
             return row > 0 ? Success() : Error();
         }
-
-
-        /// <summary>
-        /// 用户管理主界面数据
-        /// </summary>
-        /// <param name="parms"></param>
-        /// <returns></returns>
-        [HttpPost, Route("app/system/user/index")]
-        public ActionResult AppIndex([FromBody] SearchParms parms)
-        {
-            int totalCount = 0;
-            var pageData = userLogic.GetList(parms.pageIndex, parms.pageSize, parms.keyWord, ref totalCount);
-            var result = new LayPadding<SysUser>()
-            {
-                result = true,
-                msg = "success",
-                list = pageData,
-                count = totalCount//pageData.Count
-            };
-            return AppSuccess<LayPadding<SysUser>>(result);
-        }
-
-        /// <summary>
-        /// 新增/修改用户数据提交
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPost, Route("app/system/user/form")]
-        public ActionResult AppForm([FromBody] SysUser model)
-        {
-            if (model.Id.IsNullOrEmpty())
-            {
-                var userEntity = userLogic.GetByUserName(model.Account);
-                if (userEntity != null)
-                {
-                    return AppError("已存在当前用户名，请重新输入");
-                }
-                DateTime defaultDt = DateTime.Today;
-                DateTime.TryParse(model.StrBirthday + " 00:00:00", out defaultDt);
-                model.Birthday = defaultDt;
-                int row = userLogic.AppInsert(model, model.password, model.roleIds.SplitToList().ToArray(), model.CreateUserId);
-                return row > 0 ? AppSuccess() : AppError();
-            }
-            else
-            {
-                DateTime defaultDt = DateTime.Today;
-                DateTime.TryParse(model.StrBirthday + " 00:00:00", out defaultDt);
-                model.Birthday = defaultDt;
-                //更新用户基本信息。
-                int row = userLogic.AppUpdateAndSetRole(model, model.roleIds.SplitToList().ToArray(), model.ModifyUserId);
-                //更新用户角色信息。
-                return row > 0 ? AppSuccess() : AppError();
-            }
-        }
-
-        /// <summary>
-        /// 通过userId获取用户信息
-        /// </summary>
-        /// <param name="parms"></param>
-        /// <returns></returns>
-        [HttpPost, Route("app/system/user/getForm")]
-        public ActionResult AppGetForm([FromBody] StrPrimaryKeyParms parms)
-        {
-            SysUser entity = userLogic.Get(parms.primaryKey);
-            entity.StrBirthday = entity.Birthday.Value.ToString("yyyy-MM-dd");
-            entity.RoleId = userRoleRelationLogic.GetList(entity.Id).Select(c => c.RoleId).ToList();
-            return AppSuccess<SysUser>(entity);
-        }
-
-        /// <summary>
-        /// 删除用户
-        /// </summary>
-        /// <param name="parms"></param>
-        /// <returns></returns>
-        [HttpPost, Route("app/system/user/delete")]
-        public ActionResult AppDelete([FromBody]UserDeleteParms parms)
-        {
-            //过滤系统管理员
-            if (userLogic.ContainsUser("admin", parms.userIdList.ToArray()))
-            {
-                return AppError("系统管理员用户不能删除");
-            }
-            if (parms.userIdList.Contains(parms.currentUserId))
-            {
-                return AppError("不能删除自己");
-            }
-            //多用户删除。
-            int row = userLogic.Delete(parms.userIdList);
-            userRoleRelationLogic.Delete(parms.userIdList);
-            userLogOnLogic.Delete(parms.userIdList);
-            Logger.OperateInfo($"用户{parms.operateUser}删除了用户");
-            return row > 0 ? AppSuccess() : AppError();
-        } 
+              
     }
 }

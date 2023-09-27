@@ -1,26 +1,43 @@
-﻿using SqlSugar;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using SqlSugar;
 namespace FNMES.Entity.Sys
 {
-
+    /// <summary>
+    /// 
+    ///</summary>
     [SugarTable("Sys_UserRoleRelation")]
-    public partial class SysUserRoleRelation : BaseModelEntity
+    public class SysUserRoleRelation
     {
-
-        [SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
-        public string Id { get; set; }
-
-        [SugarColumn(ColumnName = "UserId")]
-        public string UserId { get; set; }
-
-
-        [SugarColumn(ColumnName = "RoleId")]
-        public string RoleId { get; set; } 
-
+        /// <summary>
+        ///  
+        ///</summary>
+        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
+        [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]
+         public long Id { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
+        [SugarColumn(ColumnName="userId"    )]
+         public long UserId { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
+        [SugarColumn(ColumnName="roleId"    )]
+         public long RoleId { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
+        [SugarColumn(ColumnName="createUser"    )]
+         public long CreateUser { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+         [SugarColumn(ColumnName="createTime"    )]
+         public DateTime? CreateTime { get; set; }
     }
 }

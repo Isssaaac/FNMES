@@ -1,9 +1,9 @@
 ﻿using FNMES.Entity.Sys;
-using FNMES.Logic.Sys;
 using FNMES.Utility.Core;
 using FNMES.Utility.Extension;
 using FNMES.Utility.Operator;
 using FNMES.WebUI.Filters;
+using FNMES.WebUI.Logic.Sys;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -44,7 +44,7 @@ namespace FNMES.WebUI.Controllers
         [HttpGet, Route("theme"), LoginChecked]
         public ActionResult Theme()
         {
-            string userId = OperatorProvider.Instance.Current.UserId;
+            long userId = long.Parse(OperatorProvider.Instance.Current.UserId);
             SysUserLogOn userLogOn = new SysUserLogOnLogic().GetByAccount(userId);
             ViewBag.Theme = userLogOn.Theme;
             return View();
@@ -60,7 +60,7 @@ namespace FNMES.WebUI.Controllers
         public ActionResult Theme(string theme)
         {
             Operator user = OperatorProvider.Instance.Current;
-            SysUserLogOn userLogOn = new SysUserLogOnLogic().GetByAccount(user.UserId);
+            SysUserLogOn userLogOn = new SysUserLogOnLogic().GetByAccount(long.Parse(user.UserId));
             userLogOn.Theme = theme;
             int row = new SysUserLogOnLogic().UpdateTheme(userLogOn);
             if (row > 0)

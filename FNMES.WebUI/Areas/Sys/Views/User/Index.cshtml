@@ -37,15 +37,13 @@
                 </div>
             </div>
             <table id="gridList" class="layui-form layui-table table-hover FNMES-table" lay-skin="line">
+
                 <thead>
                     <tr>
                         <th>
                             <input type="checkbox" lay-skin="primary"></th>
                         <th>账号</th>
                         <th>姓名</th>
-                        <th>性别</th>
-                        <th>手机</th>
-                        <th>部门</th>
                         <th>状态</th>
                     </tr>
                 </thead>
@@ -64,14 +62,8 @@
   <tr>
       <td>
           <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
-      <td>{{item.Account}}</td>
-      <td>{{item.RealName}}</td>
-      <td>{{# if(item.Gender==true){ }} 男
-          {{# }else{ }}  女
-          {{# } }}
-      </td>
-      <td>{{item.MobilePhone}}</td>
-        <td>{{item.DeptName}}</td>
+        <td>{{item.UserNo}}</td>
+      <td>{{item.Name}}</td>
       <td>{{# if(item.IsEnabled==true){ }}  <span class="label label-success label-sm">启用</span>
           {{# }else{ }}  <span class="label label-dark label-sm">禁用</span>
           {{# } }}

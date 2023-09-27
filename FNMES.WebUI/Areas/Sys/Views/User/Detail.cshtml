@@ -39,7 +39,7 @@
                 <label class="layui-form-label">账号</label>
                 <div class="layui-input-inline">
                     <input type="hidden" name="Id" disabled />
-                    <input type="text" name="Account" id="Account" autocomplete="off" class="layui-input" disabled />
+                    <input type="text" name="UserNo" id="Account" autocomplete="off" class="layui-input" disabled />
                 </div>
             </div>
             <div class="layui-inline">
@@ -52,70 +52,20 @@
         </div>
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label">昵称</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="NickName" autocomplete="off" class="layui-input" disabled />
-                </div>
-            </div>
-            <div class="layui-inline">
                 <label class="layui-form-label">姓名</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="RealName" autocomplete="off" class="layui-input" disabled />
+                    <input type="text" name="Name" autocomplete="off" class="layui-input" disabled />
                 </div>
             </div>
 
         </div>
 
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label">出生日期</label>
-                <div class="layui-input-inline">
-                    <input class="layui-input" id="StrBirthday" name="StrBirthday" disabled />
-                </div>
-            </div>
-            <div class="layui-inline">
-                <label class="layui-form-label">性别</label>
-                <div class="layui-input-inline">
-                    <input type="radio" name="Gender" value="1" title="男" checked disabled />
-                    <input type="radio" name="Gender" value="0" title="女" disabled />
-                </div>
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label">邮箱</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="Email" autocomplete="off" class="layui-input" disabled />
-                </div>
-            </div>
-            <div class="layui-inline">
-                <label class="layui-form-label">所属机构</label>
-                <div class="layui-input-inline">
-                    <select lay-ignore name="DepartmentId" id="DepartmentId" style="width: 190px" class="select2" disabled>
-                    </select>
-                </div>
-            </div>
-        </div>
         <div class="layui-form-item">
             <div class="layui-inline">
                 <label class="layui-form-label">角色属性</label>
                 <div class="layui-input-inline">
                     <select lay-ignore name="RoleId" class="select2" id="RoleId" multiple="multiple" style="width: 514px;" disabled>
                     </select>
-                </div>
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label">移动电话</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="MobilePhone" autocomplete="off" class="layui-input" disabled />
-                </div>
-            </div>
-            <div class="layui-inline">
-                <label class="layui-form-label">联系地址</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="Address" autocomplete="off" class="layui-input" disabled />
                 </div>
             </div>
         </div>
@@ -138,7 +88,7 @@
             <div class="layui-inline">
                 <label class="layui-form-label">个性签名</label>
                 <div class="layui-input-inline" style="width: 514px;">
-                    <textarea name="Signature" class="layui-textarea" disabled placeholder="这位同学很懒，木有签名的说～"></textarea>
+                    <textarea name="Description" class="layui-textarea" disabled placeholder="这位同学很懒，木有签名的说～"></textarea>
                 </div>
             </div>
         </div>
@@ -177,13 +127,9 @@
             var element = layui.element;
             var laydate = layui.laydate;
             laydate.render({
-                elem: "#StrBirthday"
+                
             });
 
-            $("#DepartmentId").bindSelect({
-                type: "GET",
-                url: "/system/organize/getListTreeSelect"
-            });
 
             $("#RoleId").bindSelect({
                 type: "POST",

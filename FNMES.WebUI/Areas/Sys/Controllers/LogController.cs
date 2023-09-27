@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 using FNMES.WebUI.Filters;
-using FNMES.Logic.Sys;
 using FNMES.Entity.Sys;
 using FNMES.Utility.ResponseModels;
 using FNMES.Utility.Core;
@@ -10,7 +9,7 @@ using FNMES.Utility.Extension;
 using FNMES.Utility.Other;
 using FNMES.Utility.Files;
 using System.IO;
-using FNMES.Entity.DTO.Parms;
+using FNMES.WebUI.Logic.Sys;
 
 namespace FNMES.WebUI.Areas.Sys.Controllers
 {
@@ -141,86 +140,6 @@ namespace FNMES.WebUI.Areas.Sys.Controllers
             return Success();
         }
 
-        /// <summary>
-        /// 根据keyWord获取日志信息
-        /// </summary>
-        /// <param name="parms"></param>
-        /// <returns></returns>
-        [HttpPost, Route("app/system/log/index")]
-        public ActionResult AppIndex([FromBody] LogIndexParms parms)
-        {
-            int totalCount = 0;
-            var pageData = logic.GetList(parms.pageIndex, parms.pageSize, parms.type, parms.index, parms.keyWord, ref totalCount);
-            var result = new LayPadding<SysLog>()
-            {
-                result = true,
-                msg = "success",
-                list = pageData,
-                count = totalCount//pageData.Count
-            };
-            return AppSuccess<LayPadding<SysLog>>(result);
-        }
-        /// <summary>
-        /// 根据选择的删除方法执行删除
-        /// </summary>
-        /// <param name="parms"></param>
-        /// <returns></returns>
-        [HttpPost, Route("app/system/log/delete")]
-        public ActionResult AppDelete([FromBody] LogDeleteParms parms)
-        {
-            logic.Delete(parms.type, parms.index);
-            return AppSuccess();
-        }
-
-        /// <summary>
-        /// 导出日志文件
-        /// </summary>
-        /// <param name="parms"></param>
-        /// <returns></returns>
-        [HttpPost, Route("app/system/log/export")]
-        public ActionResult AppExport([FromBody] LogIndexParms parms)
-        {
-            string filePath = MyEnvironment.RootPath(UUID.StrSnowId + ".zip");
-            string basePath = string.Empty;
-            string fileDownloadName = string.Empty;
-            //读取配置文件，得到三个日志文件夹
-            if (parms.type == "Error")
-            {
-                basePath = "Log/Error/";
-                //basePath = GlobalValue.Config.LogBasePath + GlobalValue.Config.ErrorLogPath;
-                fileDownloadName = "ErrorLog.zip";
-            }
-            else if (parms.type == "Operate")
-            {
-                basePath = "Log/Operate/";
-                //basePath = GlobalValue.Config.LogBasePath + GlobalValue.Config.OperateLogPath;
-                fileDownloadName = "OperateLog.zip";
-            }
-            else
-            {
-                basePath = "Log/Info/";
-                //basePath = GlobalValue.Config.LogBasePath + GlobalValue.Config.InfoLogPath;
-                fileDownloadName = "InfoLog.zip";
-            }
-            string baseDirPath = MyEnvironment.RootPath(basePath);
-            if (!Directory.Exists(baseDirPath))
-            {
-                return AppError("日志文件夹不存在");
-            }
-            try
-            {
-                //压缩
-                ZipHelper.PackFiles(filePath, baseDirPath);
-                byte[] bytes = FileUtil.FileToBytes(filePath);
-                FileUtil.Delete(filePath);
-                //return File(bytes, "application/zip", fileDownloadName);
-                return AppSuccess<byte[]>(bytes);
-            }
-            catch
-            {
-                return AppError("删除失败");
-            }
-        }
 
     }
 }

@@ -1,55 +1,44 @@
-﻿using SqlSugar;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using SqlSugar;
 namespace FNMES.Entity.Sys
 {
+    /// <summary>
+    /// 
+    ///</summary>
     [SugarTable("Sys_Role")]
-    public partial class SysRole : BaseModelEntity
+    public class SysRole : BaseModelEntity
     {
-        [SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
-        public string Id { get; set; }
-
-        [SugarColumn(ColumnName = "OrganizeId")]
-        public string OrganizeId { get; set; }
-
-        [SugarColumn(ColumnName = "EnCode")]
+        /// <summary>
+        /// 主键 
+        ///</summary>
+        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
+        [SugarColumn(ColumnName = "id", IsPrimaryKey = true)]
+        public long Id { get; set; }
+        /// <summary>
+        /// 编号 
+        ///</summary>
+        [SugarColumn(ColumnName = "enCode")]
         public string EnCode { get; set; }
-
-        [SugarColumn(ColumnName = "Type")]
+        /// <summary>
+        /// 数字索引 
+        ///</summary>
+        [SugarColumn(ColumnName = "type")]
         public int? Type { get; set; }
-
-        [SugarColumn(ColumnName = "Name")]
+        /// <summary>
+        /// 名称 
+        ///</summary>
+        [SugarColumn(ColumnName = "name")]
         public string Name { get; set; }
-
-
-        [SugarColumn(ColumnName = "AllowEdit")]
+        /// <summary>
+        /// 是否可编辑 
+        ///</summary>
+        [SugarColumn(ColumnName = "allowEdit")]
         public string AllowEdit { get; set; }
+        /// <summary>
+        /// 是否启用 
+        ///</summary>
 
-
-        [SugarColumn(ColumnName = "Remark")]
-        public string Remark { get; set; }
-
-        [SugarColumn(ColumnName = "SortCode")]
-        public int? SortCode { get; set; }
-
-
-        [Navigate(NavigateType.OneToOne, nameof(OrganizeId), nameof(SysOrganize.Id))]
-        public SysOrganize Organize { get; set; }
-
-
-        [SugarColumn(IsIgnore = true)]
-        public string DeptName
-        {
-            get
-            {
-                if (Organize == null)
-                    return "";
-                return Organize.FullName;
-            }
-        }
     }
 }

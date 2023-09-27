@@ -1,5 +1,6 @@
 ﻿#if !NETFRAMEWORK
 using Microsoft.Extensions.DependencyInjection;
+using ServiceStack.DataAnnotations;
 using SqlSugar;
 using System;
 using System.Collections.Generic;
@@ -8,11 +9,22 @@ namespace FNMES.Utility.MiddleWare
 {
     public static class SqlsugarExtension
     {
-        public static void AddSqlsugarServer(this IServiceCollection services, string type, string connectionString)
+        public static void AddSqlsugarServer(this IServiceCollection services,MyConnectionConFig connectionFig)
         {
             DbType dbType;
             var slavaConFig = new List<SlaveConnectionConfig>();
-            switch (type.ToUpper())
+           
+            foreach(var item in connectionFig.SlaveConnections)
+            {
+                slavaConFig.Add(
+                new SlaveConnectionConfig()
+                {
+                    HitRate = int.Parse(item.HitRate),
+                    ConnectionString = item.ConnectionString
+                });
+            }
+
+            switch (connectionFig.DBType.ToUpper())
             {
                 case "MYSQL": dbType = DbType.MySql; break;
                 case "SQLITE": dbType = DbType.Sqlite; break;
@@ -24,8 +36,9 @@ namespace FNMES.Utility.MiddleWare
             SqlSugarScope sqlSugar = new SqlSugarScope(new ConnectionConfig()
             {
                 //准备添加分表分库
+                ConfigId= connectionFig.ConfigId,
                 DbType = dbType,
-                ConnectionString = connectionString,
+                ConnectionString = connectionFig.DbConnectionString,
                 IsAutoCloseConnection = true,
                 MoreSettings = new ConnMoreSettings()
                 {

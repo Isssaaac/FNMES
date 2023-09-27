@@ -1,5 +1,4 @@
 ﻿using FNMES.WebUI.Filters;
-using FNMES.Logic.Sys;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,9 +11,9 @@ using FNMES.Utility.Files;
 using FNMES.Utility.Security;
 using FNMES.Utility.Web;
 using FNMES.Utility.Other;
-using FNMES.Logic;
-using FNMES.Entity.DTO.Parms;
 using CCS.WebUI;
+using FNMES.WebUI.Logic.Sys;
+using FNMES.WebUI.Logic;
 
 namespace FNMES.WebUI.Controllers
 {
@@ -106,18 +105,9 @@ namespace FNMES.WebUI.Controllers
             else
             {
                 Operator operatorModel = new Operator();
-                operatorModel.UserId = userEntity.Id;
-                operatorModel.Account = userEntity.Account;
-                operatorModel.NickName = userEntity.NickName;
-                operatorModel.RealName = userEntity.RealName;
-                operatorModel.Avatar = userEntity.Avatar;
-                //判断头像是否存在，不存在就使用默认头像
-                if (!System.IO.File.Exists(MyEnvironment.WebRootPath(userEntity.Avatar)))
-                {
-                    operatorModel.Avatar = "/Content/framework/images/avatar.png";
-                }
-                operatorModel.CompanyId = userEntity.CompanyId;
-                operatorModel.DepartmentId = userEntity.DepartmentId;
+                operatorModel.UserId = userEntity.Id.ToString();
+                operatorModel.Account = userEntity.UserNo;
+                operatorModel.Name = userEntity.Name;
                 operatorModel.LoginTime = DateTime.Now;
                 operatorModel.Token = UUID.StrSnowId.DESEncrypt();
                 operatorModel.Theme = userLogOnEntity.Theme;
@@ -181,13 +171,8 @@ namespace FNMES.WebUI.Controllers
             {
                 //重新保存用户信息。
                 Operator operatorModel = new Operator();
-                operatorModel.UserId = userEntity.Id;
-                operatorModel.Account = userEntity.Account;
-                operatorModel.NickName = userEntity.NickName;
-                operatorModel.RealName = userEntity.RealName;
-                operatorModel.Avatar = userEntity.Avatar;
-                operatorModel.CompanyId = userEntity.CompanyId;
-                operatorModel.DepartmentId = operatorModel.DepartmentId;
+                operatorModel.UserId = userEntity.Id.ToString();
+                operatorModel.Account = userEntity.UserNo;
                 operatorModel.LoginTime = DateTime.Now;
                 operatorModel.Token = UUID.StrSnowId.DESEncrypt();
                 operatorModel.Theme = userLogOnEntity.Theme;
@@ -217,14 +202,11 @@ namespace FNMES.WebUI.Controllers
         public ActionResult InfoCard(SysUser model)
         {
             DateTime defaultDt = DateTime.Today;
-            DateTime.TryParse(model.StrBirthday, out defaultDt);
-            model.Birthday = defaultDt;
-            int row = userlogic.UpdateBasicInfo(model, OperatorProvider.Instance.Current.UserId);
+            int row = userlogic.UpdateBasicInfo(model, long.Parse(OperatorProvider.Instance.Current.UserId));
             if (row > 0)
             {
                 //保存完头像，立刻生效
                 Operator current = OperatorProvider.Instance.Current;
-                current.Avatar = model.Avatar;
                 OperatorProvider.Instance.Current = current;
                 return Success();
             }
@@ -236,9 +218,8 @@ namespace FNMES.WebUI.Controllers
         [HttpPost, LoginChecked]
         public ActionResult GetInfoCardForm()
         {
-            string userId = OperatorProvider.Instance.Current.UserId;
+            long userId = long.Parse(OperatorProvider.Instance.Current.UserId);
             SysUser userEntity = userlogic.Get(userId);
-            userEntity.StrBirthday = userEntity.Birthday.Value.ToString("yyyy-MM-dd");
             var userLogOnEntity = userLogOnLogic.GetByAccount(userId);
             return Content(new { User = userEntity, UserLogOn = userLogOnEntity }.ToJson());
         }
@@ -329,7 +310,7 @@ namespace FNMES.WebUI.Controllers
             {
                 return Warning("两次密码输入不一致，请重新确认。");
             }
-            string userId = OperatorProvider.Instance.Current.UserId;
+            long userId = long.Parse(OperatorProvider.Instance.Current.UserId);
             var userLoginEntity = userLogOnLogic.GetByAccount(userId);
             if (oldPassword.DESEncrypt(userLoginEntity.SecretKey).MD5Encrypt() != userLoginEntity.Password)
             {
@@ -340,155 +321,5 @@ namespace FNMES.WebUI.Controllers
             return isSuccess > 0 ? Success() : Error();
         }
 
-
-
-        /// <summary>
-        /// 系统登录
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        [HttpPost, Route("app/account/login")]
-        public ActionResult AppLogin([FromBody] UserLoginParms user)// string userName, string password)
-        {
-            if (user.userName.IsNullOrEmpty() || user.password.IsNullOrEmpty())
-            {
-                return AppError("请求失败，缺少必要参数。");
-            }
-            user.password = user.password.MD5Encrypt();
-            var userEntity = userlogic.GetByUserName(user.userName);
-            if (userEntity == null)
-            {
-                return AppError("该账户不存在，请重新输入。");
-            }
-            if (!userEntity.IsEnabled)
-            {
-                return AppError("该账户已被禁用，请联系管理员。");
-            }
-            var userLogOnEntity = userLogOnLogic.GetByAccount(userEntity.Id);
-            string inputPassword = user.password.DESEncrypt(userLogOnEntity.SecretKey).MD5Encrypt();
-            if (inputPassword != userLogOnEntity.Password)
-            {
-                return AppError("密码错误，请重新输入。");
-            }
-            else
-            {
-                userLogOnLogic.UpdateLogin(userLogOnEntity);
-                return AppSuccess("恭喜你，操作成功", userEntity);
-            }
-        }
-
-        /// <summary>
-        /// 获取用户信息
-        /// </summary>
-        /// <param name="parms"></param>
-        /// <returns></returns>
-        [HttpPost, Route("app/account/getUserInfo")]
-        public ActionResult GetUserInfo([FromBody] StrPrimaryKeyParms parms)
-        {
-            try
-            {
-                SysUser userEntity = userlogic.Get(parms.primaryKey);
-                return AppSuccess<SysUser>(userEntity);
-            }
-            catch (Exception ex)
-            {
-                return AppError(ex.Message);
-            }
-        }
-
-
-        /// <summary>
-        /// 更新用户基础资料。
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPost, Route("app/account/infocard")]
-        public ActionResult AppInfoCard([FromBody] SysUser model)
-        {
-            DateTime defaultDt = DateTime.Today;
-            DateTime.TryParse(model.StrBirthday, out defaultDt);
-            model.Birthday = defaultDt;
-            int row = userlogic.AppUpdateBasicInfo(model);
-            return row > 0 ? AppSuccess() : AppError();
-        }
-
-        ///// <summary>
-        ///// 上传图片
-        ///// </summary>
-        ///// <returns></returns>
-        //[Route("account/uploadImage")]
-        //[HttpPost]
-        //public ActionResult UploadImage()
-        //{
-        //    if (!Request.Content.IsMimeMultipartContent())
-        //    {
-        //        throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
-        //    }
-        //    string path = MyEnvironment.WebRootPath("/Uploads/Avatar/");
-        //    var provider = new WithExtensionMultipartFormDataStreamProvider(path, UUID.StrSnowId);
-        //    var fileData = Request.Content.ReadAsMultipartAsync(provider).Result;
-        //    if (fileData.FileData.Count == 0)
-        //    {
-        //        return Error();
-        //    }
-        //    var file = fileData.FileData[0];
-        //    string virtualPath = "/Uploads/Avatar/" + Path.GetFileName(file.LocalFileName);
-        //    return Success("上传成功", virtualPath);
-        //}
-
-
-        /// <summary>
-        /// 上传图片
-        /// </summary>
-        /// <returns></returns> 
-        [HttpPost, Route("account/uploadImage")]
-        public ActionResult UploadImage([FromBody] FileUploadParms parms)
-        {
-            try
-            {
-                string ext = Path.GetExtension(parms.fileName);
-                string virtualPath = $"/Uploads/Avatar/{UUID.StrSnowId}{ext}";
-                string fileName = MyEnvironment.WebRootPath(virtualPath);
-                using (FileStream stream = new FileStream(fileName, FileMode.CreateNew))
-                {
-                    stream.Write(parms.file, 0, parms.file.Length);
-                }
-                return AppSuccess<string>(virtualPath);
-            }
-            catch (Exception ex)
-            {
-                return AppError(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// 修改密码
-        /// </summary>
-        /// <param name="parms"></param>
-        /// <returns></returns>
-        [HttpPost, Route("app/account/modifyPwd")]
-        public ActionResult AppModifyPwd([FromBody] ModifyPasswordParms parms)
-        {
-            if (parms.oldPassword.IsNullOrEmpty() || parms.newPassword.IsNullOrEmpty() || parms.confirmPassword.IsNullOrEmpty())
-            {
-                return AppError("请求失败，缺少必要参数。");
-            }
-            if (!parms.newPassword.Equals(parms.confirmPassword))
-            {
-                return AppError("两次密码输入不一致，请重新确认。");
-            }
-            parms.oldPassword = parms.oldPassword.MD5Encrypt();
-            parms.newPassword = parms.newPassword.MD5Encrypt();
-            parms.confirmPassword = parms.confirmPassword.MD5Encrypt();
-
-            var userLoginEntity = userLogOnLogic.GetByAccount(parms.userId);
-            if (parms.oldPassword.DESEncrypt(userLoginEntity.SecretKey).MD5Encrypt() != userLoginEntity.Password)
-            {
-                return AppError("旧密码验证失败。");
-            }
-            userLoginEntity.Password = parms.newPassword.DESEncrypt(userLoginEntity.SecretKey).MD5Encrypt();
-            int isSuccess = userLogOnLogic.ModifyPwd(userLoginEntity);
-            return isSuccess > 0 ? AppSuccess() : AppError();
-        }
     }
 }

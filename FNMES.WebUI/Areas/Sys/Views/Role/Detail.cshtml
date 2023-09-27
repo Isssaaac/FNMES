@@ -22,19 +22,7 @@
         <div class="layui-inline">
             <label class="layui-form-label">类型</label>
             <div class="layui-input-inline">
-                <select name="Type">
-                    <option value=""></option>
-                    <option value="0">系统角色</option>
-                    <option value="1">业务角色</option>
-                    <option value="2">其他角色</option>
-                </select>
-            </div>
-        </div>
-        <div class="layui-inline">
-            <label class="layui-form-label">所属机构</label>
-            <div class="layui-input-inline">
-                <select lay-ignore class="select2" name="OrganizeId" id="OrganizeId" style="width: 190px;">
-                </select>
+                <input type="number" name="Type" autocomplete="off" class="layui-input" disabled>
             </div>
         </div>
     </div>
@@ -57,7 +45,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label">备注</label>
         <div class="layui-input-block" style="width: 514px;">
-            <textarea name="Remark" class="layui-textarea"></textarea>
+            <textarea name="Description" class="layui-textarea"></textarea>
         </div>
     </div>
     <div class="layui-form-item">

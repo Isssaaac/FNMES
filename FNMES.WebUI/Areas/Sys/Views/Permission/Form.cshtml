@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Form";
+    <!--ViewBag.Title = "Form";-->
     Layout = "~/Views/Shared/_Form.cshtml";
 }
 
@@ -43,6 +43,9 @@
                     <option value="2">主菜单</option>
                     <option value="0">子菜单</option>
                     <option value="1">按钮</option>
+                    <option value="3">程序主菜单</option>
+                    <option value="4">程序子菜单</option>
+                    <option value="5">程序按钮</option>
                 </select>
             </div>
         </div>
@@ -76,13 +79,12 @@
         <div class="layui-input-block">
             <input type="checkbox" lay-skin="primary" name="IsEnabled" value="true" title="启用" checked>
             <input type="checkbox" lay-skin="primary" name="IsEdit" value="true" title="编辑">
-            <input type="checkbox" lay-skin="primary" name="IsPublic" value="true" title="公共">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">备注</label>
         <div class="layui-input-block" style="width: 514px;">
-            <textarea name="Remark" placeholder="请输入内容" class="layui-textarea"></textarea>
+            <textarea name="Description" placeholder="请输入内容" class="layui-textarea"></textarea>
         </div>
     </div>
     <div class="layui-form-item" style="display: none">

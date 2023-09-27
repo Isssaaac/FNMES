@@ -56,7 +56,7 @@ namespace FNMES.Reposity
             //判断一下当前用户的角色DataScope
             get
             {
-                return base.Context.Queryable<T>().Where(it => it.DeleteFlag == "N");
+                return base.Context.Queryable<T>();
             }
             set
             {
@@ -76,17 +76,12 @@ namespace FNMES.Reposity
         #region  删除方法
         public override bool Delete(T deleteObj)
         {
-            deleteObj.DeleteFlag = "Y";
-            return _Db.Updateable(deleteObj).UpdateColumns(it => it.DeleteFlag).ExecuteCommand() > 0;
+            return _Db.Deleteable(deleteObj).ExecuteCommand() >= 0;
         }
 
         public override bool Delete(List<T> deleteObjs)
         {
-            deleteObjs.ForEach(it =>
-            {
-                it.DeleteFlag = "Y";
-            });
-            return _Db.Updateable(deleteObjs).UpdateColumns(it => it.DeleteFlag).ExecuteCommand() > 0;
+            return _Db.Deleteable(deleteObjs).ExecuteCommand() > 0;
         }
 
 
@@ -112,19 +107,15 @@ namespace FNMES.Reposity
 
         public override async Task<bool> DeleteAsync(T deleteObj)
         {
-            deleteObj.DeleteFlag = "Y";
-            int row = await _Db.Updateable(deleteObj).UpdateColumns(it => it.DeleteFlag).ExecuteCommandAsync();
-            return row > 0;
+            int row = await _Db.Deleteable(deleteObj).ExecuteCommandAsync();
+            return row >= 0;
         }
 
         public override async Task<bool> DeleteAsync(List<T> deleteObjs)
         {
-            deleteObjs.ForEach(it =>
-            {
-                it.DeleteFlag = "Y";
-            });
-            int row = await _Db.Updateable(deleteObjs).UpdateColumns(it => it.DeleteFlag).ExecuteCommandAsync();
-            return row > 0;
+            
+            int row = await _Db.Deleteable(deleteObjs).ExecuteCommandAsync();
+            return row >= 0;
         }
 
         public override async Task<bool> DeleteByIdAsync(dynamic id)

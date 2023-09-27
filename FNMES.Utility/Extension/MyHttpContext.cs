@@ -38,11 +38,11 @@ namespace FNMES.Utility.Extension
         }
 
 
-        public static IHostingEnvironment HostingEnvironment
+        public static IWebHostEnvironment HostingEnvironment
         {
             get
             {
-                return ServiceProvider.GetRequiredService<IHostingEnvironment>();
+                return ServiceProvider.GetRequiredService<IWebHostEnvironment>();
             }
         }
 

@@ -2,13 +2,12 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using FNMES.WebUI.Filters;
-using FNMES.Logic.Sys;
 using FNMES.Utility.ResponseModels;
 using FNMES.Utility.Core;
 using FNMES.Utility.Operator;
 using FNMES.WebUI.Controllers;
 using FNMES.Entity.Sys;
-using FNMES.Entity.DTO.Parms;
+using FNMES.WebUI.Logic.Sys;
 
 namespace MES.WebUI.Areas.Sys.Controllers
 {
@@ -17,12 +16,12 @@ namespace MES.WebUI.Areas.Sys.Controllers
     public class RoleAuthorizeController : BaseController
     {
         private SysRoleAuthorizeLogic roleAuthorizeLogic;
-        private SysPermissionLogic permissionLogic;
+        private UnitProcedureLogic permissionLogic;
 
         public RoleAuthorizeController()
         {
             roleAuthorizeLogic = new SysRoleAuthorizeLogic();
-            permissionLogic = new SysPermissionLogic();
+            permissionLogic = new UnitProcedureLogic();
         }
 
 
@@ -38,7 +37,7 @@ namespace MES.WebUI.Areas.Sys.Controllers
         [HttpPost, AuthorizeChecked]
         public ActionResult Index(string roleId)
         {
-            var listPerIds = roleAuthorizeLogic.GetList(roleId).Select(c => c.ModuleId).ToList();
+            var listPerIds = roleAuthorizeLogic.GetList(long.Parse(roleId)).Select(c => c.ModuleId).ToList();
             List<SysPermission> listAllPers;
             if (OperatorProvider.Instance.Current.Account == "admin")
             {
@@ -46,20 +45,29 @@ namespace MES.WebUI.Areas.Sys.Controllers
             }
             else
             {
-                listAllPers = permissionLogic.GetList(OperatorProvider.Instance.Current.UserId);
+                listAllPers = permissionLogic.GetList(long.Parse(OperatorProvider.Instance.Current.UserId));
             }
 
             listAllPers = Handle(listAllPers);
             List<ZTreeNode> result = new List<ZTreeNode>();
+            bool temp = false;     //用于临时保持子菜单选中状态，提供3级的显示
             foreach (var item in listAllPers)
             {
                 ZTreeNode model = new ZTreeNode();
-                model.@checked = listPerIds.Contains(item.Id) ? model.@checked = true : model.@checked = false;
-                model.id = item.Id;
-                model.pId = item.ParentId;
+                if (item.Id <= 10000)
+                {
+                    model.@checked = temp;
+                }
+                else {
+                    model.@checked = listPerIds.Contains(item.Id) ? model.@checked = true : model.@checked = false;
+                    temp = model.@checked;
+                }
+                model.id = item.Id.ToString();
+                model.pId = item.ParentId.ToString();
                 model.name = item.Name;
                 model.open = true;
                 result.Add(model);
+                
             }
             return Content(result.ToJson());
         }
@@ -69,57 +77,13 @@ namespace MES.WebUI.Areas.Sys.Controllers
         [Route("system/roleAuthorize/form")]
         [HttpPost, LoginChecked]
         public ActionResult Form(string roleId, string perIds)
-        {
-            roleAuthorizeLogic.Authorize(roleId, OperatorProvider.Instance.Current.UserId, perIds.SplitToList().ToArray());
+        {   
+            //1000以下值位显示行，不要绑定
+            roleAuthorizeLogic.Authorize(long.Parse(roleId), long.Parse(OperatorProvider.Instance.Current.UserId), perIds.SplitToList().Select(it => long.Parse(it)).Where(it => it>1000).ToArray());
             return Success("授权成功");
         }
 
 
-        /// <summary>
-        /// 角色授权权限数据
-        /// </summary>
-        /// <param name="parms"></param>
-        /// <returns></returns>
-        [HttpPost, Route("app/system/roleAuthorize/index")]
-        public ActionResult AppRoleAuthorizeData([FromBody] StrPrimaryKeyParms parms)
-        {
-            var listPerIds = roleAuthorizeLogic.GetList(parms.roleId).Select(c => c.ModuleId).ToList();
-            List<SysPermission> listAllPers;
-            if (new SysUserLogic().ContainsUser("admin", parms.operaterId))
-            {
-                listAllPers = permissionLogic.GetList();
-            }
-            else
-            {
-                listAllPers = permissionLogic.GetList(parms.operaterId);
-            }
-
-            listAllPers = Handle(listAllPers);
-            List<ZTreeNode> result = new List<ZTreeNode>();
-            foreach (var item in listAllPers)
-            {
-                ZTreeNode model = new ZTreeNode();
-                model.@checked = listPerIds.Where(it => (it + "-view").StartsWith(item.Id)).Count() > 0 ? model.@checked = true : model.@checked = false;
-                model.id = item.Id;
-                model.pId = item.ParentId;
-                model.name = item.Name;
-                model.open = true;
-                result.Add(model);
-            }
-            return AppSuccess<List<ZTreeNode>>(result);
-        }
-
-        /// <summary>
-        /// 角色授权权限数据提交
-        /// </summary>
-        /// <param name="parms"></param>
-        /// <returns></returns>
-        [HttpPost, Route("app/system/roleAuthorize/form")]
-        public ActionResult AppForm([FromBody] AuthorParms parms)
-        {
-            roleAuthorizeLogic.AppAuthorize(parms.operater, parms.roleId, parms.perIds.Select(it => it.Replace("-view", "")).Distinct().ToArray());
-            return AppSuccess("授权成功");
-        }
 
         /// <summary>
         /// 权限结构处理
@@ -130,7 +94,8 @@ namespace MES.WebUI.Areas.Sys.Controllers
         {
             List<SysPermission> list = new List<SysPermission>();
 
-            List<SysPermission> firstNode = listAllPers.Where(it => it.ParentId == "0").ToList();
+            List<SysPermission> firstNode = listAllPers.Where(it => it.ParentId == 0).ToList();
+            int i = 100;
             foreach (SysPermission permission in firstNode)
             {
                 list.Add(permission);
@@ -141,7 +106,7 @@ namespace MES.WebUI.Areas.Sys.Controllers
                     List<SysPermission> thirdNode = listAllPers.Where(it => it.ParentId == per.Id).ToList();
                     list.Add(new SysPermission
                     {
-                        Id = per.Id + "-view",
+                        Id = i++,
                         ParentId = per.Id,
                         Layer = 2,
                         EnCode = per.EnCode,

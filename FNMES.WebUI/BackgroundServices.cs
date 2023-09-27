@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using FNMES.WebUI.Logic;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
 using System.Threading;
@@ -18,6 +19,8 @@ namespace FNMES.WebUI
         {
             //日志配置 
             Utility.Logs.LogHelper.Init(File.ReadAllText(Utility.Extension.MyEnvironment.RootPath("Configs/log4net.config")));
+
+            Logger.RunningInfo("日志框架初始化");
             return Task.CompletedTask;
         }
 

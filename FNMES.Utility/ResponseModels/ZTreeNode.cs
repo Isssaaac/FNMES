@@ -30,5 +30,9 @@ namespace FNMES.Utility.ResponseModels
         /// 是否选中。
         /// </summary>
         public bool @checked { get; set; }
+        /// <summary>
+        /// 自定义属性。
+        /// </summary>
+        public string myAttr { get; set; }
     }
 }

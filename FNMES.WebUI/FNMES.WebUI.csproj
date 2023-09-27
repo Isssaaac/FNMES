@@ -6,6 +6,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.22" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.21" />
 		<PackageReference Include="System.Data.SQLite" Version="1.0.118" />
 	</ItemGroup>
@@ -22,6 +23,7 @@
 		<None Include="Reports\**">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<Content Remove="wwwroot\Content\jquery\jquery-3.6.0.min.js" />
 
 		<Content Include="favicon.ico">
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -30,8 +32,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\FNMES.Logic\FNMES.Logic.csproj" />
+		<ProjectReference Include="..\FNMES.Entity\FNMES.Entity.csproj" />
 		<ProjectReference Include="..\FNMES.Service\FNMES.Service.csproj" />
+		<ProjectReference Include="..\FNMES.Utility\FNMES.Utility.csproj" />
 	</ItemGroup>
 
 
