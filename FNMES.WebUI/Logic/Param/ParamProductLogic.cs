@@ -43,35 +43,6 @@ namespace FNMES.WebUI.Logic.Param
             
         }
 
-        /// <summary>
-        /// 修改用户基础信息
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public int UpdateBasicInfo(SysUser model, long account)
-        {
-            try
-            {
-                using var db = GetInstance();
-                model.ModifyUserId = account;
-                model.ModifyTime = DateTime.Now;
-                return db.Updateable<SysUser>(model).UpdateColumns(it => new
-                {
-                    it.UserNo,
-                    it.CardNo,
-                    it.Name,
-                    it.EnableFlag,
-                    it.Description,
-                    it.SortCode,
-                    it.ModifyUserId,
-                    it.ModifyTime
-                }).ExecuteCommand();
-            }
-            catch (Exception)
-            {
-                return 0;
-            }
-        }
 
         public int Insert(ParamProduct model, long account )
         {
@@ -120,7 +91,7 @@ namespace FNMES.WebUI.Logic.Param
         }
 
         /// <summary>
-        /// 获得用户列表分页
+        /// 获得列表分页
         /// </summary>
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
@@ -142,7 +113,7 @@ namespace FNMES.WebUI.Logic.Param
             catch (Exception E)
             {
 
-                throw E;
+                throw;
             }
         }
 

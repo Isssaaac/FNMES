@@ -22,11 +22,6 @@ namespace FNMES.Entity.Param
          [SugarColumn(ColumnName="encode"    )]
          public string Encode { get; set; }
         /// <summary>
-        /// 版本 
-        ///</summary>
-         [SugarColumn(ColumnName="version"    )]
-         public string Version { get; set; }
-        /// <summary>
         /// 名称 
         ///</summary>
          [SugarColumn(ColumnName="name"    )]

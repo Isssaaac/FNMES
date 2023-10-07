@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FNMES.Entity.DTO.Data
+namespace FNMES.Entity.DTO.ApiData
 {
 
    
@@ -121,41 +122,74 @@ namespace FNMES.Entity.DTO.Data
         // 工艺最小值
         public string minValue { get; set; }
     }
-
+    [DataContract]
     public class GetLabelData
     {
         // Pack内控码/Reess码
+        [DataMember]
         public string codeContent { get; set; }
     }
+    [DataContract]
     public class InStationData
     {
+        [DataMember]
         // 校验结果(OK-通过,NG-失败)
         public string result { get; set; }
-
+        [DataMember]
         // 校验失败原因
         public string errorReason { get; set; }
-
+        [DataMember]
         // 质量参数（A020工序工厂MES反馈电芯质量数据）
         public List<QualityParam> qualityParams { get; set; }
     }
-
+    [DataContract]
     public class QualityParam
     {
         // 参数名称
+        [DataMember]
         public string paramName { get; set; }
 
         // 参数值
+        [DataMember]
         public string paramValue { get; set; }
     }
-
+    [DataContract]
     public class OutStationData
     {
+        [DataMember]
         // 校验结果(OK-通过,NG-失败)
         public string result { get; set; }
-
+        [DataMember]
         // 校验失败原因
         public string errorReason { get; set; }
     }
 
+    public class GetPackInfoData
+    {
+        public string productCode { get; set;}
+    }
+
+    public class GetSopData
+    {
+        public List<SopInfo> sopList { get; set; }
+    }
+
+    public class SopInfo
+    {
+        // 工位
+        public string bigStationCode { get; set; }
+
+        // 小工位
+        public string stationCode { get; set; }
+
+        // SOP 文件存储在文件服务器存储路径
+        public string filePath { get; set; }
+
+        // 开始页码
+        public string startPageNo { get; set; }
+
+        // 结束页码
+        public string endPageNo { get; set; }
+    }
 
 }

@@ -2,7 +2,7 @@
 using System.IO;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using CCS.WebUI; 
+using CCS.WebUI;
 using FNMES.Service.WebService;
 using FNMES.Utility.Core;
 using FNMES.Utility.Extension;
@@ -130,7 +130,7 @@ else
 app.UseSession();
 
 //配置WebService
-//app.UseSoapEndpoint<WebServiceContract>("/WebService.asmx", new SoapEncoderOptions());
+app.UseSoapEndpoint<WebServiceContract>("/WebService.asmx", new SoapEncoderOptions());
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>

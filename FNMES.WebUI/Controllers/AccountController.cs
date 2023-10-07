@@ -82,10 +82,10 @@ namespace FNMES.WebUI.Controllers
             {
                 return Error("请求失败，缺少必要参数。");
             }
-            if (verifyCode.ToLower() != HttpContext.Session.GetString(Keys.SESSION_KEY_VCODE))
+            /*if (verifyCode.ToLower() != HttpContext.Session.GetString(Keys.SESSION_KEY_VCODE))
             { 
                 return Warning("验证码错误，请重新输入。");
-            }
+            }*/
             var userEntity = userlogic.GetByUserName(userName);
             if (userEntity == null)
             {

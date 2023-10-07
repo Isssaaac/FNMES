@@ -23,9 +23,17 @@
             <div class="layui-input-inline">
                 <input type="text" name="Name" lay-verify="required" placeholder="请输入名称" autocomplete="off" class="layui-input">
             </div>
-            <label class="layui-form-label label-required">工序编码</label>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label label-required">大工序编码</label>
             <div class="layui-input-inline">
-                <input type="text" name="UnitProcedure" lay-verify="required" placeholder="请输入工序编码" autocomplete="off" class="layui-input">
+                <select class="select2 layui-input-inline" lay-ignore name="BigProcedure" lay-verify="required" id="BigProcedure" style="width: 130px"></select>
+            </div>
+            <label class="layui-form-label label-required">小工序编码</label>
+            <div class="layui-input-inline">
+                <select class="select2 layui-input-inline" lay-ignore name="UnitProcedure" lay-verify="required" id="UnitProcedure" style="width: 130px">
+                    <option value="null">--请选择--</option>
+                </select>
             </div>
         </div>
      </div>
@@ -65,6 +73,9 @@
 
         var primaryKey = $.getQueryString("primaryKey");
         var lineId = $.getQueryString("lineId");
+        if (lineId) {
+            $('#LineId').val(lineId);
+        }
         if (primaryKey) {
             $.ajax({
                 url: "/system/equipment/getForm",
@@ -77,10 +88,36 @@
                 }
             });
         }
-        if (lineId) {
-            $('#LineId').val(lineId);
-        }
+        lineId = $('#LineId').val();
 
+        $("#BigProcedure").bindSelect({
+            type: "POST",
+            url: "/param/unitProcedure/getParentByLine?lineId=" + lineId,
+            change: function (selectedData) {
+                
+                if (selectedData.id) {
+                    // 通过选择器选择你要清空的<select>元素
+                    var selectElement = $("#UnitProcedure");
+
+                    // 使用.empty()方法来清空选项
+                    selectElement.empty();
+
+
+                    $("#UnitProcedure").bindSelect({
+                        type: "POST",
+                        url: "/param/unitProcedure/getProcedureByline?lineId=" + lineId + "&parent=" + selectedData.id
+                    });
+                    
+                    form.render('select');
+
+                }
+            }
+        } );
+        $("#UnitProcedure").bindSelect({
+            type: "POST",
+            url: "/param/unitProcedure/getProcedureByline?lineId=" + lineId + "&parent=" + $('#BigProcedure').val()
+        });
+       
         form.render();
 
         form.on('submit(add)', function (data) {
@@ -91,5 +128,7 @@
             return false;
         });
     });
+
+    
 
 </script>

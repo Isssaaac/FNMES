@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -48,6 +49,7 @@ namespace FNMES.Utility.Network
         {
             try
             {
+                //此处需要增加接口访问记录 TODO
                 string ret = HttpUtils.DoPostData(url, data.ToJson(), "application/json", timeout);
                 if (ret.IsNullOrEmpty())
                     return null;
@@ -58,14 +60,38 @@ namespace FNMES.Utility.Network
                 return null;
             }
         }
+        public static string DoPostJson(string url, object data, int? timeout = 3000)
+        {
+            try
+            {
+                string ret = HttpUtils.DoPostData(url, data.ToJson(), "application/json", timeout);
+                if (ret.IsNullOrEmpty())
+                    return ""; 
+                return ret;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+
+
+
+
+
+
     }
 
 
-
+    [DataContract]
     public class RetMessage<T>
     {
+        [DataMember]
         public string messageType { get; set; }
+        [DataMember]
         public string message { get; set; }
+        [DataMember]
         public T data { get; set; }
 
     }

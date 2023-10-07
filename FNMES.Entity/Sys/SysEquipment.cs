@@ -30,6 +30,9 @@ namespace FNMES.Entity.Sys
         [SugarColumn(ColumnName = "unitProcedure")]
         public string UnitProcedure { get; set; }
 
+        [SugarColumn(ColumnName = "bigProcedure")]
+        public string BigProcedure { get; set; }
+
         [Navigate(NavigateType.OneToOne, nameof(LineId), nameof(SysLine.Id))]//一对一
         public SysLine Line { get; set; } //不能赋值只能是null
 

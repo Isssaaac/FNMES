@@ -24,13 +24,13 @@ namespace FNMES.WebUI.Controllers
     {
         private SysUserLogic userLogic;
         private SysUserLogOnLogic userLogOnLogic;
-        private UnitProcedureLogic permissionLogic;
+        private SysPermissionLogic permissionLogic;
 
         public HomeController()
         {
             userLogic = new SysUserLogic();
             userLogOnLogic = new SysUserLogOnLogic();
-            permissionLogic = new UnitProcedureLogic();
+            permissionLogic = new SysPermissionLogic();
         }
 
         /// <summary>

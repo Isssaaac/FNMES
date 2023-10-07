@@ -8,6 +8,8 @@ using FNMES.WebUI.Controllers;
 using FNMES.WebUI.Logic.Param;
 using FNMES.WebUI.Logic;
 using FNMES.Entity.Param;
+using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -48,8 +50,13 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
             catch (Exception E)
             {
-
-                return Error(E.Message);
+                return Content(new LayPadding<ParamProduct>()
+                {
+                    result = false,
+                    msg = E.Message,
+                    list = new List<ParamProduct>(),
+                    count =0
+                }.ToJson()) ;
             }
         }
 

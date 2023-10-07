@@ -54,6 +54,20 @@ namespace FNMES.WebUI.Logic.Sys
                 .Includes(it => it.ModifyUser)
                 .ToList();
         }
+        public SysEquipment GetByIP(string IP)
+        {
+            using var db = GetInstance();
+            return db.Queryable<SysEquipment>()
+                .Where(it => it.IP == IP)
+                .Includes(it => it.Line)
+                .Includes(it => it.CreateUser)
+                .Includes(it => it.ModifyUser)
+                .First();
+        }
+
+
+
+
 
 
         public SysEquipment Get(long primaryKey)

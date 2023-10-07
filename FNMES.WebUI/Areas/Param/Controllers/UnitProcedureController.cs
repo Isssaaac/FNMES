@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using FNMES.WebUI.Logic.Param;
 using FNMES.WebUI.Logic;
 using FNMES.Entity.Param;
+using FNMES.WebUI.Logic.Sys;
+using System.Drawing.Drawing2D;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -18,9 +20,12 @@ namespace MES.WebUI.Areas.Param.Controllers
     public class UnitProcedureController : BaseController
     {
         private readonly UnitProcedureLogic unitProcedureLogic;
+        private readonly SysLineLogic sysLineLogic;
+
         public UnitProcedureController()
         {
             unitProcedureLogic = new UnitProcedureLogic();
+            sysLineLogic = new SysLineLogic();
         }
 
         [Route("param/unitProcedure/getParent")]
@@ -41,8 +46,62 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
             return Content(treeList.ToJson());
         }
-        
-  
+
+
+        [Route("param/unitProcedure/getParentByLine")]
+        [HttpPost]
+        public ActionResult GetParentByLine(string lineId)
+        {
+            SysLine sysLine = sysLineLogic.Get(long.Parse(lineId));
+            var data = unitProcedureLogic.GetParentList(sysLine.ConfigId);
+            var treeList = new List<TreeSelect>() {
+               new TreeSelect
+               {
+                    id = "null",
+                    text = "--请选择--",
+               }
+               
+            };
+
+            foreach (ParamUnitProcedure item in data)
+            {
+                TreeSelect model = new()
+                {
+                    id = item.Name,
+                    text = item.Name,
+                };
+                treeList.Add(model);
+            }
+            return Content(treeList.ToJson());
+        }
+
+        [Route("param/unitProcedure/getProcedureByline")]
+        [HttpPost]
+        public ActionResult GetProcedureByLine(string lineId, string parent)
+        {
+            SysLine sysLine = sysLineLogic.Get(long.Parse(lineId));
+            var data = unitProcedureLogic.GetProcedureList(sysLine.ConfigId, parent);
+            var treeList = new List<TreeSelect>(){
+               new TreeSelect
+               {
+                    id = "null",
+                    text = "--请选择--",
+               }
+
+            };
+
+            foreach (ParamUnitProcedure item in data)
+            {
+                TreeSelect model = new()
+                {
+                    id = item.Name,
+                    text = item.Name,
+                };
+                treeList.Add(model);
+            }
+            return Content(treeList.ToJson());
+        }
+
 
 
 
@@ -74,8 +133,13 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
             catch (Exception E)
             {
-
-                return Error(E.Message);
+                return Content(new LayPadding<ParamUnitProcedure>()
+                {
+                    result = false,
+                    msg = E.Message,
+                    list = new List<ParamUnitProcedure>(),
+                    count = 0
+                }.ToJson());
             }
         }
 

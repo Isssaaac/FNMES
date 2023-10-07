@@ -11,10 +11,12 @@ using FNMES.Utility.Extension;
 using FNMES.Utility.Core;
 using FNMES.Utility.Other;
 using FNMES.WebUI.Logic.Base;
+using FNMES.Entity.DTO.AppData;
+using ServiceStack;
 
 namespace FNMES.WebUI.Logic.Sys
 {
-    public class UnitProcedureLogic : BaseLogic
+    public class SysPermissionLogic : BaseLogic
     {
         public bool ActionValidate(long userId, string action)
         {
@@ -205,6 +207,19 @@ namespace FNMES.WebUI.Logic.Sys
             using var db = GetInstance();
             permissionList.ForEach(it => it.Id = SnowFlakeSingle.instance.NextId());
             return db.Insertable<SysPermission>(permissionList).ExecuteCommand();
+        }
+
+        public List<SysPermission> GetPermissions(List<string> roleEncodes)
+        {
+            var db = GetInstance();
+            List<long> roleIds = db.Queryable<SysRole>().Where(it => roleEncodes.Contains(it.EnCode)).Select(it=> it.Id).ToList();
+            List<SysPermission> sysPermissions = new List<SysPermission>();
+            if (roleIds.Count > 0)
+            {
+                List<long> permissionIds = db.Queryable< SysRoleAuthorize>().Where(it => roleIds.Contains((long)it.RoleId)).Select(it => (long)it.ModuleId).ToList();
+                sysPermissions = db.Queryable<SysPermission>().Where(it => permissionIds.Contains(it.Id) && it.Type>=3).ToList();
+            }
+            return sysPermissions;
         }
     }
 }

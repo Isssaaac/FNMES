@@ -1,47 +1,45 @@
 ﻿using SqlSugar;
 using FNMES.TEST;
+using FNMES.Entity.Record;
+using FNMES.Utility.Core;
 // See https://aka.ms/new-console-template for more information
 
 
 Console.WriteLine("Hello, World!");
 
+RecordApi recordApi = new();
+Api api = new Api
+{
+    url = "qer",
+    requestBody = "weq",
+    ResponseBody = "234",
+    elapsed = 10
+};
 
-SqlSugarClient db = new SqlSugarClient(
-    new ConnectionConfig()
-    {
-        ConnectionString = "Server=127.0.0.1;Database=MVC;User ID=sa;Password=gdlaser;Trusted_Connection=False;",
-        DbType = DbType.SqlServer,
-        IsAutoCloseConnection = true,
-        InitKeyType = InitKeyType.Attribute
-    });
-
-    db.Aop.OnLogExecuting = (sql, pars) => {
-        Console.WriteLine(sql + "\r\n" + db.Utilities.SerializeObject(pars.ToDictionary(it => it.ParameterName, it => it.Value)));
-        Console.WriteLine();
-       
-        
-    };
+recordApi.CopyField(api);
 
 
-int test()
-    {
-    
-        
-    ////新增用户基本信息。
-    SysUser model = new()
-    {
-        Id = SnowFlakeSingle.Instance.NextId(),
-        UserNo = "TT",
-        CardNo = "rt",
-        Name = "rt",
-        CreateTime = Convert.ToDateTime("2020-02-01")
-    };
-    db.Insertable(model).SplitTable().ExecuteCommand();
-        return 0;
-      }
+Console.WriteLine(recordApi.ToJson());
+
+Console.ReadLine();
 
 
-    test();
-    
-    Console.ReadLine();
-    db.Close();
+public class Api
+{
+    public string url { get; set; }
+
+    public string requestBody { get; set; }
+
+    public string ResponseBody { get; set; }
+
+    public int elapsed { get; set; }
+}
+
+
+
+
+
+
+
+
+

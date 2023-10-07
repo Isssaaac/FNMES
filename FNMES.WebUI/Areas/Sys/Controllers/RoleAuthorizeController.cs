@@ -16,12 +16,12 @@ namespace MES.WebUI.Areas.Sys.Controllers
     public class RoleAuthorizeController : BaseController
     {
         private SysRoleAuthorizeLogic roleAuthorizeLogic;
-        private UnitProcedureLogic permissionLogic;
+        private SysPermissionLogic permissionLogic;
 
         public RoleAuthorizeController()
         {
             roleAuthorizeLogic = new SysRoleAuthorizeLogic();
-            permissionLogic = new UnitProcedureLogic();
+            permissionLogic = new SysPermissionLogic();
         }
 
 

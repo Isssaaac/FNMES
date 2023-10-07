@@ -17,14 +17,14 @@ namespace MES.WebUI.Areas.Sys.Controllers
     [Area("Sys")]
     public class PermissionController : BaseController
     {
-        private readonly UnitProcedureLogic logic;
+        private readonly SysPermissionLogic logic;
 
         /// <summary>
         /// 构造方法
         /// </summary>
         public PermissionController()
         {
-            logic = new UnitProcedureLogic();
+            logic = new SysPermissionLogic();
         }
 
 

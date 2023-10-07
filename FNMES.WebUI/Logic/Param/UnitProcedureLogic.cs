@@ -133,5 +133,31 @@ namespace FNMES.WebUI.Logic.Param
                 return new List<ParamUnitProcedure>();
             }
         }
+
+        public List<ParamUnitProcedure> GetProcedureList(string configId, string parent)
+        {
+            try
+            {
+                using var db = GetInstance(configId);
+                
+                if (parent == null || parent.Length ==0)
+                {
+                    return db.Queryable<ParamUnitProcedure>().Where(it => it.IsParent == "0").ToList(); 
+                }
+                ParamUnitProcedure p =  db.Queryable<ParamUnitProcedure>().Where(it => it.Encode == parent).First();
+                if (p != null)
+                {
+                    return db.Queryable<ParamUnitProcedure>().Where(it => (it.IsParent == "0" && it.Pid == p.Id)).ToList();
+                }
+
+                return new List<ParamUnitProcedure>();
+
+            }
+            catch (Exception)
+            {
+
+                return new List<ParamUnitProcedure>();
+            }
+        }
     }
 }

@@ -24,7 +24,7 @@ namespace FNMES.WebUI.Filters
 
         public override void OnActionExecuting(ActionExecutingContext actionContext)
         {
-            UnitProcedureLogic logic = new();
+            SysPermissionLogic logic = new();
             if (Ignore)
             {
                 return;

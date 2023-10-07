@@ -67,7 +67,7 @@ namespace FNMES.WebUI.Logic.Base
                     MoreSettings = new ConnMoreSettings()
                     
                     {
-                        DisableNvarchar = true
+                        Disablevarchar = true
                     },
                     SlaveConnectionConfigs = slavaConFig,
                     //设置codefirst非空值判断
@@ -194,7 +194,7 @@ namespace FNMES.WebUI.Logic.Base
                         DbType = DbType,
                         MoreSettings = new ConnMoreSettings()
                         {
-                            DisableNvarchar = true
+                            Disablevarchar = true
                         },
                         SlaveConnectionConfigs = slava,
                     }); ;
