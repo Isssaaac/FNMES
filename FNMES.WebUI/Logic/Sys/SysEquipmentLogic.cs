@@ -113,6 +113,7 @@ namespace FNMES.WebUI.Logic.Sys
                     it.EnCode,
                     it.Name,
                     it.UnitProcedure,
+                    it.BigProcedure,
                     it.SortCode,
                     it.EnableFlag,
                     it.Description,

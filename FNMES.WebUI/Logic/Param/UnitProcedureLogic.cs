@@ -19,20 +19,6 @@ namespace FNMES.WebUI.Logic.Param
     {
       
 
-
-        public List<SysPermission> GetList(long userId)
-        {
-            using var db = GetInstance();
-            List<long> permissionIdList = db.Queryable<SysUserRoleRelation, SysRoleAuthorize, SysPermission>((A, B, C) => new object[] {
-                      JoinType.Left,A.RoleId == B.RoleId,
-                      JoinType.Left,C.Id == B.ModuleId,
-                    })
-                .Where((A, B, C) => A.UserId == userId && C.EnableFlag == "1")
-                .Select((A, B, C) => C.Id).ToList();
-            return db.Queryable<SysPermission>().Where(it => permissionIdList.Contains(it.Id)).OrderBy(it => it.SortCode).ToList();
-        }
-
-
         public List<ParamUnitProcedure> GetList(int pageIndex, int pageSize, string keyWord,string configId, ref int totalCount)
         {
             try
@@ -102,8 +88,9 @@ namespace FNMES.WebUI.Logic.Param
                 model.ModifyTime = model.CreateTime;
                 return db.Insertable<ParamUnitProcedure>(model).ExecuteCommand();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.ErrorInfo(e.Message);
                 return 0;
             }
         }
@@ -133,6 +120,25 @@ namespace FNMES.WebUI.Logic.Param
                 return new List<ParamUnitProcedure>();
             }
         }
+        public List<ParamUnitProcedure> GetSonList(string configId)
+        {
+
+            try
+            {
+                using var db = GetInstance(configId);
+                return db.Queryable<ParamUnitProcedure>().Where(it => it.IsParent == "0").ToList();
+            }
+            catch (Exception)
+            {
+
+                return new List<ParamUnitProcedure>();
+            }
+        }
+
+
+
+
+
 
         public List<ParamUnitProcedure> GetProcedureList(string configId, string parent)
         {

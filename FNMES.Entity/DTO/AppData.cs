@@ -1,4 +1,5 @@
 ﻿using FNMES.Entity.Sys;
+using Microsoft.OpenApi.Writers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,4 +44,55 @@ namespace FNMES.Entity.DTO.AppData
         [DataMember]
         public List<Permission> Permissions { get; set; }
     }
+
+
+    [DataContract]
+    public class PlcParam
+    {
+        
+        [DataMember]
+        public List<ErrorParam> ErrorParams { get; set; }
+        [DataMember]
+        public List<StatusParam> StatusParams { get; set; }
+        [DataMember]
+        public List<string> StopCode { get; set; }
+        public List<string> StopCodeDesc { get; set; }
+    }
+    [DataContract]
+    public class ErrorParam
+    {
+
+        [DataMember]
+        public string BigStationCode { get; set; }
+        [DataMember]
+        public string EquipmentID { get; set; }
+        [DataMember]
+        public List<ErrorAddress> ErrorAddresss { get; set; }
+    }
+
+    [DataContract]
+    public class ErrorAddress
+    {
+        [DataMember]
+        public int Offset { get; set; }
+        [DataMember]
+        public string AlarmCode { get; set; }
+        [DataMember]
+        public string AlarmDesc { get; set; }
+    }
+
+    [DataContract]
+    public class StatusParam
+    {
+        [DataMember]
+        public string BigStationCode { get; set; }
+        [DataMember]
+        public string EquipmentID { get; set; }
+        [DataMember]
+        public int Offset { get; set; }
+        [DataMember]
+        public int StopCodeOffset { get; set; }
+    }
+
+
 }

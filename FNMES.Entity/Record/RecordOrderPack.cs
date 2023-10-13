@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 namespace FNMES.Entity.Record
 {
     [SplitTable(SplitType.Season)]
-    [SugarTable("Order_Pack_Record_{year}{month}{day}")]
+    [SugarTable("Order_ack_Pack_{year}{month}{day}")]
+    [SugarIndex("index_orderPack_taskOrderNumber", nameof(RecordOrderPack.TaskOrderNumber), OrderByType.Asc)]    //索引
     public class RecordOrderPack : BaseRecord
     {
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]

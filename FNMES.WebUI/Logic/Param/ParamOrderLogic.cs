@@ -1,5 +1,4 @@
-﻿using FNMES.Entity.Sys;
-using SqlSugar;
+﻿using SqlSugar;
 using System;
 using System.Collections.Generic;
 using FNMES.Utility.Core;
@@ -8,46 +7,21 @@ using FNMES.Entity.Param;
 
 namespace FNMES.WebUI.Logic.Param
 {
-    public class ParamProductLogic : BaseLogic
+    public class ParamOrderLogic : BaseLogic
     {
         /// <summary>
         /// 根据账号得到用户信息
         /// </summary>
         /// <param name="account"></param>
         /// <returns></returns>
-        public SysUser GetByUserName(string account)
-        {
-            try
-            {
-                using var db = GetInstance();
-                return db.Queryable<SysUser>().Where(it => it.UserNo == account)
-                   //  .Includes(it => it.Organize) && it.DeleteFlag == "0"
-                   .Includes(it => it.CreateUser)
-                   .Includes(it => it.ModifyUser)
-                 .First();
-            }
-            catch (Exception E)
-            {
-                Logger.ErrorInfo(E.Message.ToString());
-                return null;
-            }
-            
-            
-        }
-
-
-        public int Insert(ParamProduct model, long account )
+        public int Insert(ParamOrder model, string configId,long account )
         {
             try
             {
                 
-                using var db = GetInstance(model.ConfigId);
+                using var db = GetInstance(configId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
-                model.CreateUserId = account;
-                model.CreateTime = DateTime.Now;
-                model.ModifyUserId = model.CreateUserId;
-                model.ModifyTime = model.CreateTime;
-                return db.Insertable<ParamProduct>(model).ExecuteCommand();
+                return db.Insertable<ParamOrder>(model).ExecuteCommand();
             }
             catch (Exception E)
             {
@@ -63,16 +37,14 @@ namespace FNMES.WebUI.Logic.Param
         /// </summary>
         /// <param name="primaryKey"></param>
         /// <returns></returns>
-        public ParamProduct Get(long primaryKey, string configId)
+        public ParamOrder Get(long primaryKey, string configId)
         {
             try
             {
                 using var db = GetInstance(configId);
-                ParamProduct product = db.Queryable<ParamProduct>().Where(it => it.Id == primaryKey).First();
+                ParamOrder order = db.Queryable<ParamOrder>().Where(it => it.Id == primaryKey).First();
                 using var sysdb = GetInstance();
-                product.CreateUser = sysdb.Queryable<SysUser>().Where(it => it.Id == product.CreateUserId).First();
-                product.CreateUser = sysdb.Queryable<SysUser>().Where(it => it.Id == product.ModifyUserId).First();
-                return product;
+                return order;
             }
             catch (Exception E)
             {
@@ -90,15 +62,28 @@ namespace FNMES.WebUI.Logic.Param
         /// <param name="keyWord"></param>
         /// <param name="totalCount"></param>
         /// <returns></returns>
-        public List<ParamProduct> GetList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount)
+        public List<ParamOrder> GetList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount, string index)
         {
             try
             {
                 using var db = GetInstance(configId);
-                ISugarQueryable<ParamProduct> queryable = db.Queryable<ParamProduct>();
+                ISugarQueryable<ParamOrder> queryable = db.Queryable<ParamOrder>();
+                
                 if (!keyWord.IsNullOrEmpty())
                 {
-                    queryable = queryable.Where(it => it.Encode.Contains(keyWord) || it.Name.Contains(keyWord));
+                    queryable = queryable.Where(it => it.TaskOrderNumber.Contains(keyWord) || it.ProductPartNo.Contains(keyWord));
+                }
+                if (index == "1")//正序   
+                {
+                    queryable = queryable.OrderBy(it => it.Id);
+                }
+                else if (index == "2")//倒序   
+                {
+                    queryable = queryable.OrderByDescending(it => it.Id);
+                }
+                else if (index == "3")//只看未完成   
+                {
+                    queryable = queryable.Where(it => it.Flag=="1"|| it.Flag == "2"||it.Flag == "3");
                 }
                 return queryable.ToPageList(pageIndex, pageSize, ref totalCount);
             }
@@ -121,8 +106,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 using var db = GetInstance(configId);
-                Logger.RunningInfo(primaryKey.ToString()+configId);
-                return db.Deleteable<ParamProduct>().Where(it => primaryKey == it.Id).ExecuteCommand();
+                return db.Deleteable<ParamOrder>().Where(it => primaryKey == it.Id).ExecuteCommand();
             }
             catch (Exception E)
             {
@@ -136,13 +120,11 @@ namespace FNMES.WebUI.Logic.Param
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public int Update(ParamProduct model, long userId)
+        public int Update(ParamOrder model,string configId, long userId)
         {
             try
             {
-                using var db = GetInstance(model.ConfigId);
-                model.ModifyUserId = userId;
-                model.ModifyTime = DateTime.Now;
+                using var db = GetInstance(configId);
 
                 return db.Updateable<ParamProduct>(model).IgnoreColumns(it => new
                 {
@@ -157,13 +139,13 @@ namespace FNMES.WebUI.Logic.Param
             }
         }
 
-        public List<ParamProduct> GetList(string configId)
+        public List<ParamOrder> GetList(string configId)
         {
             try
             {
                 using var db = GetInstance(configId);
 
-                List<ParamProduct> paramProducts = db.Queryable<ParamProduct>().ToList();
+                List<ParamOrder> paramProducts = db.Queryable<ParamOrder>().ToList();
                 return paramProducts;
             }
             catch (Exception E)

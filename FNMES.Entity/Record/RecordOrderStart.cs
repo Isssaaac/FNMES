@@ -9,6 +9,7 @@ namespace FNMES.Entity.Record
 {
     [SplitTable(SplitType.Season)]
     [SugarTable("Order_Start_Record_{year}{month}{day}")]
+    [SugarIndex("index_orderStart_taskOrderNumber", nameof(RecordOrderStart.TaskOrderNumber), OrderByType.Asc)]    //索引
     public class RecordOrderStart : BaseRecord
     {
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]

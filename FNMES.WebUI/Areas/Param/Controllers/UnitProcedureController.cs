@@ -13,6 +13,8 @@ using FNMES.WebUI.Logic;
 using FNMES.Entity.Param;
 using FNMES.WebUI.Logic.Sys;
 using System.Drawing.Drawing2D;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
+using System.Drawing.Printing;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -21,11 +23,14 @@ namespace MES.WebUI.Areas.Param.Controllers
     {
         private readonly UnitProcedureLogic unitProcedureLogic;
         private readonly SysLineLogic sysLineLogic;
+        private readonly ProductStepLogic productStepLogic;
+
 
         public UnitProcedureController()
         {
             unitProcedureLogic = new UnitProcedureLogic();
             sysLineLogic = new SysLineLogic();
+            productStepLogic = new ProductStepLogic();
         }
 
         [Route("param/unitProcedure/getParent")]
@@ -40,12 +45,67 @@ namespace MES.WebUI.Areas.Param.Controllers
                 TreeSelect model = new()
                 {
                     id = item.Id.ToString(),
-                    text = item.Name,
+                    text = item.Encode,
                 };
                 treeList.Add(model);
             }
             return Content(treeList.ToJson());
         }
+
+
+        //获取小工序
+        [Route("param/unitProcedure/getListTreeUnSelect")]
+        [HttpPost]
+        public ActionResult GetListTreeUnSelect(string configId)
+        {
+            var data = unitProcedureLogic.GetSonList(configId);
+            var treeList = new List<TreeSelect>();
+            if(data.Count > 0)
+            {
+                foreach (ParamUnitProcedure item in data)
+                {
+                        TreeSelect model = new()
+                        {
+                            id = item.Encode.ToString(),
+                            text = item.Encode,
+                        };
+                        treeList.Add(model);
+                }
+            }
+            return Content(treeList.ToJson());
+        }
+        //获取该产品已配置的工序
+        [Route("param/unitProcedure/getListTreeSelected")]
+        [HttpPost]
+        public ActionResult GetListTreeSelected(string configId, string productId)
+        {
+            List<string> selectedProcedure = productStepLogic.getSelectedProcedure(configId, productId);
+            var data = unitProcedureLogic.GetSonList(configId);
+            var treeList = new List<TreeSelect>();
+            if (data.Count > 0)
+            {
+                foreach (ParamUnitProcedure item in data)
+                {
+                    if (selectedProcedure.Contains(item.Encode))
+                    {
+                        TreeSelect model = new()
+                        {
+                            id = item.Encode.ToString(),
+                            text = item.Encode,
+                        };
+                        treeList.Add(model);
+                    }
+                }
+            }
+            return Content(treeList.ToJson());
+        }
+
+
+
+
+
+
+
 
 
         [Route("param/unitProcedure/getParentByLine")]
@@ -67,7 +127,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             {
                 TreeSelect model = new()
                 {
-                    id = item.Name,
+                    id = item.Encode,
                     text = item.Name,
                 };
                 treeList.Add(model);
@@ -89,15 +149,17 @@ namespace MES.WebUI.Areas.Param.Controllers
                }
 
             };
-
-            foreach (ParamUnitProcedure item in data)
+            if(data != null)
             {
-                TreeSelect model = new()
+                foreach (ParamUnitProcedure item in data)
                 {
-                    id = item.Name,
-                    text = item.Name,
-                };
-                treeList.Add(model);
+                    TreeSelect model = new()
+                    {
+                        id = item.Name,
+                        text = item.Name,
+                    };
+                    treeList.Add(model);
+                }
             }
             return Content(treeList.ToJson());
         }

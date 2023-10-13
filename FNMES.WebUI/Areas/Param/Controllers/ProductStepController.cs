@@ -14,16 +14,18 @@ using System.Drawing.Drawing2D;
 namespace MES.WebUI.Areas.Param.Controllers
 {
     [Area("Param")]
-    public class ProductController : BaseController
+    public class ProductStepController : BaseController
     {
         private readonly ParamProductLogic productLogic;
-        public ProductController()
+        private readonly ProductStepLogic  productStepLogic;
+        public ProductStepController()
         {
             productLogic = new ParamProductLogic();
+            productStepLogic = new ProductStepLogic();
         }
 
 
-        [Route("param/product/index")]
+        [Route("param/productStep/index")]
         [HttpGet, AuthorizeChecked]
         public ActionResult Index()
         {
@@ -31,15 +33,15 @@ namespace MES.WebUI.Areas.Param.Controllers
         }
 
 
-        [Route("param/product/index")]
+        [Route("param/productStep/index")]
         [HttpPost, AuthorizeChecked]
-        public ActionResult Index(int pageIndex, int pageSize, string keyWord,string configId)
+        public ActionResult Index(int pageIndex, int pageSize, string keyWord,string configId,string productId)
         {
             try
             {
                 int totalCount = 0;
-                var pageData = productLogic.GetList(pageIndex, pageSize, keyWord, configId, ref totalCount);
-                var result = new LayPadding<ParamProduct>()
+                var pageData = productStepLogic.GetList(pageIndex, pageSize, keyWord, configId, ref totalCount, long.Parse(productId));
+                var result = new LayPadding<ParamProductStep>()
                 {
                     result = true,
                     msg = "success",
@@ -63,29 +65,26 @@ namespace MES.WebUI.Areas.Param.Controllers
 
 
 
-        [Route("param/product/form")]
+        [Route("param/productStep/form")]
         [HttpGet, AuthorizeChecked]
         public ActionResult Form()
         {
             return View();
         }
 
-        [Route("param/product/form")]
+        [Route("param/productStep/form")]
         [HttpPost, AuthorizeChecked]
-        public ActionResult Form( ParamProduct model)
+        public ActionResult Form(ParamProductStep model)
         {
-
-            Logger.RunningInfo(model.ToJson()+"数据库"+model.ConfigId);
-            
             if (model.Id==0)
             {
-                int row = productLogic.Insert(model,long.Parse(OperatorProvider.Instance.Current.UserId));
+                int row = productStepLogic.Insert(model,long.Parse(OperatorProvider.Instance.Current.UserId));
                 return row > 0 ? Success() : Error();
             }
             else
             {
                 //更新用户基本信息。
-                int row = productLogic.Update(model, long.Parse(OperatorProvider.Instance.Current.UserId));
+                int row = productStepLogic.Update(model, long.Parse(OperatorProvider.Instance.Current.UserId));
                 //更新用户角色信息。
                 return row > 0 ? Success() : Error();
             }
@@ -95,7 +94,7 @@ namespace MES.WebUI.Areas.Param.Controllers
 
 
 
-        [Route("param/product/detail")]
+        [Route("param/productStep/detail")]
         [HttpGet, AuthorizeChecked]
         public ActionResult Detail()
         {
@@ -103,11 +102,11 @@ namespace MES.WebUI.Areas.Param.Controllers
         }
 
 
-        [Route("param/product/getForm")]
+        [Route("param/productStep/getForm")]
         [HttpPost, LoginChecked]
         public ActionResult GetForm(string primaryKey, string configId)
         {
-            ParamProduct entity = productLogic.Get(long.Parse(primaryKey),configId);
+            ParamProductStep entity = productStepLogic.Get(long.Parse(primaryKey),configId);
             return Content(entity.ToJson());
         }
 
@@ -115,9 +114,9 @@ namespace MES.WebUI.Areas.Param.Controllers
 
 
 
-        [Route("param/product/delete")]
+        [Route("param/productStep/delete")]
         [HttpPost, AuthorizeChecked]
-        public ActionResult Delete(string productId, string configId)
+        public ActionResult Delete(string primaryKey, string configId)
         {
             
             /*//过滤系统管理员
@@ -125,43 +124,11 @@ namespace MES.WebUI.Areas.Param.Controllers
             {
                 return Error("产品有已设置的配方，不允许删除");
             }*/
-            return productLogic.Delete(long.Parse(productId), configId) > 0 ? Success() : Error();
-        }
-
-        [Route("param/product/getListTree")]
-        [HttpPost, LoginChecked]
-        public ActionResult GetListTree(string configId)
-        {
-            var listAllProduct = productLogic.GetList(configId);
-            List<ZTreeNode> result = new()
-            {
-                new ZTreeNode
-                {
-                    id = "1",
-                    pId = "0",
-                    name = "产品列表",
-                    open = true
-                }
-            };
-            if (listAllProduct != null)
-            {
-                foreach (var product in listAllProduct)
-                {
-                    ZTreeNode model = new()
-                    {
-                        id = product.Id.ToString(),
-                        pId = "1",
-                        name = product.Name,
-                    };
-                    result.Add(model);
-                }
-            }
-           
-            return Content(result.ToJson());
-        }
+            return productStepLogic.Delete(long.Parse(primaryKey), configId) > 0 ? Success() : Error();
+        } 
 
 
 
-
+              
     }
 }

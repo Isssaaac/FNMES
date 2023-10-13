@@ -8,7 +8,7 @@ namespace FNMES.Entity.Param
     /// 
     ///</summary>
     [SugarTable("Order")]
-    public class Order
+    public class ParamOrder
     {
         /// <summary>
         ///  
@@ -71,10 +71,24 @@ namespace FNMES.Entity.Param
         ///</summary>
          [SugarColumn(ColumnName="flag"    )]
          public string Flag { get; set; }
+        [SugarColumn(IsIgnore = true)]
+        public string FlagString {
+            get{  
+                switch (Flag)
+                {
+                    case "0": return "未开工";
+                    case "1": return "生产中";
+                    case "2": return "暂停";
+                    case "3": return "取消";
+                    case "4": return "完成";
+                    default:return "未定义";
+                }
+            }
+                }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="finishFlag"    )]
+        [SugarColumn(ColumnName="finishFlag"    )]
          public string FinishFlag { get; set; }
         /// <summary>
         ///  

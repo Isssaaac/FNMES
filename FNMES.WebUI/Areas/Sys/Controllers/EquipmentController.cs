@@ -6,6 +6,7 @@ using FNMES.Utility.Core;
 using FNMES.Utility.Operator;
 using FNMES.WebUI.Controllers;
 using FNMES.WebUI.Logic.Sys;
+using FNMES.WebUI.Logic;
 
 namespace MES.WebUI.Areas.Sys.Controllers
 {
@@ -56,6 +57,7 @@ namespace MES.WebUI.Areas.Sys.Controllers
         [HttpPost, AuthorizeChecked]
         public ActionResult Form(SysEquipment model)
         {
+            Logger.RunningInfo(model.ToJson());
             long modyfyId = long.Parse(OperatorProvider.Instance.Current.UserId);
             if (model.Id == 0)
             {

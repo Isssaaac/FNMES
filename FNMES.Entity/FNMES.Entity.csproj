@@ -4,9 +4,6 @@
 	</PropertyGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\FNMES.Utility\FNMES.Utility.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Param\" />
 	</ItemGroup> 
 
 </Project>

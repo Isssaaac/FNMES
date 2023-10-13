@@ -1,0 +1,161 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/ico" href="~/favicon.ico" />
+    <link rel="bookmark" type="image/ico" href="~/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+<body>
+    <form id="form" class="layui-form" style="margin-top: 25px">
+        <form id="form" class="layui-form" style="margin-top: 25px">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label label-required">工序</label>
+                    <div class="layui-input-inline">
+                        <input type="hidden" name="Id" id="Id" />
+                        <input type="hidden" name="ConfigId" id="ConfigId" />
+                        <input type="hidden" name="ProductId" id="ProductId" />
+                        <select lay-ignore name="UnitProcedure" class="select2" id="UnitProcedure" style="width: 314px;" lay-verify="required" disabled></select>
+
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">步骤号</label>
+                    <div class="layui-input-block">
+                        <input type="number" name="Step" id="Step" lay-verify="number" autocomplete="off" class="layui-input" disabled>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">选项</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" lay-skin="primary" name="IsAllowRepeat" value="true" title="允许重复执行" disabled>
+                        <input type="checkbox" lay-skin="primary" name="IsCheckInStation" value="true" title="过站校验" disabled>
+                        <input type="checkbox" lay-skin="primary" name="IsCheckFactoryInStation" value="true" title="工厂过站" disabled>
+                        <input type="checkbox" lay-skin="primary" name="IsEnableFlag" value="true" title="启用" checked disabled>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label label-required">过站工序</label>
+                    <div class="layui-input-inline">
+                        <select lay-ignore name="CheckLists" class="select2" id="CheckLists" multiple="multiple" style="width: 514px;" lay-verify="required" disabled></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">备注</label>
+                    <div class="layui-input-inline" style="width: 514px;">
+                        <textarea name="Desc" placeholder="请输入备注" class="layui-textarea" disabled></textarea>
+                    </div>
+                </div>
+            </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">创建人员</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="CreateUserName" autocomplete="off" class="layui-input" disabled />
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">创建时间</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="CreateTime" autocomplete="off" class="layui-input" disabled />
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">修改人员</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="ModifyUserName" autocomplete="off" class="layui-input" disabled />
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">修改时间</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="ModifyTime" autocomplete="off" class="layui-input" disabled />
+                </div>
+            </div>
+        </div>
+    </form>
+    <script>
+        layui.use(['element', 'form', 'laydate'], function () {
+            var form = layui.form;
+            var element = layui.element;
+            var laydate = layui.laydate;
+            laydate.render({
+                
+            });
+
+            var primaryKey = $.getQueryString("primaryKey");
+            var configId = $.getQueryString("configId");
+            $("#UnitProcedure").bindSelect({
+                type: "POST",
+                url: "/param/unitProcedure/getListTreeUnSelect" + "?configId=" + configId,
+                title: '请选择工序'
+            });
+            $("#CheckLists").bindSelect({
+                type: "POST",
+                url: "/param/unitProcedure/getListTreeUnSelect" + "?configId=" + configId,
+                title: '请选择工序'
+            });
+
+            if (primaryKey) {
+                $.ajax({
+                    url: "/param/productStep/getForm",
+                    data: {
+                        primaryKey: primaryKey,
+                        configId: configId
+                    },
+                    type: "post",
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        $("#form").formSerialize(data);
+                    }
+                });
+            }
+
+            form.render();
+
+        });
+    </script>
+</body>
+</html>

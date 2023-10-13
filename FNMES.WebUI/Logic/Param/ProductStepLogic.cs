@@ -2,41 +2,28 @@
 using SqlSugar;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using FNMES.Utility.Operator;
+using FNMES.Utility.Security;
+using FNMES.Utility.Extension;
 using FNMES.Utility.Core;
+using FNMES.Utility.Other;
+using System.Drawing.Printing;
+using Microsoft.VisualBasic;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Engineering;
 using FNMES.WebUI.Logic.Base;
 using FNMES.Entity.Param;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace FNMES.WebUI.Logic.Param
 {
-    public class ParamProductLogic : BaseLogic
+    public class ProductStepLogic : BaseLogic
     {
-        /// <summary>
-        /// 根据账号得到用户信息
-        /// </summary>
-        /// <param name="account"></param>
-        /// <returns></returns>
-        public SysUser GetByUserName(string account)
-        {
-            try
-            {
-                using var db = GetInstance();
-                return db.Queryable<SysUser>().Where(it => it.UserNo == account)
-                   //  .Includes(it => it.Organize) && it.DeleteFlag == "0"
-                   .Includes(it => it.CreateUser)
-                   .Includes(it => it.ModifyUser)
-                 .First();
-            }
-            catch (Exception E)
-            {
-                Logger.ErrorInfo(E.Message.ToString());
-                return null;
-            }
-            
-            
-        }
 
 
-        public int Insert(ParamProduct model, long account )
+        public int Insert(ParamProductStep model, long account )
         {
             try
             {
@@ -47,11 +34,11 @@ namespace FNMES.WebUI.Logic.Param
                 model.CreateTime = DateTime.Now;
                 model.ModifyUserId = model.CreateUserId;
                 model.ModifyTime = model.CreateTime;
-                return db.Insertable<ParamProduct>(model).ExecuteCommand();
+                return db.Insertable<ParamProductStep>(model).ExecuteCommand();
             }
-            catch (Exception E)
+            catch (Exception)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+
                 return 0;
             }
         }
@@ -63,20 +50,20 @@ namespace FNMES.WebUI.Logic.Param
         /// </summary>
         /// <param name="primaryKey"></param>
         /// <returns></returns>
-        public ParamProduct Get(long primaryKey, string configId)
+        public ParamProductStep Get(long primaryKey, string configId)
         {
             try
             {
                 using var db = GetInstance(configId);
-                ParamProduct product = db.Queryable<ParamProduct>().Where(it => it.Id == primaryKey).First();
+                ParamProductStep product = db.Queryable<ParamProductStep>().Where(it => it.Id == primaryKey).First();
                 using var sysdb = GetInstance();
                 product.CreateUser = sysdb.Queryable<SysUser>().Where(it => it.Id == product.CreateUserId).First();
                 product.CreateUser = sysdb.Queryable<SysUser>().Where(it => it.Id == product.ModifyUserId).First();
                 return product;
             }
-            catch (Exception E)
+            catch (Exception)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+
                 return null;
             }
 
@@ -90,23 +77,38 @@ namespace FNMES.WebUI.Logic.Param
         /// <param name="keyWord"></param>
         /// <param name="totalCount"></param>
         /// <returns></returns>
-        public List<ParamProduct> GetList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount)
+        public List<ParamProductStep> GetList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount, long productId)
         {
             try
             {
                 using var db = GetInstance(configId);
-                ISugarQueryable<ParamProduct> queryable = db.Queryable<ParamProduct>();
-                if (!keyWord.IsNullOrEmpty())
+                ISugarQueryable<ParamProductStep> queryable = db.Queryable<ParamProductStep>().Where(it => it.ProductId == productId);
+                if (!keyWord.IsNullOrEmpty())   
                 {
-                    queryable = queryable.Where(it => it.Encode.Contains(keyWord) || it.Name.Contains(keyWord));
+                    queryable = queryable.Where(it => it.Desc.Contains(keyWord) || it.UnitProcedure.Contains(keyWord));
                 }
                 return queryable.ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message.ToString());
-                return null;
+                throw;
             }
+        }
+
+        public List<string> getSelectedProcedure(string configId, string productId)
+        {
+            try
+            {
+                using var db = GetInstance(configId);
+                List<string> procedures = db.Queryable<ParamProductStep>().Where(it => it.ProductId == long.Parse(productId)).Select(it=> it.UnitProcedure).ToList();
+                return procedures;
+            }
+            catch (Exception E)
+            {
+               Logger.ErrorInfo(E.Message);
+                return new List<string>();
+            }
+
         }
 
      
@@ -122,11 +124,11 @@ namespace FNMES.WebUI.Logic.Param
             {
                 using var db = GetInstance(configId);
                 Logger.RunningInfo(primaryKey.ToString()+configId);
-                return db.Deleteable<ParamProduct>().Where(it => primaryKey == it.Id).ExecuteCommand();
+                return db.Deleteable<ParamProductStep>().Where(it => primaryKey == it.Id).ExecuteCommand();
             }
-            catch (Exception E)
+            catch (Exception)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+
                 return 0;
             }
         }
@@ -136,7 +138,7 @@ namespace FNMES.WebUI.Logic.Param
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public int Update(ParamProduct model, long userId)
+        public int Update(ParamProductStep model, long userId)
         {
             try
             {
@@ -144,32 +146,16 @@ namespace FNMES.WebUI.Logic.Param
                 model.ModifyUserId = userId;
                 model.ModifyTime = DateTime.Now;
 
-                return db.Updateable<ParamProduct>(model).IgnoreColumns(it => new
+                return db.Updateable<ParamProductStep>(model).IgnoreColumns(it => new
                 {
                     it.CreateUserId,
                     it.CreateTime
                 }).ExecuteCommand();
             }
-            catch (Exception E)
+            catch (Exception)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+
                 return 0;
-            }
-        }
-
-        public List<ParamProduct> GetList(string configId)
-        {
-            try
-            {
-                using var db = GetInstance(configId);
-
-                List<ParamProduct> paramProducts = db.Queryable<ParamProduct>().ToList();
-                return paramProducts;
-            }
-            catch (Exception E)
-            {
-                Logger.ErrorInfo(E.Message.ToString());
-                return null;
             }
         }
     }
