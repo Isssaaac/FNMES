@@ -39,7 +39,12 @@ namespace FNMES.Entity.Param
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="status"    )]
+        [SugarColumn(ColumnName = "configId")]
+        public string ConfigId { get; set; }
+        /// <summary>
+        ///  
+        ///</summary>
+        [SugarColumn(ColumnName="status"    )]
          public string Status { get; set; }
         /// <summary>
         ///  

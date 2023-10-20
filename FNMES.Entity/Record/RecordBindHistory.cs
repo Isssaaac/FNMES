@@ -37,10 +37,13 @@ namespace FNMES.Entity.Record
         ///</summary>
          [SugarColumn(ColumnName="productPartNo", ColumnDataType = "varchar(100)", IsNullable = true)]
          public string ProductPartNo { get; set; }
+
+        [SugarColumn(ColumnName = "configId")]
+        public string ConfigId { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="status", ColumnDataType = "char(1)", IsNullable = true)]
+        [SugarColumn(ColumnName="status", ColumnDataType = "char(1)", IsNullable = true)]
          public string Status { get; set; }
         /// <summary>
         ///  

@@ -33,7 +33,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\FNMES.Entity\FNMES.Entity.csproj" />
-		<ProjectReference Include="..\FNMES.Service\FNMES.Service.csproj" />
 		<ProjectReference Include="..\FNMES.Utility\FNMES.Utility.csproj" />
 	</ItemGroup>
 

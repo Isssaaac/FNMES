@@ -9,11 +9,7 @@ namespace FNMES.WebUI.Logic.Param
 {
     public class ParamOrderLogic : BaseLogic
     {
-        /// <summary>
-        /// 根据账号得到用户信息
-        /// </summary>
-        /// <param name="account"></param>
-        /// <returns></returns>
+        
         public int Insert(ParamOrder model, string configId,long account )
         {
             try
@@ -29,20 +25,30 @@ namespace FNMES.WebUI.Logic.Param
                 return 0;
             }
         }
-
-
-
-        /// <summary>
-        /// 根据主键得到用户信息
-        /// </summary>
-        /// <param name="primaryKey"></param>
-        /// <returns></returns>
+        
         public ParamOrder Get(long primaryKey, string configId)
         {
             try
             {
                 using var db = GetInstance(configId);
                 ParamOrder order = db.Queryable<ParamOrder>().Where(it => it.Id == primaryKey).First();
+                using var sysdb = GetInstance();
+                return order;
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message.ToString());
+                return null;
+            }
+
+        }
+
+        public ParamOrder GetSelected(string configId)
+        {
+            try
+            {
+                using var db = GetInstance(configId);
+                ParamOrder order = db.Queryable<ParamOrder>().Where(it => it.Flag == "1").First();
                 using var sysdb = GetInstance();
                 return order;
             }
@@ -120,16 +126,14 @@ namespace FNMES.WebUI.Logic.Param
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public int Update(ParamOrder model,string configId, long userId)
+        public int Update(ParamOrder model,string configId)
         {
             try
             {
                 using var db = GetInstance(configId);
 
-                return db.Updateable<ParamProduct>(model).IgnoreColumns(it => new
+                return db.Updateable<ParamOrder>(model).IgnoreColumns(it => new
                 {
-                    it.CreateUserId,
-                    it.CreateTime
                 }).ExecuteCommand();
             }
             catch (Exception E)

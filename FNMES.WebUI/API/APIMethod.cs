@@ -1,4 +1,8 @@
-﻿using FNMES.Utility.Network;
+﻿using FNMES.Entity.Record;
+using FNMES.Utility.Core;
+using FNMES.Utility.Network;
+using FNMES.WebUI.Logic.Record;
+using System.Diagnostics;
 
 namespace FNMES.WebUI.API
 {
@@ -29,9 +33,27 @@ namespace FNMES.WebUI.API
     }
     public class APIMethod
     {
-        public static string Call(string method, object param)
+        private static readonly RecordApiLogic logic;
+        static APIMethod() { 
+            logic = new RecordApiLogic();
+        }
+        public static string Call(string method, object param,string configId)
         {
-            return WebApiRequest.DoPostJson(method, param);
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            string response = WebApiRequest.DoPostJson(method, param);
+            if(response.IsNullOrEmpty()) {
+                response = "{\"messageType\":\"E\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+            }
+            stopwatch.Stop();
+            logic.Insert(new RecordApi()
+            {
+                Url = method,
+                RequestBody = param.ToJson(),
+                ResponseBody = response,
+                Elapsed = (int)stopwatch.Elapsed.TotalMilliseconds
+            }, configId); 
+            return response;
         }
     }
 }

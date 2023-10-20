@@ -30,6 +30,7 @@ using Newtonsoft.Json.Serialization;
 using SoapCore;
 using SqlSugar;
 using UEditorNetCore;
+using SoapCore.Extensibility;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddCommandLine(args);
@@ -112,6 +113,8 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.TryAddSingleton<WebServiceContract>();
+
+
 
 var app = builder.Build();
 MyHttpContext.ServiceProvider = app.Services;

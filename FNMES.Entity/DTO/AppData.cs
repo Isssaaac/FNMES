@@ -1,11 +1,6 @@
-﻿using FNMES.Entity.Sys;
-using Microsoft.OpenApi.Writers;
-using System;
+﻿using SqlSugar;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FNMES.Entity.DTO.AppData
 {
@@ -93,6 +88,48 @@ namespace FNMES.Entity.DTO.AppData
         [DataMember]
         public int StopCodeOffset { get; set; }
     }
+    [DataContract]
+    public class BindProcessParam 
+    {
+        [DataMember]
+        public string productCode { get; set; } // 内控码
+        [DataMember]
+        public string palletNo { get; set; } // AGV工装码 
+        [DataMember]
+        public string bigStationCode { get; set; } // 工位号
+        [DataMember]
+        public string stationCode { get; set; } // 小工位（选填）
+        [DataMember]
+        public string equipmentID { get; set; } // 设备编码（选填）
+        [DataMember]
+        public string operatorNo { get; set; } // 操作工
 
+        //上面部分为api需要的参数，下面为线体绑定需要的参数
+        [DataMember]
+        public string TaskOrderNumber { get; set; }
+        [DataMember]
+        public string ProductPartNo { get; set; }
+        [DataMember]
+        public string ConfigId { get; set; }
+        [DataMember]
+        public string Status { get; set; }
+        [DataMember]
+        public string RepairFlag { get; set; }
+        [DataMember]
+        public string RepairStations { get; set; }
+    }
 
+    [DataContract]
+    public class LabelAndOrderData
+    {
+        // Pack内控码/Reess码
+        [DataMember]
+        public string CodeContent { get; set; }
+        [DataMember]
+        public string TaskOrderNumber { get; set; }
+        [DataMember]
+        public string ProductPartNo { get; set; }
+        [DataMember]
+        public string ConfigId { get; set; }
+    }
 }

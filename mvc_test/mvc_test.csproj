@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FNMES.Entity\FNMES.Entity.csproj" />
     <ProjectReference Include="..\FNMES.Utility\FNMES.Utility.csproj" />
+    <ProjectReference Include="..\FNMES.WebUI\FNMES.WebUI.csproj" />
   </ItemGroup>
 
 </Project>

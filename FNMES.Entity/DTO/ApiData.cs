@@ -122,11 +122,9 @@ namespace FNMES.Entity.DTO.ApiData
         // 工艺最小值
         public string minValue { get; set; }
     }
-    [DataContract]
     public class GetLabelData
     {
         // Pack内控码/Reess码
-        [DataMember]
         public string codeContent { get; set; }
     }
     [DataContract]
