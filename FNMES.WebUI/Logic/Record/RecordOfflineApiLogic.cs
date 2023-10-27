@@ -16,7 +16,7 @@ namespace FNMES.WebUI.Logic.Record
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 model.CreateTime = DateTime.Now;
                 return db.Insertable<RecordOfflineApi>(model).SplitTable().ExecuteCommand();
@@ -31,7 +31,7 @@ namespace FNMES.WebUI.Logic.Record
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 ISugarQueryable<RecordOfflineApi> queryable = db.Queryable<RecordOfflineApi>();
 
                 if (!keyWord.IsNullOrEmpty())
@@ -51,7 +51,7 @@ namespace FNMES.WebUI.Logic.Record
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 return db.Queryable<RecordOfflineApi>().Where(it => it.ReUpload == 0).SplitTable(tabs => tabs.Take(2)).ToList();
             }
             catch (Exception e)
@@ -65,7 +65,7 @@ namespace FNMES.WebUI.Logic.Record
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 return db.Updateable<RecordOfflineApi>(models).SplitTable().ExecuteCommand();
             }
             catch (Exception e)
@@ -79,7 +79,7 @@ namespace FNMES.WebUI.Logic.Record
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 return db.Updateable<RecordOfflineApi>(model).SplitTable().ExecuteCommand();
             }
             catch (Exception e)

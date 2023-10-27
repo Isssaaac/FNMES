@@ -28,7 +28,8 @@ namespace FNMES.WebUI.Logic.Param
             int res = 0;
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
+                paramErrors.ForEach(err => { err.Id = SnowFlakeSingle.instance.NextId(); });
                 Db.BeginTran();
                 db.DbMaintenance.TruncateTable<ParamEquipmentError>();
                 res = db.Insertable<ParamEquipmentError>(paramErrors).ExecuteCommand();
@@ -41,13 +42,42 @@ namespace FNMES.WebUI.Logic.Param
             }
             return res;
         }
-       
+
+
+        public List<ParamEquipmentError> GetAllError(string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                return db.Queryable<ParamEquipmentError>().ToList();
+
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message.ToString());
+                return null;
+            }
+        }
+        public List<ParamEquipmentStatus> GetAllStatus(string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                return db.Queryable<ParamEquipmentStatus>().ToList();
+
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message.ToString());
+                return null;
+            }
+        }
 
         public List<ParamEquipmentError> GetErrorList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount)
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 ISugarQueryable<ParamEquipmentError> queryable = db.Queryable<ParamEquipmentError>();
 
                 if (!keyWord.IsNullOrEmpty())
@@ -66,7 +96,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 ISugarQueryable<ParamEquipmentStatus> queryable = db.Queryable<ParamEquipmentStatus>();
 
                 if (!keyWord.IsNullOrEmpty())
@@ -86,7 +116,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 ISugarQueryable<ParamEquipmentStopCode> queryable = db.Queryable<ParamEquipmentStopCode>();
 
                 if (!keyWord.IsNullOrEmpty())
@@ -108,7 +138,8 @@ namespace FNMES.WebUI.Logic.Param
             int res = 0;
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
+                paramStatus.ForEach(err => { err.Id = SnowFlakeSingle.instance.NextId(); });
                 Db.BeginTran();
                 db.DbMaintenance.TruncateTable<ParamEquipmentStatus>();
                 res = db.Insertable<ParamEquipmentStatus>(paramStatus).ExecuteCommand();
@@ -129,7 +160,7 @@ namespace FNMES.WebUI.Logic.Param
             int res = 0;
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 Db.BeginTran();
                 db.DbMaintenance.TruncateTable<ParamEquipmentStopCode>();
                 res = db.Insertable<ParamEquipmentStopCode>(models).ExecuteCommand();
@@ -153,7 +184,7 @@ namespace FNMES.WebUI.Logic.Param
             {
                 List<ErrorParam> errorParams = new();
                 List<StatusParam> statusParams = new();
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 List<ParamEquipmentError> errors = db.Queryable<ParamEquipmentError>().Where(it => it.PlcNo == plcNo).ToList();
                 List<ParamEquipmentStatus> statuses = db.Queryable<ParamEquipmentStatus>().Where(it => it.PlcNo == plcNo).ToList();
                 List<ParamEquipmentStopCode> stopCodes = db.Queryable<ParamEquipmentStopCode>().ToList();
@@ -197,7 +228,7 @@ namespace FNMES.WebUI.Logic.Param
                             BigStationCode = item.BigStationCode,
                             EquipmentID = item.EquipmentID,
                             Offset = item.Offset,
-                            StopCodeOffset = item.stopCodeOffset
+                            StopCodeOffset = item.StopCodeOffset
                         });
                     }
                 }

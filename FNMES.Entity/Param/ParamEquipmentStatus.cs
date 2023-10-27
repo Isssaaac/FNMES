@@ -30,7 +30,7 @@ namespace FNMES.Entity.Param
         [SugarColumn(ColumnName = "offset")]
         public int Offset { get; set; }
         [SugarColumn(ColumnName = "stopCodeOffset")]
-        public int stopCodeOffset { get; set; }
+        public int StopCodeOffset { get; set; }
         [SugarColumn(ColumnName = "plcNo")]
         public int PlcNo { get; set; }
 

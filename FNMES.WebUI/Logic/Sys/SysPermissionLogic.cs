@@ -46,7 +46,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public List<SysPermission> GetList(long userId)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             List<long> permissionIdList = db.Queryable<SysUserRoleRelation, SysRoleAuthorize, SysPermission>((A, B, C) => new object[] {
                       JoinType.Left,A.RoleId == B.RoleId,
                       JoinType.Left,C.Id == B.ModuleId,
@@ -59,7 +59,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public List<SysPermission> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             if (keyWord.IsNullOrEmpty())
             {
                 return db.Queryable<SysPermission>().OrderBy(it => it.SortCode).ToPageList(pageIndex, pageSize, ref totalCount);
@@ -70,7 +70,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public int Delete(params string[] primaryKeys)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             try
             {
                 Logger.RunningInfo(primaryKeys.ToJson());
@@ -90,7 +90,7 @@ namespace FNMES.WebUI.Logic.Sys
         }
         public int GetMaxChildMenuOrderCode(string parentId)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             //得到当前节点
             SysPermission permission = db.Queryable<SysPermission>().Where(it => it.Id.ToString() == parentId).First();
             if (permission == null)
@@ -104,26 +104,26 @@ namespace FNMES.WebUI.Logic.Sys
         }
         public int GetChildCount(long parentId)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Queryable<SysPermission>().Where(it => it.ParentId == parentId).ToList().Count;
         }
 
         public List<SysPermission> GetList()
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Queryable<SysPermission>().OrderBy(it => it.SortCode).ToList();
         }
 
         public SysPermission Get(long primaryKey = 0)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Queryable<SysPermission>().Where(it => it.Id == primaryKey).Includes(it => it.CreateUser).Includes(it => it.ModifyUser).First();
         }
 
 
         public int Insert(SysPermission model, long  operateId)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             model.Id = SnowFlakeSingle.instance.NextId();
             model.Layer = model.Type == 2 ? 0 : model.Type == 0 ? 1 : 2;
             model.IsEdit = model.IsEdit == null ? "0" : "1";
@@ -136,7 +136,7 @@ namespace FNMES.WebUI.Logic.Sys
         }
         public int AppInsert(SysPermission model, long operateId)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             model.Id = SnowFlakeSingle.instance.NextId();
             model.Layer = model.Type == 2 ? 0 : model.Type == 0 ? 1 : 2;
             model.IsEdit = "1";
@@ -150,7 +150,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public int AppUpdate(SysPermission model, long operateId)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             model.Layer = model.Type == 2 ? 0 : model.Type == 0 ? 1 : 2;
             model.ModifyUserId = operateId;
             model.ModifyTime = DateTime.Now;
@@ -177,7 +177,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public int Update(SysPermission model, long operateId)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             model.Layer = model.Type == 2 ? 0 : model.Type == 0 ? 1 : 2;
             model.IsEdit = model.IsEdit == null ? "0" : "1";
             model.ModifyUserId = operateId;
@@ -204,7 +204,7 @@ namespace FNMES.WebUI.Logic.Sys
         }
         public int InsertList(List<SysPermission> permissionList)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             permissionList.ForEach(it => it.Id = SnowFlakeSingle.instance.NextId());
             return db.Insertable<SysPermission>(permissionList).ExecuteCommand();
         }

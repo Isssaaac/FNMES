@@ -19,7 +19,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public List<SysLine> GetList()
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Queryable<SysLine>()
                 .Includes(it => it.CreateUser)
                 .Includes(it => it.ModifyUser)
@@ -30,7 +30,7 @@ namespace FNMES.WebUI.Logic.Sys
       
         public List<SysLine> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             ISugarQueryable<SysLine> queryable = db.Queryable<SysLine>();
 
             if (!keyWord.IsNullOrEmpty())
@@ -49,7 +49,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public SysLine Get(long primaryKey)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Queryable<SysLine>()
                 .Where(it => it.Id == primaryKey)
                 .Includes(it => it.CreateUser)
@@ -57,10 +57,17 @@ namespace FNMES.WebUI.Logic.Sys
                 .First();
         }
 
+        public SysLine GetByConfigId(string configId)
+        {
+            var db = GetInstance();
+            return db.Queryable<SysLine>()
+                .Where(it => it.ConfigId == configId)
+                .First();
+        }
 
         public int Insert(SysLine model, long account)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             model.Id = SnowFlakeSingle.instance.NextId();
             model.CreateUserId = account;
             model.CreateTime = DateTime.Now;
@@ -71,12 +78,12 @@ namespace FNMES.WebUI.Logic.Sys
 
         public int Delete(long primaryKey)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Deleteable<SysLine>().Where(it => it.Id == primaryKey).ExecuteCommand();
         }
         public int Update(SysLine model, long account)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             model.ModifyUserId = account;
             model.ModifyTime = DateTime.Now;
             return db.Updateable<SysLine>(model).UpdateColumns(it => new

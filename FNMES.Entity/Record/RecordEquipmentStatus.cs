@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,9 +25,24 @@ namespace FNMES.Entity.Record
         [SugarColumn(ColumnName = "equipmentStatus", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string EquipmentStatus { get; set; }
 
+        [SugarColumn(ColumnName = "statusCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        public string StatusCode { get; set; }
+
+
         [SugarColumn(ColumnName = "statusDescription", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string StatusDescription { get; set; }
 
+        [SugarColumn(ColumnName = "stopFlag", ColumnDataType = "varchar(1)", IsNullable = true)]
+        public string StopFlag { get; set; }
+        [SugarColumn(IsIgnore = true)]
+        public bool HasRecordStop { get {
+                return StopFlag == "1";
+            } }
+
+
+
+        [SugarColumn(ColumnName = "callTime", ColumnDataType = "varchar(100)", IsNullable = true)]
+        public string CallTime { get; set; }
 
         [SplitField]
         [SugarColumn(ColumnName = "createTime")]

@@ -18,7 +18,10 @@ namespace FNMES.Entity.Record
                     {
                         if (sorfield.Name.ToLower()== tarfield.Name.ToLower() && sorfield.PropertyType.Name == tarfield.PropertyType.Name)
                         {
-                            tarfield.SetValue(this, sorfield.GetValue(source));
+                            if (!sorfield.PropertyType.Name.Contains("List"))
+                            {
+                                tarfield.SetValue(this, sorfield.GetValue(source));
+                            }
                         }
                     }
                 }

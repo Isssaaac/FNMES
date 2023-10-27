@@ -7,21 +7,19 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.Record
 {
-    [SplitTable(SplitType.Month)]
-    [SugarTable("Record_PartUpload_{year}{month}{day}")]
-    [SugarIndex("index_partUpload_productCode", nameof(RecordPartUpload.ProductCode), OrderByType.Asc)]    //索引
-    public class RecordPartUpload : BaseRecord
+    [SplitTable(SplitType.Season)]
+    [SugarTable("Record_ToolRemain_{year}{month}{day}")]
+    [SugarIndex("index_toolRemain_stationCode", nameof(RecordToolRemain.StationCode), OrderByType.Asc)]    //索引
+    public class RecordToolRemain : BaseRecord
     {
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
         [SugarColumn(ColumnName = "id", IsPrimaryKey = true)]
         public long Id { get; set; }
 
+       
         [SugarColumn(ColumnName = "productCode", ColumnDataType = "varchar(100)", IsNullable = true)]
-        // 内控码
+        // 产品码
         public string ProductCode { get; set; }
-        [SugarColumn(ColumnName = "bigStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
-        // 大工站
-        public string BigStationCode { get; set; }
         [SugarColumn(ColumnName = "stationCode", ColumnDataType = "varchar(10)", IsNullable = true)]
         // 小工站
         public string StationCode { get; set; }
@@ -34,7 +32,7 @@ namespace FNMES.Entity.Record
         //[Navigate(NavigateType.OneToMany, nameof(RecordPartData.PartUploadId))]
         // 零件列表
         [SugarColumn(IsIgnore = true)]
-        public List<RecordPartData> PartList { get; set; }
+        public List<RecordToolData> ToolList { get; set; }
 
         [SplitField]
         [SugarColumn(ColumnName = "createTime")]

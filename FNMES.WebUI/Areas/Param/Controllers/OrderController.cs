@@ -10,6 +10,12 @@ using FNMES.WebUI.Logic;
 using FNMES.Entity.Param;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
+using FNMES.Utility.Network;
+using FNMES.WebUI.API;
+using FNMES.Entity.DTO.ApiParam;
+using FNMES.WebUI.Logic.Sys;
+using FNMES.Entity.Sys;
+using FNMES.Entity.DTO.ApiData;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -17,9 +23,11 @@ namespace MES.WebUI.Areas.Param.Controllers
     public class OrderController : BaseController
     {
         private readonly ParamOrderLogic orderLogic;
+        private readonly SysLineLogic sysLineLogic;
         public OrderController()
         {
             orderLogic = new ParamOrderLogic();
+            sysLineLogic = new SysLineLogic();
         }
 
 
@@ -73,13 +81,180 @@ namespace MES.WebUI.Areas.Param.Controllers
         [HttpPost, LoginChecked]
         public ActionResult GetForm(string primaryKey, string configId)
         {
-            ParamOrder entity = orderLogic.Get(long.Parse(primaryKey),configId);
+            ParamOrder entity = orderLogic.GetWithQty(long.Parse(primaryKey),configId);
             return Content(entity.ToJson());
         }
 
+        [Route("param/order/start")]
+        [HttpPost, LoginChecked]
+        public ActionResult Start(string primaryKey, string configId)
+        {
+            //没有激活订单才可以激活，且当前订单状态为0-未开工或2- 暂停
+            ParamOrder entity = orderLogic.GetSelected( configId);
+            if(entity != null)
+            {
+                return Error("已存在开工工单，操作不允许");
+            }
+            ParamOrder order = orderLogic.Get(long.Parse(primaryKey), configId);
+            if (order == null)
+            {
+                return Error("选中工单不存在");
+            }
+            if (order.Flag == "0" || order.Flag == "2")
+            {
+                order.Flag = "1";
+                order.StartTime = DateTime.Now;
+                SelectOrderParam orderParam = new SelectOrderParam() { 
+                    taskOrderNumber = order.TaskOrderNumber,
+                    bigStationCode = "",    //此处填充内容根据工厂确定
+                    equipmentID = "",
+                    actionCode = "S",
+                    operatorNo = OperatorProvider.Instance.Current.UserId,
+                    actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+                };
+
+                //准备开工，先请求工厂接口，再更新本地数据
+                RetMessage<object> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, orderParam, configId).ToObject<RetMessage<object>>();
+
+                if(retMessage.messageType == "S")
+                {
+                    int v = orderLogic.Update(order, configId);
+                    if (v == 0)
+                    {
+                        return Error("选中工单开工失败");
+                    }
+                    return Success("开工成功");
+                }
+                else
+                {
+                    return Error("工厂接口同步失败");
+                }
+            }
+            else
+            {
+                return Error("选中工单不满足开工条件");
+            }
+            
+        }
+
+        [Route("param/order/pause")]
+        [HttpPost, LoginChecked]
+        public ActionResult Pause(string primaryKey, string configId)
+        {
+            //激活才能暂停
+
+            ParamOrder order = orderLogic.Get(long.Parse(primaryKey), configId);
+            if (order == null)
+            {
+                return Error("选中工单不存在");
+            }
+            if (order.Flag == "1" )
+            {
+                order.Flag = "2";
+                SelectOrderParam orderParam = new SelectOrderParam()
+                {
+                    taskOrderNumber = order.TaskOrderNumber,
+                    bigStationCode = "",    //此处填充内容根据工厂确定
+                    equipmentID = "",
+                    actionCode = "P",
+                    operatorNo = OperatorProvider.Instance.Current.UserId,
+                    actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+                };
+
+                //准备开工，先请求工厂接口，再更新本地数据
+                RetMessage<object> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, orderParam, configId).ToObject<RetMessage<object>>();
+
+                if (retMessage.messageType == "S")
+                {
+                    int v = orderLogic.Update(order, configId);
+                    if (v == 0)
+                    {
+                        return Error("选中工单暂停失败");
+                    }
+                    return Success("暂停成功");
+                }
+                else
+                {
+                    return Error("工厂接口同步失败");
+                }
+            }
+            else
+            {
+                return Error("选中工单不满足暂停条件");
+            }
+
+        }
+
+        [Route("param/order/cancel")]
+        [HttpPost, LoginChecked]
+        public ActionResult Cancel(string primaryKey, string configId)
+        {
+            ParamOrder order = orderLogic.Get(long.Parse(primaryKey), configId);
+            if (order == null)
+            {
+                return Error("选中工单不存在");
+            }
+            if (order.Flag == "1"|| order.Flag == "2")
+            {
+                order.Flag = "3";
+                SelectOrderParam orderParam = new SelectOrderParam()
+                {
+                    taskOrderNumber = order.TaskOrderNumber,
+                    bigStationCode = "",    //此处填充内容根据工厂确定
+                    equipmentID = "",
+                    actionCode = "C",
+                    operatorNo = OperatorProvider.Instance.Current.UserId,
+                    actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+                };
+
+                //准备开工，先请求工厂接口，再更新本地数据
+                RetMessage<object> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, orderParam, configId).ToObject<RetMessage<object>>();
+
+                if (retMessage.messageType == "S")
+                {
+                    int v = orderLogic.Update(order, configId);
+                    if (v == 0)
+                    {
+                        return Error("选中工单取消失败");
+                    }
+                    return Success("取消成功");
+                }
+                else
+                {
+                    return Error("工厂接口同步失败");
+                }
+            }
+            else
+            {
+                return Error("选中工单不满足取消条件");
+            }
+        }
+
+        [Route("param/order/getOrder")]
+        [HttpPost, LoginChecked]
+        public ActionResult GetOrder(string configId)
+        {
+            SysLine sysLine = sysLineLogic.GetByConfigId(configId);
+            if (sysLine == null)
+            {
+                return Error("请先选择线体");
+            }
+            GetOrderParam getOrderParam = new GetOrderParam() { 
+                productionLine = sysLine.EnCode,
+                bigStationCode = ""
+            };
+            RetMessage<GetOrderData> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.GetOrderUrl, getOrderParam, configId).ToObject<RetMessage<GetOrderData>>();
+            if (retMessage.messageType == "S")
+            {
+                int v = orderLogic.Insert(retMessage.data.workOrderList, configId);
+                return Success("同步完成");
 
 
-        
-
+            }
+            else
+            {
+                return Error("工厂接口访问失败");
+            }
+        }
     }
 }

@@ -1,11 +1,11 @@
 ﻿using FNMES.Utility.Core;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using ServiceStack;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Linq;
+using System.IO;
 
 namespace FNMES.Utility.Files
 {
@@ -195,6 +195,54 @@ namespace FNMES.Utility.Files
             }
             return dt;
         }
+
+        public static List<T> ImportExcel<T>(Stream newStream,Dictionary<string,string> strings) where T :new()
+        {
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+            List<T> list = new List<T>();
+            using (ExcelPackage package = new ExcelPackage(newStream))
+            {
+                ExcelWorksheet sheet = package.Workbook.Worksheets[0];
+                int rowCount = sheet.Dimension.Rows;
+                int ColCount = sheet.Dimension.Columns;
+                Dictionary<int, string> selectCol = new Dictionary<int, string>();
+                for (int i = 1; i <= ColCount; i++)
+                {
+                    string colName = Null2Empty(sheet.Cells[1, i].Value);
+                    if (strings.ContainsKey(colName))
+                    {
+                        selectCol.Add(i, strings[colName]);
+                    }
+                }
+                //填充内容
+                for (int i = 2; i <= rowCount; i++)
+                {
+                    T model = new T();
+                    foreach (var j in selectCol.Keys)
+                    {
+                        System.Reflection.PropertyInfo propertyInfo = model.GetType().GetProperty(selectCol[j]);
+                        if(propertyInfo != null)
+                        {
+                            if(propertyInfo.PropertyType == typeof(string))
+                            {
+                                propertyInfo.SetValue(model, Null2Empty(sheet.Cells[i, j].Value));
+                            }
+                            if (propertyInfo.PropertyType == typeof(int))
+                            {
+                                propertyInfo.SetValue(model, Null2Empty(sheet.Cells[i, j].Value).ToInt32());
+                            }
+
+                        }
+                    }
+                    list.Add(model);
+                }
+            }
+            return list;
+        }
+
+
+
+
 
         public static DataSet ImportExcel2DataSet(string filePath)
         {

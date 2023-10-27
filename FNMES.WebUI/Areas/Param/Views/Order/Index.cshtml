@@ -34,13 +34,13 @@
              </div>
 
             <div id="toolbar" class="FNMES-table-toolbar">
-                <div class="layui-btn-group">
-                </div>
+                <div class="layui-btn-group"> </div>
                 <div class="layui-btn-group" id="queryDate">
                     <button value="1" class="layui-btn layui-btn-primary layui-btn-small">正序</button>
                     <button value="2" class="layui-btn layui-btn-primary layui-btn-small active">倒序</button>
                     <button value="3" class="layui-btn layui-btn-primary layui-btn-small">只看未完成</button>
                 </div>
+                
                 <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
                         <i class="layui-icon">&#xe615;</i>
                 </button>
@@ -129,6 +129,11 @@
         initGrid();
     }
 
+    $('#queryDate').find('button').click(function (i, v) {
+        $(this).addClass('active');
+        $(this).siblings('button').removeClass('active');
+        initGrid();
+    });
 
 
     function initGrid() {
@@ -153,18 +158,12 @@
     }
 
     function btn_getOrder() {
-        var ids = $("#gridList").gridSelectedRowValue();
-        if (ids.length != 1) {
-            $.layerMsg("请勾选需要一条删除的用户。", "warning");
-            return;
-        }
         $.layerConfirm({
-            content: "您已选中1条数据, 确定开工吗？",
+            content: "确定同步工厂工单吗？",
             callback: function () {
                 $.formSubmit({
-                    url: '/param/product/delete',
+                    url: '/param/order/getOrder',
                     data: {
-                        productId: ids[0],
                         configId: $("#lineId").val()
                     },
                     success: function () {
@@ -179,15 +178,15 @@
     function btn_start() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
-            $.layerMsg("请勾选需要一条删除的用户。", "warning");
+            $.layerMsg("请勾选需要一条开工的工单。", "warning");
             return;
         }
         $.layerConfirm({
             content: "您已选中1条数据, 确定开工吗？",
             callback: function () {
                 $.formSubmit({
-                    url: '/param/product/delete',
-                    data: { productId: ids[0],
+                    url: '/param/order/start',
+                    data: { primaryKey: ids[0],
                             configId: $("#lineId").val() },
                     success: function () {
                         initGrid();
@@ -199,16 +198,16 @@
     function btn_pause() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
-            $.layerMsg("请勾选需要一条删除的用户。", "warning");
+            $.layerMsg("请勾选需要一条暂停的工单。", "warning");
             return;
         }
         $.layerConfirm({
-            content: "您已选中1条数据, 确定开工吗？",
+            content: "您已选中1条数据, 确定暂停吗？",
             callback: function () {
                 $.formSubmit({
-                    url: '/param/product/delete',
+                    url: '/param/order/pause',
                     data: {
-                        productId: ids[0],
+                        primaryKey: ids[0],
                         configId: $("#lineId").val()
                     },
                     success: function () {
@@ -221,16 +220,16 @@
     function btn_cancel() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
-            $.layerMsg("请勾选需要一条删除的用户。", "warning");
+            $.layerMsg("请勾选需要一条取消的工单。", "warning");
             return;
         }
         $.layerConfirm({
-            content: "您已选中1条数据, 确定开工吗？",
+            content: "您已选中1条数据, 确定取消吗？",
             callback: function () {
                 $.formSubmit({
-                    url: '/param/product/delete',
+                    url: '/param/order/cancel',
                     data: {
-                        productId: ids[0],
+                        primaryKey: ids[0],
                         configId: $("#lineId").val()
                     },
                     success: function () {
@@ -240,9 +239,6 @@
             }
         });
     }
-
-
-
     function btn_detail() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
@@ -251,10 +247,10 @@
         }
         $.layerOpen({
             id: "detail",
-            title: "查看产品",
-            width: "670px",
-            height: "530px",
-            content: "/param/product/detail?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
+            title: "查看工单",
+            width: "730px",
+            height: "400px",
+            content: "/param/order/detail?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
             btn: null
         });
     }

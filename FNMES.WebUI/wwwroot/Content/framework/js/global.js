@@ -260,7 +260,7 @@ $.fn.authorizeButton = function () {
             _buttons += "   <i class='" + item.Icon + "' aria-hidden='true'></i> " + item.Name + "";
             _buttons += "</button>";
         });
-        $toolbar.find('.layui-btn-group:last').html(_buttons);
+        $toolbar.find('.layui-btn-group:first').html(_buttons);
     } else {
         var $toolbar = $(this);
         $toolbar.css('height', '50px');
@@ -299,7 +299,7 @@ $.fn.authorizeButtonContains = function (name) {
             _buttons += "   <i class='" + item.Icon + "' aria-hidden='true'></i> " + item.Name + "";
             _buttons += "</button>";
         });
-        $toolbar.find('.layui-btn-group:last').html(_buttons);
+        $toolbar.find('.layui-btn-group:first').html(_buttons);
     } else {
         var $toolbar = $(this);
         $toolbar.css('height', '50px');

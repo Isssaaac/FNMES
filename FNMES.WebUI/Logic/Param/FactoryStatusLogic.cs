@@ -1,21 +1,7 @@
-﻿using FNMES.Entity.Sys;
-using SqlSugar;
+﻿using SqlSugar;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FNMES.Utility.Operator;
-using FNMES.Utility.Security;
-using FNMES.Utility.Extension;
-using FNMES.Utility.Core;
-using FNMES.Utility.Other;
-using System.Drawing.Printing;
-using Microsoft.VisualBasic;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Engineering;
 using FNMES.WebUI.Logic.Base;
 using FNMES.Entity.Param;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace FNMES.WebUI.Logic.Param
 {
@@ -27,7 +13,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(model.ConfigId);
+                var db = GetInstance(model.ConfigId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 model.CreateTime = DateTime.Now;
                 return db.Insertable<FactoryStatus>(model).ExecuteCommand();
@@ -46,7 +32,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 FactoryStatus factoryStatus = db.Queryable<FactoryStatus>().OrderBy(it => it.Id ,OrderByType.Desc).First();
                 return factoryStatus;
             }
@@ -67,7 +53,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(model.ConfigId);
+                var db = GetInstance(model.ConfigId);
 
                 return db.Updateable<FactoryStatus>(model).IgnoreColumns(it => new
                 {

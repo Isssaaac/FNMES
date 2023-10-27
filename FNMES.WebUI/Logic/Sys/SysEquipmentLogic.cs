@@ -17,7 +17,7 @@ namespace FNMES.WebUI.Logic.Sys
     {
         public List<SysEquipment> GetEquipmentList(string strItemCode)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
 
             SysEquipment equipment = db.Queryable<SysEquipment>().Where(it => it.EnCode == strItemCode).First();
             if (null == equipment)
@@ -31,7 +31,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public List<SysEquipment> GetList(int pageIndex, int pageSize, long lineId, string keyWord, ref int totalCount)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             ISugarQueryable<SysEquipment> queryable = db.Queryable<SysEquipment>().Where(it => it.LineId == lineId);
             if (!keyWord.IsNullOrEmpty())
             {
@@ -47,7 +47,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public List<SysEquipment> GetListByLineId(long lineId)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Queryable<SysEquipment>()
                 .Where(it => it.LineId == lineId)
                 .Includes(it => it.CreateUser)
@@ -56,7 +56,7 @@ namespace FNMES.WebUI.Logic.Sys
         }
         public SysEquipment GetByIP(string IP)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Queryable<SysEquipment>()
                 .Where(it => it.IP == IP)
                 .Includes(it => it.Line)
@@ -72,7 +72,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public SysEquipment Get(long primaryKey)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Queryable<SysEquipment>()
                 .Where(it => it.Id == primaryKey)
                 .Includes(it => it.CreateUser)
@@ -82,7 +82,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public int Insert(SysEquipment model, long account)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             model.Id = SnowFlakeSingle.instance.NextId();
             model.CreateUserId = account;
             model.CreateTime = DateTime.Now;
@@ -96,7 +96,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public int Delete(long pk)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Deleteable<SysEquipment>().Where(it => it.Id == pk).ExecuteCommand();
         }
 

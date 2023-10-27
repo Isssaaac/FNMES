@@ -23,7 +23,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 if (keyWord.IsNullOrEmpty())
                 {
                     return db.Queryable<ParamUnitProcedure>().ToPageList(pageIndex, pageSize, ref totalCount);
@@ -40,7 +40,7 @@ namespace FNMES.WebUI.Logic.Param
 
         public int Delete(long primaryKey,string configId)
         {
-            using var db = GetInstance(configId);
+            var db = GetInstance(configId);
             try
             {
                 Db.BeginTran();
@@ -62,7 +62,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 ParamUnitProcedure entity = db.Queryable<ParamUnitProcedure>().Where(it => it.Id == primaryKey).First();
                 var sysDb = GetInstance();
                 entity.CreateUser = sysDb.Queryable<SysUser>().Where(it => it.Id == entity.CreateUserId).First();
@@ -80,7 +80,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(model.ConfigId);
+                var db = GetInstance(model.ConfigId);
                 model.Id = SnowFlakeSingle.instance.NextId();
                 model.CreateUserId = operateId;
                 model.CreateTime = DateTime.Now;
@@ -97,7 +97,7 @@ namespace FNMES.WebUI.Logic.Param
 
         public int Update(ParamUnitProcedure model, long operateId)
         {
-            using var db = GetInstance(model.ConfigId);
+            var db = GetInstance(model.ConfigId);
             model.ModifyUserId = operateId;
             model.ModifyTime = DateTime.Now;
             return db.Updateable<ParamUnitProcedure>(model).IgnoreColumns(it => new
@@ -111,7 +111,7 @@ namespace FNMES.WebUI.Logic.Param
 
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 return db.Queryable<ParamUnitProcedure>().Where(it => it.IsParent == "1").ToList();
             }
             catch (Exception)
@@ -125,7 +125,7 @@ namespace FNMES.WebUI.Logic.Param
 
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 return db.Queryable<ParamUnitProcedure>().Where(it => it.IsParent == "0").ToList();
             }
             catch (Exception)
@@ -144,7 +144,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 
                 if (parent == null || parent.Length ==0)
                 {

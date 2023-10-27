@@ -19,7 +19,7 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public int Delete(List<long> userIds)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Deleteable<SysUserRoleRelation>().Where(it => userIds.Contains(it.UserId)).ExecuteCommand();
         }
 
@@ -30,7 +30,7 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public List<SysUserRoleRelation> GetList(long userId)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Queryable<SysUserRoleRelation>().Where(it => it.UserId == userId).ToList();
         }
 
@@ -41,7 +41,7 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public List<SysUserRoleRelation> GetByRoles(List<long> ids)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Queryable<SysUserRoleRelation>().Where(it => ids.Contains(it.RoleId)).ToList();
         }
          

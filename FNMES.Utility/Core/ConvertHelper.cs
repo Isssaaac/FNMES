@@ -264,13 +264,6 @@ namespace FNMES.Utility.Core
         /// <summary>
         /// string转int
         /// </summary>
-        public static int ToInt32(this string value)
-        {
-            int? val = ToNullableInt32(value);
-            if (val == null)
-                return 0;
-            return val.Value;
-        }
         #endregion
         #region string转int?
         /// <summary>

@@ -29,7 +29,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 int res;
                 List<ProcessBind> oldprocessBind = db.Queryable<ProcessBind>().Where(it => it.PalletNo == model.PalletNo || it.ProductCode == model.ProductCode).ToList(); ;
@@ -70,7 +70,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 return db.Queryable<ProcessBind>().Where(it => it.PalletNo == palletNo).First();
             }
             catch (Exception e)
@@ -83,7 +83,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 return db.Queryable<ProcessBind>().Where(it => it.ProductCode == productCode).First();
             }
             catch (Exception e)
@@ -105,7 +105,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 ISugarQueryable<ProcessBind> queryable = db.Queryable<ProcessBind>();
                 if (!keyWord.IsNullOrEmpty())   
                 {
@@ -123,7 +123,7 @@ namespace FNMES.WebUI.Logic.Param
 
         public int Delete(string productCode, string configId)
         {
-            using var db = GetInstance(configId);
+            var db = GetInstance(configId);
             try
             {
                 return db.Deleteable<ProcessBind>().Where(it=> it.ProductCode == productCode).ExecuteCommand();
@@ -147,7 +147,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
 
                 return db.Updateable<ProcessBind>(model).IgnoreColumns(it => new
                 {
@@ -164,7 +164,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
 
                 return db.Updateable<ProcessBind>().IgnoreColumns(it => new
                 {

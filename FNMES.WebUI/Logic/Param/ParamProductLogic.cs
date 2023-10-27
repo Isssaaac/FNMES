@@ -19,7 +19,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance();
+                var db = GetInstance();
                 return db.Queryable<SysUser>().Where(it => it.UserNo == account)
                    //  .Includes(it => it.Organize) && it.DeleteFlag == "0"
                    .Includes(it => it.CreateUser)
@@ -41,7 +41,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 
-                using var db = GetInstance(model.ConfigId);
+                var db = GetInstance(model.ConfigId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 model.CreateUserId = account;
                 model.CreateTime = DateTime.Now;
@@ -67,7 +67,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 ParamProduct product = db.Queryable<ParamProduct>().Where(it => it.Id == primaryKey).First();
                 using var sysdb = GetInstance();
                 product.CreateUser = sysdb.Queryable<SysUser>().Where(it => it.Id == product.CreateUserId).First();
@@ -94,7 +94,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 ISugarQueryable<ParamProduct> queryable = db.Queryable<ParamProduct>();
                 if (!keyWord.IsNullOrEmpty())
                 {
@@ -120,7 +120,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 Logger.RunningInfo(primaryKey.ToString()+configId);
                 return db.Deleteable<ParamProduct>().Where(it => primaryKey == it.Id).ExecuteCommand();
             }
@@ -140,7 +140,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(model.ConfigId);
+                var db = GetInstance(model.ConfigId);
                 model.ModifyUserId = userId;
                 model.ModifyTime = DateTime.Now;
 
@@ -161,7 +161,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
 
                 List<ParamProduct> paramProducts = db.Queryable<ParamProduct>().ToList();
                 return paramProducts;

@@ -26,7 +26,7 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public SysUser GetByUserName(string account)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Queryable<SysUser>().Where(it => it.UserNo == account)
                    //  .Includes(it => it.Organize) && it.DeleteFlag == "0"
                    .Includes(it => it.CreateUser)
@@ -41,7 +41,7 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public int UpdateBasicInfo(SysUser model, long account)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             model.ModifyUserId = account;
             model.ModifyTime = DateTime.Now;
             return db.Updateable<SysUser>(model).UpdateColumns(it => new
@@ -59,7 +59,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public int AppUpdateBasicInfo(SysUser model)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             model.ModifyUserId = model.Id;
             model.ModifyTime = DateTime.Now;
             return db.Updateable<SysUser>(model).UpdateColumns(it => new
@@ -77,7 +77,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public int Insert(SysUser model, string password, long account, string[] roleIds)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             try
             {
                 Db.BeginTran();
@@ -145,7 +145,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public bool ContainsUser(string userAccount, params string[] userIdList)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             List<string> accountList = db.Queryable<SysUser>().Where(it => userIdList.Contains(it.Id.ToString())).Select(it => it.UserNo).ToList();
             if (accountList.IsNullOrEmpty())
                 return false;
@@ -155,7 +155,7 @@ namespace FNMES.WebUI.Logic.Sys
         }
         public int AppInsert(SysUser model, string password, string[] roleIds, long opearateUser)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             try
             {
                 Db.BeginTran();
@@ -229,7 +229,7 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public SysUser Get(long primaryKey)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             return db.Queryable<SysUser>().Where(it => it.Id == primaryKey)
                  .Includes(it => it.CreateUser)
                  .Includes(it => it.ModifyUser).First();
@@ -245,7 +245,7 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public List<SysUser> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             ISugarQueryable<SysUser> queryable = db.Queryable<SysUser>();
             if (!keyWord.IsNullOrEmpty())
             {
@@ -265,7 +265,7 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public int Delete(List<long> primaryKeys)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
 
             return db.Deleteable<SysUser>().Where(it => primaryKeys.Contains(it.Id)).ExecuteCommand();
         }
@@ -277,7 +277,7 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public int Insert(SysUser model, long userId)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             model.Id = SnowFlakeSingle.instance.NextId();
             model.EnableFlag = "Y";
             model.CreateUserId = userId;
@@ -293,7 +293,7 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public int Update(SysUser model, long userId)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             model.ModifyUserId = userId;
             model.ModifyTime = DateTime.Now;
 
@@ -314,7 +314,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public int AppUpdateAndSetRole(SysUser model, long[] roleIds, long opereateUser)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             try
             {
                 Db.BeginTran();
@@ -372,7 +372,7 @@ namespace FNMES.WebUI.Logic.Sys
 
         public int UpdateAndSetRole(SysUser model, long opereateUser, long[] roleIds)
         {
-            using var db = GetInstance();
+            var db = GetInstance();
             try
             {
                 Db.BeginTran();

@@ -37,80 +37,71 @@
         <form id="form" class="layui-form" style="margin-top: 25px">
             <div class="layui-form-item">
                 <div class="layui-inline">
-                    <label class="layui-form-label label-required">工序</label>
+                    <label class="layui-form-label label-required">工单号</label>
                     <div class="layui-input-inline">
                         <input type="hidden" name="Id" id="Id" />
                         <input type="hidden" name="ConfigId" id="ConfigId" />
-                        <input type="hidden" name="ProductId" id="ProductId" />
-                        <select lay-ignore name="UnitProcedure" class="select2" id="UnitProcedure" style="width: 314px;" lay-verify="required" disabled></select>
-
+                        <input type="text" name="TaskOrderNumber" autocomplete="off" class="layui-input" disabled />
                     </div>
                 </div>
             </div>
             <div class="layui-form-item">
                 <div class="layui-inline">
-                    <label class="layui-form-label">步骤号</label>
+                    <label class="layui-form-label">产品</label>
                     <div class="layui-input-block">
-                        <input type="number" name="Step" id="Step" lay-verify="number" autocomplete="off" class="layui-input" disabled>
+                        <input type="text" name="ProductPartNo" autocomplete="off" class="layui-input" disabled />
                     </div>
                 </div>
-            </div>
-
-
-            <div class="layui-form-item">
                 <div class="layui-inline">
-                    <label class="layui-form-label">选项</label>
+                    <label class="layui-form-label">产品描述</label>
                     <div class="layui-input-block">
-                        <input type="checkbox" lay-skin="primary" name="IsAllowRepeat" value="true" title="允许重复执行" disabled>
-                        <input type="checkbox" lay-skin="primary" name="IsCheckInStation" value="true" title="过站校验" disabled>
-                        <input type="checkbox" lay-skin="primary" name="IsCheckFactoryInStation" value="true" title="工厂过站" disabled>
-                        <input type="checkbox" lay-skin="primary" name="IsEnableFlag" value="true" title="启用" checked disabled>
-                        
-                    </div>
-                </div>
-            </div>
-            <div class="layui-form-item">
-                <div class="layui-inline">
-                    <label class="layui-form-label label-required">过站工序</label>
-                    <div class="layui-input-inline">
-                        <select lay-ignore name="CheckLists" class="select2" id="CheckLists" multiple="multiple" style="width: 514px;" lay-verify="required" disabled></select>
+                        <input type="text" name="ProductDescription" autocomplete="off" class="layui-input" disabled />
                     </div>
                 </div>
             </div>
 
+
             <div class="layui-form-item">
                 <div class="layui-inline">
-                    <label class="layui-form-label">备注</label>
-                    <div class="layui-input-inline" style="width: 514px;">
-                        <textarea name="Desc" placeholder="请输入备注" class="layui-textarea" disabled></textarea>
+                    <label class="layui-form-label">计划数量</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="PlanQty" autocomplete="off" class="layui-input" disabled />
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="FlagString" autocomplete="off" class="layui-input" disabled />
                     </div>
                 </div>
             </div>
+
+            
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label">创建人员</label>
+                <label class="layui-form-label">计划开始时间</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="CreateUserName" autocomplete="off" class="layui-input" disabled />
+                        <input type="text" name="PlanStartTime" autocomplete="off" class="layui-input" disabled />
                 </div>
             </div>
             <div class="layui-inline">
-                <label class="layui-form-label">创建时间</label>
+                <label class="layui-form-label">计划完成时间</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="CreateTime" autocomplete="off" class="layui-input" disabled />
+                        <input type="text" name="PlanEndTime" autocomplete="off" class="layui-input" disabled />
                 </div>
             </div>
         </div>
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label">修改人员</label>
+                <label class="layui-form-label">上线数量</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="ModifyUserName" autocomplete="off" class="layui-input" disabled />
+                        <input type="text" name="StartQty" autocomplete="off" class="layui-input" disabled />
                 </div>
             </div>
             <div class="layui-inline">
-                <label class="layui-form-label">修改时间</label>
+                <label class="layui-form-label">下线数量</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="ModifyTime" autocomplete="off" class="layui-input" disabled />
+                        <input type="text" name="PackQty" autocomplete="off" class="layui-input" disabled />
                 </div>
             </div>
         </div>
@@ -126,20 +117,10 @@
 
             var primaryKey = $.getQueryString("primaryKey");
             var configId = $.getQueryString("configId");
-            $("#UnitProcedure").bindSelect({
-                type: "POST",
-                url: "/param/unitProcedure/getListTreeUnSelect" + "?configId=" + configId,
-                title: '请选择工序'
-            });
-            $("#CheckLists").bindSelect({
-                type: "POST",
-                url: "/param/unitProcedure/getListTreeUnSelect" + "?configId=" + configId,
-                title: '请选择工序'
-            });
 
             if (primaryKey) {
                 $.ajax({
-                    url: "/param/productStep/getForm",
+                    url: "/param/order/getForm",
                     data: {
                         primaryKey: primaryKey,
                         configId: configId

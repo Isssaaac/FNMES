@@ -73,10 +73,6 @@ namespace FNMES.Entity.Param {
                 CheckInStation = value ? "1" : "0";
             }
         }
-
-
-
-
         /// <summary>
         /// 开启工厂进站校验 
         ///</summary>
@@ -106,7 +102,7 @@ namespace FNMES.Entity.Param {
         public List<string> CheckLists
         {
             get { 
-                if (CheckList != null) { return CheckList.Split(';').ToList(); }
+                if (CheckList != null) { return CheckList.Split(',').ToList(); }
                 return new List<string>();
                  }
         }

@@ -17,7 +17,7 @@ namespace FNMES.WebUI.Logic.Record
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 model.CreateTime = DateTime.Now;
                 return db.Insertable<RecordApi>(model).SplitTable().ExecuteCommand();
@@ -28,9 +28,9 @@ namespace FNMES.WebUI.Logic.Record
                 return 0;
             }
         }
-        public List<RecordApi> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount)
+        public List<RecordApi> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount,string configId)
         {
-            using var db = GetInstance();
+            var db = GetInstance(configId);
             ISugarQueryable<RecordApi> queryable = db.Queryable<RecordApi>();
 
             if (!keyWord.IsNullOrEmpty())

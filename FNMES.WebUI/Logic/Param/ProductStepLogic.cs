@@ -28,7 +28,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 
-                using var db = GetInstance(model.ConfigId);
+                var db = GetInstance(model.ConfigId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 model.CreateUserId = account;
                 model.CreateTime = DateTime.Now;
@@ -54,7 +54,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 ParamProductStep product = db.Queryable<ParamProductStep>().Where(it => it.Id == primaryKey).First();
                 using var sysdb = GetInstance();
                 product.CreateUser = sysdb.Queryable<SysUser>().Where(it => it.Id == product.CreateUserId).First();
@@ -81,7 +81,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 ISugarQueryable<ParamProductStep> queryable = db.Queryable<ParamProductStep>().Where(it => it.ProductId == productId);
                 if (!keyWord.IsNullOrEmpty())   
                 {
@@ -99,7 +99,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 List<string> procedures = db.Queryable<ParamProductStep>().Where(it => it.ProductId == long.Parse(productId)).Select(it=> it.UnitProcedure).ToList();
                 return procedures;
             }
@@ -111,7 +111,24 @@ namespace FNMES.WebUI.Logic.Param
 
         }
 
-     
+
+        public ParamProductStep Query(string productPartNo,string stationCode, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                return db.Queryable<ParamProductStep>().LeftJoin<ParamProduct>((s, p) => s.ProductId == p.Id)
+                    .Where((s, p) => s.UnitProcedure == stationCode && p.Encode == productPartNo).Select((s, p) => s).First();
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return null;
+            }
+
+        }
+
+
 
         /// <summary>
         /// 删除用户信息
@@ -122,7 +139,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(configId);
+                var db = GetInstance(configId);
                 Logger.RunningInfo(primaryKey.ToString()+configId);
                 return db.Deleteable<ParamProductStep>().Where(it => primaryKey == it.Id).ExecuteCommand();
             }
@@ -142,7 +159,7 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-                using var db = GetInstance(model.ConfigId);
+                var db = GetInstance(model.ConfigId);
                 model.ModifyUserId = userId;
                 model.ModifyTime = DateTime.Now;
 

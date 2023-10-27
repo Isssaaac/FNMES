@@ -59,7 +59,7 @@ namespace FNMES.Entity.Sys
          public string Url { get; set; }
         
         /// <summary>
-        /// 2-主菜单，0-子菜单，1-按钮  3-主菜单  4-子菜单  5-按钮 6-作业
+        /// 2-主菜单，0-子菜单，1-按钮  3-主菜单  4-子菜单  5-按钮   6-作业
         ///</summary>
          [SugarColumn(ColumnName="type"    )]
          public int? Type { get; set; }

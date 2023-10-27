@@ -81,7 +81,7 @@ namespace FNMES.Entity.Param
                     case "2": return "暂停";
                     case "3": return "取消";
                     case "4": return "完成";
-                    default:return "未定义";
+                    default:return "未开工";
                 }
             }
                 }

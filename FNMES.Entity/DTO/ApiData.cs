@@ -33,7 +33,7 @@ namespace FNMES.Entity.DTO.ApiData
         public string productDescription { get; set; }
 
         // 数量
-        public int planQty { get; set; }
+        public string planQty { get; set; }
 
         // 单位
         public string uom { get; set; }
