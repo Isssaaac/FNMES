@@ -30,14 +30,22 @@ namespace FNMES.WebUI.Logic.Record
         }
         public List<RecordApi> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount,string configId)
         {
-            var db = GetInstance(configId);
-            ISugarQueryable<RecordApi> queryable = db.Queryable<RecordApi>();
-
-            if (!keyWord.IsNullOrEmpty())
+            try
             {
-                queryable = queryable.Where(it => it.Url.Contains(keyWord));
+                var db = GetInstance(configId);
+                ISugarQueryable<RecordApi> queryable = db.Queryable<RecordApi>();
+
+                if (!keyWord.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => it.Url.Contains(keyWord));
+                }
+                return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
             }
-            return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
+            catch (Exception E )
+            {
+                Logger.ErrorInfo(E.Message);
+                return new List<RecordApi>();
+            }
         }
 
 

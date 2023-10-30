@@ -31,9 +31,9 @@ namespace FNMES.WebUI.Logic.Param
 
                 return db.Queryable<ParamUnitProcedure>().Where(it => it.Name.Contains(keyWord) || it.Encode.Contains(keyWord)).ToPageList(pageIndex, pageSize, ref totalCount);
             }
-            catch (Exception)
+            catch (Exception E)
             {
-
+                Logger.ErrorInfo(E.Message);
                 return null;
             }
         }
@@ -50,9 +50,10 @@ namespace FNMES.WebUI.Logic.Param
                 Db.CommitTran();
                 return 1;
             }
-            catch (Exception)
+            catch (Exception E)
             {
                 Db.RollbackTran();
+                Logger.ErrorInfo(E.Message);
                 return 0;
             }
 
@@ -69,8 +70,9 @@ namespace FNMES.WebUI.Logic.Param
                 entity.ModifyUser = sysDb.Queryable<SysUser>().Where(it => it.Id == entity.ModifyUserId).First();
                 return entity;
             }
-            catch (Exception)
+            catch (Exception E)
             {
+                Logger.ErrorInfo(E.Message);
                 return new ParamUnitProcedure { Id = 0,Name = "查无此项"};
             }
         }
@@ -97,13 +99,22 @@ namespace FNMES.WebUI.Logic.Param
 
         public int Update(ParamUnitProcedure model, long operateId)
         {
-            var db = GetInstance(model.ConfigId);
-            model.ModifyUserId = operateId;
-            model.ModifyTime = DateTime.Now;
-            return db.Updateable<ParamUnitProcedure>(model).IgnoreColumns(it => new
+            try
             {
-                it.CreateTime, it.CreateUserId
-            }).ExecuteCommand();
+                var db = GetInstance(model.ConfigId);
+                model.ModifyUserId = operateId;
+                model.ModifyTime = DateTime.Now;
+                return db.Updateable<ParamUnitProcedure>(model).IgnoreColumns(it => new
+                {
+                    it.CreateTime,
+                    it.CreateUserId
+                }).ExecuteCommand();
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return 0;
+            }
         }
 
         public List<ParamUnitProcedure> GetParentList(string configId)
@@ -114,9 +125,9 @@ namespace FNMES.WebUI.Logic.Param
                 var db = GetInstance(configId);
                 return db.Queryable<ParamUnitProcedure>().Where(it => it.IsParent == "1").ToList();
             }
-            catch (Exception)
+            catch (Exception E)
             {
-
+                Logger.ErrorInfo(E.Message);
                 return new List<ParamUnitProcedure>();
             }
         }
@@ -128,9 +139,9 @@ namespace FNMES.WebUI.Logic.Param
                 var db = GetInstance(configId);
                 return db.Queryable<ParamUnitProcedure>().Where(it => it.IsParent == "0").ToList();
             }
-            catch (Exception)
+            catch (Exception E)
             {
-
+                Logger.ErrorInfo(E.Message);
                 return new List<ParamUnitProcedure>();
             }
         }

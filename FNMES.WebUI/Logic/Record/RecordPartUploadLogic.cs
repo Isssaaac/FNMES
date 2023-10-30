@@ -49,14 +49,22 @@ namespace FNMES.WebUI.Logic.Record
         }
         public List<RecordPartUpload> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount,string configId)
         {
-            var db = GetInstance(configId);
-            ISugarQueryable<RecordPartUpload> queryable = db.Queryable<RecordPartUpload>();
-
-            if (!keyWord.IsNullOrEmpty())
+            try
             {
-                queryable = queryable.Where(it => it.ProductCode.Contains(keyWord));
+                var db = GetInstance(configId);
+                ISugarQueryable<RecordPartUpload> queryable = db.Queryable<RecordPartUpload>();
+
+                if (!keyWord.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => it.ProductCode.Contains(keyWord));
+                }
+                return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
             }
-            return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return new List<RecordPartUpload>();
+            }
         }
 
 

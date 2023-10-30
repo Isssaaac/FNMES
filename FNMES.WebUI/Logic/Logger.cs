@@ -5,7 +5,9 @@ using FNMES.WebUI.Logic.Base;
 using SqlSugar;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -69,6 +71,11 @@ namespace FNMES.WebUI.Logic
         /// <param name="message"></param>
         public static void ErrorInfo(string message)
         {
+            MethodBase methodBase = new StackTrace(true).GetFrame(1).GetMethod();
+
+            string methodName = $"{methodBase.DeclaringType.Name}.{methodBase.Name}";
+
+            message = methodName + "->" + message;
             Log("Error", message);
             LogHelper.Error(message);
         }

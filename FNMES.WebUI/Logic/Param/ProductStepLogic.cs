@@ -36,9 +36,9 @@ namespace FNMES.WebUI.Logic.Param
                 model.ModifyTime = model.CreateTime;
                 return db.Insertable<ParamProductStep>(model).ExecuteCommand();
             }
-            catch (Exception)
+            catch (Exception E)
             {
-
+                Logger.ErrorInfo(E.Message);
                 return 0;
             }
         }
@@ -61,9 +61,9 @@ namespace FNMES.WebUI.Logic.Param
                 product.CreateUser = sysdb.Queryable<SysUser>().Where(it => it.Id == product.ModifyUserId).First();
                 return product;
             }
-            catch (Exception)
+            catch (Exception E)
             {
-
+                Logger.ErrorInfo(E.Message);
                 return null;
             }
 
@@ -91,7 +91,8 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                throw;
+                Logger.ErrorInfo(E.Message);
+                return new List<ParamProductStep>();
             }
         }
 
@@ -143,9 +144,9 @@ namespace FNMES.WebUI.Logic.Param
                 Logger.RunningInfo(primaryKey.ToString()+configId);
                 return db.Deleteable<ParamProductStep>().Where(it => primaryKey == it.Id).ExecuteCommand();
             }
-            catch (Exception)
+            catch (Exception E)
             {
-
+                Logger.ErrorInfo(E.Message);
                 return 0;
             }
         }
@@ -169,9 +170,9 @@ namespace FNMES.WebUI.Logic.Param
                     it.CreateTime
                 }).ExecuteCommand();
             }
-            catch (Exception)
+            catch (Exception E)
             {
-
+                Logger.ErrorInfo(E.Message);
                 return 0;
             }
         }

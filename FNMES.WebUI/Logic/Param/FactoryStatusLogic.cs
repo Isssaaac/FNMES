@@ -18,8 +18,9 @@ namespace FNMES.WebUI.Logic.Param
                 model.CreateTime = DateTime.Now;
                 return db.Insertable<FactoryStatus>(model).ExecuteCommand();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.ErrorInfo(e.Message);
                 return 0;
             }
         }
@@ -36,8 +37,9 @@ namespace FNMES.WebUI.Logic.Param
                 FactoryStatus factoryStatus = db.Queryable<FactoryStatus>().OrderBy(it => it.Id ,OrderByType.Desc).First();
                 return factoryStatus;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.ErrorInfo(e.Message);
                 return null;
             }
 
@@ -60,8 +62,9 @@ namespace FNMES.WebUI.Logic.Param
                     it.CreateTime
                 }).ExecuteCommand();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.ErrorInfo(e.Message);
                 return 0;
             }
         }

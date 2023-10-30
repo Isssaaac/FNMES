@@ -21,13 +21,11 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public List<SysRole> GetList()
         {
-            using (var db = GetInstance())
-            {
-                return db.Queryable<SysRole>()
-                    .Includes(it => it.CreateUser)
-                    .Includes(it => it.ModifyUser)
-                    .ToList();
-            }
+            var db = GetInstance();
+            return db.Queryable<SysRole>()
+                .Includes(it => it.CreateUser)
+                .Includes(it => it.ModifyUser)
+                .ToList();
         }
 
         /// <summary>
@@ -40,21 +38,19 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public List<SysRole> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount)
         {
-            using (var db = GetInstance())
+             var db = GetInstance();
+
+            ISugarQueryable<SysRole> queryable = db.Queryable<SysRole>();
+
+            if (!keyWord.IsNullOrEmpty())
             {
-
-                ISugarQueryable<SysRole> queryable = db.Queryable<SysRole>();
-
-                if (!keyWord.IsNullOrEmpty())
-                {
-                    queryable = queryable.Where(it => (it.Name.Contains(keyWord) || it.EnCode.Contains(keyWord)));
-                }
-
-                return queryable.Includes(it => it.CreateUser)
-                    .Includes(it => it.ModifyUser)
-                    .OrderBy(it => it.SortCode)
-                    .ToPageList(pageIndex, pageSize, ref totalCount);
+                queryable = queryable.Where(it => (it.Name.Contains(keyWord) || it.EnCode.Contains(keyWord)));
             }
+
+            return queryable.Includes(it => it.CreateUser)
+                .Includes(it => it.ModifyUser)
+                .OrderBy(it => it.SortCode)
+                .ToPageList(pageIndex, pageSize, ref totalCount);
         }
 
         /// <summary>
@@ -64,51 +60,45 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public int Insert(SysRole model, long account)
         {
-            using (var db = GetInstance())
-            {
-                model.Id= SnowFlakeSingle.instance.NextId();
-                model.AllowEdit = model.AllowEdit == null ? "0" : "1";
-                model.CreateUserId = account;
-                model.CreateTime = DateTime.Now;
-                model.ModifyUserId = model.CreateUserId;
-                model.ModifyTime = model.CreateTime;
-                return db.Insertable<SysRole>(model).ExecuteCommand();
-            }
+             var db = GetInstance();
+            model.Id = SnowFlakeSingle.instance.NextId();
+            model.AllowEdit = model.AllowEdit == null ? "0" : "1";
+            model.CreateUserId = account;
+            model.CreateTime = DateTime.Now;
+            model.ModifyUserId = model.CreateUserId;
+            model.ModifyTime = model.CreateTime;
+            return db.Insertable<SysRole>(model).ExecuteCommand();
         }
 
         public int AppInsert(SysRole model, long operateUser)
         {
-            using (var db = GetInstance())
-            {
-                model.Id = SnowFlakeSingle.instance.NextId();
-                model.AllowEdit = "1";
-                model.CreateUserId = operateUser;
-                model.CreateTime = DateTime.Now;
-                model.ModifyUserId = model.CreateUserId;
-                model.ModifyTime = model.CreateTime;
-                return db.Insertable<SysRole>(model).ExecuteCommand();
-            }
+             var db = GetInstance();
+            model.Id = SnowFlakeSingle.instance.NextId();
+            model.AllowEdit = "1";
+            model.CreateUserId = operateUser;
+            model.CreateTime = DateTime.Now;
+            model.ModifyUserId = model.CreateUserId;
+            model.ModifyTime = model.CreateTime;
+            return db.Insertable<SysRole>(model).ExecuteCommand();
         }
 
         public int AppUpdate(SysRole model, long operateUser)
         {
-            using (var db = GetInstance())
+             var db = GetInstance();
+            model.AllowEdit = model.AllowEdit == null ? "0" : "1";
+            model.ModifyUserId = operateUser;
+            model.ModifyTime = DateTime.Now;
+            return db.Updateable<SysRole>(model).UpdateColumns(it => new
             {
-                model.AllowEdit = model.AllowEdit == null ? "0" : "1";
-                model.ModifyUserId = operateUser;
-                model.ModifyTime = DateTime.Now;
-                return db.Updateable<SysRole>(model).UpdateColumns(it => new
-                {
-                    it.EnCode,
-                    it.Type,
-                    it.Name,
-                    it.AllowEdit,
-                    it.Description,
-                    it.SortCode,
-                    it.ModifyUserId,
-                    it.ModifyTime
-                }).ExecuteCommand();
-            }
+                it.EnCode,
+                it.Type,
+                it.Name,
+                it.AllowEdit,
+                it.Description,
+                it.SortCode,
+                it.ModifyUserId,
+                it.ModifyTime
+            }).ExecuteCommand();
         }
 
 
@@ -119,24 +109,22 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public int Update(SysRole model, long operateUser)
         {
-            using (var db = GetInstance())
+             var db = GetInstance();
+            model.AllowEdit = model.AllowEdit == null ? "0" : "1";
+            model.ModifyUserId = operateUser;
+            model.ModifyTime = DateTime.Now;
+            return db.Updateable<SysRole>(model).UpdateColumns(it => new
             {
-                model.AllowEdit = model.AllowEdit == null ? "0" : "1";
-                model.ModifyUserId = operateUser;
-                model.ModifyTime = DateTime.Now;
-                return db.Updateable<SysRole>(model).UpdateColumns(it => new
-                {
-                    it.EnCode,
-                    it.Type,
-                    it.Name,
-                    it.AllowEdit,
-                    it.Description,
-                    it.SortCode,
-                    it.EnableFlag,
-                    it.ModifyUserId,
-                    it.ModifyTime
-                }).ExecuteCommand();
-            }
+                it.EnCode,
+                it.Type,
+                it.Name,
+                it.AllowEdit,
+                it.Description,
+                it.SortCode,
+                it.EnableFlag,
+                it.ModifyUserId,
+                it.ModifyTime
+            }).ExecuteCommand();
         }
 
         /// <summary>
@@ -146,13 +134,11 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public SysRole Get(long primaryKey)
         {
-            using (var db = GetInstance())
-            {
-                return db.Queryable<SysRole>().Where(it => it.Id == primaryKey)
-                   .Includes(it => it.CreateUser)
-                   .Includes(it => it.ModifyUser)
-                   .First();
-            }
+             var db = GetInstance();
+            return db.Queryable<SysRole>().Where(it => it.Id == primaryKey)
+               .Includes(it => it.CreateUser)
+               .Includes(it => it.ModifyUser)
+               .First();
         }
         /// <summary>
         /// 删除角色信息
@@ -161,11 +147,9 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public int Delete(List<long> primaryKeys)
         {
-            using (var db = GetInstance())
-            {
+             var db = GetInstance();
 
-                return db.Deleteable<SysRole>().Where(it => primaryKeys.Contains(it.Id)).ExecuteCommand();
-            }
+            return db.Deleteable<SysRole>().Where(it => primaryKeys.Contains(it.Id)).ExecuteCommand();
         }
     }
 }

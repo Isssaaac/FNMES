@@ -54,7 +54,7 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+                Logger.ErrorInfo(E.Message);
                 return null;
             }
         }
@@ -68,10 +68,26 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+                Logger.ErrorInfo(E.Message);
                 return null;
             }
         }
+
+        public List<ParamEquipmentStopCode> GetAllStopCode(string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                return db.Queryable<ParamEquipmentStopCode>().ToList();
+
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return null;
+            }
+        }
+
 
         public List<ParamEquipmentError> GetErrorList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount)
         {
@@ -88,7 +104,7 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+                Logger.ErrorInfo(E.Message);
                 return null;
             }
         }
@@ -107,7 +123,7 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+                Logger.ErrorInfo(E.Message);
                 return null;
             }
         }
@@ -127,7 +143,7 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+                Logger.ErrorInfo(E.Message);
                 return null;
             }
         }
@@ -154,13 +170,14 @@ namespace FNMES.WebUI.Logic.Param
         }
 
 
-        public int InsertStop(List<ParamEquipmentStopCode> models, string configId)
+        public int InsertStopCode(List<ParamEquipmentStopCode> models, string configId)
         {
             //批量导入时初始化表
             int res = 0;
             try
             {
                 var db = GetInstance(configId);
+                models.ForEach(model => { model.Id = SnowFlakeSingle.instance.NextId(); });
                 Db.BeginTran();
                 db.DbMaintenance.TruncateTable<ParamEquipmentStopCode>();
                 res = db.Insertable<ParamEquipmentStopCode>(models).ExecuteCommand();

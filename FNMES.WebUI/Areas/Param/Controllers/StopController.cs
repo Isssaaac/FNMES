@@ -17,30 +17,32 @@ using OfficeOpenXml;
 namespace MES.WebUI.Areas.Param.Controllers
 {
     [Area("Param")]
-    public class StatusController : BaseController
+    public class StopController : BaseController
     {
         private readonly ErrorAndStatusLogic errorAndStatusLogic;
-        public StatusController()
+        public StopController()
         {
             errorAndStatusLogic = new ErrorAndStatusLogic();
         }
 
-        [Route("param/status/index")]
+
+        [Route("param/stop/index")]
         [HttpGet, AuthorizeChecked]
         public ActionResult Index()
         {
             return View();
         }
 
-        [Route("param/status/index")]
+
+        [Route("param/stop/index")]
         [HttpPost, AuthorizeChecked]
         public ActionResult Index(int pageIndex, int pageSize, string keyWord,string configId)
         {
             try
             {
                 int totalCount = 0;
-                var pageData = errorAndStatusLogic.GetStatusList(pageIndex, pageSize, keyWord, configId, ref totalCount);
-                var result = new LayPadding<ParamEquipmentStatus>()
+                var pageData = errorAndStatusLogic.GetCodeList(pageIndex, pageSize, keyWord, configId, ref totalCount);
+                var result = new LayPadding<ParamEquipmentStopCode>()
                 {
                     result = true,
                     msg = "success",
@@ -51,24 +53,25 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
             catch (Exception E)
             {
-                return Content(new LayPadding<ParamEquipmentStatus>()
+                return Content(new LayPadding<ParamEquipmentStopCode>()
                 {
                     result = false,
                     msg = E.Message,
-                    list = new List<ParamEquipmentStatus>(),
+                    list = new List<ParamEquipmentStopCode>(),
                     count =0
                 }.ToJson()) ;
             }
         }
 
-        [Route("param/status/import")]
+
+        [Route("param/stop/import")]
         [HttpGet, AuthorizeChecked]
         public ActionResult Import()
         {
             return View();
         }
 
-        [Route("param/status/uploadFile")]
+        [Route("param/stop/uploadFile")]
         [HttpPost]
         public async Task<ActionResult> UploadFile(IFormFile file,string configId)
         {
@@ -86,15 +89,12 @@ namespace MES.WebUI.Areas.Param.Controllers
 
                 using var stream = file.OpenReadStream();
                 Dictionary<string, string> keyValuePairs = new Dictionary<string, string>() {
-                    {"工位","BigStationCode" },
-                    {"设备","EquipmentID" },
-                    {"偏移","Offset" },
-                    {"停机码偏移","StopCodeOffset" },
-                    {"plc","PlcNo" },
+                    {"停机代码","StopCode" },
+                    {"停机描述","StopCodeDesc" },
                 };
-                List<ParamEquipmentStatus> statuses = ExcelUtils.ImportExcel<ParamEquipmentStatus>(stream, keyValuePairs);
+                List<ParamEquipmentStopCode> codes = ExcelUtils.ImportExcel<ParamEquipmentStopCode>(stream, keyValuePairs);
 
-                int v = errorAndStatusLogic.InsertStatus(statuses, configId);
+                int v = errorAndStatusLogic.InsertStopCode(codes, configId);
                if (v == 0)
                 {
                     return Error("初始化数据失败");
@@ -106,19 +106,17 @@ namespace MES.WebUI.Areas.Param.Controllers
             return Error();
         }
 
-        [Route("param/status/export")]
+
+        [Route("param/stop/export")]
         [HttpGet]
         public ActionResult Export(string configId)
         {
             
-            List<ParamEquipmentStatus> statuses = errorAndStatusLogic.GetAllStatus(configId);
+            List<ParamEquipmentStopCode> statuses = errorAndStatusLogic.GetAllStopCode(configId);
 
             Dictionary<string, string> keyValuePairs = new Dictionary<string, string>() {
-                    {"BigStationCode", "工位"},
-                    {"EquipmentID", "设备"},
-                    {"Offset","偏移" },
-                    {"StopCodeOffset","停机码偏移" },
-                    {"PlcNo","plc" },
+                    {"StopCode", "停机代码"},
+                    {"StopCodeDesc", "停机描述"},
                 };
 
             // 填充数据到工作表

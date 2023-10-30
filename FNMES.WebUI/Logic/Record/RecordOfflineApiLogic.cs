@@ -43,7 +43,7 @@ namespace FNMES.WebUI.Logic.Record
             catch (Exception e)
             {
                 Logger.ErrorInfo(e.Message);
-                return null;
+                return new List<RecordOfflineApi>();
             }
         }
 
@@ -57,7 +57,7 @@ namespace FNMES.WebUI.Logic.Record
             catch (Exception e)
             {
                 Logger.ErrorInfo(e.Message);
-                return null;
+                return new List<RecordOfflineApi>();
             }
         }
          

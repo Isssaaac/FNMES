@@ -170,7 +170,8 @@ namespace FNMES.WebUI.Logic.Base
                     }
                     if(index == -1)
                     {
-                        Logger.ErrorInfo($"没有找到标识为{dbName}的数据库");
+                        //在外侧输出
+                       // Logger.ErrorInfo($"没有找到标识为{dbName}的数据库");
                         throw new Exception($"没有找到标识为{dbName}的数据库");
                     }
                     var slava = new List<SlaveConnectionConfig>();

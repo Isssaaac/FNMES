@@ -17,52 +17,83 @@ namespace FNMES.WebUI.Logic.Sys
     {
         public List<SysEquipment> GetEquipmentList(string strItemCode)
         {
-            var db = GetInstance();
-
-            SysEquipment equipment = db.Queryable<SysEquipment>().Where(it => it.EnCode == strItemCode).First();
-            if (null == equipment)
-                return null;
-            return db.Queryable<SysEquipment>().Where(it => it.LineId == equipment.Id)
-                .Includes(it => it.CreateUser)
-                .Includes(it => it.ModifyUser)
-                .OrderBy(it => it.SortCode)
-                .ToList();
+            try
+            {
+                var db = GetInstance();
+                SysEquipment equipment = db.Queryable<SysEquipment>().Where(it => it.EnCode == strItemCode).First();
+                if (null == equipment)
+                    return null;
+                return db.Queryable<SysEquipment>().Where(it => it.LineId == equipment.Id)
+                    .Includes(it => it.CreateUser)
+                    .Includes(it => it.ModifyUser)
+                    .OrderBy(it => it.SortCode)
+                    .ToList();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<SysEquipment>();
+            }
         }
 
         public List<SysEquipment> GetList(int pageIndex, int pageSize, long lineId, string keyWord, ref int totalCount)
         {
-            var db = GetInstance();
-            ISugarQueryable<SysEquipment> queryable = db.Queryable<SysEquipment>().Where(it => it.LineId == lineId);
-            if (!keyWord.IsNullOrEmpty())
+            try
             {
-                queryable = queryable.Where(it => (it.Name.Contains(keyWord) || it.EnCode.Contains(keyWord)));
+                var db = GetInstance();
+                ISugarQueryable<SysEquipment> queryable = db.Queryable<SysEquipment>().Where(it => it.LineId == lineId);
+                if (!keyWord.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => (it.Name.Contains(keyWord) || it.EnCode.Contains(keyWord)));
+                }
+                return queryable
+                    .Includes(it => it.CreateUser)
+                    .Includes(it => it.ModifyUser)
+                    .Includes(it => it.Line)
+                    .OrderBy(it => it.SortCode)
+                    .ToPageList(pageIndex, pageSize, ref totalCount);
             }
-            return queryable
-                .Includes(it => it.CreateUser)
-                .Includes(it => it.ModifyUser)
-                .Includes(it => it.Line)
-                .OrderBy(it => it.SortCode)
-                .ToPageList(pageIndex, pageSize, ref totalCount);
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<SysEquipment> ();
+            }
         }
 
         public List<SysEquipment> GetListByLineId(long lineId)
         {
-            var db = GetInstance();
-            return db.Queryable<SysEquipment>()
-                .Where(it => it.LineId == lineId)
-                .Includes(it => it.CreateUser)
-                .Includes(it => it.ModifyUser)
-                .ToList();
+            try
+            {
+                var db = GetInstance();
+                return db.Queryable<SysEquipment>()
+                    .Where(it => it.LineId == lineId)
+                    .Includes(it => it.CreateUser)
+                    .Includes(it => it.ModifyUser)
+                    .ToList();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<SysEquipment> ();
+            }
         }
         public SysEquipment GetByIP(string IP)
         {
-            var db = GetInstance();
-            return db.Queryable<SysEquipment>()
-                .Where(it => it.IP == IP)
-                .Includes(it => it.Line)
-                .Includes(it => it.CreateUser)
-                .Includes(it => it.ModifyUser)
-                .First();
+            try
+            {
+                var db = GetInstance();
+                return db.Queryable<SysEquipment>()
+                    .Where(it => it.IP == IP)
+                    .Includes(it => it.Line)
+                    .Includes(it => it.CreateUser)
+                    .Includes(it => it.ModifyUser)
+                    .First();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new SysEquipment ();
+            }
         }
 
 
@@ -72,23 +103,39 @@ namespace FNMES.WebUI.Logic.Sys
 
         public SysEquipment Get(long primaryKey)
         {
-            var db = GetInstance();
-            return db.Queryable<SysEquipment>()
-                .Where(it => it.Id == primaryKey)
-                .Includes(it => it.CreateUser)
-                .Includes(it => it.ModifyUser)
-                .First();
+            try
+            {
+                var db = GetInstance();
+                return db.Queryable<SysEquipment>()
+                    .Where(it => it.Id == primaryKey)
+                    .Includes(it => it.CreateUser)
+                    .Includes(it => it.ModifyUser)
+                    .First();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new SysEquipment();
+            }
         }
 
         public int Insert(SysEquipment model, long account)
         {
-            var db = GetInstance();
-            model.Id = SnowFlakeSingle.instance.NextId();
-            model.CreateUserId = account;
-            model.CreateTime = DateTime.Now;
-            model.ModifyUserId = model.CreateUserId;
-            model.ModifyTime = model.CreateTime;
-            return db.Insertable<SysEquipment>(model).ExecuteCommand();
+            try
+            {
+                var db = GetInstance();
+                model.Id = SnowFlakeSingle.instance.NextId();
+                model.CreateUserId = account;
+                model.CreateTime = DateTime.Now;
+                model.ModifyUserId = model.CreateUserId;
+                model.ModifyTime = model.CreateTime;
+                return db.Insertable<SysEquipment>(model).ExecuteCommand();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return 0;
+            }
         }
 
 
@@ -96,14 +143,23 @@ namespace FNMES.WebUI.Logic.Sys
 
         public int Delete(long pk)
         {
-            var db = GetInstance();
-            return db.Deleteable<SysEquipment>().Where(it => it.Id == pk).ExecuteCommand();
+            try
+            {
+                var db = GetInstance();
+                return db.Deleteable<SysEquipment>().Where(it => it.Id == pk).ExecuteCommand();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return 0;
+            }
         }
 
         public int Update(SysEquipment model, long account)
         {
-            using (var db = GetInstance())
+            try
             {
+                var db = GetInstance();
                 model.ModifyUserId = account;
                 model.ModifyTime = DateTime.Now;
                 return db.Updateable<SysEquipment>(model).UpdateColumns(it => new
@@ -121,13 +177,24 @@ namespace FNMES.WebUI.Logic.Sys
                     it.ModifyTime
                 }).ExecuteCommand();
             }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return 0;
+            }
         }
 
         public SysEquipment GetSoftwareName()
         {
-            using (var db = GetInstance())
+            try
             {
+                var db = GetInstance();
                 return db.Queryable<SysEquipment>().Where(it => it.EnCode == "SoftwareName").First();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new SysEquipment();
             }
         }
     }

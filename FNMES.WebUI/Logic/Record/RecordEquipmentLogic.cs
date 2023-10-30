@@ -64,14 +64,22 @@ namespace FNMES.WebUI.Logic.Record
         }
         public List<RecordEquipmentStatus> GetStatusList(int pageIndex, int pageSize, string keyWord, ref int totalCount,string configId)
         {
-            var db = GetInstance(configId);
-            ISugarQueryable<RecordEquipmentStatus> queryable = db.Queryable<RecordEquipmentStatus>();
-
-            if (!keyWord.IsNullOrEmpty())
+            try
             {
-                queryable = queryable.Where(it => it.EquipmentID.Contains(keyWord) || it.BigStationCode.Contains(keyWord));
+                var db = GetInstance(configId);
+                ISugarQueryable<RecordEquipmentStatus> queryable = db.Queryable<RecordEquipmentStatus>();
+
+                if (!keyWord.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => it.EquipmentID.Contains(keyWord) || it.BigStationCode.Contains(keyWord));
+                }
+                return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
             }
-            return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return new List<RecordEquipmentStatus>();
+            }
         }
         public int InsertError(EquipmentErrorParam model, string configId)
         {

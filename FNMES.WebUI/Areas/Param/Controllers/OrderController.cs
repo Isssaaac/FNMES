@@ -248,12 +248,11 @@ namespace MES.WebUI.Areas.Param.Controllers
             {
                 int v = orderLogic.Insert(retMessage.data.workOrderList, configId);
                 return Success("同步完成");
-
-
             }
             else
             {
                 return Error("工厂接口访问失败");
+
             }
         }
     }

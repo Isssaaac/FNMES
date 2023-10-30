@@ -49,14 +49,22 @@ namespace FNMES.WebUI.Logic.Record
         }
         public List<RecordProcessUpload> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount,string configId)
         {
-            var db = GetInstance(configId);
-            ISugarQueryable<RecordProcessUpload> queryable = db.Queryable<RecordProcessUpload>();
-
-            if (!keyWord.IsNullOrEmpty())
+            try
             {
-                queryable = queryable.Where(it => it.ProductCode.Contains(keyWord));
+                var db = GetInstance(configId);
+                ISugarQueryable<RecordProcessUpload> queryable = db.Queryable<RecordProcessUpload>();
+
+                if (!keyWord.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => it.ProductCode.Contains(keyWord));
+                }
+                return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
             }
-            return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<RecordProcessUpload>();
+            }
         }
 
 

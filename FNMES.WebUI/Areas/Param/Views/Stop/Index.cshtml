@@ -35,14 +35,12 @@
 
             <div id="toolbar" class="FNMES-table-toolbar">
                 <div class="layui-btn-group"> </div>
-                <div class="layui-btn-group">
-                    <button onclick="btn_pdf()" class="layui-btn layui-btn-primary layui-btn-small">PDF</button>
-                </div>
+                
                 <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
                         <i class="layui-icon">&#xe615;</i>
                 </button>
                 <div class="toolbar-search-input">
-                    <input type="text" id="keyWord" placeholder="工站或PLC" autocomplete="off" class="layui-input" style="height:39px">
+                    <input type="text" id="keyWord" placeholder="代码或描述" autocomplete="off" class="layui-input" style="height:39px">
                 </div>
             </div>
             <table id="gridList" class="layui-form layui-table table-hover FNMES-table" lay-skin="line">
@@ -52,12 +50,8 @@
                             <input type="checkbox" lay-skin="primary">
                         </th>
                         
-                        <th>大工站</th>
-                        <th>设备名</th>
-                        <th>偏移</th>
-                        <th>报警代码</th>
-                        <th>描述</th>
-                        <th>PLC</th>
+                        <th>停机代码</th>
+                        <th>停机描述</th>
                     </tr>
                 </thead>
                 <!--内容容器-->
@@ -75,12 +69,8 @@
     <tr>
         <td>
             <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
-        <td>{{item.BigStationCode}}</td>
-        <td>{{item.EquipmentID}}</td>
-        <td>{{item.Offset}}</td>
-        <td>{{item.AlarmCode}}</td>
-        <td>{{item.AlarmDesc}}</td>
-        <td>{{item.PlcNo}}</td>
+        <td>{{item.StopCode}}</td>
+        <td>{{item.StopCodeDesc}}</td>
     </tr>
       {{#  }); }}
        {{# if(d.list.length<=0) { }}
@@ -127,7 +117,7 @@
 
     function initGrid() {
         paging.init({
-            url: '/param/error/index',
+            url: '/param/stop/index',
             elem: '#content',
             tempElem: '#contentTpl',
             singleSelected: true, //单选
@@ -152,7 +142,7 @@
             title: "导入参数",
             width: "450px",
             height: "250px",
-            content: "/param/error/import?configId=" + $("#lineId").val(),
+            content: "/param/stop/import?configId=" + $("#lineId").val(),
             yes: function (iBody) {
                 iBody.find('#btnSubmit').click();
                 initGrid();
@@ -165,7 +155,7 @@
             return;
         }
         // 发送请求到后端以触发文件导出
-        fetch("/param/error/export?configId=" + $("#lineId").val(), {
+        fetch("/param/stop/export?configId=" + $("#lineId").val(), {
             method: "GET",
         }).then(response => response.blob())
             .then(blob => {
@@ -180,31 +170,4 @@
             });
          
     }
-
-
-    function btn_pdf() {
-
-        var fileName = "aaa.pdf";
-        var fileUrl = window.location.origin + "//Content/PDFjs/web/" + fileName;
-        var page = 2;
-        var pageStr = page.toString();
-
-
-        // 创建查询参数
-        var queryParams = "file=" + encodeURIComponent(fileUrl) + "&page=" + pageStr; // 添加多个参数以 & 分隔
-
-        // 构建完整的 URL
-        var viewerUrl = "https://localhost:44348/Content/PDFjs/web/viewer.html?" + queryParams;
-
-        $.layerOpen({
-            id: "detail",
-            title: "PDF预览",
-            width: "800px",
-            height: "650px",
-            btn: null,
-            content: viewerUrl,
-        });
-    }
-
-
 </script>

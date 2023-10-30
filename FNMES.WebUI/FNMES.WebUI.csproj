@@ -24,6 +24,7 @@
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<Content Remove="wwwroot\Content\jquery\jquery-3.6.0.min.js" />
+		<Content Remove="wwwroot\Content\PDFjs\htmlpage.html" />
 
 		<Content Include="favicon.ico">
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>

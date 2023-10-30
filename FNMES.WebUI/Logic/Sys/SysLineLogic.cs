@@ -19,29 +19,45 @@ namespace FNMES.WebUI.Logic.Sys
 
         public List<SysLine> GetList()
         {
-            var db = GetInstance();
-            return db.Queryable<SysLine>()
-                .Includes(it => it.CreateUser)
-                .Includes(it => it.ModifyUser)
-                .OrderBy(it => it.SortCode)
-                .ToList();
+            try
+            {
+                var db = GetInstance();
+                return db.Queryable<SysLine>()
+                    .Includes(it => it.CreateUser)
+                    .Includes(it => it.ModifyUser)
+                    .OrderBy(it => it.SortCode)
+                    .ToList();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<SysLine>();
+            }
         }
 
       
         public List<SysLine> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount)
         {
-            var db = GetInstance();
-            ISugarQueryable<SysLine> queryable = db.Queryable<SysLine>();
-
-            if (!keyWord.IsNullOrEmpty())
+            try
             {
-                queryable = queryable.Where(it => (it.Name.Contains(keyWord) || it.EnCode.Contains(keyWord)));
+                var db = GetInstance();
+                ISugarQueryable<SysLine> queryable = db.Queryable<SysLine>();
+
+                if (!keyWord.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => (it.Name.Contains(keyWord) || it.EnCode.Contains(keyWord)));
+                }
+                return queryable
+                    .Includes(it => it.CreateUser)
+                    .Includes(it => it.ModifyUser)
+                    .OrderBy(it => it.SortCode)
+                    .ToPageList(pageIndex, pageSize, ref totalCount);
             }
-            return queryable
-                .Includes(it => it.CreateUser)
-                .Includes(it => it.ModifyUser)
-                .OrderBy(it => it.SortCode)
-                .ToPageList(pageIndex, pageSize, ref totalCount);
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<SysLine>();
+            }
         }
 
 
@@ -49,54 +65,94 @@ namespace FNMES.WebUI.Logic.Sys
 
         public SysLine Get(long primaryKey)
         {
-            var db = GetInstance();
-            return db.Queryable<SysLine>()
-                .Where(it => it.Id == primaryKey)
-                .Includes(it => it.CreateUser)
-                .Includes(it => it.ModifyUser)
-                .First();
+            try
+            {
+                var db = GetInstance();
+                return db.Queryable<SysLine>()
+                    .Where(it => it.Id == primaryKey)
+                    .Includes(it => it.CreateUser)
+                    .Includes(it => it.ModifyUser)
+                    .First();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new SysLine();
+            }
         }
 
         public SysLine GetByConfigId(string configId)
         {
-            var db = GetInstance();
-            return db.Queryable<SysLine>()
-                .Where(it => it.ConfigId == configId)
-                .First();
+            try
+            {
+                var db = GetInstance();
+                return db.Queryable<SysLine>()
+                    .Where(it => it.ConfigId == configId)
+                    .First();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new SysLine();
+            }
         }
 
         public int Insert(SysLine model, long account)
         {
-            var db = GetInstance();
-            model.Id = SnowFlakeSingle.instance.NextId();
-            model.CreateUserId = account;
-            model.CreateTime = DateTime.Now;
-            model.ModifyUserId = model.CreateUserId;
-            model.ModifyTime = model.CreateTime;
-            return db.Insertable<SysLine>(model).ExecuteCommand();
+            try
+            {
+                var db = GetInstance();
+                model.Id = SnowFlakeSingle.instance.NextId();
+                model.CreateUserId = account;
+                model.CreateTime = DateTime.Now;
+                model.ModifyUserId = model.CreateUserId;
+                model.ModifyTime = model.CreateTime;
+                return db.Insertable<SysLine>(model).ExecuteCommand();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return 0;
+            }
         }
 
         public int Delete(long primaryKey)
         {
-            var db = GetInstance();
-            return db.Deleteable<SysLine>().Where(it => it.Id == primaryKey).ExecuteCommand();
+            try
+            {
+                var db = GetInstance();
+                return db.Deleteable<SysLine>().Where(it => it.Id == primaryKey).ExecuteCommand();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return 0;
+            }
         }
         public int Update(SysLine model, long account)
         {
-            var db = GetInstance();
-            model.ModifyUserId = account;
-            model.ModifyTime = DateTime.Now;
-            return db.Updateable<SysLine>(model).UpdateColumns(it => new
+            try
             {
-                it.EnCode,
-                it.Name,
-                it.ConfigId,
-                it.SortCode,
-                it.EnableFlag,
-                it.Description,
-                it.ModifyUserId,
-                it.ModifyTime
-            }).ExecuteCommand();
+                var db = GetInstance();
+                model.ModifyUserId = account;
+                model.ModifyTime = DateTime.Now;
+                return db.Updateable<SysLine>(model).UpdateColumns(it => new
+                {
+                    it.EnCode,
+                    it.Name,
+                    it.ConfigId,
+                    it.SortCode,
+                    it.EnableFlag,
+                    it.Description,
+                    it.ModifyUserId,
+                    it.ModifyTime
+                }).ExecuteCommand();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return 0;
+            }
         }
     }
 }

@@ -26,7 +26,7 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+                Logger.ErrorInfo(E.Message);
                 return 0;
             }
         }
@@ -64,7 +64,7 @@ namespace FNMES.WebUI.Logic.Param
             catch (Exception E)
             {
                 Db.RollbackTran();
-                Logger.ErrorInfo(E.Message.ToString());
+                Logger.ErrorInfo(E.Message);
                 return 0;
             }
         }
@@ -87,7 +87,7 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+                Logger.ErrorInfo(E.Message);
                 return null;
             }
 
@@ -103,7 +103,7 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+                Logger.ErrorInfo(E.Message);
                 return null;
             }
 
@@ -119,7 +119,7 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+                Logger.ErrorInfo(E.Message);
                 return null;
             }
 
@@ -160,7 +160,7 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+                Logger.ErrorInfo(E.Message);
                 return null;
             }
         }
@@ -181,7 +181,7 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+                Logger.ErrorInfo(E.Message);
                 return 0;
             }
         }
@@ -202,7 +202,7 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+                Logger.ErrorInfo(E.Message);
                 return 0;
             }
         }
@@ -218,7 +218,7 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message.ToString());
+                Logger.ErrorInfo(E.Message);
                 return null;
             }
         }

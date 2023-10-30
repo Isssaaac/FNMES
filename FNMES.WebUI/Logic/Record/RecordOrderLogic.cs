@@ -33,14 +33,22 @@ namespace FNMES.WebUI.Logic.Record
         }
         public List<RecordOrderStart> GetStartList(int pageIndex, int pageSize, string keyWord, ref int totalCount)
         {
-            var db = GetInstance();
-            ISugarQueryable<RecordOrderStart> queryable = db.Queryable<RecordOrderStart>();
-
-            if (!keyWord.IsNullOrEmpty())
+            try
             {
-                queryable = queryable.Where(it => it.TaskOrderNumber.Contains(keyWord));
+                var db = GetInstance();
+                ISugarQueryable<RecordOrderStart> queryable = db.Queryable<RecordOrderStart>();
+
+                if (!keyWord.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => it.TaskOrderNumber.Contains(keyWord));
+                }
+                return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
             }
-            return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return new List<RecordOrderStart>();
+            }
         }
 
         public int InsertOutLine(RecordOrderPack model, string configId)

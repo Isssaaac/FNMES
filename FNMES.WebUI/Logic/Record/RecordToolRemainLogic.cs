@@ -49,14 +49,22 @@ namespace FNMES.WebUI.Logic.Record
         }
         public List<RecordToolRemain> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount,string configId)
         {
-            var db = GetInstance(configId);
-            ISugarQueryable<RecordToolRemain> queryable = db.Queryable<RecordToolRemain>();
-
-            if (!keyWord.IsNullOrEmpty())
+            try
             {
-                queryable = queryable.Where(it => it.StationCode.Contains(keyWord));
+                var db = GetInstance(configId);
+                ISugarQueryable<RecordToolRemain> queryable = db.Queryable<RecordToolRemain>();
+
+                if (!keyWord.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => it.StationCode.Contains(keyWord));
+                }
+                return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
             }
-            return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<RecordToolRemain>();
+            }
         }
 
 

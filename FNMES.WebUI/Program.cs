@@ -31,6 +31,7 @@ using SoapCore;
 using SqlSugar;
 using UEditorNetCore;
 using SoapCore.Extensibility;
+using Microsoft.AspNetCore.StaticFiles;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddCommandLine(args);
@@ -61,6 +62,15 @@ builder.Services.Configure<IISServerOptions>(options =>
     options.MaxRequestBodyBufferSize = 50 * 1024 * 1024;
     options.AllowSynchronousIO = true;
 });
+builder.Services.Configure<StaticFileOptions>(options =>
+{
+    options.ContentTypeProvider = new FileExtensionContentTypeProvider
+    {
+        Mappings = { [".properties"] = "application/octet-stream" }
+    };
+});
+
+
 
 
 builder.Services.AddDistributedMemoryCache();
