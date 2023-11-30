@@ -17,6 +17,10 @@ namespace CCS.WebUI
         public static IConfiguration Configuration { get; private set; }
         private static MyConnectionConFig _connection;
         private static MyConnectionConFig[] _LineConnections;
+        
+
+
+
 
         public static MyConnectionConFig sysConnection 
         {
@@ -39,12 +43,17 @@ namespace CCS.WebUI
 
         public static string WebSoftwareName { get; set; }
 
+        public static string FactoryUrl { get; set; }
+
         public static int WorkId { get; set; }
 
         public static string Copyright { get; set; }
 
         public static int LogOutDateDays { get; set; }
         public static int SessionTimeout { get; set; }
+
+        public static FTPparam FTPparam { get; set; }
+
         public static void Init(this IServiceCollection services, IConfiguration configuration)
         {
             Configuration = configuration;
@@ -53,15 +62,17 @@ namespace CCS.WebUI
             var provider = services.BuildServiceProvider();
             IWebHostEnvironment environment = provider.GetRequiredService<IWebHostEnvironment>();
             _connection = provider.GetRequiredService<IOptions<MyConnectionConFig>>().Value;
-            string s = _connection.ToJson();
+            //string s = _connection.ToJson();
             _LineConnections =  configuration.GetSection("LineConnections").Get<MyConnectionConFig[]>();
-            s = _LineConnections.ToJson();
+            FTPparam = configuration.GetSection("FTP").Get<FTPparam>();
+            //s = _LineConnections.ToJson();
             MyEnvironment.Init(Path.Combine(environment.ContentRootPath, ""));
             WebSoftwareName = (configuration["WebSoftwareName"] ?? "");
             Copyright = (configuration["Copyright"] ?? "");
             LogOutDateDays = Convert.ToInt32(configuration["LogOutDateDays"] ?? "30");
             SessionTimeout = Convert.ToInt32(configuration["SessionTimeout"] ?? "20");
-            WorkId = Convert.ToInt32(configuration["WorkId"] ?? "1");
+            FactoryUrl = (configuration["FactoryUrl"] ?? "");
+            WorkId = Convert.ToInt32(configuration["WorkId"] ?? "http://221.230.79.84:9199");
             if (string.IsNullOrEmpty(_connection.DbConnectionString))
                 throw new Exception("未配置好数据库默认连接");
         }
@@ -75,6 +86,13 @@ namespace CCS.WebUI
         {
             return Configuration.GetSection(key);
         }
+    }
+
+    public class FTPparam
+    {
+        public string Host { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
     }
    
 }

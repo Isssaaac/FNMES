@@ -8,6 +8,7 @@ namespace FNMES.Entity.Param
     /// 
     ///</summary>
     [SugarTable("Param_EquipmentError")]
+    [SugarIndex("index_ParamEquipmentError_stationCode", nameof(ParamEquipmentError.StationCode), OrderByType.Asc)]    //索引
     public class ParamEquipmentError
     {
         /// <summary>
@@ -19,21 +20,22 @@ namespace FNMES.Entity.Param
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName= "bigStationCode")]
-         public string BigStationCode { get; set; }
+         [SugarColumn(ColumnName = "stationCode", IsNullable = true)]
+         public string StationCode { get; set; }
+        [SugarColumn(ColumnName = "smallStationCode", IsNullable = true)]
+        public string SmallStationCode { get; set; }
         /// <summary>
-        ///  
         ///</summary>
-        [SugarColumn(ColumnName = "equipmentID")]
+        [SugarColumn(ColumnName = "equipmentID", IsNullable = true)]
         public string EquipmentID { get; set; }
 
-        [SugarColumn(ColumnName = "offset")]
+        [SugarColumn(ColumnName = "offset", IsNullable = true)]
         public int Offset { get; set; }
-        [SugarColumn(ColumnName = "alarmCode")]
+        [SugarColumn(ColumnName = "alarmCode", IsNullable = true)]
         public string AlarmCode { get; set; }
-        [SugarColumn(ColumnName = "alarmDesc")]
+        [SugarColumn(ColumnName = "alarmDesc", IsNullable = true)]
         public string AlarmDesc { get; set; }
-        [SugarColumn(ColumnName = "plcNo")]
+        [SugarColumn(ColumnName = "plcNo", IsNullable = true)]
         public int PlcNo { get; set; }
 
         //分库的数据库标识   只用来映射实体传递数据

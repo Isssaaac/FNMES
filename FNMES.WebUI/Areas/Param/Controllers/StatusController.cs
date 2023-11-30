@@ -17,6 +17,7 @@ using OfficeOpenXml;
 namespace MES.WebUI.Areas.Param.Controllers
 {
     [Area("Param")]
+    [HiddenApi]
     public class StatusController : BaseController
     {
         private readonly ErrorAndStatusLogic errorAndStatusLogic;
@@ -86,7 +87,8 @@ namespace MES.WebUI.Areas.Param.Controllers
 
                 using var stream = file.OpenReadStream();
                 Dictionary<string, string> keyValuePairs = new Dictionary<string, string>() {
-                    {"工位","BigStationCode" },
+                    {"大工站","StationCode" },
+                    {"小工站","SmallStationCode" },
                     {"设备","EquipmentID" },
                     {"偏移","Offset" },
                     {"停机码偏移","StopCodeOffset" },
@@ -122,7 +124,6 @@ namespace MES.WebUI.Areas.Param.Controllers
                 };
 
             // 填充数据到工作表
-
             // 将 ExcelPackage 转换为字节数组
             var bytes = ExcelUtils.ExportExcel(statuses, keyValuePairs, "error",true);
 
@@ -134,7 +135,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
 
-
+        
 
 
     }

@@ -24,7 +24,7 @@ namespace FNMES.Entity.Record
         public string ParamName { get; set; }
 
         // 参数值
-        [SugarColumn(ColumnName = "paramName", ColumnDataType = "varchar(100)", IsNullable = true)]
+        [SugarColumn(ColumnName = "paramValue", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string ParamValue { get; set; }
 
         // 检测结果 OK/NG

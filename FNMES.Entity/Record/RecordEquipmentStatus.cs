@@ -19,18 +19,23 @@ namespace FNMES.Entity.Record
         [SugarColumn(ColumnName = "equipmentID", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string EquipmentID { get; set; }
 
-        [SugarColumn(ColumnName = "bigStationCode ", ColumnDataType = "varchar(100)", IsNullable = true)]
-        public string BigStationCode { get; set; }
+        [SugarColumn(ColumnName = "stationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        public string StationCode { get; set; }
+        [SugarColumn(ColumnName = "smallStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        public string SmallStationCode { get; set; }
 
         [SugarColumn(ColumnName = "equipmentStatus", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string EquipmentStatus { get; set; }
-
-        [SugarColumn(ColumnName = "statusCode", ColumnDataType = "varchar(100)", IsNullable = true)]
-        public string StatusCode { get; set; }
-
-
         [SugarColumn(ColumnName = "statusDescription", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string StatusDescription { get; set; }
+
+        [SugarColumn(ColumnName = "stopCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        public string StopCode { get; set; }
+        [SugarColumn(ColumnName = "stopDescription", ColumnDataType = "varchar(100)", IsNullable = true)]
+        public string StopDescription { get; set; }
+
+
+
 
         [SugarColumn(ColumnName = "stopFlag", ColumnDataType = "varchar(1)", IsNullable = true)]
         public string StopFlag { get; set; }

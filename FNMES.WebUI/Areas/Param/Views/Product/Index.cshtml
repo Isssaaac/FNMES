@@ -52,7 +52,17 @@
                         </th>
                         <th>编码</th>
                         <th>名称</th>
-                        <th>备注</th>
+                        <th>Bom</th>
+                        <th>Bom名称</th>
+                        <th>Bom版本</th>
+                        <th>工艺名称</th>
+                        <th>路线编码</th>
+                        <th>路线名称</th>
+                        <th>路线版本</th>
+                        <th>配方</th>
+                        <th>配方名</th>
+                        <th>配方版本</th>
+                        <th>时间</th>
                     </tr>
                 </thead>
                 <!--内容容器-->
@@ -70,9 +80,19 @@
     <tr>
         <td>
             <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
-          <td>{{item.Encode}}</td>
-        <td>{{item.Name}}</td>
-        <td>{{item.Description}}</td>
+          <td>{{item.ProductPartNo}}</td>
+        <td>{{item.ProductDescription}}</td>
+        <td>{{item.BomNo}}</td>
+        <td>{{item.BomDescription}}</td>
+        <td>{{item.BomVersion}}</td>
+        <td>{{item.ProcessConfigName}}</td>
+        <td>{{item.RouteNo}}</td>
+        <td>{{item.RouteName}}</td>
+        <td>{{item.RouteVersion}}</td>
+        <td>{{item.RecipeNo}}</td>
+        <td>{{item.RecipeDescription}}</td>
+        <td>{{item.RecipeVersion}}</td>
+        <td>{{item.CreateTime}}</td>
        
     </tr>
       {{#  }); }}
@@ -121,6 +141,9 @@
 
 
     function initGrid() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
         paging.init({
             url: '/param/product/index',
             elem: '#content',
@@ -141,52 +164,21 @@
         });
     }
 
-    function btn_add() {
-        $.layerOpen({
-            id: "add",
-            title: "新增产品",
-            width: "670px",
-            height: "350px",
-            content: "/param/product/form?configId=" + $("#lineId").val(),
-            yes: function (iBody) {
-                iBody.find('#btnSubmit').click();
-                initGrid();
-            }
-        });
-    }
-
-    function btn_edit() {
+    function btn_getRecipe() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
-            $.layerMsg("请勾选单条记录修改。", "warning");
-            return;
-        }
-        $.layerOpen({
-            id: "edit",
-            title: "修改产品",
-            width: "670px",
-            height: "350px",
-            content: "/param/product/form?primaryKey=" + ids[0] +"&configId=" + $("#lineId").val(),
-            yes: function (iBody) {
-                iBody.find('#btnSubmit').click();
-                initGrid();
-            }
-        });
-    }
-
-    function btn_delete() {
-        var ids = $("#gridList").gridSelectedRowValue();
-        if (ids.length != 1) {
-            $.layerMsg("请勾选需要一条删除的用户。", "warning");
+            $.layerMsg("请勾选一条需要同步配方的产品。", "warning");
             return;
         }
         $.layerConfirm({
-            content: "您已选中1条数据, 确定删除吗？",
+            content: "您已选中1个产品, 确定同步工艺配方吗？",
             callback: function () {
                 $.formSubmit({
-                    url: '/param/product/delete',
-                    data: { productId: ids[0],
-                            configId: $("#lineId").val() },
+                    url: '/param/product/getRecipe',
+                    data: { primaryKey: ids[0],
+                            configId: $("#lineId").val(),
+                            force: true
+                    },
                     success: function () {
                         initGrid();
                     }
@@ -195,19 +187,5 @@
         });
     }
 
-    function btn_detail() {
-        var ids = $("#gridList").gridSelectedRowValue();
-        if (ids.length != 1) {
-            $.layerMsg("请勾选单条记录查看。", "warning");
-            return;
-        }
-        $.layerOpen({
-            id: "detail",
-            title: "查看产品",
-            width: "670px",
-            height: "530px",
-            content: "/param/product/detail?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
-            btn: null
-        });
-    }
+    
 </script>

@@ -118,6 +118,9 @@
 
 
     function initGrid() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
         paging.init({
             url: '/param/unitProcedure/index',
             elem: '#content',

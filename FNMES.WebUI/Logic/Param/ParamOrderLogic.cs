@@ -98,6 +98,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
+               // db.CodeFirst.InitTables(typeof(ParamAlternativePartItem));
                 ParamOrder order = db.Queryable<ParamOrder>().Where(it => it.Id == primaryKey).First();
                 return order;
             }
@@ -214,6 +215,22 @@ namespace FNMES.WebUI.Logic.Param
                 var db = GetInstance(configId);
 
                 List<ParamOrder> paramProducts = db.Queryable<ParamOrder>().ToList();
+                return paramProducts;
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return null;
+            }
+        }
+
+        public List<ParamOrder> GetNew(string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+
+                List<ParamOrder> paramProducts = db.Queryable<ParamOrder>().Where(it => it.Flag =="0").ToList();
                 return paramProducts;
             }
             catch (Exception E)

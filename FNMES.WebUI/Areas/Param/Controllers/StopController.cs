@@ -17,6 +17,7 @@ using OfficeOpenXml;
 namespace MES.WebUI.Areas.Param.Controllers
 {
     [Area("Param")]
+    [HiddenApi]
     public class StopController : BaseController
     {
         private readonly ErrorAndStatusLogic errorAndStatusLogic;

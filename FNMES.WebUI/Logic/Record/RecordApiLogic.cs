@@ -28,7 +28,7 @@ namespace FNMES.WebUI.Logic.Record
                 return 0;
             }
         }
-        public List<RecordApi> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount,string configId)
+        public List<RecordApi> GetList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount,string index)
         {
             try
             {
@@ -39,7 +39,40 @@ namespace FNMES.WebUI.Logic.Record
                 {
                     queryable = queryable.Where(it => it.Url.Contains(keyWord));
                 }
-                return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
+                //查询当日
+                if (index == "1")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today;
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近7天
+                else if (index == "2")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-6);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近1月
+                else if (index == "3")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-29);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近3月
+                else if (index == "4")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-91);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //按月分表三个月取3张表
+                return queryable.SplitTable(tabs => tabs.Take(3)).ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception E )
             {

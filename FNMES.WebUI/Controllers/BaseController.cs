@@ -28,7 +28,7 @@ namespace FNMES.WebUI.Controllers
 
 
 
-        protected ActionResult AppSuccess()
+        /*protected ActionResult AppSuccess() 
         {
             return AppResult<string>(RetCode.success, "恭喜你，操作成功", string.Empty);
         }
@@ -63,9 +63,9 @@ namespace FNMES.WebUI.Controllers
         protected ActionResult AppError<T>(string message, T data)
         {
             return AppResult<T>(RetCode.error, message, data);
-        }
+        }*/
 
-        protected ActionResult AppResult<T>(string code, string message, T data)
+        protected ActionResult AppResult<T>(string code, string message, T data) where T : new() 
         {
             return Content(new RetMessage<T> { messageType = code, message = message, data = data }.ToJson());
         }

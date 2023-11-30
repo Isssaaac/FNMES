@@ -1,0 +1,143 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>工艺参数</title>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+    <link href="~/Content/ztree/css/metroStyle/metroStyle.css" rel="stylesheet" />
+    <script src="~/Content/ztree/js/jquery.ztree.all.min.js"></script>
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+<body>
+    
+    <div class="container-fluid fadeIn animated" >
+        @* <div class="panel container-panel" margin-top:5px> *@
+            @* <div class="panel-body" margin-top:5px> *@
+                <table id="gridList" class="layui-form layui-table FNMES-table " lay-skin="line"  margin-top:5px>
+                    <thead>
+                        <tr>
+                            <th>小工位</th>
+                            <th>工步编码</th>
+                            <th>参数编码</th>
+                            <th>参数名称</th>
+                            <th>描述</th>
+                            <th>分类</th>
+                            <th>判定类型</th>
+                            <th>参数类型</th>
+                            <th>标准值</th>
+                            <th>上限</th>
+                            <th>下限</th>
+                            <th>设定值</th>
+                            <th>工厂校验</th>
+                            <th>单位</th>
+                        </tr>
+                    </thead>
+                    <!--内容容器-->
+                    <tbody id="content"></tbody>
+                </table>
+                <div id="paged"></div>
+            @* </div> *@
+        @* </div> *@
+           
+       
+    </div>
+</body>
+</html>
+
+<!--内容模板-->
+<script id="contentTpl" type="text/html">
+    {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>{{item.SmallStationCode}}</td>
+        <td>{{item.StepNo}}</td>
+        <td>{{item.ParamCode}}</td>
+        <td>{{item.ParamName}}</td>
+        <td>{{item.ProcessDescription}}</td>
+        <td>{{item.ParamClassification}}</td>
+        <td>{{item.DecisionType}}</td>
+        <td>{{item.ParamType}}</td>
+        <td>{{item.StandValue}}</td>
+        <td>{{item.MaxValue}}</td>
+        <td>{{item.MinValue}}</td>
+        <td>{{item.SetValue}}</td>
+        <td>
+            {{# if(item.IsDoubleCheck=="1"){ }}  <span class="label label-success label-sm">是</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">否</span>
+            {{# } }}
+        </td>
+        <td>{{item.UnitOfMeasure}}</td>
+    </tr>
+     {{#  }); }}
+       {{# if(d.list.length<=0) { }}
+          <tr style="color: red">
+              <td colspan="8">查无数据。</td>
+          </tr>
+      {{# } }}
+    
+</script>
+
+<script type="text/javascript">
+    var paging;
+    layui.config({ base: parent._baseUrl}).use(['paging', 'form'], function () {
+        var form = layui.form;
+        paging = layui.paging();
+        var configId = $.getQueryString("configId");
+        var primaryKey = $.getQueryString("primaryKey");
+        initGrid(configId, primaryKey);
+        
+    });
+    function initGrid(configId, primaryKey) {
+
+        paging.init({
+            url: '/param/recipe/param',
+            elem: '#content',
+            tempElem: '#contentTpl',
+            params: {
+                primaryKey: primaryKey,
+                configId: configId
+            },
+            pageConfig: {
+                elem: 'paged',
+                pageSize: 8,
+            },
+            success: function () {
+
+            },
+            fail: function (msg) {
+                top.layer.msg(msg);
+            }
+        });
+    }
+ 
+   
+
+  
+
+  
+
+   
+
+</script>
+

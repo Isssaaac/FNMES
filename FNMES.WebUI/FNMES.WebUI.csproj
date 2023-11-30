@@ -38,10 +38,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Update="Areas\Param\Views\ProductStep\Index.cshtml">
+	  <Content Update="Areas\Param\Views\Recipe\Index.cshtml">
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Areas\Param\Views\Param\" />
 	</ItemGroup>
 
 

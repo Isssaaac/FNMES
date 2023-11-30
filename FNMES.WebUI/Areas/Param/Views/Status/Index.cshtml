@@ -50,6 +50,7 @@
                             <input type="checkbox" lay-skin="primary">
                         </th>
                         <th>大工站</th>
+                        <th>小工站</th>
                         <th>设备名</th>
                         <th>偏移</th>
                         <th>状态码偏移</th>
@@ -71,7 +72,8 @@
     <tr>
         <td>
             <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
-        <td>{{item.BigStationCode}}</td>
+        <td>{{item.StationCode}}</td>
+        <td>{{item.SmallStationCode}}</td>
         <td>{{item.EquipmentID}}</td>
         <td>{{item.Offset}}</td>
         <td>{{item.StopCodeOffset}}</td>
@@ -121,6 +123,9 @@
     }
 
     function initGrid() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
         paging.init({
             url: '/param/status/index',
             elem: '#content',

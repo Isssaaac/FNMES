@@ -11,6 +11,7 @@ namespace FNMES.Entity.DTO.ApiData
    
     public class LoginData
     {
+        public string operatorName { get; set; }
         public List<string> operatorRoleCode {  get; set; }
     }
 
@@ -44,6 +45,7 @@ namespace FNMES.Entity.DTO.ApiData
         // 计划结束时间
         public DateTime planEndTime { get; set; }
     }
+        
 
     public class GetRecipeData
     {
@@ -53,7 +55,31 @@ namespace FNMES.Entity.DTO.ApiData
         // 产品物料描述
         public string productDescription { get; set; }
 
-        // 配方编号
+        // BOM编码
+        public string bomNo { get; set; }
+
+        // BOM名称
+        public string bomDescription { get; set; }
+
+        // BOM版本（PLM的BOM版本）
+        public string bomVersion { get; set; }
+
+        // 工艺配置名称
+        public string processConfigName { get; set; }
+
+        // 工艺路线编码
+        public string routeNo { get; set; }
+
+        // 工艺路线名称
+        public string routeName { get; set; }
+
+        // 工艺路线版本
+        public string routeVersion { get; set; }
+
+        // 工艺配置
+        public List<ProcessParamItem> processParamItems { get; set; }
+
+        // 配方编号   配方相关暂时没有
         public string recipeNo { get; set; }
 
         // 配方名称
@@ -62,37 +88,128 @@ namespace FNMES.Entity.DTO.ApiData
         // 配方版本
         public string recipeVersion { get; set; }
 
-        // BOM编码
-        public string bomNo { get; set; }
-
-        // BOM名称
-        public string bomDescription { get; set; }
-
-        // BOM版本
-        public string bomVersion { get; set; }
-
-        // 配方项列表
-        public List<RecipeItem> recipeItems { get; set; }
+        // 配方，工序有配方的情况只有5中情况：电芯匀浆配方、电芯分档配方、电芯抽检分容配方、pack模块配方、PACK堆叠焊接配方
+        //public List<RecipeItem> recipeItems { get; set; }
     }
 
-    public class RecipeItem
+    public class ProcessParamItem
     {
-        // 工序
-        public string bigStationCode { get; set; }
-
-        // 小工位
+        // 工序编码
         public string stationCode { get; set; }
 
-        // 物料列表
-        public List<Part> partList { get; set; }
+        // 工序名称
+        public string stationName { get; set; }
 
-        // 参数列表
-        public List<Parameter> paramList { get; set; }
+        // 工段：前段，中段，后段
+        public string section { get; set; }
+
+        // 下一站工序编码
+        public string nextBigStationCode { get; set; }
+
+        // 是否首道工序
+        public string isFirstStation { get; set; }
+
+        // 节拍，后段需要，单位秒
+        public string productionBeat { get; set; }
+
+        // 过站限制：进站校验、出站校验、进出站都校验、都不校验
+        public string passStationRestriction { get; set; }
+
+        
+
+        // 工艺参数，可以到小工位下的工步
+        public List<ParamItem> paramList { get; set; }
+
+        // ESOP到小工位
+        public List<EsopItem> esopList { get; set; }
+
+        // bom物料可以到小工位下的工步
+        public List<PartItem> partList { get; set; }
+
+        // 工步列表，仅PACK后段(组装段)需要，PACK前段和中段不需要
+        public List<StepItem> stepList { get; set; }
+    }
+    public class ParamItem
+    {
+        // 工步编码（可选）
+        public string stepNo { get; set; }
+
+        // 小工位
+        public string smallStationCode { get; set; }
+        // 工步名称（可选）
+        public string stepName { get; set; }
+
+        // 顺序号，工步之间的（可选）
+        public string No { get; set; }
+
+        // 工艺参数编码（操作类型编码）
+        public string paramCode { get; set; }
+
+        // 工艺参数名称（操作类型名称）
+        public string paramName { get; set; }
+
+        // 工艺描述
+        public string processDesc { get; set; }
+
+        // 参数分类：产品参数、过程参数、设备预设参数（工艺参数）
+        public string paramClassification { get; set; }
+
+        // 判定类型：数据收集、相机判定、设备判定、取标准值、取上下限判定、取下限判定、取上限判定、无需判定
+        public string decisionType { get; set; }
+
+        // 参数类型：定性（字符串）：选择定性，选项1-不需要，选项2-不需要，设定值-需要；定量（数值型）：标准值，上限，下限。
+        public string paramType { get; set; }
+
+        // 工艺参数标准值，针对定量类型的
+        public string standValue { get; set; }
+
+        // 工艺参数最大值，针对定量类型的
+        public string maxValue { get; set; }
+
+        // 工艺参数最小值，针对定量类型的
+        public string minValue { get; set; }
+
+        // 针对定性的设定值
+        public string setValue { get; set; }
+
+        // 工厂MES是否二次校验
+        public string isDoubleCheck { get; set; }
+
+        // 单位
+        public string uom { get; set; }
     }
 
-    public class Part
+    public class EsopItem
     {
-        // 物料名称
+        // 小工位
+        public string smallStationCode { get; set; }
+        // SOP文件存储在文件服务器URL路径
+        public string filePath { get; set; }
+
+        // 顺序号（有多本时）
+        public string No { get; set; }
+
+        // 开始页码
+        public string startPageNo { get; set; }
+
+        // 结束页码
+        public string endPageNo { get; set; }
+    }
+
+    public class PartItem
+    {
+        // 小工位
+        public string smallStationCode { get; set; }
+        // 工步编码（可选）
+        public string stepNo { get; set; }
+
+        // 工步名称（可选）
+        public string stepName { get; set; }
+
+        // 顺序号（可选）
+        public string No { get; set; }
+
+        // 物料编码
         public string partNumber { get; set; }
 
         // 物料描述
@@ -106,22 +223,138 @@ namespace FNMES.Entity.DTO.ApiData
 
         // 单位
         public string uom { get; set; }
-    }
 
-    public class Parameter
+        // 替代物料
+        public List<AlternativePartItem> alternativePartList { get; set; }
+    }
+    [DataContract]
+    public class AlternativePartItem
     {
-        // 工艺参数
-        public string paramName { get; set; }
-
-        // 工艺标准值
-        public string standValue { get; set; }
-
-        // 工艺最大值
-        public string maxValue { get; set; }
-
-        // 工艺最小值
-        public string minValue { get; set; }
+        [DataMember]
+        // 物料编码
+        public string partNumber { get; set; }
+        [DataMember]
+        // 物料描述
+        public string partDescription { get; set; }
+        [DataMember]
+        // 物料版本
+        public string partVersion { get; set; }
+        [DataMember]
+        // 数量
+        public string partQty { get; set; }
+        [DataMember]
+        // 替代料比例（和原物料的比例）
+        public string partRate { get; set; }
+        [DataMember]
+        // 单位
+        public string uom { get; set; }
     }
+
+    public class StepItem
+    {
+        // 小工位
+        public string smallStationCode { get; set; }
+        // 工步编号
+        public string stepNo { get; set; }
+
+        // 工步名称
+        public string stepName { get; set; }
+
+        // 顺序号
+        public string No { get; set; }
+
+        // 工步描述
+        public string stepDesc { get; set; }
+
+        // 操作
+        public string operation { get; set; }
+
+        // 标识
+        public string identity { get; set; }
+    }
+
+    
+
+   
+    //配方相关
+    public class RecipeItem
+    {
+        // 工序
+        public string bigStationCode { get; set; }
+
+        // 小工位（可选）
+        public string stationCode { get; set; }
+
+        // 电芯分档配方结构体
+        public List<Dictionary<string, string>> classificationRecipeList { get; set; }
+
+        // 电芯抽检分容配方结构体
+        public List<Dictionary<string, string>> partialVolumeRecipeList { get; set; }
+
+        // pack模块配方结构体
+        public List<PackModuleRecipeItem> packModuleRecipeList { get; set; }
+
+        // PACK堆叠焊接配方结构体
+        public List<PackStackWeldingRecipeItem> packStackWeldingRecipeList { get; set; }
+    }
+
+    public class PackModuleRecipeItem
+    {
+        // 类型代码：(模块填写：A1,B1,B2,C1,D1,E1,电芯填写：CQ1-不折弯,CQ2-正极折弯,CQ3负极折弯)
+        public string moduleTypeCode { get; set; }
+
+        // 是否贴泡棉：A1,B1,C1,D1,E1为Y(需要贴泡棉),B2,D2为N(不需要贴泡棉)
+        public string isFoamPatch { get; set; }
+
+        // 折耳极性：CQ1为N(无需折弯),CQ2为Z(正极折弯),CQ3为F(负极折弯)
+        public string foldingPolarity { get; set; }
+
+        // 极耳焊接
+        public List<PoleEarWeldingItem> poleEarWelding { get; set; }
+
+        // 备注
+        public string remarks { get; set; }
+    }
+
+    public class PoleEarWeldingItem
+    {
+        // 电芯类型
+        public string batteryType { get; set; }
+
+        // 电芯档位
+        public string batteryGear { get; set; }
+    }
+
+    public class PackStackWeldingRecipeItem
+    {
+        // 行号，数字
+        public string lineNo { get; set; }
+
+        // 列号，数字
+        public string columnNo { get; set; }
+
+        // 层数，数字
+        public string layerNo { get; set; }
+
+        // 模块类型
+        public string moduleType { get; set; }
+
+        // NTC位置：温感线位置：前、中、后、空
+        public string ntcPosition { get; set; }
+
+        // 方向：横向、纵向
+        public string direction { get; set; }
+
+        // 极性
+        public string polarity { get; set; }
+
+        // 备注
+        public string remarks { get; set; }
+    }
+
+
+
+
     public class GetLabelData
     {
         // Pack内控码/Reess码
@@ -143,6 +376,9 @@ namespace FNMES.Entity.DTO.ApiData
     [DataContract]
     public class QualityParam
     {
+
+        [DataMember]
+        public string paramCode { get; set; }
         // 参数名称
         [DataMember]
         public string paramName { get; set; }
@@ -165,29 +401,74 @@ namespace FNMES.Entity.DTO.ApiData
     public class GetPackInfoData
     {
         public string productCode { get; set;}
+        public List<Module> moduleList { get; set; }
     }
 
-    public class GetSopData
+    public class Module
     {
-        public List<SopInfo> sopList { get; set; }
+        //模块码
+        public string moduleCode { get; set; }
+        //模块位置
+        public string lineNo { get; set; }
+        public string columnNo { get; set; }
+        public string layerNo { get; set; }
     }
 
-    public class SopInfo
+    public class AndonData
     {
-        // 工位
-        public string bigStationCode { get; set; }
+        //andon消息ID
+        public string andonNoticeCode { get; set; }
+    }
+    [DataContract]
+    public class AndonTypeData
+    {
+        [DataMember]
+        //andon前获取的参数，andon界面显示枚举
+        public List<AndonType> dataList;
+    }
+    [DataContract]
+    public class AndonType
+    {
+        [DataMember]
+        //P/E/M/Q/S
+        public string andonType { get; set; }
+        [DataMember]
+        public string andonCode { get; set; }
+        [DataMember]
+        public string andonName { get; set; }
+        [DataMember]
+        public string andonDesc { get; set; }
 
-        // 小工位
-        public string stationCode { get; set; }
 
-        // SOP 文件存储在文件服务器存储路径
-        public string filePath { get; set; }
 
-        // 开始页码
-        public string startPageNo { get; set; }
-
-        // 结束页码
-        public string endPageNo { get; set; }
     }
 
+
+
+    
+    public class QualityStopData
+    {
+
+        public List<QualityStopItem> dataList;
+    }
+
+    [DataContract]
+    public class nullObject
+    {
+
+    }
+
+
+
+    public class QualityStopItem
+    {
+        public string equipmentID;
+        public string equShutDownKpi;
+        public string equShutDownKpiDesc;
+        public string lineStopKpi;
+        public string lineStopKpiDesc;
+        public string kpiTarget;
+        public string kpiActual;
+        public string time;
+    }
 }

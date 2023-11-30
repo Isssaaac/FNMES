@@ -32,6 +32,7 @@ using SqlSugar;
 using UEditorNetCore;
 using SoapCore.Extensibility;
 using Microsoft.AspNetCore.StaticFiles;
+using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddCommandLine(args);
@@ -83,6 +84,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddMvc();
 //添加基础数据库实例
 builder.Services.AddSqlsugarServer(AppSetting.sysConnection);
+
 //配置AP 使用json.net
 builder.Services.AddControllers().AddNewtonsoftJson(opt =>
 {
@@ -143,13 +145,18 @@ else
 app.UseSession();
 
 //配置WebService
+
 app.UseSoapEndpoint<WebServiceContract>("/WebService.asmx", new SoapEncoderOptions());
+
+
+
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
 });
+
 
 
 app.UseHttpsRedirection();

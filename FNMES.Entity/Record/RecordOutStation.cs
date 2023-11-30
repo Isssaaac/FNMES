@@ -31,18 +31,17 @@ namespace FNMES.Entity.Record
         [SugarColumn(ColumnName = "defectDesc", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 不良描述
         public string DefectDesc { get; set; }
-        [SugarColumn(ColumnName = "bigStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
-        // 工位号
-        public string BigStationCode { get; set; }
         [SugarColumn(ColumnName = "stationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
-        // 小工位
         public string StationCode { get; set; }
+        [SugarColumn(ColumnName = "smallStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        public string SmallStationCode { get; set; }
         [SugarColumn(ColumnName = "equipmentID", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 设备编码（选填）
         public string EquipmentID { get; set; }
         [SugarColumn(ColumnName = "operatorNo", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 操作工
         public string OperatorNo { get; set; }
+
         [SplitField]
         [SugarColumn(ColumnName = "createTime")]
         public DateTime CreateTime { get; set; }

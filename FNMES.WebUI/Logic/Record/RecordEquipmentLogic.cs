@@ -35,11 +35,12 @@ namespace FNMES.WebUI.Logic.Record
                         RecordEquipmentStop stop = new()
                         {
                             Id = SnowFlakeSingle.Instance.NextId(),
-                            BigStationCode = lastStop.BigStationCode,
+                            StationCode = lastStop.StationCode,
+                            SmallStationCode = lastStop.SmallStationCode,
                             EquipmentID = lastStop.EquipmentID,
                             OperatorNo = "",
-                            StopCode = lastStop.StatusCode,
-                            StopDesc = lastStop.StatusDescription,
+                            StopCode = lastStop.StopCode,
+                            StopDesc = lastStop.StopDescription,
                             StopTime = lastStop.CallTime,
                             CreateTime = DateTime.Now,
                             StopDurationTime = (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - long.Parse(lastStop.CallTime)).ToString(),
@@ -62,23 +63,157 @@ namespace FNMES.WebUI.Logic.Record
                 return 0;
             }
         }
-        public List<RecordEquipmentStatus> GetStatusList(int pageIndex, int pageSize, string keyWord, ref int totalCount,string configId)
+        public List<RecordEquipmentStatus> GetStatusList(int pageIndex, int pageSize, string keyWord, string configId,ref int totalCount,string index)
         {
             try
             {
                 var db = GetInstance(configId);
                 ISugarQueryable<RecordEquipmentStatus> queryable = db.Queryable<RecordEquipmentStatus>();
-
                 if (!keyWord.IsNullOrEmpty())
                 {
-                    queryable = queryable.Where(it => it.EquipmentID.Contains(keyWord) || it.BigStationCode.Contains(keyWord));
+                    queryable = queryable.Where(it => it.EquipmentID.Contains(keyWord) || it.StationCode.Contains(keyWord) );
                 }
-                return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
+                //查询当日
+                if (index == "1")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today;
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近7天
+                else if (index == "2")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-6);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近1月
+                else if (index == "3")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-29);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近3月
+                else if (index == "4")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-91);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //按月分表三个月取3张表
+                return queryable.SplitTable(tabs => tabs.Take(3)).ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception E)
             {
                 Logger.ErrorInfo(E.Message);
                 return new List<RecordEquipmentStatus>();
+            }
+        }
+        public List<RecordEquipmentError> GetErrorList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount, string index)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                ISugarQueryable<RecordEquipmentError> queryable = db.Queryable<RecordEquipmentError>();
+                if (!keyWord.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => it.EquipmentID.Contains(keyWord) || it.StationCode.Contains(keyWord)||it.AlarmCode.Contains(keyWord));
+                }
+                //查询当日
+                if (index == "1")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today;
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近7天
+                else if (index == "2")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-6);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近1月
+                else if (index == "3")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-29);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近3月
+                else if (index == "4")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-91);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //按月分表三个月取3张表
+                return queryable.SplitTable(tabs => tabs.Take(3)).ToPageList(pageIndex, pageSize, ref totalCount);
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return new List<RecordEquipmentError>();
+            }
+        }
+        public List<RecordEquipmentStop> GetStopList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount, string index)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                ISugarQueryable<RecordEquipmentStop> queryable = db.Queryable<RecordEquipmentStop>();
+                if (!keyWord.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => it.EquipmentID.Contains(keyWord) || it.StationCode.Contains(keyWord) || it.StopCode.Contains(keyWord));
+                }
+                //查询当日
+                if (index == "1")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today;
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近7天
+                else if (index == "2")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-6);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近1月
+                else if (index == "3")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-29);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近3月
+                else if (index == "4")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-91);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //按月分表三个月取3张表
+                return queryable.SplitTable(tabs => tabs.Take(3)).ToPageList(pageIndex, pageSize, ref totalCount);
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return new List<RecordEquipmentStop>();
             }
         }
         public int InsertError(EquipmentErrorParam model, string configId)
@@ -90,7 +225,8 @@ namespace FNMES.WebUI.Logic.Record
                 {
                     RecordEquipmentError buf = new();
                     buf.CopyField(item);
-                    buf.BigStationCode = model.bigStationCode;
+                    buf.StationCode = model.stationCode;
+                    buf.SmallStationCode = model.smallStationCode;
                     buf.EquipmentID = model.equipmentID;
                     buf.Id = SnowFlakeSingle.instance.NextId();
                     buf.CreateTime = DateTime.Now;

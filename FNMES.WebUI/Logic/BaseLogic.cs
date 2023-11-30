@@ -17,6 +17,7 @@ using System.Xml.Linq;
 using FNMES.Entity.Enum;
 using OfficeOpenXml.Drawing.Slicer.Style;
 using System.Data.Entity.ModelConfiguration.Configuration;
+using FNMES.Entity.Param;
 
 namespace FNMES.WebUI.Logic.Base
 {
@@ -201,6 +202,41 @@ namespace FNMES.WebUI.Logic.Base
                     }); ;
                 }
                 return Db.GetConnection(dbName);
+            }
+        }
+
+
+        public void InitAllTable()
+        {
+            foreach (var item in AppSetting.lineConnections)
+            {
+                try
+                {
+                    ISqlSugarClient db = GetInstance(item.ConfigId);
+                    Type[] types =
+                    {
+                    typeof(FactoryStatus),
+                    typeof(ParamAlternativePartItem),
+                    typeof(ParamAndon),
+                    typeof(ParamEquipmentError),
+                    typeof(ParamEquipmentStatus),
+                    typeof(ParamEquipmentStopCode),
+                    typeof(ParamEsopItem),
+                    typeof(ParamItem),
+                    typeof(ParamOrder),
+                    typeof(ParamPartItem),
+                    typeof(ParamRecipe),
+                    typeof(ParamRecipeItem),
+                    typeof(ParamStepItem),
+                    typeof(ParamUnitProcedure),
+                    typeof(ProcessBind),
+                };
+                    db.CodeFirst.SetStringDefaultLength(200).InitTables(types);
+                }
+                catch (Exception e)
+                {
+                    Logger.ErrorInfo($"初始化线体{item.ConfigId}数据库表{ e.Message}");
+                }
             }
         }
     }

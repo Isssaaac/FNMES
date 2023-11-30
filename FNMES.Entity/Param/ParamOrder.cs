@@ -19,7 +19,7 @@ namespace FNMES.Entity.Param
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="taskOrderNumber"    )]
+         [SugarColumn(ColumnName="taskOrderNumber"  )]
          public string TaskOrderNumber { get; set; }
         /// <summary>
         ///  
@@ -29,12 +29,12 @@ namespace FNMES.Entity.Param
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="productDescription"    )]
+         [SugarColumn(ColumnName="productDescription", IsNullable = true)]
          public string ProductDescription { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="planQty"    )]
+         [SugarColumn(ColumnName = "planQty", IsNullable = true)]
          public int PlanQty { get; set; }
         /// <summary>
         ///  
@@ -49,27 +49,27 @@ namespace FNMES.Entity.Param
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName="uom"    )]
+        [SugarColumn(ColumnName = "uom", IsNullable = true)]
          public string Uom { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="planStartTime"    )]
+         [SugarColumn(ColumnName = "planStartTime", IsNullable = true)]
          public DateTime? PlanStartTime { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="planEndTime"    )]
+         [SugarColumn(ColumnName = "planEndTime", IsNullable = true)]
          public DateTime? PlanEndTime { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="receiveTime"    )]
+         [SugarColumn(ColumnName = "receiveTime", IsNullable = true)]
          public DateTime? ReceiveTime { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="flag"    )]
+         [SugarColumn(ColumnName = "flag", IsNullable = true)]
          public string Flag { get; set; }
         [SugarColumn(IsIgnore = true)]
         public string FlagString {
@@ -88,22 +88,22 @@ namespace FNMES.Entity.Param
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName="finishFlag"    )]
+        [SugarColumn(ColumnName="finishFlag", IsNullable = true)]
          public string FinishFlag { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="startTime"    )]
+         [SugarColumn(ColumnName = "startTime", IsNullable = true)]
          public DateTime? StartTime { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="endTime"    )]
+         [SugarColumn(ColumnName = "endTime", IsNullable = true)]
          public DateTime? EndTime { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="operatorNo"    )]
+         [SugarColumn(ColumnName = "operatorNo", IsNullable = true)]
          public string OperatorNo { get; set; }
 
 

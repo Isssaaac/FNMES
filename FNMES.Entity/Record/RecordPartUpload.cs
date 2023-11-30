@@ -19,12 +19,10 @@ namespace FNMES.Entity.Record
         [SugarColumn(ColumnName = "productCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 内控码
         public string ProductCode { get; set; }
-        [SugarColumn(ColumnName = "bigStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
-        // 大工站
-        public string BigStationCode { get; set; }
-        [SugarColumn(ColumnName = "stationCode", ColumnDataType = "varchar(10)", IsNullable = true)]
-        // 小工站
+        [SugarColumn(ColumnName = "stationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string StationCode { get; set; }
+        [SugarColumn(ColumnName = "smallStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        public string SmallStationCode { get; set; }
         [SugarColumn(ColumnName = "equipmentID", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 设备代码
         public string EquipmentID { get; set; }

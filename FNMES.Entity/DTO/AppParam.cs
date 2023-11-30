@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FNMES.Entity.DTO.ApiParam;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -13,23 +14,36 @@ namespace FNMES.Entity.DTO
         [DataMember]
         public string Ip { get; set; }
     }
-
-    public class EquipmentState 
+    [DataContract]
+    public class EquipmentState :BaseParam
     {
+        [DataMember]
         // 设备编码
         public string equipmentID { get; set; }
 
         // 工位
-        public string bigStationCode { get; set; }
+        [DataMember]
+        public string stationCode { get; set; }
+        // 工位
+        [DataMember]
+        public string smallStationCode { get; set; }
 
         // 设备状态
+        [DataMember]
         public string equipmentStatus { get; set; }
-        // 状态码
-        public string statusCode { get; set; }
+        
 
         // 描述
+        [DataMember]
         public string statusDescription { get; set; }
 
+
+        // 停机码
+        [DataMember]
+        public string stopCode { get; set; }
+        // 停机描述
+        [DataMember]
+        public string stopDescription { get; set; }
 
 
     }

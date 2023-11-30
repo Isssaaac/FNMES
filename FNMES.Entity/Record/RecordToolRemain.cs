@@ -15,13 +15,14 @@ namespace FNMES.Entity.Record
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
         [SugarColumn(ColumnName = "id", IsPrimaryKey = true)]
         public long Id { get; set; }
+        
 
        
         [SugarColumn(ColumnName = "productCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 产品码
         public string ProductCode { get; set; }
         [SugarColumn(ColumnName = "stationCode", ColumnDataType = "varchar(10)", IsNullable = true)]
-        // 小工站
+        // 工站
         public string StationCode { get; set; }
         [SugarColumn(ColumnName = "equipmentID", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 设备代码

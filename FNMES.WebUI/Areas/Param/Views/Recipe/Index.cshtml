@@ -38,6 +38,7 @@
         <div class="row">
             <div class="col-md-2">
                 <div class="FNMES-panel container-panel">
+
                     <ul id="treeItem" class="ztree"></ul>
                 </div>
             </div>
@@ -59,13 +60,12 @@
                                     <th>
                                         <input type="checkbox" lay-skin="primary">
                                     </th>
-                                    <th>步骤</th>
-                                    <th>工序名</th>
-                                    <th>描述</th>
-                                    <th>允许重做</th>
-                                    <th>过站</th>
-                                    <th>工厂过站</th>
-                                    <th>状态</th>
+                                    <th>大工站</th>
+                                    <th>大工站名</th>
+                                    <th>下一站</th>
+                                    <th>首工序</th>
+                                    <th>节拍</th>
+                                    <th>过站限制</th>
                                 </tr>
                             </thead>
                             <!--内容容器-->
@@ -87,29 +87,16 @@
         <td>
             <input type="checkbox" lay-skin="primary" value="{{item.Id}}">
         </td>
-        <td>{{item.Step}}</td>
-        <td>{{item.UnitProcedure}}</td>
-        <td>{{item.Desc}}</td>
+        <td>{{item.StationCode}}</td>
+        <td>{{item.StationName}}</td>
+        <td>{{item.NextBigStationCode}}</td>
         <td>
-            {{# if(item.IsAllowRepeat==true){ }}  <span class="label label-success label-sm">启用</span>
-            {{# }else{ }}  <span class="label label-dark label-sm">禁用</span>
+            {{# if(item.IsFirstStation=="1"){ }}  <span class="label label-success label-sm">是</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">否</span>
             {{# } }}
         </td>
-        <td>
-            {{# if(item.IsCheckInStation==true){ }}  <span class="label label-success label-sm">启用</span>
-            {{# }else{ }}  <span class="label label-dark label-sm">禁用</span>
-            {{# } }}
-        </td>
-        <td>
-            {{# if(item.IsCheckFactoryInStation==true){ }}  <span class="label label-success label-sm">启用</span>
-            {{# }else{ }}  <span class="label label-dark label-sm">禁用</span>
-            {{# } }}
-        </td>
-        <td>
-            {{# if(item.IsEnableFlag==true){ }}  <span class="label label-success label-sm">启用</span>
-            {{# }else{ }}  <span class="label label-dark label-sm">禁用</span>
-            {{# } }}
-        </td>
+        <td>{{item.ProductionBeat}}</td>
+        <td>{{item.PassStationRestriction}}</td>
     </tr>
      {{#  }); }}
        {{# if(d.list.length<=0) { }}
@@ -181,7 +168,9 @@
 
 
     function initGrid() {
-
+        if ($("#lineId").val() == "0") {
+            return
+        };
         var treeObj = $.fn.zTree.getZTreeObj("treeItem");
         var selectedNode = treeObj.getSelectedNodes()[0];
         if (selectedNode.level == 0) {
@@ -189,7 +178,7 @@
         }
 
         paging.init({
-            url: '/param/productStep/index',
+            url: '/param/recipe/index',
             elem: '#content',
             tempElem: '#contentTpl',
             params: {
@@ -209,68 +198,40 @@
             }
         });
     }
-
-    function btn_add() {
-        var node = $.fn.zTree.getZTreeObj("treeItem").getSelectedNodes()[0];
-        if (node.level == 0) {
-            return;
-        }
-        $.layerOpen({
-            id: "add",
-            title: "新增工步",
-            width: "670px",
-            height: "500px",
-            content: "/param/productStep/form?productId=" + node.id + "&configId=" + $("#lineId").val(),
-            yes: function (iBody) {
-                iBody.find('#btnSubmit').click();
-                initGrid();
-            }
-        });
-    }
-
-    function btn_edit() {
-        var node = $.fn.zTree.getZTreeObj("treeItem").getSelectedNodes()[0];
+ 
+    function btn_param() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
-            $.layerMsg("请勾选单条记录修改。", "warning");
+            $.layerMsg("请勾选单条记录查看。", "warning");
             return;
         }
         $.layerOpen({
-            id: "edit",
-            title: "修改工步",
-            width: "670px",
-            height: "500px",
-            content: "/param/productStep/form?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val() + "&productId=" + node.id,
-            yes: function (iBody) {
-                iBody.find('#btnSubmit').click();
-                initGrid();
-            }
+            id: "detail",
+            title: "工艺参数",
+            width: "1000px",
+            height: "600px",
+            content: "/param/recipe/param?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
+            btn: null
         });
     }
-    function btn_delete() {
-        var node = $.fn.zTree.getZTreeObj("treeItem").getSelectedNodes()[0];
+
+    function btn_part() {
         var ids = $("#gridList").gridSelectedRowValue();
-        if (ids.length < 1) {
-            $.layerMsg("请勾选需要删除的选项。", "warning");
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录查看。", "warning");
             return;
         }
-        $.layerConfirm({
-            content: "您已选中" + ids.length + "条数据, 确定删除吗？",
-            callback: function () {
-                $.formSubmit({
-                    url: '/param/productStep/delete',
-                    data: {
-                        primaryKey: ids[0],
-                        configId: $("#lineId").val()
-                    },
-                    success: function () {
-                        initGrid();
-                    }
-                });
-            }
+        $.layerOpen({
+            id: "detail",
+            title: "物料参数",
+            width: "1000px",
+            height: "600px",
+            content: "/param/recipe/part?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
+            btn: null
         });
     }
-    function btn_detail() {
+
+    function btn_step() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
             $.layerMsg("请勾选单条记录查看。", "warning");
@@ -279,9 +240,25 @@
         $.layerOpen({
             id: "detail",
             title: "工步详情",
-            width: "670px",
-            height: "550px",
-            content: "/param/productStep/detail?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
+            width: "1000px",
+            height: "600px",
+            content: "/param/recipe/step?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
+            btn: null
+        });
+    }
+
+    function btn_esop() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录查看。", "warning");
+            return;
+        }
+        $.layerOpen({
+            id: "detail",
+            title: "ESOP",
+            width: "1000px",
+            height: "600px",
+            content: "/param/recipe/esop?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
             btn: null
         });
     }

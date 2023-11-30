@@ -1,0 +1,177 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>工步</title>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+    <link href="~/Content/ztree/css/metroStyle/metroStyle.css" rel="stylesheet" />
+    <script src="~/Content/ztree/js/jquery.ztree.all.min.js"></script>
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+<body>
+    <div class="container-fluid fadeIn animated">
+        <div class="panel container-panel">
+            @* <div class="panel-body"> *@
+                <div id="toolbar" class="FNMES-table-toolbar">
+                    <div class="layui-btn-group">
+                        <button onclick="btn_show()" class="layui-btn layui-btn-primary layui-btn-small">预览Esop</button>
+                    </div>
+                </div>
+                <table id="gridList" class="layui-form layui-table FNMES-table" lay-skin="line">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" lay-skin="primary">
+                            </th>
+                            <th>小工位</th>
+                            <th>文件路径</th>
+                            <th>顺序号</th>
+                            <th>开始页</th>
+                            <th>结束页</th>
+                        </tr>
+                    </thead>
+                    <!--内容容器-->
+                    <tbody id="content"></tbody>
+                </table>
+                <div id="paged"></div>
+            @* </div> *@
+        </div>
+           
+       
+    </div>
+</body>
+</html>
+
+<!--内容模板-->
+<script id="contentTpl" type="text/html">
+    {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}">
+        </td>
+        <td>{{item.SmallStationCode}}</td>
+        <td>{{item.FilePath}}</td>
+        <td>{{item.No}}</td>
+        <td>{{item.StartPageNo}}</td>
+        <td>{{item.EndPageNo}}</td>
+    </tr>
+     {{#  }); }}
+       {{# if(d.list.length<=0) { }}
+          <tr style="color: red">
+              <td colspan="8">查无数据。</td>
+          </tr>
+      {{# } }}
+    
+</script>
+
+<script type="text/javascript">
+    var paging;
+    layui.config({ base: parent._baseUrl}).use(['paging', 'form'], function () {
+        var form = layui.form;
+        paging = layui.paging();
+        var configId = $.getQueryString("configId");
+        var primaryKey = $.getQueryString("primaryKey");
+        initGrid(configId, primaryKey);
+        
+    });
+    function initGrid(configId, primaryKey) {
+        paging.init({
+            url: '/param/recipe/esop',
+            elem: '#content',
+            tempElem: '#contentTpl',
+            checkbox: true, //是否显示复选框
+            singleSelected: true, //单选
+            params: {
+                primaryKey: primaryKey,
+                configId: configId
+            },
+            pageConfig: {
+                elem: 'paged',
+                pageSize: 10,
+            },
+            success: function () {
+
+            },
+            fail: function (msg) {
+                top.layer.msg(msg);
+            }
+        });
+    }
+
+
+
+    function btn_show() {
+        var ids = $("#gridList").gridSelectedRowValue();
+
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录查看。", "warning");
+            return;
+        }
+        var data = $("#gridList").gridSelectedRowData();
+        var filePath = data[1];
+        var pageStr = data[3];
+
+        fetch("/param/recipe/esopFile?filePath=" + filePath, { method: "GET", })
+            .then(response => {
+               // if (response.state == 1) { response.blob() }
+               // else { 
+               //     $.layerMsg("文件打开失败。", "error"); 
+              //      return;
+              //  }
+                response.blob();
+                 })
+            .then(blob => {
+
+                var blobUrl = URL.createObjectURL(blob);
+                // 创建查询参数
+                var queryParams = "file=" + blobUrl + "#page=" + pageStr; // 添加多个参数以 & 分隔
+
+                // 构建完整的 URL
+                var viewerUrl = "/Content/PDFjs/web/viewer.html?" + queryParams;
+
+                $.layerOpen({
+                    id: "detail",
+                    title: "PDF预览",
+                    width: "800px",
+                    height: "650px",
+                    btn: null,
+                    content: viewerUrl,
+                });
+            })
+            .catch(error => {
+                $.layerMsg("Error fetching PDF file", "warning");
+                return;
+            });
+
+    }
+
+  
+
+  
+
+   
+
+</script>
+

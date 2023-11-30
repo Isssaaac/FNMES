@@ -16,18 +16,22 @@ using FNMES.Entity.DTO.ApiParam;
 using FNMES.WebUI.Logic.Sys;
 using FNMES.Entity.Sys;
 using FNMES.Entity.DTO.ApiData;
+using System.Linq;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
     [Area("Param")]
+    [HiddenApi]
     public class OrderController : BaseController
     {
         private readonly ParamOrderLogic orderLogic;
         private readonly SysLineLogic sysLineLogic;
+        private readonly ParamProductLogic productLogic;
         public OrderController()
         {
             orderLogic = new ParamOrderLogic();
             sysLineLogic = new SysLineLogic();
+            productLogic = new ParamProductLogic();
         }
 
 
@@ -105,10 +109,12 @@ namespace MES.WebUI.Areas.Param.Controllers
                 order.Flag = "1";
                 order.StartTime = DateTime.Now;
                 SelectOrderParam orderParam = new SelectOrderParam() { 
-                    taskOrderNumber = order.TaskOrderNumber,
-                    bigStationCode = "",    //此处填充内容根据工厂确定
+                    taskOrderNumbers = new List<SelectOrder>() { new SelectOrder() { 
+                        taskOrderNumber = order.TaskOrderNumber ,
+                        actionCode = ActionCode.Start, } } ,
+                    stationCode = "",    //此处填充内容根据工厂确定
                     equipmentID = "",
-                    actionCode = "S",
+                    productionLine = configId,
                     operatorNo = OperatorProvider.Instance.Current.UserId,
                     actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
                 };
@@ -153,10 +159,12 @@ namespace MES.WebUI.Areas.Param.Controllers
                 order.Flag = "2";
                 SelectOrderParam orderParam = new SelectOrderParam()
                 {
-                    taskOrderNumber = order.TaskOrderNumber,
-                    bigStationCode = "",    //此处填充内容根据工厂确定
+                    taskOrderNumbers = new List<SelectOrder>() { new SelectOrder() { 
+                        taskOrderNumber = order.TaskOrderNumber, 
+                        actionCode = ActionCode.Pause } },
+                    stationCode = "",    //此处填充内容根据工厂确定
                     equipmentID = "",
-                    actionCode = "P",
+                    productionLine = configId,
                     operatorNo = OperatorProvider.Instance.Current.UserId,
                     actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
                 };
@@ -199,10 +207,12 @@ namespace MES.WebUI.Areas.Param.Controllers
                 order.Flag = "3";
                 SelectOrderParam orderParam = new SelectOrderParam()
                 {
-                    taskOrderNumber = order.TaskOrderNumber,
-                    bigStationCode = "",    //此处填充内容根据工厂确定
+                    taskOrderNumbers = new List<SelectOrder>() { new SelectOrder() { 
+                        taskOrderNumber = order.TaskOrderNumber,
+                        actionCode = ActionCode.Cancel} },
+                    stationCode = "",    //此处填充内容根据工厂确定
                     equipmentID = "",
-                    actionCode = "C",
+                    productionLine = configId,
                     operatorNo = OperatorProvider.Instance.Current.UserId,
                     actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
                 };
@@ -234,19 +244,46 @@ namespace MES.WebUI.Areas.Param.Controllers
         [HttpPost, LoginChecked]
         public ActionResult GetOrder(string configId)
         {
-            SysLine sysLine = sysLineLogic.GetByConfigId(configId);
-            if (sysLine == null)
-            {
-                return Error("请先选择线体");
-            }
+            //SysLine sysLine = sysLineLogic.GetByConfigId(configId);
+            
             GetOrderParam getOrderParam = new GetOrderParam() { 
-                productionLine = sysLine.EnCode,
-                bigStationCode = ""
+                productionLine = configId,
+                stationCode = "",
+                operatorNo = OperatorProvider.Instance.Current.UserId
             };
             RetMessage<GetOrderData> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.GetOrderUrl, getOrderParam, configId).ToObject<RetMessage<GetOrderData>>();
             if (retMessage.messageType == "S")
             {
                 int v = orderLogic.Insert(retMessage.data.workOrderList, configId);
+                //同步后需要再向工厂发送一个已接收到的指令
+                List<ParamOrder> paramOrders = orderLogic.GetNew(configId);
+                if (!paramOrders.IsNullOrEmpty() && paramOrders.Count > 0)
+                {
+
+                    List<SelectOrder> orders = paramOrders.Select(it => new SelectOrder() { 
+                    taskOrderNumber = it.TaskOrderNumber,
+                    actionCode = ActionCode.Received
+                    } ).ToList();
+                    SelectOrderParam selectOrderParam = new SelectOrderParam() { 
+                        taskOrderNumbers = orders,
+                        productionLine=configId,
+                        stationCode = "A001",
+                        equipmentID = "E123456",
+                        operatorNo = OperatorProvider.Instance.Current.Name,
+                        actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+                    };
+
+                    RetMessage<object> retMessage1 = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, selectOrderParam, configId).ToObject<RetMessage<object>>();
+                    if (retMessage1.messageType == "S")
+                    {
+                        return Success("同步完成");
+                    }
+                    else
+                    {
+                        return Error("同步完成后回传失败");
+                    }
+                }
+
                 return Success("同步完成");
             }
             else
@@ -254,6 +291,46 @@ namespace MES.WebUI.Areas.Param.Controllers
                 return Error("工厂接口访问失败");
 
             }
+        }
+        //同步产品配方
+        [Route("param/order/getRecipe")]
+        [HttpPost]
+        public ActionResult GetRecipe(string configId, string primaryKey, bool force)
+        {
+            ParamOrder order = orderLogic.Get(long.Parse(primaryKey), configId);
+            //从工厂同步配方
+            if(order == null)
+            {
+                return Error("查无此产品");
+            }
+
+            GetRecipeParam param = new()
+            {
+                productionLine = configId,
+                productPartNo = order.ProductPartNo,
+                smallStationCode = "",
+                stationCode = "",
+                section = "后段",
+                equipmentID = "",
+                operatorNo = OperatorProvider.Instance.Current.UserId,
+                actualStartTime = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString()
+            };
+            RetMessage<GetRecipeData> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.GetRecipeUrl, param, configId).ToObject<RetMessage<GetRecipeData>>();
+            if (retMessage.messageType == "S")
+            {
+                int v = productLogic.insert(retMessage.data, configId, force);
+                if (v > 0)
+                {
+                    return Success("同步完成");
+                }
+                return Error("同步失败");
+            }
+            else
+            {
+                return Error("工厂接口访问失败");
+
+            }
+
         }
     }
 }

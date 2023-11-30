@@ -43,12 +43,12 @@ namespace FNMES.Entity.Record
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName="status", ColumnDataType = "char(1)", IsNullable = true)]
+        [SugarColumn(ColumnName="status", ColumnDataType = "char(10)", IsNullable = true)]
          public string Status { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="repairFlag", ColumnDataType = "char(1)", IsNullable = true)]
+         [SugarColumn(ColumnName="repairFlag", ColumnDataType = "char(10)", IsNullable = true)]
          public string RepairFlag { get; set; }
         /// <summary>
         ///  

@@ -19,12 +19,12 @@ namespace FNMES.Entity.Param
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName= "stopCode")]
+         [SugarColumn(ColumnName= "stopCode",IsNullable =true)]
          public string StopCode { get; set; }
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName = "stopCodeDesc")]
+        [SugarColumn(ColumnName = "stopCodeDesc", IsNullable = true)]
         public string StopCodeDesc { get; set; }
 
         //分库的数据库标识   只用来映射实体传递数据

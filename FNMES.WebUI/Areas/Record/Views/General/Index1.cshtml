@@ -1,0 +1,420 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>数据记录</title>
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/ztree/js/jquery.ztree.all.min.js"></script>
+    <link href="~/Content/ztree/css/metroStyle/metroStyle.css" rel="stylesheet" />
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+<style>
+    #gridList td {
+        width: 50px
+    }
+</style>
+<body>
+    <div class="container-fluid fadeIn animated">
+        <div class="layui-inline" style="margin-bottom: 1px;margin-top: 10px">
+                <select lay-ignore name="lineId" class="select2" id="lineId"  style="width: 250px;height: 30px;" lay-verify="required"></select>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <div class="FNMES-panel container-panel">
+                    <ul id="treeItem" class="ztree"></ul>
+                </div>
+            </div>
+            <div class="col-md-10" >
+                <div class="panel container-panel" >
+                    <div class="panel-body">
+                        <div id="toolbar" class="FNMES-table-toolbar">
+                            <div class="layui-btn-group"> </div>
+                            <div class="layui-btn-group" id="queryDate">
+                                <button value="1" class="layui-btn layui-btn-primary layui-btn-small">今天</button>
+                                <button value="2" class="layui-btn layui-btn-primary layui-btn-small active">近7天</button>
+                                <button value="3" class="layui-btn layui-btn-primary layui-btn-small">近1个月</button>
+                                <button value="4" class="layui-btn layui-btn-primary layui-btn-small">近3个月</button>
+                            </div>
+
+                            <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
+                                <i class="layui-icon">&#xe615;</i>
+                            </button>
+                            <div class="toolbar-search-input">
+                                <input type="text" id="keyWord" placeholder="关键字" autocomplete="off" class="layui-input" style="height:39px">
+                            </div>
+                        </div>
+                        <table id="gridList" class="layui-form layui-table table-hover FNMES-table" lay-skin="line">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" lay-skin="primary">
+                                    </th>
+                                    <th >托盘</th>
+                                    <th>内控码</th>
+                                    <th>工单</th>
+                                    <th>产品名称</th>
+                                    <th>所属线体</th>
+                                    <th>状态</th>
+                                    <th>返修</th>
+                                    <th>返修站</th>
+                                </tr>
+                            </thead>
+                            <!--内容容器-->
+                            <tbody id="content"></tbody>
+                        </table>
+                        <div id="paged"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+            
+<!--内容模板-->
+<script id="bindhistory" type="text/html">
+      {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
+          <td>{{item.PalletNo}}</td>
+        <td>{{item.ProductCode}}</td>
+        <td>{{item.TaskOrderNumber}}</td>
+        <td>{{item.ProductPartNo}}</td>
+        <td>{{item.ConfigId}}</td>
+        <td>{{# if(item.Status=="1"){ }}  <span class="label label-success label-sm">OK</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">NG</span>
+            {{# } }}
+        </td>
+        <td>{{# if(item.RepairFlag=="1"){ }}  <span class="label label-success label-sm">是</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">否</span>
+            {{# } }}
+        </td>
+        <td>{{item.RepairStations}}</td>
+    </tr>
+      {{#  }); }}
+       {{# if(d.list.length<=0) { }}
+          <tr style="color: red">
+              <td colspan="8">查无数据。</td>
+          </tr>
+      {{# } }}
+</script>
+<script id="api" type="text/html">
+      {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
+          <td width="50px">{{item.Url}}</td>
+        <td width="50px">{{item.RequestBody}}</td>
+        <td width="50px">{{item.ResponseBody}}</td>
+        <td>{{item.Elapsed}}</td>
+        <td>{{item.CreateTime}}</td>
+    </tr>
+      {{#  }); }}
+       {{# if(d.list.length<=0) { }}
+          <tr style="color: red">
+              <td colspan="8">查无数据。</td>
+          </tr>
+      {{# } }}
+</script>
+<script id="error" type="text/html">
+      {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
+          <td>{{item.EquipmentID}}</td>
+        <td>{{item.BigStationCode}}</td>
+        <td>{{# if(item.AlarmStatus=="1"){ }}  <span class="label label-success label-sm">开始</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">复位</span>
+            {{# } }}
+        </td>
+        <td>{{item.AlarmCode}}</td>
+        <td>{{item.AlarmDesc}}</td>
+        <td>{{item.CreateTime}}</td>
+        
+    </tr>
+      {{#  }); }}
+       {{# if(d.list.length<=0) { }}
+          <tr style="color: red">
+              <td colspan="8">查无数据。</td>
+          </tr>
+      {{# } }}
+</script>
+<script id="status" type="text/html">
+      {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
+          <td>{{item.EquipmentID}}</td>
+        <td>{{item.BigStationCode}}</td>
+        <td>{{item.EquipmentStatus}}</td>
+        <td>{{item.StatusCode}}</td>
+        <td>{{item.StatusDescription}}</td>
+        <td>{{item.CreateTime}}</td>
+
+    </tr>
+      {{#  }); }}
+       {{# if(d.list.length<=0) { }}
+          <tr style="color: red">
+              <td colspan="8">查无数据。</td>
+          </tr>
+      {{# } }}
+</script>
+<script id="stop" type="text/html">
+      {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
+          <td>{{item.EquipmentID}}</td>
+        <td>{{item.BigStationCode}}</td>
+        <td>{{item.OperatorNo}}</td>
+        <td>{{item.StopCode}}</td>
+        <td>{{item.StopDesc}}</td>
+        <td>{{item.StopDurationTime}}</td>
+        <td>{{item.CreateTime}}</td>
+
+    </tr>
+      {{#  }); }}
+       {{# if(d.list.length<=0) { }}
+          <tr style="color: red">
+              <td colspan="8">查无数据。</td>
+          </tr>
+      {{# } }}
+</script>
+<script id="start" type="text/html">
+      {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
+          <td>{{item.TaskOrderNumber}}</td>
+        <td>{{item.ProductCode}}</td>
+        <td>{{item.PackNo}}</td>
+        <td>{{item.CreateTime}}</td>
+
+    </tr>
+      {{#  }); }}
+       {{# if(d.list.length<=0) { }}
+          <tr style="color: red">
+              <td colspan="8">查无数据。</td>
+          </tr>
+      {{# } }}
+</script>
+<script id="pack" type="text/html">
+      {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
+          <td>{{item.TaskOrderNumber}}</td>
+        <td>{{item.ProductCode}}</td>
+        <td>{{item.ReessNo}}</td>
+        <td>{{item.CreateTime}}</td>
+
+    </tr>
+      {{#  }); }}
+       {{# if(d.list.length<=0) { }}
+          <tr style="color: red">
+              <td colspan="8">查无数据。</td>
+          </tr>
+      {{# } }}
+</script>
+<script type="text/javascript">
+    var paging;
+    layui.config({
+        base: parent._baseUrl
+    }).use(['paging', 'form', 'layer',"table"], function () {
+        var layer = parent.layer || layui.layer;
+        var form = layui.form;
+        paging = layui.paging();
+        $("#lineId").bindSelect({
+            type: "POST",
+            url: "/system/line/getListTreeSelect",
+            title: '请选择线体'
+        });
+        $("#toolbar").authorizeButton();
+        $('#btnSearch').click(initGrid);
+        $('#keyWord').bindEnterEvent(initGrid);
+       // initGrid();
+        initTree();
+        
+
+        
+
+    });
+    //$("#lineId").bindChangeEvent(initGrid);
+    $("#lineId").on("select2:select", function (e) {
+    // 处理选择事件
+        if ($("#lineId").val() == "0") {
+            return
+        };
+        initGrid();
+    });
+
+    $('#queryDate').find('button').click(function (i, v) {
+        $(this).addClass('active');
+        $(this).siblings('button').removeClass('active');
+        initGrid();
+    });
+
+    function initTree() {
+        var setting = {
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            check: {
+                enable: false,
+                chkStyle: "checkbox",
+                chkDisabledInherit: false
+            },
+            // async: {
+            //     enable: true,
+            //     url: "/record/general/getListTree",
+            //     dataType: "text",
+            //     autoParam: ["id", "name"]
+            // }, 
+            callback: {
+                // onAsyncSuccess: function (event, treeId, treeNode, msg) {
+                //     var node = zTreeObj.getNodesByFilter(function (node) {
+                //         return node.level == 1
+                //     }, true);
+                //     zTreeObj.selectNode(node);
+                //     zTreeObj.setting.callback.onClick(event, zTreeObj.setting.treeId, node);
+                // },
+                onClick: function (event, treeId, treeNode) {
+                    initGrid();
+                }
+            }
+        };
+        var zNodes = [
+            { id: 1, pId: 0, name: "数据列表", open: true },
+            { id: 11, pId: 1, name: "历史绑定纪录" ,checked: true},
+            { id: 12, pId: 1, name: "工厂接口纪录" },
+            { id: 13, pId: 1, name: "设备报警纪录" },
+            { id: 14, pId: 1, name: "设备状态纪录" },
+            { id: 15, pId: 1, name: "设备停机纪录" },
+            { id: 16, pId: 1, name: "工单上线纪录" },
+            { id: 17, pId: 1, name: "工单下线纪录" },
+        ];
+        var zTreeObj = $.fn.zTree.init($("#treeItem"), setting, zNodes);
+        // 通过节点 ID 选中节点
+        var node = zTreeObj.getNodeByParam("id", 11, null); // 假设要选中 ID 为 11 的节点
+        zTreeObj.selectNode(node);
+    };
+    function initGrid() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
+        var treeObj = $.fn.zTree.getZTreeObj("treeItem");
+        var selectedNode = treeObj.getSelectedNodes()[0];
+        if (selectedNode.pId == 0) {
+            return;
+        }
+        var selectUrl = '/record/general/bindhistory';
+        var selectTemp = '#bindhistory';
+        if (selectedNode.id == "11") {
+            selectUrl = '/record/general/bindhistory';
+            selectTemp = '#bindhistory';
+        } else if (selectedNode.id == "12") {
+            selectUrl = '/record/general/api';
+            selectTemp = '#api';
+        }else if (selectedNode.id == "13") {
+            selectUrl = '/record/general/error';
+            selectTemp = '#error';
+        }else if (selectedNode.id == "14") {
+            selectUrl = '/record/general/status';
+            selectTemp = '#status';
+        }else if (selectedNode.id == "15") {
+            selectUrl = '/record/general/stop';
+            selectTemp = '#stop';
+        }else if (selectedNode.id == "16") {
+            selectUrl = '/record/general/start';
+            selectTemp = '#start';
+        } else if (selectedNode.id == "17") {
+            selectUrl = '/record/general/pack';
+            selectTemp = '#pack';
+        };
+        initGridList(selectedNode.id);
+        paging.init({
+            url: selectUrl,
+            elem: '#content',
+            tempElem: selectTemp,
+            singleSelected: true, //单选
+            params: {
+                keyWord: $("#keyWord").val(),
+                configId: $("#lineId").val(),
+                index: $('#queryDate').find('button.active').val()
+            },
+            pageConfig: {
+                elem: 'paged',
+                pageSize: 10,
+            },
+            success: function () {
+
+            }
+        });
+    };
+    function initGridList(condition) {
+        // 获取表格的 thead
+        var thead = document.getElementById('gridList').getElementsByTagName('thead')[0];
+        var headerRow = thead.getElementsByTagName('tr')[0]; // 获取表头的第一行
+
+        // 清空现有的表头
+        headerRow.innerHTML = '';
+
+        // 创建复选框
+        var checkboxTh = document.createElement('th');
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'checkboxClass'; // 添加类名
+        checkbox.setAttribute('lay-skin', 'primary');
+        checkboxTh.appendChild(checkbox);
+        headerRow.appendChild(checkboxTh);
+
+        var headers = ["托盘", "内控码", "工单", "产品名称", "所属线体", "状态", "返修", "返修站"];
+        // 根据不同条件生成或修改 th 的内容
+        if (condition === 11) {
+            headers = ["托盘", "内控码", "工单", "产品名称", "所属线体", "状态", "返修", "返修站"];
+        } else if (condition === 12) {
+            var headers = ["URL", "请求体", "响应内容", "用时", "创建时间"];
+        } else if (condition === 13) {
+            var headers = ["设备", "大工站", "状态", "报警代码", "报警描述", "创建时间"];
+        } else if (condition === 14) {
+            var headers = ["设备", "大工站", "状态", "状态码", "状态描述", "创建时间"];
+        } else if (condition === 15) {
+            var headers = ["设备", "大工站", "员工号", "停机代码", "停机描述", "停机时长ms","创建时间"];
+        } else if (condition === 16) {
+            var headers = ["工单", "内控码", "托盘码", "创建时间"];
+        } else if (condition === 17) {
+            var headers = ["工单", "内控码", "REESS码", "创建时间"];
+        }
+            // 创建其余表头
+        headers.forEach(function (header) {
+            var th = document.createElement('th');
+            th.appendChild(document.createTextNode(header));
+            th.style.width = '150px'; // 设置宽度为150像素，您可以根据需要调整
+            headerRow.appendChild(th);
+        });
+    }
+    </script>

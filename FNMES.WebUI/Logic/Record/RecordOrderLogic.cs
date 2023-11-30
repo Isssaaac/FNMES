@@ -31,17 +31,50 @@ namespace FNMES.WebUI.Logic.Record
                 return 0;
             }
         }
-        public List<RecordOrderStart> GetStartList(int pageIndex, int pageSize, string keyWord, ref int totalCount)
+        public List<RecordOrderStart> GetStartList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount,  string index)
         {
             try
             {
-                var db = GetInstance();
+                var db = GetInstance(configId);
                 ISugarQueryable<RecordOrderStart> queryable = db.Queryable<RecordOrderStart>();
 
                 if (!keyWord.IsNullOrEmpty())
                 {
                     queryable = queryable.Where(it => it.TaskOrderNumber.Contains(keyWord));
                 }
+                //查询当日
+                if (index == "1")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today;
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近7天
+                else if (index == "2")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-6);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近1月
+                else if (index == "3")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-29);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近3月
+                else if (index == "4")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-91);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //按季度分表三个月取2张表
                 return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception E)
@@ -66,17 +99,50 @@ namespace FNMES.WebUI.Logic.Record
                 return 0;
             }
         }
-        public List<RecordOrderPack> GetEndList(int pageIndex, int pageSize, string keyWord, ref int totalCount)
+        public List<RecordOrderPack> GetEndList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount, string index)
         {
             try
             {
-                var db = GetInstance();
+                var db = GetInstance(configId);
                 ISugarQueryable<RecordOrderPack> queryable = db.Queryable<RecordOrderPack>();
 
                 if (!keyWord.IsNullOrEmpty())
                 {
                     queryable = queryable.Where(it => it.TaskOrderNumber.Contains(keyWord));
                 }
+                //查询当日
+                if (index == "1")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today;
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近7天
+                else if (index == "2")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-6);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近1月
+                else if (index == "3")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-29);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近3月
+                else if (index == "4")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-91);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //按季度分表三个月取2张表
                 return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception e)

@@ -15,7 +15,7 @@ namespace FNMES.Utility.Network
     public class WebApiRequest
     {
 
-        public static RetMessage<T> DoGet<T>(string url, Dictionary<string, string> parms, int? timeout = 3000)
+        public static RetMessage<T> DoGet<T>(string url, Dictionary<string, string> parms, int? timeout = 3000) where T : new()
         {
             try
             {
@@ -30,7 +30,7 @@ namespace FNMES.Utility.Network
             }
         }
 
-        public static RetMessage<T> DoPostForm<T>(string url, Dictionary<string, string> parms, int? timeout = 3000)
+        public static RetMessage<T> DoPostForm<T>(string url, Dictionary<string, string> parms, int? timeout = 3000) where T : new()
         {
             try
             {
@@ -45,7 +45,7 @@ namespace FNMES.Utility.Network
             }
         }
 
-        public static RetMessage<T> DoPostJson<T>(string url, object data, int? timeout = 3000)
+        public static RetMessage<T> DoPostJson<T>(string url, object data, int? timeout = 3000) where T : new()
         {
             try
             {
@@ -60,7 +60,7 @@ namespace FNMES.Utility.Network
                 return null;
             }
         }
-        public static string DoPostJson(string url, object data, int? timeout = 3000)
+        public static string DoPostJson(string url, object data, int? timeout = 3000) 
         {
             try
             {
@@ -85,8 +85,9 @@ namespace FNMES.Utility.Network
 
 
     [DataContract]
-    public class RetMessage<T>
+    public class RetMessage<T> where T : new()
     {
+        
         [DataMember]
         public string messageType { get; set; }
         [DataMember]
@@ -94,6 +95,17 @@ namespace FNMES.Utility.Network
         [DataMember]
         public T data { get; set; }
 
+        public RetMessage( T data,string messageType = "", string message = "")
+        {
+            this.messageType = messageType;
+            this.message = message;
+            this.data = data;
+        }
+        public RetMessage() { 
+            this.data = new T();
+        }
+
+        
     }
 
 

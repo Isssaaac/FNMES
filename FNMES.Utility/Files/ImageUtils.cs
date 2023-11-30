@@ -98,7 +98,7 @@ namespace FNMES.Utility.Files
                 graphics.ResetTransform();
                 graphics.Save();
             }
-            catch (Exception ex)
+            catch (Exception )
             {
                 return srcImage;
             }
@@ -155,7 +155,7 @@ namespace FNMES.Utility.Files
                 graphics.ResetTransform();
                 graphics.Save();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return srcImage;
             }
@@ -203,7 +203,7 @@ namespace FNMES.Utility.Files
                 ms.Close();
                 return Convert.ToBase64String(arr);
             }
-            catch (Exception ex)
+            catch (Exception )
             {
                 return null;
             }
@@ -230,7 +230,7 @@ namespace FNMES.Utility.Files
                 ms.Close();
                 return bmp;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -270,7 +270,7 @@ namespace FNMES.Utility.Files
                 return new Bitmap(image);
             }
             //异常请求  
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }

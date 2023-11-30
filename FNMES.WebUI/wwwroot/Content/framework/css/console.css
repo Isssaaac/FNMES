@@ -74,9 +74,11 @@ button.active {
     color: #475059;
 }
 
-    .FNMES-table thead tr {
-        background-color: #F5F9FA;
-    }
+.FNMES-table thead tr {
+    background-color: #F5F9FA;
+        
+}
+
 
 .FNMES-table-toolbar .toolbar-search-button {
     float: right;

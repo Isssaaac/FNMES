@@ -38,7 +38,15 @@ namespace FNMES.WebUI.Logic.Param
                     try
                     {
                         Db.BeginTran();
-                        db.Insertable<RecordBindHistory>(oldprocessBind).SplitTable().ExecuteCommand();
+                        List<RecordBindHistory> histories = new List<RecordBindHistory>();
+                        oldprocessBind.ForEach(it =>
+                        {
+                            RecordBindHistory history = new RecordBindHistory();
+                            history.CopyField(it);
+                            histories.Add(history);
+                        });
+
+                        db.Insertable<RecordBindHistory>(histories).SplitTable().ExecuteCommand();
                         db.Deleteable<ProcessBind>(oldprocessBind).ExecuteCommand();
                         res = db.Insertable<ProcessBind>(model).ExecuteCommand();
                         Db.CommitTran();
@@ -101,16 +109,24 @@ namespace FNMES.WebUI.Logic.Param
         /// <param name="keyWord"></param>
         /// <param name="totalCount"></param>
         /// <returns></returns>
-        public List<ProcessBind> GetList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount)
+        public List<ProcessBind> GetList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount,string index)
         {
             try
             {
                 var db = GetInstance(configId);
                 ISugarQueryable<ProcessBind> queryable = db.Queryable<ProcessBind>();
-                if (!keyWord.IsNullOrEmpty())   
+
+                if (!keyWord.IsNullOrEmpty())
                 {
-                    queryable = queryable.Where(it => it.TaskOrderNumber.Contains(keyWord) 
-                    || it.ProductPartNo.Contains(keyWord)|| it.ProductCode.Contains(keyWord));
+                    queryable = queryable.Where(it => it.PalletNo.Contains(keyWord) || it.ProductCode.Contains(keyWord));
+                }
+                if (index == "1")//正序   
+                {
+                    queryable = queryable.OrderBy(it => it.Id);
+                }
+                else //倒序   
+                {
+                    queryable = queryable.OrderByDescending(it => it.Id);
                 }
                 return queryable.ToPageList(pageIndex, pageSize, ref totalCount);
             }
@@ -118,6 +134,58 @@ namespace FNMES.WebUI.Logic.Param
             {
                 Logger.ErrorInfo(E.Message);
                 return null;
+            }
+        }
+        public List<RecordBindHistory> GetHistoryList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount, string index)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                ISugarQueryable<RecordBindHistory> queryable = db.Queryable<RecordBindHistory>();
+
+                if (!keyWord.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => it.PalletNo.Contains(keyWord) || it.ProductCode.Contains(keyWord));
+                }
+                //查询当日
+                if (index == "1")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today;
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近7天
+                else if (index == "2")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-6);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近1月
+                else if (index == "3")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-29);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近3月
+                else if (index == "4")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-91);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //按月分表三个月取3张表
+                return queryable.SplitTable(tabs => tabs.Take(3)).ToPageList(pageIndex, pageSize, ref totalCount);
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return new List<RecordBindHistory>();
             }
         }
 

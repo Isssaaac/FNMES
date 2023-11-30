@@ -1,21 +1,10 @@
-﻿using FNMES.Entity.Sys;
-using SqlSugar;
+﻿using SqlSugar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FNMES.Utility.Operator;
-using FNMES.Utility.Security;
-using FNMES.Utility.Extension;
 using FNMES.Utility.Core;
-using FNMES.Utility.Other;
-using System.Drawing.Printing;
-using Microsoft.VisualBasic;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Engineering;
 using FNMES.WebUI.Logic.Base;
 using FNMES.Entity.Param;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using FNMES.Entity.DTO.AppData;
 
 namespace FNMES.WebUI.Logic.Param
@@ -98,7 +87,7 @@ namespace FNMES.WebUI.Logic.Param
 
                 if (!keyWord.IsNullOrEmpty())
                 {
-                    queryable = queryable.Where(it => it.BigStationCode.Contains(keyWord) || it.EquipmentID.Contains(keyWord));
+                    queryable = queryable.Where(it => it.StationCode.Contains(keyWord) || it.EquipmentID.Contains(keyWord));
                 }
                 return queryable.ToPageList(pageIndex, pageSize, ref totalCount);
             }
@@ -117,7 +106,7 @@ namespace FNMES.WebUI.Logic.Param
 
                 if (!keyWord.IsNullOrEmpty())
                 {
-                    queryable = queryable.Where(it => it.BigStationCode.Contains(keyWord) || it.EquipmentID.Contains(keyWord));
+                    queryable = queryable.Where(it => it.StationCode.Contains(keyWord) || it.EquipmentID.Contains(keyWord));
                 }
                 return queryable.ToPageList(pageIndex, pageSize, ref totalCount);
             }
@@ -210,7 +199,7 @@ namespace FNMES.WebUI.Logic.Param
                 //获取error配置
                 if (errors.Count != 0)
                 {
-                    var errorGroups = errors.GroupBy(it => it.BigStationCode);
+                    var errorGroups = errors.GroupBy(it => it.StationCode);
                     foreach (var errorGroup in errorGroups)
                     {
                         var errorAddresss = new List<ErrorAddress>();
@@ -225,11 +214,13 @@ namespace FNMES.WebUI.Logic.Param
                             });
                         }
                         ParamEquipmentError paramEquipmentError = errorGroup.First();
-                        string bigStation = paramEquipmentError.BigStationCode;
+                        string bigStation = paramEquipmentError.StationCode;
+                        string smallStation = paramEquipmentError.SmallStationCode;
                         string equipmentId = paramEquipmentError.EquipmentID;
                         errorParams.Add(new ErrorParam()
                         {
-                            BigStationCode = bigStation,
+                            StationCode = bigStation,
+                            SmallStationCode = smallStation,
                             EquipmentID = equipmentId,
                             ErrorAddresss = errorAddresss,
                         });
@@ -242,7 +233,8 @@ namespace FNMES.WebUI.Logic.Param
                     {
                         statusParams.Add(new StatusParam()
                         {
-                            BigStationCode = item.BigStationCode,
+                            StationCode = item.StationCode,
+                            SmallStationCode = item.SmallStationCode,
                             EquipmentID = item.EquipmentID,
                             Offset = item.Offset,
                             StopCodeOffset = item.StopCodeOffset

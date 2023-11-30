@@ -116,6 +116,9 @@
     }
 
     function initGrid() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
         paging.init({
             url: '/param/stop/index',
             elem: '#content',

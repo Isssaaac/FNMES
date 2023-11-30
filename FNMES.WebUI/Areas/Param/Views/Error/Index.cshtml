@@ -53,6 +53,7 @@
                         </th>
                         
                         <th>大工站</th>
+                        <th>小工位</th>
                         <th>设备名</th>
                         <th>偏移</th>
                         <th>报警代码</th>
@@ -75,7 +76,8 @@
     <tr>
         <td>
             <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
-        <td>{{item.BigStationCode}}</td>
+        <td>{{item.StationCode}}</td>
+        <td>{{item.SmallStationCode}}</td>
         <td>{{item.EquipmentID}}</td>
         <td>{{item.Offset}}</td>
         <td>{{item.AlarmCode}}</td>
@@ -126,6 +128,9 @@
     }
 
     function initGrid() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
         paging.init({
             url: '/param/error/index',
             elem: '#content',
@@ -183,27 +188,35 @@
 
 
     function btn_pdf() {
-
-        var fileName = "aaa.pdf";
-        var fileUrl = window.location.origin + "//Content/PDFjs/web/" + fileName;
+        var filePath = "aaa1.pdf";
         var page = 2;
         var pageStr = page.toString();
 
+        fetch("/param/sop/file?filePath=" + filePath,{method: "GET", })
+            .then(response => response.blob())
+            .then(blob => {
+               
+                var blobUrl  = URL.createObjectURL(blob);
+                // 创建查询参数
+                var queryParams = "file=" + blobUrl + "#page=" + pageStr; // 添加多个参数以 & 分隔
 
-        // 创建查询参数
-        var queryParams = "file=" + encodeURIComponent(fileUrl) + "&page=" + pageStr; // 添加多个参数以 & 分隔
+                // 构建完整的 URL
+                var viewerUrl = "/Content/PDFjs/web/viewer.html?" + queryParams;
 
-        // 构建完整的 URL
-        var viewerUrl = "https://localhost:44348/Content/PDFjs/web/viewer.html?" + queryParams;
-
-        $.layerOpen({
-            id: "detail",
-            title: "PDF预览",
-            width: "800px",
-            height: "650px",
-            btn: null,
-            content: viewerUrl,
-        });
+                $.layerOpen({
+                    id: "detail",
+                    title: "PDF预览",
+                    width: "800px",
+                    height: "650px",
+                    btn: null,
+                    content: viewerUrl,
+                });
+            })
+            .catch(error => {
+                $.layerMsg("Error fetching PDF file", "warning");
+                return;
+            });
+        
     }
 
 

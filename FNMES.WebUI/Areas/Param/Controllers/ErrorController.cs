@@ -17,6 +17,7 @@ using OfficeOpenXml;
 namespace MES.WebUI.Areas.Param.Controllers
 {
     [Area("Param")]
+    [HiddenApi]
     public class ErrorController : BaseController
     {
         private readonly ErrorAndStatusLogic errorAndStatusLogic;
@@ -89,7 +90,8 @@ namespace MES.WebUI.Areas.Param.Controllers
 
                 using var stream = file.OpenReadStream();
                 Dictionary<string, string> keyValuePairs = new Dictionary<string, string>() {
-                    {"工位","BigStationCode" },
+                    {"大工站","StationCode" },
+                    {"小工站","SmallStationCode" },
                     {"设备","EquipmentID" },
                     {"偏移","Offset" },
                     {"代码","AlarmCode" },

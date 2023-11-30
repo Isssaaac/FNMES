@@ -34,58 +34,32 @@
 </head>
 <body>
     <form id="form" class="layui-form" style="margin-top: 25px">
-        <form id="form" class="layui-form" style="margin-top: 25px">
-            <div class="layui-form-item">
-                <div class="layui-inline">
-                    <label class="layui-form-label label-required">工序</label>
-                    <div class="layui-input-inline">
-                        <input type="hidden" name="Id" id="Id" />
-                        <input type="hidden" name="ConfigId" id="ConfigId" />
-                        <input type="hidden" name="ProductId" id="ProductId" />
-                        <select lay-ignore name="UnitProcedure" class="select2" id="UnitProcedure" style="width: 314px;" lay-verify="required" disabled></select>
-
-                    </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">编码</label>
+                <div class="layui-input-inline">
+                    <input type="hidden" name="Id" />
+                    <input type="hidden" name="ConfigId" />
+                    <input type="text" name="Encode" id="Encode" lay-verify="required" placeholder="请输入产品型号" autocomplete="off" class="layui-input">
                 </div>
             </div>
-            <div class="layui-form-item">
-                <div class="layui-inline">
-                    <label class="layui-form-label">步骤号</label>
-                    <div class="layui-input-block">
-                        <input type="number" name="Step" id="Step" lay-verify="number" autocomplete="off" class="layui-input" disabled>
-                    </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="Name" lay-verify="required" placeholder="请输入名称" autocomplete="off" class="layui-input">
                 </div>
             </div>
-
-
-            <div class="layui-form-item">
-                <div class="layui-inline">
-                    <label class="layui-form-label">选项</label>
-                    <div class="layui-input-block">
-                        <input type="checkbox" lay-skin="primary" name="IsAllowRepeat" value="true" title="允许重复执行" disabled>
-                        <input type="checkbox" lay-skin="primary" name="IsCheckInStation" value="true" title="过站校验" disabled>
-                        <input type="checkbox" lay-skin="primary" name="IsCheckFactoryInStation" value="true" title="工厂过站" disabled>
-                        <input type="checkbox" lay-skin="primary" name="IsEnableFlag" value="true" title="启用" checked disabled>
-                        
-                    </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">备注</label>
+                <div class="layui-input-inline" style="width: 514px;">
+                    <textarea name="Description" placeholder="请输入备注" class="layui-textarea"></textarea>
                 </div>
             </div>
-            <div class="layui-form-item">
-                <div class="layui-inline">
-                    <label class="layui-form-label label-required">过站工序</label>
-                    <div class="layui-input-inline">
-                        <select lay-ignore name="CheckLists" class="select2" id="CheckLists" multiple="multiple" style="width: 514px;" lay-verify="required" disabled></select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="layui-form-item">
-                <div class="layui-inline">
-                    <label class="layui-form-label">备注</label>
-                    <div class="layui-input-inline" style="width: 514px;">
-                        <textarea name="Desc" placeholder="请输入备注" class="layui-textarea" disabled></textarea>
-                    </div>
-                </div>
-            </div>
+        </div>
         <div class="layui-form-item">
             <div class="layui-inline">
                 <label class="layui-form-label">创建人员</label>
@@ -126,20 +100,9 @@
 
             var primaryKey = $.getQueryString("primaryKey");
             var configId = $.getQueryString("configId");
-            $("#UnitProcedure").bindSelect({
-                type: "POST",
-                url: "/param/unitProcedure/getListTreeUnSelect" + "?configId=" + configId,
-                title: '请选择工序'
-            });
-            $("#CheckLists").bindSelect({
-                type: "POST",
-                url: "/param/unitProcedure/getListTreeUnSelect" + "?configId=" + configId,
-                title: '请选择工序'
-            });
-
             if (primaryKey) {
                 $.ajax({
-                    url: "/param/productStep/getForm",
+                    url: "/param/product/getForm",
                     data: {
                         primaryKey: primaryKey,
                         configId: configId

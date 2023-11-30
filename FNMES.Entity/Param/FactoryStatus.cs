@@ -5,7 +5,7 @@ using SqlSugar;
 namespace FNMES.Entity.Param
 {
     /// <summary>
-    /// 
+    /// 工厂接口状态表，不需要主键外索引
     ///</summary>
     [SugarTable("Status_Factory")]
     public class FactoryStatus
@@ -19,12 +19,12 @@ namespace FNMES.Entity.Param
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="status"    )]
+         [SugarColumn(ColumnName= "status", IsNullable = true )]
          public int Status { get; set; }
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName = "retry")]
+        [SugarColumn(ColumnName = "retry" , IsNullable = true)]
         public int Retry { get; set; }
        
         [SugarColumn(IsIgnore = true)]
@@ -34,7 +34,7 @@ namespace FNMES.Entity.Param
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName= "createTime")]
+         [SugarColumn(ColumnName= "createTime", IsNullable = true)]
          public DateTime? CreateTime { get; set; }
 
         //分库的数据库标识   只用来映射实体传递数据

@@ -19,18 +19,19 @@ using System.Drawing.Printing;
 namespace MES.WebUI.Areas.Param.Controllers
 {
     [Area("Param")]
+    [HiddenApi]
     public class UnitProcedureController : BaseController
     {
         private readonly UnitProcedureLogic unitProcedureLogic;
         private readonly SysLineLogic sysLineLogic;
-        private readonly ProductStepLogic productStepLogic;
+        private readonly RecipeLogic productStepLogic;
 
 
         public UnitProcedureController()
         {
             unitProcedureLogic = new UnitProcedureLogic();
             sysLineLogic = new SysLineLogic();
-            productStepLogic = new ProductStepLogic();
+            productStepLogic = new RecipeLogic();
         }
 
         [Route("param/unitProcedure/getParent")]
@@ -75,7 +76,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             return Content(treeList.ToJson());
         }
         //获取该产品已配置的工序
-        [Route("param/unitProcedure/getListTreeSelected")]
+        /*[Route("param/unitProcedure/getListTreeSelected")]
         [HttpPost]
         public ActionResult GetListTreeSelected(string configId, string productId)
         {
@@ -98,7 +99,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                 }
             }
             return Content(treeList.ToJson());
-        }
+        }*/
 
 
 

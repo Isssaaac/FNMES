@@ -18,12 +18,11 @@ namespace FNMES.Entity.Record
         // 内控码
         [SugarColumn(ColumnName = "productCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string ProductCode { get; set; }
-          // 大工站
-        [SugarColumn(ColumnName = "bigStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
-        public string BigStationCode { get; set; }
-        // 小工站
-        [SugarColumn(ColumnName = "stationCode", ColumnDataType = "varchar(10)", IsNullable = true)]
+        // 大工站
+        [SugarColumn(ColumnName = "stationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string StationCode { get; set; }
+        [SugarColumn(ColumnName = "smallStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        public string SmallStationCode { get; set; }
         // 设备代码
         [SugarColumn(ColumnName = "equipmentID", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string EquipmentID { get; set; }
@@ -44,7 +43,7 @@ namespace FNMES.Entity.Record
         public string TotalFlag { get; set; }
 
         // 操作工
-        [SugarColumn(ColumnName = "recipeNo", ColumnDataType = "varchar(100)", IsNullable = true)]
+        [SugarColumn(ColumnName = "operatorNo", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string OperatorNo { get; set; }
 
         [Navigate(NavigateType.OneToMany, nameof(RecordProcessData.ProcessUploadId))]

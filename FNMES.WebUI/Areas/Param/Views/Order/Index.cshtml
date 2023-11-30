@@ -137,6 +137,9 @@
 
 
     function initGrid() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
         paging.init({
             url: '/param/order/index',
             elem: '#content',
@@ -252,6 +255,29 @@
             height: "400px",
             content: "/param/order/detail?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
             btn: null
+        });
+    }
+    function btn_getRecipe() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选一条需要同步配方的产品。", "warning");
+            return;
+        }
+        $.layerConfirm({
+            content: "您已选中1个产品, 确定同步工艺配方吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/param/order/getRecipe',
+                    data: {
+                        primaryKey: ids[0],
+                        configId: $("#lineId").val(),
+                        force: false
+                    },
+                    success: function () {
+                        initGrid();
+                    }
+                });
+            }
         });
     }
 </script>

@@ -19,47 +19,47 @@ namespace FNMES.Entity.Param
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="palletNo"    )]
+         [SugarColumn(ColumnName="palletNo"  ,IsNullable = true  )]
          public string PalletNo { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="productCode"    )]
+         [SugarColumn(ColumnName = "productCode", IsNullable = true)]
          public string ProductCode { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="taskOrderNumber"    )]
+         [SugarColumn(ColumnName = "taskOrderNumber", IsNullable = true)]
          public string TaskOrderNumber { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="productPartNo"    )]
+         [SugarColumn(ColumnName = "productPartNo", IsNullable = true)]
          public string ProductPartNo { get; set; }
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName = "configId")]
+        [SugarColumn(ColumnName = "configId", IsNullable = true)]
         public string ConfigId { get; set; }
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName="status"    )]
+        [SugarColumn(ColumnName = "status", IsNullable = true)]
          public string Status { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="repairFlag"    )]
+         [SugarColumn(ColumnName = "repairFlag", IsNullable = true)]
          public string RepairFlag { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="repairStations"    )]
+         [SugarColumn(ColumnName = "repairStations", IsNullable = true)]
          public string RepairStations { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="createTime"    )]
+         [SugarColumn(ColumnName = "createTime", IsNullable = true)]
          public DateTime? CreateTime { get; set; }
     }
 }

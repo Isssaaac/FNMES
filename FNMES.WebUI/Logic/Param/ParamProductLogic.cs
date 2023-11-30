@@ -5,74 +5,31 @@ using System.Collections.Generic;
 using FNMES.Utility.Core;
 using FNMES.WebUI.Logic.Base;
 using FNMES.Entity.Param;
+using FNMES.Entity.DTO.ApiData;
+using ParamItem = FNMES.Entity.Param.ParamItem;
+using System.IO;
+using System.Net;
+using System.Threading.Tasks;
+using FNMES.Utility.Files;
+using CCS.WebUI;
 
 namespace FNMES.WebUI.Logic.Param
 {
     public class ParamProductLogic : BaseLogic
     {
-        /// <summary>
-        /// 根据账号得到用户信息
-        /// </summary>
-        /// <param name="account"></param>
-        /// <returns></returns>
-        public SysUser GetByUserName(string account)
-        {
-            try
-            {
-                var db = GetInstance();
-                return db.Queryable<SysUser>().Where(it => it.UserNo == account)
-                   //  .Includes(it => it.Organize) && it.DeleteFlag == "0"
-                   .Includes(it => it.CreateUser)
-                   .Includes(it => it.ModifyUser)
-                 .First();
-            }
-            catch (Exception E)
-            {
-                Logger.ErrorInfo(E.Message);
-                return null;
-            }
-            
-            
-        }
 
-
-        public int Insert(ParamProduct model, long account )
-        {
-            try
-            {
-                
-                var db = GetInstance(model.ConfigId);
-                model.Id = SnowFlakeSingle.Instance.NextId();
-                model.CreateUserId = account;
-                model.CreateTime = DateTime.Now;
-                model.ModifyUserId = model.CreateUserId;
-                model.ModifyTime = model.CreateTime;
-                return db.Insertable<ParamProduct>(model).ExecuteCommand();
-            }
-            catch (Exception E)
-            {
-                Logger.ErrorInfo(E.Message);
-                return 0;
-            }
-        }
-
-
-
-        /// <summary>
-        /// 根据主键得到用户信息
-        /// </summary>
-        /// <param name="primaryKey"></param>
-        /// <returns></returns>
-        public ParamProduct Get(long primaryKey, string configId)
+        public ParamRecipe Get(long primaryKey, string configId)
         {
             try
             {
                 var db = GetInstance(configId);
-                ParamProduct product = db.Queryable<ParamProduct>().Where(it => it.Id == primaryKey).First();
-                using var sysdb = GetInstance();
-                product.CreateUser = sysdb.Queryable<SysUser>().Where(it => it.Id == product.CreateUserId).First();
-                product.CreateUser = sysdb.Queryable<SysUser>().Where(it => it.Id == product.ModifyUserId).First();
-                return product;
+                //用来建表的语句，只在没有表时候建表用
+                //db.CodeFirst.InitTables(typeof(ParamRecipe),typeof(ParamRecipeItem),typeof(ParamEsopItem),typeof(ParamStepItem),typeof(ParamItem),typeof(ParamPartItem));
+               
+
+
+                ParamRecipe paramRecipe = db.Queryable<ParamRecipe>().Where(it => it.Id == primaryKey).First();
+                return paramRecipe;
             }
             catch (Exception E)
             {
@@ -81,6 +38,9 @@ namespace FNMES.WebUI.Logic.Param
             }
 
         }
+
+
+
 
         /// <summary>
         /// 获得列表分页
@@ -90,15 +50,17 @@ namespace FNMES.WebUI.Logic.Param
         /// <param name="keyWord"></param>
         /// <param name="totalCount"></param>
         /// <returns></returns>
-        public List<ParamProduct> GetList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount)
+       
+
+        public List<ParamRecipe> GetList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount)
         {
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<ParamProduct> queryable = db.Queryable<ParamProduct>();
+                ISugarQueryable<ParamRecipe> queryable = db.Queryable<ParamRecipe>();
                 if (!keyWord.IsNullOrEmpty())
                 {
-                    queryable = queryable.Where(it => it.Encode.Contains(keyWord) || it.Name.Contains(keyWord));
+                    queryable = queryable.Where(it => it.ProductPartNo.Contains(keyWord) || it.ProductDescription.Contains(keyWord));
                 }
                 return queryable.ToPageList(pageIndex, pageSize, ref totalCount);
             }
@@ -109,61 +71,17 @@ namespace FNMES.WebUI.Logic.Param
             }
         }
 
-     
 
-        /// <summary>
-        /// 删除用户信息
-        /// </summary>
-        /// <param name="primaryKeys"></param>
-        /// <returns></returns>
-        public int Delete(long primaryKey, string configId)
-        {
-            try
-            {
-                var db = GetInstance(configId);
-                Logger.RunningInfo(primaryKey.ToString()+configId);
-                return db.Deleteable<ParamProduct>().Where(it => primaryKey == it.Id).ExecuteCommand();
-            }
-            catch (Exception E)
-            {
-                Logger.ErrorInfo(E.Message);
-                return 0;
-            }
-        }
 
-        /// <summary>
-        /// 更新用户基础信息
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public int Update(ParamProduct model, long userId)
-        {
-            try
-            {
-                var db = GetInstance(model.ConfigId);
-                model.ModifyUserId = userId;
-                model.ModifyTime = DateTime.Now;
 
-                return db.Updateable<ParamProduct>(model).IgnoreColumns(it => new
-                {
-                    it.CreateUserId,
-                    it.CreateTime
-                }).ExecuteCommand();
-            }
-            catch (Exception E)
-            {
-                Logger.ErrorInfo(E.Message);
-                return 0;
-            }
-        }
 
-        public List<ParamProduct> GetList(string configId)
+        public List<ParamRecipe> GetList(string configId)
         {
             try
             {
                 var db = GetInstance(configId);
 
-                List<ParamProduct> paramProducts = db.Queryable<ParamProduct>().ToList();
+                List<ParamRecipe> paramProducts = db.Queryable<ParamRecipe>().ToList();
                 return paramProducts;
             }
             catch (Exception E)
@@ -172,5 +90,107 @@ namespace FNMES.WebUI.Logic.Param
                 return null;
             }
         }
+
+        //同步配方参数，可以选中是否强制覆盖
+        //ESOP文件需要复制到本地 TODO 不知道对方文件服务器内容
+        public int insert(GetRecipeData data, string configId, bool force = false )
+        {
+            try {
+                var db = GetInstance(configId);
+                bool skip  = false;
+                Db.BeginTran();
+                ParamRecipe paramRecipe = db.Queryable<ParamRecipe>().First(it => it.ProductPartNo == data.productPartNo);
+               
+                if (!paramRecipe.IsNullOrEmpty())
+                {
+                    skip = paramRecipe.ProductPartNo == data.productPartNo && paramRecipe.BomNo == data.bomNo && paramRecipe.BomVersion == data.bomVersion
+                                    && paramRecipe.RecipeNo == data.recipeNo && paramRecipe.RecipeVersion == data.recipeVersion
+                                    && paramRecipe.RouteNo == data.routeNo && paramRecipe.RouteVersion == data.routeVersion
+                                    && paramRecipe.ProcessConfigName == data.processConfigName; 
+                }
+                List<string> files = new List<string>();
+                string fileServer = "";
+                foreach (var item in data.processParamItems)
+                {
+                    List<EsopItem> temp = new List<EsopItem>();
+                    foreach (var esop in item.esopList)
+                    {
+                        if(esop.filePath.IsNullOrEmpty()) continue;
+                        string[] strings = esop.filePath.Split(new[] { '/' }, 2);
+                        if(strings.Length > 1)
+                        {
+                            esop.filePath = strings[1];
+                            if (!files.Contains(strings[1]))
+                            {
+                                fileServer = strings[0];
+                                files.Add(strings[1]);
+                            }
+                        }
+                        temp.Add(esop);
+                    }
+                    item.esopList = temp;
+                }
+                //从文件服务器把esop文件下载并上传到本地ftp服务器
+                foreach (var item in files)
+                {
+                    string url = fileServer + "/" + item;
+                     UploadFileIfNotExistsAsync(url, item);
+                }
+
+                //存在旧值判断怎么处理
+                if (paramRecipe != null)
+                {
+                    if (force || !skip)
+                    {
+                        db.DeleteNav<ParamRecipe>(it => it.Id == paramRecipe.Id)
+                            .Include(it => it.processParamItems).ThenInclude(it => it.ParamList)
+                            .Include(it => it.processParamItems).ThenInclude(it => it.PartList).ThenInclude(it => it.AlternativePartList)
+                            .Include(it => it.processParamItems).ThenInclude(it => it.EsopList)
+                            .Include(it => it.processParamItems).ThenInclude(it => it.StepList)
+                            .ExecuteCommand();
+                        skip = false;
+                    }
+                }
+                if (!skip)
+                {
+                    ParamRecipe model = new ParamRecipe();
+                    model.CopyFromGetRecipeData(data);
+                    db.InsertNav<ParamRecipe>(model)
+                            .Include(it => it.processParamItems).ThenInclude(it => it.ParamList)
+                            .Include(it => it.processParamItems).ThenInclude(it => it.PartList).ThenInclude(it => it.AlternativePartList)
+                            .Include(it => it.processParamItems).ThenInclude(it => it.EsopList)
+                            .Include(it => it.processParamItems).ThenInclude(it => it.StepList)
+                            .ExecuteCommand();
+                }
+                Db.CommitTran();
+                return 1;
+            }
+            catch (Exception E) {
+                Db.RollbackTran();
+                Logger.ErrorInfo(E.Message);
+                return 0;
+            }
+        }
+
+
+         void UploadFileIfNotExistsAsync(string sourceUrl, string ftpFilePath)
+        {
+            FTPparam fTPparam = AppSetting.FTPparam;
+            FtpHelper ftpHelper = new FtpHelper(fTPparam.Host, fTPparam.Username, fTPparam.Password);
+            // 异步执行文件上传，不等待其完成
+            _ = Task.Run(() => ftpHelper.UploadServerFileToFtp(sourceUrl, ftpFilePath));
+
+        }
+
+        
+
+        
+
+
+
+
+
+
+
     }
 }

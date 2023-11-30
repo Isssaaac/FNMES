@@ -1,0 +1,169 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>工单列表</title>
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+<body>
+    <div class="panel animated fadeIn">
+        <div class="panel-body">
+            <div class="layui-inline" style="margin-bottom: 10px;">
+                    <select lay-ignore name="lineId" class="select2" id="lineId"  style="width: 250px;height: 30px;" lay-verify="required"></select>
+             </div>
+
+            <div id="toolbar" class="FNMES-table-toolbar">
+                <div class="layui-btn-group"> </div>
+                <div class="layui-btn-group" id="queryDate">
+                    <button value="1" class="layui-btn layui-btn-primary layui-btn-small active">正序</button>
+                    <button value="2" class="layui-btn layui-btn-primary layui-btn-small ">倒序</button>
+                </div>
+                
+                <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
+                        <i class="layui-icon">&#xe615;</i>
+                </button>
+                <div class="toolbar-search-input">
+                    <input type="text" id="keyWord" placeholder="托盘或内控码" autocomplete="off" class="layui-input" style="height:39px">
+                </div>
+            </div>
+            <table id="gridList" class="layui-form layui-table table-hover FNMES-table" lay-skin="line">
+                <thead>
+                    <tr>
+                        <th>
+                            <input type="checkbox" lay-skin="primary">
+                        </th>
+                        <th>托盘</th>
+                        <th>内控码</th>
+                        <th>工单</th>
+                        <th>产品名称</th>
+                        <th>所属线体</th>
+                        <th>状态</th>
+                        <th>返修</th>
+                        <th>返修站</th>
+                    </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="content"></tbody>
+            </table>
+            <div id="paged"></div>
+        </div>
+    </div>
+</body>
+</html>
+
+<!--内容模板-->
+<script id="contentTpl" type="text/html">
+      {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
+          <td>{{item.PalletNo}}</td>
+        <td>{{item.ProductCode}}</td>
+        <td>{{item.TaskOrderNumber}}</td>
+        <td>{{item.ProductPartNo}}</td>
+        <td>{{item.ConfigId}}</td>
+        <td>{{# if(item.Status=="1"){ }}  <span class="label label-success label-sm">OK</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">NG</span>
+            {{# } }}
+        </td>
+        <td>{{# if(item.RepairFlag=="1"){ }}  <span class="label label-success label-sm">是</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">否</span>
+            {{# } }}
+        </td>
+        <td>{{item.RepairStations}}</td>
+    </tr>
+      {{#  }); }}
+       {{# if(d.list.length<=0) { }}
+          <tr style="color: red">
+              <td colspan="8">查无数据。</td>
+          </tr>
+      {{# } }}
+</script>
+
+<script type="text/javascript">
+    var paging;
+    layui.config({
+        base: parent._baseUrl
+    }).use(['paging', 'form', 'layer'], function () {
+        var layer = parent.layer || layui.layer;
+        var form = layui.form;
+        paging = layui.paging();
+        $("#lineId").bindSelect({
+            type: "POST",
+            url: "/system/line/getListTreeSelect",
+            title: '请选择线体'
+        });
+        $("#toolbar").authorizeButton();
+        $('#btnSearch').click(initGrid);
+        $('#keyWord').bindEnterEvent(initGrid);
+       // initGrid();
+
+    });
+    //$("#lineId").bindChangeEvent(initGrid);
+    $("#lineId").on("select2:select", function (e) {
+    // 处理选择事件
+        if ($("#lineId").val() == "0") {
+            return
+        };
+        initGrid();
+    });
+
+    function flush(){
+        if( $("#lineId").val() == "0"){
+            return
+        };
+        initGrid();
+    }
+
+    $('#queryDate').find('button').click(function (i, v) {
+        $(this).addClass('active');
+        $(this).siblings('button').removeClass('active');
+        initGrid();
+    });
+
+
+    function initGrid() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
+        paging.init({
+            url: '/record/bind/index',
+            elem: '#content',
+            tempElem: '#contentTpl',
+            singleSelected: true, //单选
+            params: {
+                keyWord: $("#keyWord").val(),
+                configId: $("#lineId").val(),
+                index: $('#queryDate').find('button.active').val()
+            },
+            pageConfig: {
+                elem: 'paged',
+                pageSize: 10,
+            },
+            success: function () {
+
+            }
+        });
+    }
+    </script>

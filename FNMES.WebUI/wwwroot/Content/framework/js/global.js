@@ -319,6 +319,27 @@ $.fn.gridSelectedRowValue = function () {
     }
     return result;
 }
+/**
+ * 获取数据表格选中行数据。
+ */
+$.fn.gridSelectedRowData = function () {
+    var $selectedRows = $(this).children('tbody').find("input[type=checkbox]:checked");
+    var result = [];
+    if ($selectedRows.length > 0) {
+        var $row = $($selectedRows[0].closest('tr')); // Convert the DOM element to jQuery object
+        var rowData = $row.find('td').map(function () {
+            return $(this).text();
+        }).get();
+        return rowData;
+    }
+    return result;
+}
+
+
+
+
+
+
 
 /**
  * 获取URL指定参数值。

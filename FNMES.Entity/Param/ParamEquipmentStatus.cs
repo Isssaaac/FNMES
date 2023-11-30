@@ -8,6 +8,7 @@ namespace FNMES.Entity.Param
     /// 
     ///</summary>
     [SugarTable("Param_EquipmentStatus")]
+    [SugarIndex("index_ParamEquipmentStatus_stationCode", nameof(ParamEquipmentStatus.StationCode), OrderByType.Asc)]    //索引
     public class ParamEquipmentStatus
     {
         /// <summary>
@@ -19,19 +20,21 @@ namespace FNMES.Entity.Param
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName= "bigStationCode")]
-         public string BigStationCode { get; set; }
+        [SugarColumn(ColumnName = "stationCode",IsNullable = true)]
+        public string StationCode { get; set; }
+        [SugarColumn(ColumnName = "smallStationCode", IsNullable = true)]
+        public string SmallStationCode { get; set; }
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName = "equipmentID")]
+        [SugarColumn(ColumnName = "equipmentID", IsNullable = true)]
         public string EquipmentID { get; set; }
 
-        [SugarColumn(ColumnName = "offset")]
+        [SugarColumn(ColumnName = "offset", IsNullable = true)]
         public int Offset { get; set; }
-        [SugarColumn(ColumnName = "stopCodeOffset")]
+        [SugarColumn(ColumnName = "stopCodeOffset", IsNullable = true)]
         public int StopCodeOffset { get; set; }
-        [SugarColumn(ColumnName = "plcNo")]
+        [SugarColumn(ColumnName = "plcNo", IsNullable = true)]
         public int PlcNo { get; set; }
 
         //分库的数据库标识   只用来映射实体传递数据
