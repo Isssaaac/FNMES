@@ -345,6 +345,10 @@ namespace FNMES.Service.WebService
         [OperationContract]
         public RetMessage<LabelAndOrderData> GetInfo(string productCode, string configId)
         {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<LabelAndOrderData>("没有给configId参数赋值");
+            }
             //从当前线体查询上线记录，获取产品工单及线体信息
             //todo
             //查询内控码绑定的工单
@@ -384,7 +388,10 @@ namespace FNMES.Service.WebService
         public RetMessage<LabelAndOrderData> GetReworkInfo(string productCode, string configId) {
             //从各个线体查询上线记录，获取产品工单及线体信息
             //todo
-
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<LabelAndOrderData>("没有给configId参数赋值");
+            }
 
             return NewSuccessMessage<LabelAndOrderData>("待完成");
 
@@ -851,6 +858,10 @@ namespace FNMES.Service.WebService
         [OperationContract]
         public RetMessage<AndonTypeData> GetAndonParam(string configId)
         {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<AndonTypeData>("没有给configId参数赋值");
+            }
             List<ParamAndon> paramAndons = andonLogic.GetList(configId);
             if (paramAndons == null)
             {
@@ -879,12 +890,20 @@ namespace FNMES.Service.WebService
         [OperationContract]
         public RetMessage<AndonData> Andon( AndonParam param, string configId)
         {
-             return APIMethod.Call(Url.AndonUrl, param, configId).ToObject<RetMessage<AndonData>>();
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<AndonData>("没有给configId参数赋值");
+            }
+            return APIMethod.Call(Url.AndonUrl, param, configId).ToObject<RetMessage<AndonData>>();
         }
         //状态报警信息   根据PLC号获取配置信息
         [OperationContract]
         public RetMessage<PlcParam> GetPlcParam(int plcNo, string configId)
         {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<PlcParam>("没有给configId参数赋值");
+            }
             PlcParam plcParam = errorLogic.getPlcParam(configId, plcNo);
             if (plcParam == null)
             {
@@ -999,7 +1018,10 @@ namespace FNMES.Service.WebService
         public RetMessage<nullObject> Rework( ReworkParam param,  string configId)
         {
             //内部数据绑定、、、、、、
-
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<nullObject>("没有给configId参数赋值");
+            }
             string ret = APIMethod.Call(Url.ReworkUrl, param, configId);
             RetMessage<nullObject> retMessage = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();
 
@@ -1046,6 +1068,10 @@ namespace FNMES.Service.WebService
         [OperationContract]
         public RetMessage<nullObject> Heartbeat(HeartbeatParam param, string configId)
         {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<nullObject>("没有给configId参数赋值");
+            }
             FactoryStatus status = GetStatus(configId);
             string ret = APIMethod.Call(Url.HeartbeatUrl, param, configId);
             RetMessage<nullObject> retMessage = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();

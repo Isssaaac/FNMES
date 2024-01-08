@@ -45,7 +45,7 @@ namespace FNMES.WebUI.Logic.Param
                         TaskOrderNumber = model.taskOrderNumber,
                         ProductPartNo = model.productPartNo,
                         ProductDescription = model.productDescription,
-                        PackQty = model.planQty.ToInt(),
+                        PlanQty = model.planQty.ToInt(),
                         Uom = model.uom,
                         PlanStartTime = model.planStartTime,
                         PlanEndTime = model.planEndTime,

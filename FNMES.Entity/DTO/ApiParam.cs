@@ -104,31 +104,37 @@ namespace FNMES.Entity.DTO.ApiParam
     [DataContract]
     public class GetOrderParam:BaseParam
     {
-        [DataMember]
-        public string productionLine { get; set; }
+       
         [DataMember]
         public string stationCode { get; set; }
         [DataMember]
         public string operatorNo { get; set; }
     }
-
+    [DataContract]
     public class SelectOrderParam:SimpleParam
     {
+        [DataMember]
         //派工单号
         public List<SelectOrder> taskOrderNumbers { get; set; }
+        [DataMember]
         //工序（固定值）
         public string stationCode { get; set; }
+        [DataMember]
         //设备编码
         public string equipmentID { get; set; }
-        
+        [DataMember]
+
         //操作员工号
         public string operatorNo { get; set; }
+        [DataMember]
         public string actualStartTime { get; set; }
     }
-
+    [DataContract]
     public class SelectOrder
     {
+        [DataMember]
         public string taskOrderNumber { get; set; }
+        [DataMember]
         // S 开工，P 暂定，C 取消
         public string actionCode { get; set; }
     }

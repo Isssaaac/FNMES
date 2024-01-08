@@ -249,7 +249,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             GetOrderParam getOrderParam = new GetOrderParam() { 
                 productionLine = configId,
                 stationCode = "",
-                operatorNo = OperatorProvider.Instance.Current.UserId
+                operatorNo = OperatorProvider.Instance.Current.Name
             };
             RetMessage<GetOrderData> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.GetOrderUrl, getOrderParam, configId).ToObject<RetMessage<GetOrderData>>();
             if (retMessage.messageType == "S")
