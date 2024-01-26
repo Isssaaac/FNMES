@@ -19,17 +19,17 @@ namespace FNMES.WebUI.API
         public const string PartUploadUrl = "/api/pa/uploadMaterialConsumption";
         public const string ProcessUploadUrl = "/api/pa/uploadProcessParameters";
         public const string OutStationUrl = "/api/pa/doOutbound";
-        public const string EquipmentStateUrl = "/api/pa/syncEuipStatus";
+        public const string EquipmentStateUrl = "/api/pa/syncEquipStatus";
         public const string EquipmentErrorUrl = "/api/pa/syncEquipAlarms";
         public const string EquipmentStopUrl = "/api/pa/shutdownEquip";
         public const string ReworkUrl = "/api/pa/uploadRepairInfo";
         public const string ToolRemainUrl = "/api/pa/uploadWearPartLife";
         public const string QualityStop = "/api/pa/qualityStopTag";
         public const string GetPackInfoUrl = "/api/pa/getPackInfo";
-        public const string BindPalletUrl = "/api/pa/bindSNAndAGC";
-        public const string UnBindPalletUrl = "/api/pa/unbindSNAndAGC";
+        public const string BindPalletUrl = "/api/pa/bindSNAndAGV";
+        public const string UnBindPalletUrl = "/api/pa/unbindSNAndAGV";
         public const string AndonUrl = "/api/pa/getAndonInfo";
-        public const string AndonParamUrl = "";
+        public const string AndonParamUrl = "/api/pa/getAndonType";
     }
     public class APIMethod
     {

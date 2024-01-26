@@ -26,10 +26,10 @@ namespace FNMES.WebUI.Logic.Param
                 var db = GetInstance(configId);
                 if (keyWord.IsNullOrEmpty())
                 {
-                    return db.Queryable<ParamUnitProcedure>().ToPageList(pageIndex, pageSize, ref totalCount);
+                    return db.MasterQueryable<ParamUnitProcedure>().ToPageList(pageIndex, pageSize, ref totalCount);
                 }
 
-                return db.Queryable<ParamUnitProcedure>().Where(it => it.Name.Contains(keyWord) || it.Encode.Contains(keyWord)).ToPageList(pageIndex, pageSize, ref totalCount);
+                return db.MasterQueryable<ParamUnitProcedure>().Where(it => it.Name.Contains(keyWord) || it.Encode.Contains(keyWord)).ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception E)
             {
@@ -64,10 +64,10 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ParamUnitProcedure entity = db.Queryable<ParamUnitProcedure>().Where(it => it.Id == primaryKey).First();
+                ParamUnitProcedure entity = db.MasterQueryable<ParamUnitProcedure>().Where(it => it.Id == primaryKey).First();
                 var sysDb = GetInstance();
-                entity.CreateUser = sysDb.Queryable<SysUser>().Where(it => it.Id == entity.CreateUserId).First();
-                entity.ModifyUser = sysDb.Queryable<SysUser>().Where(it => it.Id == entity.ModifyUserId).First();
+                entity.CreateUser = sysDb.MasterQueryable<SysUser>().Where(it => it.Id == entity.CreateUserId).First();
+                entity.ModifyUser = sysDb.MasterQueryable<SysUser>().Where(it => it.Id == entity.ModifyUserId).First();
                 return entity;
             }
             catch (Exception E)
@@ -123,7 +123,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                return db.Queryable<ParamUnitProcedure>().Where(it => it.IsParent == "1").ToList();
+                return db.MasterQueryable<ParamUnitProcedure>().Where(it => it.IsParent == "1").ToList();
             }
             catch (Exception E)
             {
@@ -137,7 +137,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                return db.Queryable<ParamUnitProcedure>().Where(it => it.IsParent == "0").ToList();
+                return db.MasterQueryable<ParamUnitProcedure>().Where(it => it.IsParent == "0").ToList();
             }
             catch (Exception E)
             {
@@ -159,12 +159,12 @@ namespace FNMES.WebUI.Logic.Param
                 
                 if (parent == null || parent.Length ==0)
                 {
-                    return db.Queryable<ParamUnitProcedure>().Where(it => it.IsParent == "0").ToList(); 
+                    return db.MasterQueryable<ParamUnitProcedure>().Where(it => it.IsParent == "0").ToList(); 
                 }
-                ParamUnitProcedure p =  db.Queryable<ParamUnitProcedure>().Where(it => it.Encode == parent).First();
+                ParamUnitProcedure p =  db.MasterQueryable<ParamUnitProcedure>().Where(it => it.Encode == parent).First();
                 if (p != null)
                 {
-                    return db.Queryable<ParamUnitProcedure>().Where(it => (it.IsParent == "0" && it.Pid == p.Id)).ToList();
+                    return db.MasterQueryable<ParamUnitProcedure>().Where(it => (it.IsParent == "0" && it.Pid == p.Id)).ToList();
                 }
 
                 return new List<ParamUnitProcedure>();

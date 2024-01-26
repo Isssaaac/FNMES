@@ -160,7 +160,7 @@ namespace FNMES.Entity.DTO.AppData
 
         public RecipeData(ParamRecipeItem paramRecipeItem)
         {
-            this.nextBigStationCode = paramRecipeItem.NextBigStationCode;
+            this.nextBigStationCode = paramRecipeItem.NextStationCode;
             this.isFirstStation = paramRecipeItem.IsFirstStation;
             this.productionBeat = paramRecipeItem.ProductionBeat;
             this.passStationRestriction = paramRecipeItem.PassStationRestriction;
@@ -356,7 +356,11 @@ namespace FNMES.Entity.DTO.AppData
         public List<AlternativePartItem> alternativePartList { get; set; }
     }
 
-
+    [DataContract]
+    public class TestUploadRes {
+        [DataMember]
+        public long primaryKey;
+    }
 
 
 

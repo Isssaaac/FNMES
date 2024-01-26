@@ -14,7 +14,7 @@ namespace FNMES.WebUI.Logic.Param
 {
     public class ParamOrderLogic : BaseLogic
     {
-
+        //工单相关全部走主库
         public int Insert(ParamOrder model, string configId)
         {
             try
@@ -73,7 +73,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ParamOrder order = db.Queryable<ParamOrder>().Where(it => it.Id == primaryKey).First();
+                ParamOrder order = db.MasterQueryable<ParamOrder>().Where(it => it.Id == primaryKey).First();
                 if (order != null)
                 {
                     int start = db.Queryable<RecordOrderStart>().Where(it => it.TaskOrderNumber == order.TaskOrderNumber).
@@ -99,7 +99,7 @@ namespace FNMES.WebUI.Logic.Param
             {
                 var db = GetInstance(configId);
                // db.CodeFirst.InitTables(typeof(ParamAlternativePartItem));
-                ParamOrder order = db.Queryable<ParamOrder>().Where(it => it.Id == primaryKey).First();
+                ParamOrder order = db.MasterQueryable<ParamOrder>().Where(it => it.Id == primaryKey).First();
                 return order;
             }
             catch (Exception E)
@@ -114,8 +114,9 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
+                //业务逻辑，必须走主库
                 var db = GetInstance(configId);
-                ParamOrder order = db.Queryable<ParamOrder>().Where(it => it.Flag == "1").First();
+                ParamOrder order = db.MasterQueryable<ParamOrder>().Where(it => it.Flag == "1").First();
                 return order;
             }
             catch (Exception E)
@@ -139,7 +140,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<ParamOrder> queryable = db.Queryable<ParamOrder>();
+                ISugarQueryable<ParamOrder> queryable = db.MasterQueryable<ParamOrder>();
 
                 if (!keyWord.IsNullOrEmpty())
                 {
@@ -214,7 +215,7 @@ namespace FNMES.WebUI.Logic.Param
             {
                 var db = GetInstance(configId);
 
-                List<ParamOrder> paramProducts = db.Queryable<ParamOrder>().ToList();
+                List<ParamOrder> paramProducts = db.MasterQueryable<ParamOrder>().ToList();
                 return paramProducts;
             }
             catch (Exception E)
@@ -230,7 +231,7 @@ namespace FNMES.WebUI.Logic.Param
             {
                 var db = GetInstance(configId);
 
-                List<ParamOrder> paramProducts = db.Queryable<ParamOrder>().Where(it => it.Flag =="0").ToList();
+                List<ParamOrder> paramProducts = db.MasterQueryable<ParamOrder>().Where(it => it.Flag =="0").ToList();
                 return paramProducts;
             }
             catch (Exception E)

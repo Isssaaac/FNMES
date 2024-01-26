@@ -205,7 +205,9 @@ namespace FNMES.WebUI.Logic.Base
             }
         }
 
-
+        /// <summary>
+        /// 初始化所有不需要分表的表
+        /// </summary>
         public void InitAllTable()
         {
             foreach (var item in AppSetting.lineConnections)

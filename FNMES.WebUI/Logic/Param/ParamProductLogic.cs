@@ -28,7 +28,7 @@ namespace FNMES.WebUI.Logic.Param
                
 
 
-                ParamRecipe paramRecipe = db.Queryable<ParamRecipe>().Where(it => it.Id == primaryKey).First();
+                ParamRecipe paramRecipe = db.MasterQueryable<ParamRecipe>().Where(it => it.Id == primaryKey).First();
                 return paramRecipe;
             }
             catch (Exception E)
@@ -57,7 +57,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<ParamRecipe> queryable = db.Queryable<ParamRecipe>();
+                ISugarQueryable<ParamRecipe> queryable = db.MasterQueryable<ParamRecipe>();
                 if (!keyWord.IsNullOrEmpty())
                 {
                     queryable = queryable.Where(it => it.ProductPartNo.Contains(keyWord) || it.ProductDescription.Contains(keyWord));
@@ -81,7 +81,7 @@ namespace FNMES.WebUI.Logic.Param
             {
                 var db = GetInstance(configId);
 
-                List<ParamRecipe> paramProducts = db.Queryable<ParamRecipe>().ToList();
+                List<ParamRecipe> paramProducts = db.MasterQueryable<ParamRecipe>().ToList();
                 return paramProducts;
             }
             catch (Exception E)
@@ -99,12 +99,11 @@ namespace FNMES.WebUI.Logic.Param
                 var db = GetInstance(configId);
                 bool skip  = false;
                 Db.BeginTran();
-                ParamRecipe paramRecipe = db.Queryable<ParamRecipe>().First(it => it.ProductPartNo == data.productPartNo);
+                ParamRecipe paramRecipe = db.MasterQueryable<ParamRecipe>().First(it => it.ProductPartNo == data.productPartNo);
                
                 if (!paramRecipe.IsNullOrEmpty())
                 {
                     skip = paramRecipe.ProductPartNo == data.productPartNo && paramRecipe.BomNo == data.bomNo && paramRecipe.BomVersion == data.bomVersion
-                                    && paramRecipe.RecipeNo == data.recipeNo && paramRecipe.RecipeVersion == data.recipeVersion
                                     && paramRecipe.RouteNo == data.routeNo && paramRecipe.RouteVersion == data.routeVersion
                                     && paramRecipe.ProcessConfigName == data.processConfigName; 
                 }

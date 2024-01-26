@@ -22,7 +22,7 @@ namespace FNMES.WebUI.Logic.Sys
         {
             using (var db = GetInstance())
             {
-                return db.Queryable<SysRoleAuthorize>().ToList();
+                return db.MasterQueryable<SysRoleAuthorize>().ToList();
             }
         }
 
@@ -35,7 +35,7 @@ namespace FNMES.WebUI.Logic.Sys
         {
             using (var db = GetInstance())
             {
-                return db.Queryable<SysRoleAuthorize>().Where(it => it.RoleId == roleId).ToList();
+                return db.MasterQueryable<SysRoleAuthorize>().Where(it => it.RoleId == roleId).ToList();
             }
         }
 
@@ -53,8 +53,8 @@ namespace FNMES.WebUI.Logic.Sys
                 {
                     Db.BeginTran();
                     //获得所有权限
-                    List<SysPermission> permissionList = sysdb.Queryable<SysPermission>().ToList();
-                    List<long> perList = new List<long>();
+                    List<SysPermission> permissionList = sysdb.MasterQueryable<SysPermission>().ToList();
+                    List<long> perList = new();
                     foreach (long perId in perIds)
                     {
                         long id = perId;
@@ -105,7 +105,7 @@ namespace FNMES.WebUI.Logic.Sys
                 {
                     Db.BeginTran();
                     //获得所有权限
-                    List<SysPermission> permissionList = sysdb.Queryable<SysPermission>().ToList();
+                    List<SysPermission> permissionList = sysdb.MasterQueryable<SysPermission>().ToList();
                     List<long> perList = new List<long>();
                     foreach (long perId in perIds)
                     {

@@ -38,7 +38,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                return db.Queryable<ParamEquipmentError>().ToList();
+                return db.MasterQueryable<ParamEquipmentError>().ToList();
 
             }
             catch (Exception E)
@@ -52,7 +52,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                return db.Queryable<ParamEquipmentStatus>().ToList();
+                return db.MasterQueryable<ParamEquipmentStatus>().ToList();
 
             }
             catch (Exception E)
@@ -67,7 +67,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                return db.Queryable<ParamEquipmentStopCode>().ToList();
+                return db.MasterQueryable<ParamEquipmentStopCode>().ToList();
 
             }
             catch (Exception E)
@@ -83,7 +83,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<ParamEquipmentError> queryable = db.Queryable<ParamEquipmentError>();
+                ISugarQueryable<ParamEquipmentError> queryable = db.MasterQueryable<ParamEquipmentError>();
 
                 if (!keyWord.IsNullOrEmpty())
                 {
@@ -102,7 +102,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<ParamEquipmentStatus> queryable = db.Queryable<ParamEquipmentStatus>();
+                ISugarQueryable<ParamEquipmentStatus> queryable = db.MasterQueryable<ParamEquipmentStatus>();
 
                 if (!keyWord.IsNullOrEmpty())
                 {
@@ -122,7 +122,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<ParamEquipmentStopCode> queryable = db.Queryable<ParamEquipmentStopCode>();
+                ISugarQueryable<ParamEquipmentStopCode> queryable = db.MasterQueryable<ParamEquipmentStopCode>();
 
                 if (!keyWord.IsNullOrEmpty())
                 {
@@ -184,16 +184,17 @@ namespace FNMES.WebUI.Logic.Param
 
 
 
-        public PlcParam getPlcParam(string configId,int plcNo) 
+        public PlcParam GetPlcParam(string configId,int plcNo) 
         {
+            //查询参数必须走主库
             try
             {
                 List<ErrorParam> errorParams = new();
                 List<StatusParam> statusParams = new();
                 var db = GetInstance(configId);
-                List<ParamEquipmentError> errors = db.Queryable<ParamEquipmentError>().Where(it => it.PlcNo == plcNo).ToList();
-                List<ParamEquipmentStatus> statuses = db.Queryable<ParamEquipmentStatus>().Where(it => it.PlcNo == plcNo).ToList();
-                List<ParamEquipmentStopCode> stopCodes = db.Queryable<ParamEquipmentStopCode>().ToList();
+                List<ParamEquipmentError> errors = db.MasterQueryable<ParamEquipmentError>().Where(it => it.PlcNo == plcNo).ToList();
+                List<ParamEquipmentStatus> statuses = db.MasterQueryable<ParamEquipmentStatus>().Where(it => it.PlcNo == plcNo).ToList();
+                List<ParamEquipmentStopCode> stopCodes = db.MasterQueryable<ParamEquipmentStopCode>().ToList();
                 List<string> stopCode = stopCodes.Select(it => it.StopCode).ToList();
                 List<string> stopCodeDesc = stopCodes.Select(it => it.StopCodeDesc).ToList();
                 //获取error配置

@@ -29,7 +29,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<ParamRecipeItem> queryable = db.Queryable<ParamRecipeItem>().Where(it => it.RecipeId == productId);
+                ISugarQueryable<ParamRecipeItem> queryable = db.MasterQueryable<ParamRecipeItem>().Where(it => it.RecipeId == productId);
                 if (!keyWord.IsNullOrEmpty())
                 {
                     queryable = queryable.Where(it => it.StationCode.Contains(keyWord) || it.StationName.Contains(keyWord));
@@ -51,7 +51,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ParamRecipe paramRecipe = db.Queryable<ParamRecipe>().First(it => it.ProductPartNo == productPartNo);
+                ParamRecipe paramRecipe = db.MasterQueryable<ParamRecipe>().First(it => it.ProductPartNo == productPartNo);
                 if (paramRecipe == null)
                 {
                     return null;
@@ -70,7 +70,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<ParamItem> queryable = db.Queryable<ParamItem>().Where(it => it.RecipeItemId == pid);
+                ISugarQueryable<ParamItem> queryable = db.MasterQueryable<ParamItem>().Where(it => it.RecipeItemId == pid);
                 if (!keyWord.IsNullOrEmpty())
                 {
                     queryable = queryable.Where(it => it.StepName.Contains(keyWord) || it.ParamName.Contains(keyWord)).OrderBy(it => it.StepNo);
@@ -88,7 +88,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<ParamEsopItem> queryable = db.Queryable<ParamEsopItem>().Where(it => it.RecipeItemId == recipeItemId);
+                ISugarQueryable<ParamEsopItem> queryable = db.MasterQueryable<ParamEsopItem>().Where(it => it.RecipeItemId == recipeItemId);
                 if (!keyWord.IsNullOrEmpty())
                 {
                     queryable = queryable.Where(it => it.FilePath.Contains(keyWord) || it.No.Contains(keyWord)).OrderBy(it => it.No);
@@ -107,7 +107,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<ParamPartItem> queryable = db.Queryable<ParamPartItem>().Where(it => it.RecipeItemId == recipeItemId);
+                ISugarQueryable<ParamPartItem> queryable = db.MasterQueryable<ParamPartItem>().Where(it => it.RecipeItemId == recipeItemId);
                 if (!keyWord.IsNullOrEmpty())
                 {
                     queryable = queryable.Where(it => it.PartNumber.Contains(keyWord) || it.PartDescription.Contains(keyWord)).OrderBy(it => it.StepNo);
@@ -126,7 +126,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<ParamAlternativePartItem> queryable = db.Queryable<ParamAlternativePartItem>().Where(it => it.PartItemId == pid);
+                ISugarQueryable<ParamAlternativePartItem> queryable = db.MasterQueryable<ParamAlternativePartItem>().Where(it => it.PartItemId == pid);
                 if (!keyWord.IsNullOrEmpty())
                 {
                     queryable = queryable.Where(it => it.PartNumber.Contains(keyWord) || it.PartDescription.Contains(keyWord));
@@ -147,7 +147,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<ParamStepItem> queryable = db.Queryable<ParamStepItem>().Where(it => it.RecipeItemId == recipeItemId);
+                ISugarQueryable<ParamStepItem> queryable = db.MasterQueryable<ParamStepItem>().Where(it => it.RecipeItemId == recipeItemId);
                 if (!keyWord.IsNullOrEmpty())
                 {
                     queryable = queryable.Where(it => it.StepName.Contains(keyWord) || it.StepNo.Contains(keyWord)).OrderBy(it => it.StepNo);
@@ -167,7 +167,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ParamRecipe paramRecipe = db.Queryable<ParamRecipe>().First(it => it.ProductPartNo == productPartNo);
+                ParamRecipe paramRecipe = db.MasterQueryable<ParamRecipe>().First(it => it.ProductPartNo == productPartNo);
                 if (paramRecipe == null)
                 {
                     return null;

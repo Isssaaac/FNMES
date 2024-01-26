@@ -31,7 +31,7 @@ namespace FNMES.WebUI.Logic.Sys
         public List<SysUserRoleRelation> GetList(long userId)
         {
             var db = GetInstance();
-            return db.Queryable<SysUserRoleRelation>().Where(it => it.UserId == userId).ToList();
+            return db.MasterQueryable<SysUserRoleRelation>().Where(it => it.UserId == userId).ToList();
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace FNMES.WebUI.Logic.Sys
         public List<SysUserRoleRelation> GetByRoles(List<long> ids)
         {
             var db = GetInstance();
-            return db.Queryable<SysUserRoleRelation>().Where(it => ids.Contains(it.RoleId)).ToList();
+            return db.MasterQueryable<SysUserRoleRelation>().Where(it => ids.Contains(it.RoleId)).ToList();
         }
          
     }

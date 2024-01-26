@@ -79,14 +79,7 @@ namespace FNMES.Entity.DTO.ApiData
         // 工艺配置
         public List<ProcessParamItem> processParamItems { get; set; }
 
-        // 配方编号   配方相关暂时没有
-        public string recipeNo { get; set; }
-
-        // 配方名称
-        public string recipeDescription { get; set; }
-
-        // 配方版本
-        public string recipeVersion { get; set; }
+        
 
         // 配方，工序有配方的情况只有5中情况：电芯匀浆配方、电芯分档配方、电芯抽检分容配方、pack模块配方、PACK堆叠焊接配方
         //public List<RecipeItem> recipeItems { get; set; }
@@ -104,7 +97,7 @@ namespace FNMES.Entity.DTO.ApiData
         public string section { get; set; }
 
         // 下一站工序编码
-        public string nextBigStationCode { get; set; }
+        public string nextStationCode { get; set; }
 
         // 是否首道工序
         public string isFirstStation { get; set; }

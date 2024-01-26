@@ -40,8 +40,9 @@ namespace FNMES.WebUI.Logic.Sys
         {
             try
             {
+                //为修改后实时查询，走主库
                 var db = GetInstance();
-                ISugarQueryable<SysEquipment> queryable = db.Queryable<SysEquipment>().Where(it => it.LineId == lineId);
+                ISugarQueryable<SysEquipment> queryable = db.MasterQueryable<SysEquipment>().Where(it => it.LineId == lineId);
                 if (!keyWord.IsNullOrEmpty())
                 {
                     queryable = queryable.Where(it => (it.Name.Contains(keyWord) || it.EnCode.Contains(keyWord)));
@@ -77,12 +78,15 @@ namespace FNMES.WebUI.Logic.Sys
                 return new List<SysEquipment> ();
             }
         }
+
+        
         public SysEquipment GetByIP(string IP)
         {
             try
             {
                 var db = GetInstance();
-                return db.Queryable<SysEquipment>()
+                //业务逻辑强制走主库
+                return db.MasterQueryable<SysEquipment>()
                     .Where(it => it.IP == IP)
                     .Includes(it => it.Line)
                     .Includes(it => it.CreateUser)
@@ -105,8 +109,9 @@ namespace FNMES.WebUI.Logic.Sys
         {
             try
             {
+                //为了修改后实时显示，直接走主库
                 var db = GetInstance();
-                return db.Queryable<SysEquipment>()
+                return db.MasterQueryable<SysEquipment>()
                     .Where(it => it.Id == primaryKey)
                     .Includes(it => it.CreateUser)
                     .Includes(it => it.ModifyUser)

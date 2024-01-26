@@ -18,6 +18,8 @@ namespace FNMES.WebUI.Logic.Sys
 {
     public class SysPermissionLogic : BaseLogic
     {
+
+        //权限均走主库
         public bool ActionValidate(long userId, string action)
         {
             List<SysPermission> authorizeModules;
@@ -47,25 +49,28 @@ namespace FNMES.WebUI.Logic.Sys
         public List<SysPermission> GetList(long userId)
         {
             var db = GetInstance();
+            Db.BeginTran();
             List<long> permissionIdList = db.Queryable<SysUserRoleRelation, SysRoleAuthorize, SysPermission>((A, B, C) => new object[] {
                       JoinType.Left,A.RoleId == B.RoleId,
                       JoinType.Left,C.Id == B.ModuleId,
                     })
                 .Where((A, B, C) => A.UserId == userId && C.EnableFlag == "1")
                 .Select((A, B, C) => C.Id).ToList();
-            return db.Queryable<SysPermission>().Where(it => permissionIdList.Contains(it.Id)).OrderBy(it => it.SortCode).ToList();
+            Db.CommitTran();
+            return db.MasterQueryable<SysPermission>().Where(it => permissionIdList.Contains(it.Id)).OrderBy(it => it.SortCode).ToList();
         }
 
 
         public List<SysPermission> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount)
         {
+            //为了修改后实时显示，直接走主库
             var db = GetInstance();
             if (keyWord.IsNullOrEmpty())
             {
-                return db.Queryable<SysPermission>().OrderBy(it => it.SortCode).ToPageList(pageIndex, pageSize, ref totalCount);
+                return db.MasterQueryable<SysPermission>().OrderBy(it => it.SortCode).ToPageList(pageIndex, pageSize, ref totalCount);
             }
             
-            return db.Queryable<SysPermission>().Where(it => it.Name.Contains(keyWord) || it.EnCode.Contains(keyWord)).OrderBy(it => it.SortCode).ToPageList(pageIndex, pageSize, ref totalCount);
+            return db.MasterQueryable<SysPermission>().Where(it => it.Name.Contains(keyWord) || it.EnCode.Contains(keyWord)).OrderBy(it => it.SortCode).ToPageList(pageIndex, pageSize, ref totalCount);
         }
 
         public int Delete(params string[] primaryKeys)
@@ -92,11 +97,11 @@ namespace FNMES.WebUI.Logic.Sys
         {
             var db = GetInstance();
             //得到当前节点
-            SysPermission permission = db.Queryable<SysPermission>().Where(it => it.Id.ToString() == parentId).First();
+            SysPermission permission = db.MasterQueryable<SysPermission>().Where(it => it.Id.ToString() == parentId).First();
             if (permission == null)
                 return 0;
             //得到子的
-            SysPermission child = db.Queryable<SysPermission>().Where(it => it.ParentId.ToString() == parentId).OrderBy(it => it.SortCode, OrderByType.Desc).First();
+            SysPermission child = db.MasterQueryable<SysPermission>().Where(it => it.ParentId.ToString() == parentId).OrderBy(it => it.SortCode, OrderByType.Desc).First();
             if (child == null)
                 return permission.SortCode.Value + 100;
             else
@@ -105,19 +110,19 @@ namespace FNMES.WebUI.Logic.Sys
         public int GetChildCount(long parentId)
         {
             var db = GetInstance();
-            return db.Queryable<SysPermission>().Where(it => it.ParentId == parentId).ToList().Count;
+            return db.MasterQueryable<SysPermission>().Where(it => it.ParentId == parentId).ToList().Count;
         }
 
         public List<SysPermission> GetList()
         {
             var db = GetInstance();
-            return db.Queryable<SysPermission>().OrderBy(it => it.SortCode).ToList();
+            return db.MasterQueryable<SysPermission>().OrderBy(it => it.SortCode).ToList();
         }
 
         public SysPermission Get(long primaryKey = 0)
         {
             var db = GetInstance();
-            return db.Queryable<SysPermission>().Where(it => it.Id == primaryKey).Includes(it => it.CreateUser).Includes(it => it.ModifyUser).First();
+            return db.MasterQueryable<SysPermission>().Where(it => it.Id == primaryKey).Includes(it => it.CreateUser).Includes(it => it.ModifyUser).First();
         }
 
 
@@ -211,13 +216,14 @@ namespace FNMES.WebUI.Logic.Sys
 
         public List<SysPermission> GetPermissions(List<string> roleEncodes)
         {
+            //权限查询只能通过主库查询
             var db = GetInstance();
-            List<long> roleIds = db.Queryable<SysRole>().Where(it => roleEncodes.Contains(it.EnCode)).Select(it=> it.Id).ToList();
+            List<long> roleIds = db.MasterQueryable<SysRole>().Where(it => roleEncodes.Contains(it.EnCode)).Select(it=> it.Id).ToList();
             List<SysPermission> sysPermissions = new List<SysPermission>();
             if (roleIds.Count > 0)
             {
-                List<long> permissionIds = db.Queryable< SysRoleAuthorize>().Where(it => roleIds.Contains((long)it.RoleId)).Select(it => (long)it.ModuleId).ToList();
-                sysPermissions = db.Queryable<SysPermission>().Where(it => permissionIds.Contains(it.Id) && it.Type>=3).ToList();
+                List<long> permissionIds = db.MasterQueryable< SysRoleAuthorize>().Where(it => roleIds.Contains((long)it.RoleId)).Select(it => (long)it.ModuleId).ToList();
+                sysPermissions = db.MasterQueryable<SysPermission>().Where(it => permissionIds.Contains(it.Id) && it.Type>=3).ToList();
             }
             return sysPermissions;
         }

@@ -47,7 +47,7 @@ namespace FNMES.WebUI.Logic.Record
                 return 0;
             }
         }
-        public List<RecordPartUpload> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount,string configId)
+        public List<RecordPartUpload> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount, string configId)
         {
             try
             {
@@ -67,10 +67,27 @@ namespace FNMES.WebUI.Logic.Record
             }
         }
 
-
-
-
-
+        public bool CheckPartBarcode(string partBarCode){
+            //需要查询每条线的数据
+            try
+            {
+                for (int i = 1; i <= 5; i++)
+                {
+                    var db = GetInstance(i.ToString());
+                    bool v = db.Queryable<RecordPartData>().Where(it => it.PartBarcode == partBarCode).SplitTable(tables => tables.Take(2)).Any();
+                    if (v)
+                    {
+                        //如果存在，直接跳出循环，查重结束
+                        return false;
+                    }
+                }
+                return true;
+            }
+            catch 
+            {
+                throw;
+            }
+        }
 
     }
 }

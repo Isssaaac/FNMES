@@ -47,4 +47,17 @@ namespace FNMES.Entity.DTO
 
 
     }
+
+    [DataContract]
+    public class TestData
+    {
+        [DataMember]
+        public string productCode;
+        [DataMember]
+        public string data;
+        [DataMember]
+        public string result;  //OK NG 
+    }
+
+
 }

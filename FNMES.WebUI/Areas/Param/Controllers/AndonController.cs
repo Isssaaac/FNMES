@@ -17,6 +17,8 @@ using SqlSugar;
 using System;
 using FNMES.Entity.Param;
 using FNMES.WebUI.Logic.Param;
+using FNMES.Entity.Sys;
+using FNMES.WebUI.Logic.Sys;
 
 namespace FNMES.WebUI.Areas.Param.Controllers
 {
@@ -25,9 +27,11 @@ namespace FNMES.WebUI.Areas.Param.Controllers
     public class AndonController : BaseController
     {
         private ParamAndonLogic sysAndonLogic;
+        private SysLineLogic sysLineLogic;
         public AndonController()
         {
             sysAndonLogic = new ParamAndonLogic();
+            sysLineLogic = new SysLineLogic();  
         }
 
         [Route("param/andon/index")]
@@ -57,13 +61,13 @@ namespace FNMES.WebUI.Areas.Param.Controllers
         //获取andon参数并更新
         public ActionResult Get(string configId)
         {
-
-            AndonParam andonParam = new AndonParam() { 
-                productionLine = configId,
+            SysLine sysLine = sysLineLogic.GetByConfigId(configId);
+            AndonTypeParam andonParam = new() { 
+                productionLine = sysLine.EnCode,
                 operatorNo = OperatorProvider.Instance.Current.Name,
             };
-            RetMessage<AndonTypeData> retMessage = APIMethod.Call(API.Url.AndonParamUrl, andonParam, "1").ToObject<RetMessage<AndonTypeData>>();
-            if (retMessage.messageType == "S" && retMessage.data.dataList.IsNullOrEmpty())
+            RetMessage<AndonTypeData> retMessage = APIMethod.Call(API.Url.AndonParamUrl, andonParam, configId).ToObject<RetMessage<AndonTypeData>>();
+            if (retMessage.messageType == "S" && !retMessage.data.dataList.IsNullOrEmpty())
             {
 
                 List<ParamAndon> list = new List<ParamAndon>();

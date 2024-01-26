@@ -589,6 +589,8 @@ namespace FNMES.Entity.DTO.ApiParam
         [DataMember]
         public string smallStationCode { get; set; }
         [DataMember]
+        public string stationCode { get; set; }
+        [DataMember]
         public string productCode { get; set; }
         [DataMember]
         public string equipmentID { get; set; }

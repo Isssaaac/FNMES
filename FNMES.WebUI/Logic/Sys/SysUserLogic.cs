@@ -27,7 +27,7 @@ namespace FNMES.WebUI.Logic.Sys
         public SysUser GetByUserName(string account)
         {
             var db = GetInstance();
-            return db.Queryable<SysUser>().Where(it => it.UserNo == account)
+            return db.MasterQueryable<SysUser>().Where(it => it.UserNo == account)
                    //  .Includes(it => it.Organize) && it.DeleteFlag == "0"
                    .Includes(it => it.CreateUser)
                    .Includes(it => it.ModifyUser)
@@ -146,7 +146,7 @@ namespace FNMES.WebUI.Logic.Sys
         public bool ContainsUser(string userAccount, params string[] userIdList)
         {
             var db = GetInstance();
-            List<string> accountList = db.Queryable<SysUser>().Where(it => userIdList.Contains(it.Id.ToString())).Select(it => it.UserNo).ToList();
+            List<string> accountList = db.MasterQueryable<SysUser>().Where(it => userIdList.Contains(it.Id.ToString())).Select(it => it.UserNo).ToList();
             if (accountList.IsNullOrEmpty())
                 return false;
             if (accountList.Contains(userAccount))
@@ -230,7 +230,7 @@ namespace FNMES.WebUI.Logic.Sys
         public SysUser Get(long primaryKey)
         {
             var db = GetInstance();
-            return db.Queryable<SysUser>().Where(it => it.Id == primaryKey)
+            return db.MasterQueryable<SysUser>().Where(it => it.Id == primaryKey)
                  .Includes(it => it.CreateUser)
                  .Includes(it => it.ModifyUser).First();
         }
@@ -246,7 +246,7 @@ namespace FNMES.WebUI.Logic.Sys
         public List<SysUser> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount)
         {
             var db = GetInstance();
-            ISugarQueryable<SysUser> queryable = db.Queryable<SysUser>();
+            ISugarQueryable<SysUser> queryable = db.MasterQueryable<SysUser>();
             if (!keyWord.IsNullOrEmpty())
             {
                 queryable = queryable.Where(it => it.UserNo.Contains(keyWord) || it.Name.Contains(keyWord));

@@ -88,10 +88,11 @@ namespace FNMES.WebUI.Logic.Record
 
         public List<RecordOutStation> GetList(string productCode, string configId)
         {
+            //业务逻辑，必须走主库
             try
             {
                 var db = GetInstance(configId);
-                return db.Queryable<RecordOutStation>().Where(it => it.ProductCode == productCode).SplitTable(tabs => tabs.Take(2)).ToList();
+                return db.MasterQueryable<RecordOutStation>().Where(it => it.ProductCode == productCode).SplitTable(tabs => tabs.Take(2)).ToList();
             }
             catch (Exception e)
             {

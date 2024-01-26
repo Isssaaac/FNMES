@@ -15,6 +15,8 @@ using FNMES.WebUI.API;
 using FNMES.Entity.DTO.ApiParam;
 using FNMES.Utility.Network;
 using FNMES.Entity.DTO.ApiData;
+using FNMES.Entity.Sys;
+using FNMES.WebUI.Logic.Sys;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -23,9 +25,11 @@ namespace MES.WebUI.Areas.Param.Controllers
     public class ProductController : BaseController
     {
         private readonly ParamProductLogic productLogic;
+        private readonly SysLineLogic sysLineLogic;
         public ProductController()
         {
             productLogic = new ParamProductLogic();
+            sysLineLogic = new SysLineLogic();
         }
 
 
@@ -72,17 +76,18 @@ namespace MES.WebUI.Areas.Param.Controllers
         [HttpPost , AuthorizeChecked]
         public ActionResult GetRecipe(string configId,string primaryKey,bool force)
         {
+            SysLine sysLine = sysLineLogic.GetByConfigId(configId);
             ParamRecipe paramRecipe = productLogic.Get(long.Parse(primaryKey),configId);
             //从工厂同步配方
 
 
             GetRecipeParam param = new() { 
-                productionLine = configId,
+                productionLine = sysLine.EnCode,
                 productPartNo = paramRecipe.ProductPartNo,
                 smallStationCode = "",
                 stationCode = "",
                 section = "后段",
-                equipmentID = "",
+                equipmentID = "FN-GZXNY-PACK-024",
                 operatorNo = OperatorProvider.Instance.Current.UserId,
                 actualStartTime = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString()
             };

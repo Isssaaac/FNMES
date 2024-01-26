@@ -60,7 +60,7 @@ namespace FNMES.Utility.Network
                 return null;
             }
         }
-        public static string DoPostJson(string url, object data, int? timeout = 3000) 
+        public static string DoPostJson(string url, object data, int? timeout = 15000) 
         {
             try
             {

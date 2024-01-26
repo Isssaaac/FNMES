@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FNMES.Entity.DTO.ApiData;
@@ -44,12 +44,6 @@ namespace FNMES.Entity.Param
         public string RouteName { get; set; }
         [SugarColumn(ColumnName = "routeVersion", IsNullable = true)]
         public string RouteVersion { get; set; }
-        [SugarColumn(ColumnName = "recipeNo", IsNullable = true)]
-        public string RecipeNo { get; set; }
-        [SugarColumn(ColumnName = "recipeDescription", IsNullable = true)]
-        public string RecipeDescription { get; set; }
-        [SugarColumn(ColumnName = "recipeVersion", IsNullable = true)]
-        public string RecipeVersion { get; set; }
         [SugarColumn(ColumnName = "createTime", IsNullable = true)]
         public DateTime? CreateTime { get; set; }
         [Navigate(NavigateType.OneToMany, nameof(ParamRecipeItem.RecipeId))]//一对多
@@ -73,15 +67,12 @@ namespace FNMES.Entity.Param
             this.RouteNo = source.routeNo;
             this.RouteName = source.routeName;
             this.RouteVersion = source.routeVersion;
-            this.RecipeNo = source.recipeNo;
-            this.RecipeDescription = source.recipeDescription;
-            this.RecipeVersion = source.recipeVersion;
-
             // Copy processParamItems list
             this.processParamItems = new List<ParamRecipeItem>();
-            foreach (var paramItem in source.processParamItems)
+            this.CreateTime = DateTime.Now;
+            foreach (ProcessParamItem paramItem in source.processParamItems)
             {
-                var paramRecipeItem = new ParamRecipeItem() { Id = SnowFlakeSingle.instance.NextId(), RecipeId = Id};
+                ParamRecipeItem paramRecipeItem = new ParamRecipeItem() { Id = SnowFlakeSingle.instance.NextId(), RecipeId = Id};
                 paramRecipeItem.CopyField(paramItem);
                 paramRecipeItem.EsopList = new List<ParamEsopItem>();
                 paramRecipeItem.PartList = new List<ParamPartItem>();

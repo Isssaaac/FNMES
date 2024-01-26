@@ -32,7 +32,7 @@ namespace FNMES.WebUI.Logic.Param
                 var db = GetInstance(configId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 int res;
-                List<ProcessBind> oldprocessBind = db.Queryable<ProcessBind>().Where(it => it.PalletNo == model.PalletNo || it.ProductCode == model.ProductCode).ToList(); ;
+                List<ProcessBind> oldprocessBind = db.MasterQueryable<ProcessBind>().Where(it => it.PalletNo == model.PalletNo || it.ProductCode == model.ProductCode).ToList(); ;
                 if (oldprocessBind.Count!=0)
                 {
                     try
@@ -76,10 +76,12 @@ namespace FNMES.WebUI.Logic.Param
       
         public ProcessBind GetByPalletNo(string palletNo, string configId)
         {
+
             try
             {
+                //业务逻辑，必须走主库
                 var db = GetInstance(configId);
-                return db.Queryable<ProcessBind>().Where(it => it.PalletNo == palletNo).First();
+                return db.MasterQueryable<ProcessBind>().Where(it => it.PalletNo == palletNo).First();
             }
             catch (Exception e)
             {
@@ -89,10 +91,11 @@ namespace FNMES.WebUI.Logic.Param
         }
         public ProcessBind GetByProductCode(string productCode, string configId)
         {
+            //业务逻辑，必须走主库
             try
             {
                 var db = GetInstance(configId);
-                return db.Queryable<ProcessBind>().Where(it => it.ProductCode == productCode).First();
+                return db.MasterQueryable<ProcessBind>().Where(it => it.ProductCode == productCode).First();
             }
             catch (Exception e)
             {
@@ -114,7 +117,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<ProcessBind> queryable = db.Queryable<ProcessBind>();
+                ISugarQueryable<ProcessBind> queryable = db.MasterQueryable<ProcessBind>();
 
                 if (!keyWord.IsNullOrEmpty())
                 {
@@ -141,7 +144,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<RecordBindHistory> queryable = db.Queryable<RecordBindHistory>();
+                ISugarQueryable<RecordBindHistory> queryable = db.MasterQueryable<RecordBindHistory>();
 
                 if (!keyWord.IsNullOrEmpty())
                 {

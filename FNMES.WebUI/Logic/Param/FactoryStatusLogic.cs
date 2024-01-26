@@ -34,7 +34,8 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                FactoryStatus factoryStatus = db.Queryable<FactoryStatus>().OrderBy(it => it.Id ,OrderByType.Desc).First();
+                //业务逻辑强制走主库
+                FactoryStatus factoryStatus = db.MasterQueryable<FactoryStatus>().OrderBy(it => it.Id ,OrderByType.Desc).First();
                 return factoryStatus;
             }
             catch (Exception e)

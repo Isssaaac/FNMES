@@ -25,8 +25,9 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
+                //业务逻辑，必须走主库
                 var db = GetInstance(configId);
-                return db.Queryable<ParamAndon>()
+                return db.MasterQueryable<ParamAndon>()
                     .ToList();
             }
             catch (Exception e)

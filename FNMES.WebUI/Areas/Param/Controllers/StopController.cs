@@ -74,7 +74,7 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/stop/uploadFile")]
         [HttpPost]
-        public async Task<ActionResult> UploadFile(IFormFile file,string configId)
+        public ActionResult UploadFile(IFormFile file, string configId)
         {
             if (file != null && file.Length > 0)
             {
@@ -96,7 +96,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                 List<ParamEquipmentStopCode> codes = ExcelUtils.ImportExcel<ParamEquipmentStopCode>(stream, keyValuePairs);
 
                 int v = errorAndStatusLogic.InsertStopCode(codes, configId);
-               if (v == 0)
+                if (v == 0)
                 {
                     return Error("初始化数据失败");
                 }

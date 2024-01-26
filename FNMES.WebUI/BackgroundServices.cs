@@ -1,4 +1,5 @@
-﻿using FNMES.Entity.DTO.ApiParam;
+﻿using CCS.WebUI;
+using FNMES.Entity.DTO.ApiParam;
 using FNMES.Entity.Param;
 using FNMES.Utility.Core;
 using FNMES.Utility.Network;
@@ -38,11 +39,11 @@ namespace FNMES.WebUI
 
             BaseLogic baseLogic = new BaseLogic();
             baseLogic.InitAllTable();
-
-
-            _timer = new Timer(DoHeartbeat, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
-
-
+            
+            if (AppSetting.WorkId == 1)
+            {
+                _timer = new Timer(DoHeartbeat, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
+            }
             return Task.CompletedTask;
         }
 
@@ -57,9 +58,9 @@ namespace FNMES.WebUI
                     FactoryStatus status = GetStatus(item.ConfigId);
                     HeartbeatParam param = new()
                     {
-                        productionLine = item.ConfigId,
-                        ipAddress = "10.10.10.10",
-                        sourceSys = item.EnCode
+                        productionLine = item.EnCode,
+                        ipAddress = "10.11.13.4",
+                        sourceSys = "GD-111"
                     };
                     string ret = APIMethod.Call(Url.HeartbeatUrl, param, item.ConfigId,true);
                     RetMessage<object> retMessage = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<object>>();

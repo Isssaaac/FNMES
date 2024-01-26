@@ -13,10 +13,12 @@ using FNMES.WebUI.Logic;
 using FNMES.WebUI.Logic.Param;
 using FNMES.WebUI.Logic.Record;
 using FNMES.WebUI.Logic.Sys;
+using Org.BouncyCastle.Asn1.X509.Qualified;
 using SqlSugar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.ServiceModel;
 
 namespace FNMES.Service.WebService
@@ -40,6 +42,7 @@ namespace FNMES.Service.WebService
         private readonly RecordEquipmentLogic recordEquipmentLogic;
         private readonly RecordToolRemainLogic toolRemainLogic;
         private readonly ParamAndonLogic andonLogic;
+        private readonly TestDataLogic testDataLogic;
 
 
 
@@ -61,9 +64,10 @@ namespace FNMES.Service.WebService
             recordEquipmentLogic = new RecordEquipmentLogic();
             toolRemainLogic = new RecordToolRemainLogic();
             andonLogic = new ParamAndonLogic();
+            testDataLogic = new TestDataLogic();
         }
 
-        //通过IP查询设备代码，大工站、小工站、configID         通用工位    //Done
+       
         [OperationContract]
         public string CheckLink()
         {
@@ -99,31 +103,24 @@ namespace FNMES.Service.WebService
         }
 
 
-        public string GetTypeStr(int? type)
-        {
-            return type switch
-            {
-                3 => "主菜单",
-                4 => "子菜单",
-                5 => "按钮",
-                6 => "作业",
-                _ => "null",
-            };
-        }
 
+        #region 用户及登录
         //登录接口，返回角色、权限         通用             Done
         [OperationContract]
-        public RetMessage<UserInfo> GetUserInfo(LoginParam param,string configId)
+        public RetMessage<UserInfo> GetUserInfo(LoginParam param, string configId)
         {
             param.password = AesHelper.Encrypt(param.password);
-            if(configId.IsNullOrEmpty())
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
+            if (configId.IsNullOrEmpty())
             {
                 return NewErrorMessage<UserInfo>("没有给configId参数赋值");
             }
             FactoryStatus factoryStatus = GetStatus(configId);
             RetMessage<LoginData> retMessage;
-            if (factoryStatus.isOnline) {
-                string ret =  APIMethod.Call(Url.LoginUrl, param, configId);
+            if (factoryStatus.isOnline)
+            {
+                string ret = APIMethod.Call(Url.LoginUrl, param, configId);
                 retMessage = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<LoginData>>();
             }
             else   //若不在线，则给默认1级别权限，不校验
@@ -138,7 +135,7 @@ namespace FNMES.Service.WebService
                     }
                 };
             }
-            RetMessage<UserInfo> message = new RetMessage<UserInfo>(new UserInfo());
+            RetMessage<UserInfo> message = new(new UserInfo());
             if (retMessage != null && retMessage.messageType == RetCode.success)
             {
                 message.data.Name = retMessage.data.operatorName;
@@ -157,23 +154,29 @@ namespace FNMES.Service.WebService
                     });
                 }
             }
+            else{
+                message.messageType = retMessage.messageType;
+                message.message = retMessage.message;
+            }
             return message;
         }
 
         //登录接口，仅返回角色,给PLC登录使用              PLC使用       Done
         [OperationContract]
-        public RetMessage<UserInfo> GetUserRoles(LoginParam param,string configId)
+        public RetMessage<UserInfo> GetUserRoles(LoginParam param, string configId)
         {
             param.password = AesHelper.Encrypt(param.password);
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
             if (configId.IsNullOrEmpty())
             {
                 return NewErrorMessage<UserInfo>("没有给configId参数赋值");
             }
             FactoryStatus factoryStatus = GetStatus(configId);
-            RetMessage<LoginData> retMessage ;
+            RetMessage<LoginData> retMessage;
             if (factoryStatus.isOnline)
             {
-                string ret = APIMethod.Call(Url.LoginUrl, param,configId);
+                string ret = APIMethod.Call(Url.LoginUrl, param, configId);
                 retMessage = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<LoginData>>();
             }
             else   //若不在线，则给默认1级别权限，不校验
@@ -182,7 +185,7 @@ namespace FNMES.Service.WebService
                 {
                     operatorRoleCode = new List<string> { "1" }
                 }, RetCode.success, "离线");
-              
+
             }
             RetMessage<UserInfo> message = new(new UserInfo());
             if (retMessage != null && retMessage.messageType == RetCode.success)
@@ -193,7 +196,8 @@ namespace FNMES.Service.WebService
                 message.data.Roles = retMessage.data.operatorRoleCode;
             }
             return message;
-        }
+        } 
+        #endregion
         //配方参数获取    单工位按照stationcode查询
         [OperationContract]
         public RetMessage<RecipeData> GetRecipe(GetRecipeParam param,string configId)
@@ -221,10 +225,12 @@ namespace FNMES.Service.WebService
             Logger.RunningInfo(result.ToJson());
             return result;
         }
-        
+        //根据内控码获取线体及工单
         [OperationContract]
         public RetMessage<LabelAndOrderData> GetLabel(GetLabelParam param, string configId)
         {
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
             if (configId.IsNullOrEmpty())
             {
                 return NewErrorMessage<LabelAndOrderData>("没有给configId参数赋值");
@@ -341,7 +347,7 @@ namespace FNMES.Service.WebService
             }
         }
 
-
+        //获取当前工单参数  
         [OperationContract]
         public RetMessage<LabelAndOrderData> GetInfo(string productCode, string configId)
         {
@@ -373,17 +379,77 @@ namespace FNMES.Service.WebService
                     TaskOrderNumber = processBind.TaskOrderNumber
                 },
             };
-
-
-
-           
-
         }
 
+        //获取Pack信息             自动工位使用       通过pallet码获取内控码    非340工位
+        [OperationContract]
+        public RetMessage<GetPackInfoData> GetPackInfo(GetPackInfoParam param, string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<GetPackInfoData>("没有给configId参数赋值");
+            }
+            if (param.palletNo.IsNullOrEmpty())
+            {
+                return NewErrorMessage<GetPackInfoData>("没有给palletNo参数赋值");
+            }
+            ProcessBind processBind = processBindLogic.GetByPalletNo(param.palletNo, configId);
+            if (processBind == null)
+            {
+                return NewErrorMessage<GetPackInfoData>("未查询到绑定信息");
+            }
+            return new RetMessage<GetPackInfoData>()
+            {
+                messageType = RetCode.success,
+                message = "",
+                data = new GetPackInfoData()
+                {
+                    productCode = processBind.ProductCode
+                }
+            };
+        }
 
-
-
-
+        //获取Pack信息             自动工位使用    通过pallet码获取内控码     340工位使用 完全无法离线
+        [OperationContract]
+        public RetMessage<GetPackInfoData> GetPackInfoFactory(GetPackInfoParam param, string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<GetPackInfoData>("没有给configId参数赋值");
+            }
+            if (param.palletNo.IsNullOrEmpty())
+            {
+                return NewErrorMessage<GetPackInfoData>("没有给palletNo参数赋值");
+            }
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
+            //API接口上传
+            string ret = APIMethod.Call(Url.GetPackInfoUrl, param, configId);
+            RetMessage<GetPackInfoData> retMessage = ret.ToObject<RetMessage<GetPackInfoData>>();
+            //判断是否查询到内控码
+            //查询到内控码需要更新processBind表
+            if (retMessage.data.IsNullOrEmpty() || retMessage.data.productCode.IsNullOrEmpty())
+            {
+                return NewErrorMessage<GetPackInfoData>("未从工厂中查询到内控码");
+            }
+            ProcessBind processBind = processBindLogic.GetByProductCode(retMessage.data.productCode, configId);
+            if (processBind == null)
+            {
+                retMessage.messageType = RetCode.error;
+                retMessage.message = "已从工厂查询到内控码，但过程绑定信息中没有此内控码信息";
+                return retMessage;
+            }
+            processBind.PalletNo = param.palletNo;
+            //insert里面会删除  内控码和pallet码重复项
+            int v = processBindLogic.Insert(processBind, configId);
+            if (v == 0)
+            {
+                retMessage.messageType = RetCode.error;
+                retMessage.message = "已从工厂查询到内控码，但重新绑定数据失败";
+            }
+            return retMessage;
+        }
+        //获取返修产品的信息，待完成
         [OperationContract]
         public RetMessage<LabelAndOrderData> GetReworkInfo(string productCode, string configId) {
             //从各个线体查询上线记录，获取产品工单及线体信息
@@ -396,39 +462,6 @@ namespace FNMES.Service.WebService
             return NewSuccessMessage<LabelAndOrderData>("待完成");
 
         }
-
-
-
-        //错误信息
-        private static RetMessage<T> NewErrorMessage<T>(string message) where T : new()
-        {
-
-            return new RetMessage<T>()
-            {
-                messageType = RetCode.error,
-                message = message,
-                data = new T()
-            };
-        }
-        private static RetMessage<T> NewSuccessMessage<T>(string message) where T : new()
-        {
-            return new RetMessage<T>(default)
-            {
-                messageType = RetCode.success,
-                message = message,
-                data = new T()
-            };
-        }
-
-        //获取当前工单参数  
-
-
-
-        //根据内控码获取线体及工单
-
-
-
-
 
         //上线绑定AGV工装与箱体     M300工位使用    绑定信息上传
         [OperationContract]
@@ -456,12 +489,14 @@ namespace FNMES.Service.WebService
                 return NewErrorMessage<nullObject>("绑定载盘和内控码失败");
             }
             FactoryStatus factoryStatus = GetStatus(configId);
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
             BindPalletParam bindPalletParam = new();
             bindPalletParam.CopyField(param);
             //在线则上传工厂
             if (factoryStatus.isOnline)
             {
-                string ret = APIMethod.Call(Url.BindPalletUrl, param, configId);
+                string ret = APIMethod.Call(Url.BindPalletUrl, bindPalletParam, configId);
                 return ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();
             }
             //不在线，新建未传内容的表，等后续再人工恢复上传。  
@@ -471,72 +506,6 @@ namespace FNMES.Service.WebService
                         ReUpload = 0
             }, configId);
             return NewSuccessMessage<nullObject>("工厂离线中，已离线绑定完成");
-        }
-
-        //获取Pack信息             自动工位使用       通过pallet码获取内控码    非340工位
-        [OperationContract]
-        public RetMessage<GetPackInfoData> GetPackInfo(GetPackInfoParam param, string configId)
-        {
-            if (configId.IsNullOrEmpty())
-            {
-                return NewErrorMessage<GetPackInfoData>("没有给configId参数赋值");
-            }
-            if(param.palletNo.IsNullOrEmpty())
-            {
-                return NewErrorMessage<GetPackInfoData>("没有给palletNo参数赋值");
-            }
-            ProcessBind processBind = processBindLogic.GetByPalletNo(param.palletNo, configId);
-            if (processBind == null) { 
-                return NewErrorMessage<GetPackInfoData>("未查询到绑定信息");
-            }
-            return new RetMessage<GetPackInfoData>()
-            {
-                messageType = RetCode.success,
-                message = "",
-                data = new GetPackInfoData()
-                {
-                    productCode = processBind.ProductCode
-                }
-            };
-        }
-        //获取Pack信息             自动工位使用    通过pallet码获取内控码     340工位使用
-        //完全无法离线
-        [OperationContract]
-        public RetMessage<GetPackInfoData> GetPackInfoFactory(GetPackInfoParam param, string configId)
-        {
-            if (configId.IsNullOrEmpty())
-            {
-                return NewErrorMessage<GetPackInfoData>("没有给configId参数赋值");
-            }
-            if (param.palletNo.IsNullOrEmpty())
-            {
-                return NewErrorMessage<GetPackInfoData>("没有给palletNo参数赋值");
-            }
-            //API接口上传
-            string ret = APIMethod.Call(Url.GetPackInfoUrl, param, configId);
-            RetMessage<GetPackInfoData> retMessage =  ret.ToObject<RetMessage<GetPackInfoData>>();
-            //判断是否查询到内控码
-            //查询到内控码需要更新processBind表
-            if ( retMessage.data.IsNullOrEmpty()|| retMessage.data.productCode.IsNullOrEmpty())
-            {
-                return  NewErrorMessage<GetPackInfoData>("未从工厂中查询到内控码");
-            }
-            ProcessBind processBind = processBindLogic.GetByProductCode(retMessage.data.productCode, configId);
-            if(processBind == null)
-            {
-                retMessage.messageType = RetCode.error;
-                retMessage.message = "已从工厂查询到内控码，但过程绑定信息中没有此内控码信息";
-                return retMessage;
-            }
-            processBind.PalletNo = param.palletNo;
-            //insert里面会删除  内控码和pallet码重复项
-            int v = processBindLogic.Insert(processBind, configId);
-            if(v == 0)
-            {
-                retMessage.messageType = RetCode.error;
-                retMessage.message = "已从工厂查询到内控码，但重新绑定数据失败";
-            }
-            return retMessage;
         }
 
         //下线解绑AGV工装与箱体               M460工位使用
@@ -566,6 +535,8 @@ namespace FNMES.Service.WebService
                 return NewErrorMessage<nullObject>("本地解绑失败");
             }
             //API接口上传
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
             FactoryStatus factoryStatus = GetStatus(configId);
             if (factoryStatus.isOnline)
             {
@@ -578,13 +549,11 @@ namespace FNMES.Service.WebService
             return  NewSuccessMessage<nullObject>("工厂离线中，已离线解绑完成");
         }
 
-
-
-
+        #region 进出站及物料数据、过程数据
         //进站        过站查询  本地过站和api过站         通用
         //TODO 过站逻辑需要变更
         [OperationContract]
-        public RetMessage<InStationData> InStation( InStationParam param,  string configId)
+        public RetMessage<InStationData> InStation(InStationParam param, string configId)
         {
             if (configId.IsNullOrEmpty())
             {
@@ -594,6 +563,8 @@ namespace FNMES.Service.WebService
             {
                 return NewErrorMessage<InStationData>("没有给productCode参数赋值");
             }
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
             //内部过站、、、、、、
             ProcessBind processBind = processBindLogic.GetByProductCode(param.productCode, configId);
             if (processBind == null)
@@ -601,7 +572,7 @@ namespace FNMES.Service.WebService
                 return NewErrorMessage<InStationData>("未查询到绑定纪录");
             }
             //绑定表状态NG则直接NG
-            if(processBind.Status == "0")
+            if (processBind.Status == "0")
             {
                 return new RetMessage<InStationData>()
                 {
@@ -617,7 +588,7 @@ namespace FNMES.Service.WebService
             }
             ParamRecipeItem recipeItem = recipeLogic.QueryRoute(processBind.ProductPartNo, param.stationCode, configId);
             List<RecordOutStation> recordOutStations = outStationLogic.GetList(param.productCode, configId);
-            if(recipeItem == null)
+            if (recipeItem == null)
             {
                 return new RetMessage<InStationData>()
                 {
@@ -633,13 +604,14 @@ namespace FNMES.Service.WebService
             }
             RetMessage<InStationData> retMessage;
             //返修处理
-            if (processBind.RepairFlag=="1") {
+            if (processBind.RepairFlag == "1")
+            {
                 param.productStatus = "REWORK";
                 //包含返修工位
                 if (processBind.RepairStations.Contains(param.stationCode))
                 {
-                    
-                    
+
+
                     int v = recordOutStations.Where(it => it.StationCode == param.stationCode && it.ProductStatus == "REWORK").Count();
                     if (v > 0)
                     {
@@ -667,9 +639,9 @@ namespace FNMES.Service.WebService
                                 errorReason = "返修过站成功",
                                 qualityParams = null
                             }
-                        };  
+                        };
                     }
-                    
+
                 }
                 //返修不包含此工位
                 else
@@ -684,7 +656,7 @@ namespace FNMES.Service.WebService
                             errorReason = "返修未包含当前工位",
                             qualityParams = null
                         }
-                    }; 
+                    };
                 }
             }
             //非返修
@@ -692,8 +664,8 @@ namespace FNMES.Service.WebService
             {
                 bool checkInstation = false;
                 string errorMsg = "";
-                                            
-                if( checkInstation)
+
+                if (checkInstation)
                 {
                     retMessage = new RetMessage<InStationData>()
                     {
@@ -720,8 +692,8 @@ namespace FNMES.Service.WebService
                             qualityParams = null
                         }
                     };
-                    
-                    
+
+
                     if (!checkInstation)
                     {
                         retMessage.data.errorReason = errorMsg;
@@ -730,24 +702,26 @@ namespace FNMES.Service.WebService
                 }
             }
             //工厂过站
-            
-                FactoryStatus factoryStatus = GetStatus(configId);
-                if (factoryStatus.isOnline)
-                {
-                    return APIMethod.Call(Url.InStationUrl, param, configId).ToObject<RetMessage<InStationData>>();
-                }
-                offlineApiLogic.Insert(new RecordOfflineApi()
-                {
-                    Url = Url.InStationUrl,
-                    RequestBody = param.ToJson(),
-                    ReUpload = 0
-                }, configId);
-                 return retMessage;
+
+            FactoryStatus factoryStatus = GetStatus(configId);
+            if (factoryStatus.isOnline)
+            {
+                //写入内部过站结果进行工厂过站
+                param.productStatus = retMessage.data.result;
+                return APIMethod.Call(Url.InStationUrl, param, configId).ToObject<RetMessage<InStationData>>();
+            }
+            offlineApiLogic.Insert(new RecordOfflineApi()
+            {
+                Url = Url.InStationUrl,
+                RequestBody = param.ToJson(),
+                ReUpload = 0
+            }, configId);
+            return retMessage;
         }
 
         //出站        出站结果绑定       本地和API 
         [OperationContract]
-        public RetMessage<OutStationData> OutStation( OutStationParam param,  string configId)
+        public RetMessage<OutStationData> OutStation(OutStationParam param, string configId)
         {
             if (configId.IsNullOrEmpty())
             {
@@ -759,7 +733,7 @@ namespace FNMES.Service.WebService
             }
 
             ProcessBind processBind = processBindLogic.GetByProductCode(param.productCode, configId);
-            if(processBind == null)
+            if (processBind == null)
             {
                 return NewErrorMessage<OutStationData>("未查到绑定数据");
             }
@@ -772,12 +746,14 @@ namespace FNMES.Service.WebService
             recordOutStation.CopyField(param);
             recordOutStation.TaskOrderNumber = processBind.TaskOrderNumber;
             int v = outStationLogic.Insert(recordOutStation, configId);
-            if(v == 0)
+            if (v == 0)
             {
                 return NewErrorMessage<OutStationData>("插入本地数据记录出错");
 
             }
             FactoryStatus factoryStatus = GetStatus(configId);
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
             if (factoryStatus.isOnline)
             {
                 return APIMethod.Call(Url.OutStationUrl, param, configId).ToObject<RetMessage<OutStationData>>();
@@ -793,7 +769,7 @@ namespace FNMES.Service.WebService
 
         //物料绑定接口         通用
         [OperationContract]
-        public RetMessage<nullObject> PartUpload( PartUploadParam param,  string configId)
+        public RetMessage<nullObject> PartUpload(PartUploadParam param, string configId)
         {
             if (configId.IsNullOrEmpty())
             {
@@ -809,6 +785,8 @@ namespace FNMES.Service.WebService
                 return NewErrorMessage<nullObject>("插入本地数据记录出错");
 
             }
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
             FactoryStatus factoryStatus = GetStatus(configId);
             if (factoryStatus.isOnline)
             {
@@ -825,7 +803,7 @@ namespace FNMES.Service.WebService
 
         //过程数据接口     
         [OperationContract]
-        public RetMessage<nullObject> ProcessUpload( ProcessUploadParam param, string configId)
+        public RetMessage<nullObject> ProcessUpload(ProcessUploadParam param, string configId)
         {
             if (configId.IsNullOrEmpty())
             {
@@ -842,8 +820,11 @@ namespace FNMES.Service.WebService
 
             }
             FactoryStatus factoryStatus = GetStatus(configId);
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
             if (factoryStatus.isOnline)
             {
+
                 return APIMethod.Call(Url.ProcessUploadUrl, param, configId).ToObject<RetMessage<nullObject>>();
             }
             offlineApiLogic.Insert(new RecordOfflineApi()
@@ -853,8 +834,10 @@ namespace FNMES.Service.WebService
                 ReUpload = 0
             }, configId);
             return NewSuccessMessage<nullObject>("工厂离线中，已离线上传完成");
-        }
+        } 
+        #endregion
 
+        #region Andon相关接口，获取andon配置及触发andon
         [OperationContract]
         public RetMessage<AndonTypeData> GetAndonParam(string configId)
         {
@@ -883,19 +866,19 @@ namespace FNMES.Service.WebService
             };
         }
 
-
-
-
-        //Andon     
         [OperationContract]
-        public RetMessage<AndonData> Andon( AndonParam param, string configId)
+        public RetMessage<AndonData> Andon(AndonParam param, string configId)
         {
             if (configId.IsNullOrEmpty())
             {
                 return NewErrorMessage<AndonData>("没有给configId参数赋值");
             }
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
             return APIMethod.Call(Url.AndonUrl, param, configId).ToObject<RetMessage<AndonData>>();
-        }
+        } 
+        #endregion
+        #region     报警及状态信息
         //状态报警信息   根据PLC号获取配置信息
         [OperationContract]
         public RetMessage<PlcParam> GetPlcParam(int plcNo, string configId)
@@ -904,10 +887,11 @@ namespace FNMES.Service.WebService
             {
                 return NewErrorMessage<PlcParam>("没有给configId参数赋值");
             }
-            PlcParam plcParam = errorLogic.getPlcParam(configId, plcNo);
+            PlcParam plcParam = errorLogic.GetPlcParam(configId, plcNo);
             if (plcParam == null)
             {
-                return new RetMessage<PlcParam>() {
+                return new RetMessage<PlcParam>()
+                {
                     messageType = RetCode.error,
                     message = "无数据或查询出错",
                     data = null
@@ -926,7 +910,7 @@ namespace FNMES.Service.WebService
 
         //设备状态    检测到设备状态恢复时需要上传一条停机统计信息
         [OperationContract]
-        public RetMessage<nullObject> EquipmentState(EquipmentState param,  string configId)
+        public RetMessage<nullObject> EquipmentState(EquipmentState param, string configId)
         {
             if (configId.IsNullOrEmpty())
             {
@@ -936,10 +920,12 @@ namespace FNMES.Service.WebService
             {
                 return NewErrorMessage<nullObject>("没有给stationCode参数赋值");
             }
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
             RecordEquipmentStatus status = new();
             status.CopyField(param);
             RecordEquipmentStop stopParam = null;
-            int v = recordEquipmentLogic.InsertStatus(status, configId,ref stopParam);
+            int v = recordEquipmentLogic.InsertStatus(status, configId, ref stopParam);
             FactoryStatus factoryStatus = GetStatus(configId);
             if (v == 0)
             {
@@ -962,26 +948,26 @@ namespace FNMES.Service.WebService
                 return APIMethod.Call(Url.EquipmentStateUrl, apiStatusParam, configId).ToObject<RetMessage<nullObject>>();
             }
             _ = offlineApiLogic.Insert(new RecordOfflineApi()
-                {
+            {
                 Url = Url.EquipmentStateUrl,
                 RequestBody = apiStatusParam.ToJson(),
                 ReUpload = 0
-                 }, configId);
+            }, configId);
             if (stopParam != null)
             {
                 _ = offlineApiLogic.Insert(new RecordOfflineApi()
-                    {
+                {
                     Url = Url.EquipmentStopUrl,
                     RequestBody = apiStopParam.ToJson(),
                     ReUpload = 0
-                      }, configId);
+                }, configId);
             }
             return NewSuccessMessage<nullObject>("工厂离线中，已离线上传完成");
         }
 
         //设备报警
         [OperationContract]
-        public RetMessage<nullObject> EquipmentError(EquipmentErrorParam param,  string configId)
+        public RetMessage<nullObject> EquipmentError(EquipmentErrorParam param, string configId)
         {
             //内部数据绑定、、、、、、
             //API数据上传
@@ -999,6 +985,8 @@ namespace FNMES.Service.WebService
                 return NewErrorMessage<nullObject>("插入本地数据记录出错");
 
             }
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
             FactoryStatus factoryStatus = GetStatus(configId);
             if (factoryStatus.isOnline)
             {
@@ -1011,7 +999,8 @@ namespace FNMES.Service.WebService
                 ReUpload = 0
             }, configId);
             return NewSuccessMessage<nullObject>("工厂离线中，已离线上传完成");
-        }
+        } 
+        #endregion
 
         //返修   TODO 返修暂时未清除具体流程。
         [OperationContract]
@@ -1022,6 +1011,8 @@ namespace FNMES.Service.WebService
             {
                 return NewErrorMessage<nullObject>("没有给configId参数赋值");
             }
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
             string ret = APIMethod.Call(Url.ReworkUrl, param, configId);
             RetMessage<nullObject> retMessage = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();
 
@@ -1049,6 +1040,8 @@ namespace FNMES.Service.WebService
                 return NewErrorMessage<nullObject>("插入本地数据记录出错");
 
             }
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
             FactoryStatus factoryStatus = GetStatus(configId);
             if (factoryStatus.isOnline)
             {
@@ -1064,69 +1057,71 @@ namespace FNMES.Service.WebService
          }
 
 
-        //心跳   目前使用线体MES后台访问，暂时不需要线体上位机调用
-        [OperationContract]
-        public RetMessage<nullObject> Heartbeat(HeartbeatParam param, string configId)
-        {
-            if (configId.IsNullOrEmpty())
-            {
-                return NewErrorMessage<nullObject>("没有给configId参数赋值");
-            }
-            FactoryStatus status = GetStatus(configId);
-            string ret = APIMethod.Call(Url.HeartbeatUrl, param, configId);
-            RetMessage<nullObject> retMessage = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();
-            //没有响应，根据状态当前状态处理，
-            if (retMessage == null || retMessage.messageType != "S")
-            {
-                if (status.Status == 1 && status.Retry < 3)
-                {
-                    status.Retry++;
-                    factoryLogic.Update(status);
-                }
-                else if (status.Status == 1 && status.Retry == 3)
-                {
-                    factoryLogic.Insert(new FactoryStatus()
-                    {
-                        Id = SnowFlakeSingle.instance.NextId(),
-                        Status = 0,
-                        ConfigId = configId,
-                        CreateTime = DateTime.Now,
-                        Retry = 0
-                    });
-                }
-                else if (status.Status == 0)
-                {
-                    //之前没连上，什么都不用做
-                }
-            }
-            else if (retMessage.messageType == "S")
-            {
-                if (status.Status == 0 && status.Retry < 3)
-                {
-                    status.Retry++;
-                    factoryLogic.Update(status);
-                }
-                else if (status.Status == 0 && status.Retry == 3)
-                {
-                    factoryLogic.Insert(new FactoryStatus()
-                    {
-                        Id = SnowFlakeSingle.instance.NextId(),
-                        Status = 1,
-                        ConfigId = configId,
-                        CreateTime = DateTime.Now,
-                        Retry = 0
-                    });
-                    //todo此处需要异步处理离线接口程序。
-                }
-                else if (status.Status == 1)
-                {
-                    //之前已连上，什么都不用做
-                }
-            }
-            return retMessage;
-            //API数据上传
-        }
+        ////心跳   目前使用线体MES后台访问，暂时不需要线体上位机调用
+        //[OperationContract]
+        //public RetMessage<nullObject> Heartbeat(HeartbeatParam param, string configId)
+        //{
+        //    if (configId.IsNullOrEmpty())
+        //    {
+        //        return NewErrorMessage<nullObject>("没有给configId参数赋值");
+        //    }
+        //    FactoryStatus status = GetStatus(configId);
+        //    string ret = APIMethod.Call(Url.HeartbeatUrl, param, configId);
+        //    RetMessage<nullObject> retMessage = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();
+        //    //没有响应，根据状态当前状态处理，
+        //    if (retMessage == null || retMessage.messageType != "S")
+        //    {
+        //        if (status.Status == 1 && status.Retry < 3)
+        //        {
+        //            status.Retry++;
+        //            factoryLogic.Update(status);
+        //        }
+        //        else if (status.Status == 1 && status.Retry == 3)
+        //        {
+        //            factoryLogic.Insert(new FactoryStatus()
+        //            {
+        //                Id = SnowFlakeSingle.instance.NextId(),
+        //                Status = 0,
+        //                ConfigId = configId,
+        //                CreateTime = DateTime.Now,
+        //                Retry = 0
+        //            });
+        //        }
+        //        else if (status.Status == 0)
+        //        {
+        //            //之前没连上，什么都不用做
+        //        }
+        //    }
+        //    else if (retMessage.messageType == "S")
+        //    {
+        //        if (status.Status == 0 && status.Retry < 3)
+        //        {
+        //            status.Retry++;
+        //            factoryLogic.Update(status);
+        //        }
+        //        else if (status.Status == 0 && status.Retry == 3)
+        //        {
+        //            factoryLogic.Insert(new FactoryStatus()
+        //            {
+        //                Id = SnowFlakeSingle.instance.NextId(),
+        //                Status = 1,
+        //                ConfigId = configId,
+        //                CreateTime = DateTime.Now,
+        //                Retry = 0
+        //            });
+        //            //todo此处需要异步处理离线接口程序。
+        //        }
+        //        else if (status.Status == 1)
+        //        {
+        //            //之前已连上，什么都不用做
+        //        }
+        //    }
+        //    return retMessage;
+        //    //API数据上传
+        //}
 
+        #region 共用方法
+        // 获取工厂状态
         private FactoryStatus GetStatus(string configId)
         {
             FactoryStatus status = factoryLogic.Get(configId);
@@ -1138,7 +1133,7 @@ namespace FNMES.Service.WebService
                     Status = 0,
                     CreateTime = DateTime.Now,
                     Retry = 0,
-                    ConfigId= configId
+                    ConfigId = configId
 
                 };
                 factoryLogic.Insert(status);
@@ -1147,5 +1142,356 @@ namespace FNMES.Service.WebService
 
             return status;
         }
+        //错误信息
+        private static RetMessage<T> NewErrorMessage<T>(string message) where T : new()
+        {
+
+            return new RetMessage<T>()
+            {
+                messageType = RetCode.error,
+                message = message,
+                data = new T()
+            };
+        }
+        private static RetMessage<T> NewSuccessMessage<T>(string message) where T : new()
+        {
+            return new RetMessage<T>(default)
+            {
+                messageType = RetCode.success,
+                message = message,
+                data = new T()
+            };
+        }
+        //根据类型数字转化类型
+        public string GetTypeStr(int? type)
+        {
+            return type switch
+            {
+                3 => "主菜单",
+                4 => "子菜单",
+                5 => "按钮",
+                6 => "作业",
+                _ => "null",
+            };
+        }
+        #endregion
+
+        #region    //测试仪器相关接口     测试仪通过接口上传测试数据
+
+        //ACR测试仪
+        [OperationContract]
+        public RetMessage<TestUploadRes> UploadACRData(TestData data,string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestUploadRes>("没有给configId参数赋值");
+            }
+            RecordTestACR model = new()
+            {
+                Id = SnowFlakeSingle.instance.NextId(),
+                ProductCode = data.productCode,
+                Data = data.data,
+                Result = data.result,
+                CreateTime= DateTime.Now
+            };
+            long v = testDataLogic.InsertACR(model,configId);
+            if (v.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestUploadRes>("上传数据失败");
+            }
+            return new RetMessage<TestUploadRes>()
+            {
+                messageType = RetCode.error,
+                message = "上传成功",
+                data = new TestUploadRes()
+                {
+                    primaryKey = v
+                }
+            };
+        }
+        //EOL测试仪
+        [OperationContract]
+        public RetMessage<TestUploadRes> UploadEOLData(TestData data, string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestUploadRes>("没有给configId参数赋值");
+            }
+            RecordTestEOL model = new()
+            {
+                Id = SnowFlakeSingle.instance.NextId(),
+                ProductCode = data.productCode,
+                Data = data.data,
+                Result = data.result,
+                CreateTime = DateTime.Now
+            };
+            long v = testDataLogic.InsertEOL(model, configId);
+            if (v.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestUploadRes>("上传数据失败");
+            }
+            return new RetMessage<TestUploadRes>()
+            {
+                messageType = RetCode.error,
+                message = "上传成功",
+                data = new TestUploadRes()
+                {
+                    primaryKey = v
+                }
+            };
+        }
+        //OCV测试仪
+        [OperationContract]
+        public RetMessage<TestUploadRes> UploadOCVData(TestData data, string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestUploadRes>("没有给configId参数赋值");
+            }
+            RecordTestOCV model = new()
+            {
+                Id = SnowFlakeSingle.instance.NextId(),
+                ProductCode = data.productCode,
+                Data = data.data,
+                Result = data.result,
+                CreateTime = DateTime.Now
+            };
+            long v = testDataLogic.InsertOCV(model, configId);
+            if (v.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestUploadRes>("上传数据失败");
+            }
+            return new RetMessage<TestUploadRes>()
+            {
+                messageType = RetCode.error,
+                message = "上传成功",
+                data = new TestUploadRes()
+                {
+                    primaryKey = v
+                }
+            };
+        }
+        //液冷管气密测试
+        [OperationContract]
+        public RetMessage<TestUploadRes> UploadGas1Data(TestData data, string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestUploadRes>("没有给configId参数赋值");
+            }
+            RecordGasTightness1 model = new()
+            {
+                Id = SnowFlakeSingle.instance.NextId(),
+                ProductCode = data.productCode,
+                Data = data.data,
+                Result = data.result,
+                CreateTime = DateTime.Now
+            };
+            long v = testDataLogic.InsertGasTightness1(model, configId);
+            if (v.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestUploadRes>("上传数据失败");
+            }
+            return new RetMessage<TestUploadRes>()
+            {
+                messageType = RetCode.error,
+                message = "上传成功",
+                data = new TestUploadRes()
+                {
+                    primaryKey = v
+                }
+            };
+        }
+        //Pack气密测试
+        [OperationContract]
+        public RetMessage<TestUploadRes> UploadGas2Data(TestData data, string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestUploadRes>("没有给configId参数赋值");
+            }
+            RecordGasTightness2 model = new()
+            {
+                Id = SnowFlakeSingle.instance.NextId(),
+                ProductCode = data.productCode,
+                Data = data.data,
+                Result = data.result,
+                CreateTime = DateTime.Now
+            };
+            long v = testDataLogic.InsertGasTightness2(model, configId);
+            if (v.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestUploadRes>("上传数据失败");
+            }
+            return new RetMessage<TestUploadRes>()
+            {
+                messageType = RetCode.error,
+                message = "上传成功",
+                data = new TestUploadRes()
+                {
+                    primaryKey = v
+                }
+            };
+        }
+
+        #endregion
+        #region    //测试仪器相关接口     上位机再通过测试仪返回的主键获取数据json。
+        [OperationContract]
+        public RetMessage<TestData> QueryACR(long primaryKey ,string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestData>("没有给configId参数赋值");
+            }
+            RecordTestACR record = testDataLogic.GetACRByKey(primaryKey, configId);
+            if (record == null)
+            {
+                return NewErrorMessage<TestData>("未查询到数据");
+            }
+            return new RetMessage<TestData>()
+            {
+                messageType = RetCode.error,
+                message = "查询成功",
+                data = new TestData()
+                {
+                   productCode = record.ProductCode,
+                   data = record.Data,
+                   result = record.Result
+                }
+            };
+        }
+        [OperationContract]
+        public RetMessage<TestData> QueryEOL(long primaryKey, string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestData>("没有给configId参数赋值");
+            }
+            var record = testDataLogic.GetEOLByKey(primaryKey, configId);
+            if (record == null)
+            {
+                return NewErrorMessage<TestData>("未查询到数据");
+            }
+            return new RetMessage<TestData>()
+            {
+                messageType = RetCode.error,
+                message = "查询成功",
+                data = new TestData()
+                {
+                    productCode = record.ProductCode,
+                    data = record.Data,
+                    result = record.Result
+                }
+            };
+        }
+        [OperationContract]
+        public RetMessage<TestData> QueryOCV(long primaryKey, string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestData>("没有给configId参数赋值");
+            }
+            var record = testDataLogic.GetOCVByKey(primaryKey, configId);
+            if (record == null)
+            {
+                return NewErrorMessage<TestData>("未查询到数据");
+            }
+            return new RetMessage<TestData>()
+            {
+                messageType = RetCode.error,
+                message = "查询成功",
+                data = new TestData()
+                {
+                    productCode = record.ProductCode,
+                    data = record.Data,
+                    result = record.Result
+                }
+            };
+        }
+        [OperationContract]
+        public RetMessage<TestData> QueryGas1(long primaryKey, string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestData>("没有给configId参数赋值");
+            }
+            var record = testDataLogic.GetGas1ByKey(primaryKey, configId);
+            if (record == null)
+            {
+                return NewErrorMessage<TestData>("未查询到数据");
+            }
+            return new RetMessage<TestData>()
+            {
+                messageType = RetCode.error,
+                message = "查询成功",
+                data = new TestData()
+                {
+                    productCode = record.ProductCode,
+                    data = record.Data,
+                    result = record.Result
+                }
+            };
+        }
+        [OperationContract]
+        public RetMessage<TestData> QueryGas2(long primaryKey, string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<TestData>("没有给configId参数赋值");
+            }
+            var record = testDataLogic.GetGas2ByKey(primaryKey, configId);
+            if (record == null)
+            {
+                return NewErrorMessage<TestData>("未查询到数据");
+            }
+            return new RetMessage<TestData>()
+            {
+                messageType = RetCode.error,
+                message = "查询成功",
+                data = new TestData()
+                {
+                    productCode = record.ProductCode,
+                    data = record.Data,
+                    result = record.Result
+                }
+            };
+        }
+        #endregion
+       
+
+
+        //物料追溯码查重
+        [OperationContract]
+        public RetMessage<bool> CheckPartBarcode(string partBarcode) {
+            if (partBarcode.IsNullOrEmpty()) {
+                return NewErrorMessage<bool>("条码不允许为空");
+            }
+            if(partBarcode.Length != 31)
+            {
+                return NewErrorMessage<bool>("条码长度不为31");
+            }
+            try
+            {
+                bool v = partUploadLogic.CheckPartBarcode(partBarcode);
+                return new RetMessage<bool>
+                {
+                    data = v,
+                    message = v ? "查重通过":"查重不通过",
+                    messageType = RetCode.success,
+                };
+            }
+            catch (Exception E )
+            {
+                Logger.ErrorInfo(E.Message);
+                return new RetMessage<bool>
+                {
+                    data = false,
+                    message = "查重出错"+ E.Message,
+                    messageType = RetCode.error,
+                };
+            }
+        }
+
+
     }
 }

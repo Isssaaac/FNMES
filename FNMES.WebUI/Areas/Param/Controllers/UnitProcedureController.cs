@@ -129,7 +129,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                 TreeSelect model = new()
                 {
                     id = item.Encode,
-                    text = item.Name,
+                    text = item.Encode,
                 };
                 treeList.Add(model);
             }
@@ -156,8 +156,8 @@ namespace MES.WebUI.Areas.Param.Controllers
                 {
                     TreeSelect model = new()
                     {
-                        id = item.Name,
-                        text = item.Name,
+                        id = item.Encode,
+                        text = item.Encode,
                     };
                     treeList.Add(model);
                 }

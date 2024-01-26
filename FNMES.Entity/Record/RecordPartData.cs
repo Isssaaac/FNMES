@@ -10,6 +10,7 @@ namespace FNMES.Entity.Record
     [SplitTable(SplitType.Month)]
     [SugarTable("Record_Part_{year}{month}{day}")]
     [SugarIndex("index_part_pid", nameof(RecordPartData.PartUploadId), OrderByType.Asc)]    //索引
+    [SugarIndex("index_part_partBarcode", nameof(RecordPartData.PartBarcode), OrderByType.Asc)]    //索引
     public class RecordPartData : BaseRecord
     {
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
@@ -21,14 +22,14 @@ namespace FNMES.Entity.Record
         public long PartUploadId { get; set; }
         // 物料号 
         [SugarColumn(ColumnName = "partNumber", ColumnDataType = "varchar(100)", IsNullable = true)]
-        public string partNumber { get; set; }
+        public string PartNumber { get; set; }
         // 物料描述
         [SugarColumn(ColumnName = "partDescription", ColumnDataType = "varchar(100)", IsNullable = true)]
-        public string partDescription { get; set; }
+        public string PartDescription { get; set; }
 
         // 物料条码
         [SugarColumn(ColumnName = "partBarcode", ColumnDataType = "varchar(100)", IsNullable = true)]
-        public string partBarcode { get; set; }
+        public string PartBarcode { get; set; }
         [SplitField]
         [SugarColumn(ColumnName = "createTime")]
         public DateTime CreateTime { get; set; }

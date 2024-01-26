@@ -29,7 +29,7 @@ namespace FNMES.WebUI.Logic.Record
                 {
                     //查询上一次未记录的停机状态
                     RecordEquipmentStatus lastStop = db.Queryable<RecordEquipmentStatus>().Where(it => it.EquipmentStatus == "停机").
-                    OrderBy(it => it.Id, OrderByType.Desc).SplitTable(tabs => tabs.Take(2)).First(); 
+                    SplitTable(tabs => tabs.Take(2)).OrderBy(it => it.Id, OrderByType.Desc).First(); 
                     if (lastStop != null && !lastStop.HasRecordStop)
                     {
                         RecordEquipmentStop stop = new()

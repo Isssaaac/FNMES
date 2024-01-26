@@ -21,8 +21,9 @@ namespace FNMES.WebUI.Logic.Sys
         {
             try
             {
+                //为了修改后实时显示，直接走主库
                 var db = GetInstance();
-                return db.Queryable<SysLine>()
+                return db.MasterQueryable<SysLine>()
                     .Includes(it => it.CreateUser)
                     .Includes(it => it.ModifyUser)
                     .OrderBy(it => it.SortCode)
@@ -40,8 +41,9 @@ namespace FNMES.WebUI.Logic.Sys
         {
             try
             {
+                //为了修改后实时显示，直接走主库
                 var db = GetInstance();
-                ISugarQueryable<SysLine> queryable = db.Queryable<SysLine>();
+                ISugarQueryable<SysLine> queryable = db.MasterQueryable<SysLine>();
 
                 if (!keyWord.IsNullOrEmpty())
                 {
@@ -67,8 +69,9 @@ namespace FNMES.WebUI.Logic.Sys
         {
             try
             {
+                //为了修改后实时显示，直接走主库
                 var db = GetInstance();
-                return db.Queryable<SysLine>()
+                return db.MasterQueryable<SysLine>()
                     .Where(it => it.Id == primaryKey)
                     .Includes(it => it.CreateUser)
                     .Includes(it => it.ModifyUser)

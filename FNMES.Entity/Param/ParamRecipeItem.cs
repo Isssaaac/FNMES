@@ -35,8 +35,8 @@ namespace FNMES.Entity.Param
         public string Section { get; set; }
 
         // 下一站工序编码
-        [SugarColumn(ColumnName = "nextBigStationCode", IsNullable = true)]
-        public string NextBigStationCode { get; set; }
+        [SugarColumn(ColumnName = "nextStationCode", IsNullable = true)]
+        public string NextStationCode { get; set; }
 
         // 是否首道工序
         [SugarColumn(ColumnName = "isFirstStation", IsNullable = true)]

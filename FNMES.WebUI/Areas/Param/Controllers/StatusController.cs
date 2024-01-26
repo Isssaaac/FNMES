@@ -71,7 +71,7 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/status/uploadFile")]
         [HttpPost]
-        public async Task<ActionResult> UploadFile(IFormFile file,string configId)
+        public ActionResult UploadFile(IFormFile file, string configId)
         {
             if (file != null && file.Length > 0)
             {
@@ -97,7 +97,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                 List<ParamEquipmentStatus> statuses = ExcelUtils.ImportExcel<ParamEquipmentStatus>(stream, keyValuePairs);
 
                 int v = errorAndStatusLogic.InsertStatus(statuses, configId);
-               if (v == 0)
+                if (v == 0)
                 {
                     return Error("初始化数据失败");
                 }

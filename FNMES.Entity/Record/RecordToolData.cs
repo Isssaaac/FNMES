@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.Record
 {
-    [SplitTable(SplitType.Month)]
+    [SplitTable(SplitType.Season)]
     [SugarTable("Record_toolData_{year}{month}{day}")]
     [SugarIndex("index_toolData_pid", nameof(RecordToolData.ToolRemainId), OrderByType.Asc)]    //索引
     public class RecordToolData : BaseRecord

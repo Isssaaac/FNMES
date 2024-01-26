@@ -22,7 +22,7 @@ namespace FNMES.WebUI.Logic.Sys
         public List<SysRole> GetList()
         {
             var db = GetInstance();
-            return db.Queryable<SysRole>()
+            return db.MasterQueryable<SysRole>()
                 .Includes(it => it.CreateUser)
                 .Includes(it => it.ModifyUser)
                 .ToList();
@@ -40,7 +40,7 @@ namespace FNMES.WebUI.Logic.Sys
         {
              var db = GetInstance();
 
-            ISugarQueryable<SysRole> queryable = db.Queryable<SysRole>();
+            ISugarQueryable<SysRole> queryable = db.MasterQueryable<SysRole>();
 
             if (!keyWord.IsNullOrEmpty())
             {
@@ -135,7 +135,7 @@ namespace FNMES.WebUI.Logic.Sys
         public SysRole Get(long primaryKey)
         {
              var db = GetInstance();
-            return db.Queryable<SysRole>().Where(it => it.Id == primaryKey)
+            return db.MasterQueryable<SysRole>().Where(it => it.Id == primaryKey)
                .Includes(it => it.CreateUser)
                .Includes(it => it.ModifyUser)
                .First();

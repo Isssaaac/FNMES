@@ -93,6 +93,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         [HttpPost, LoginChecked]
         public ActionResult Start(string primaryKey, string configId)
         {
+            SysLine sysLine = sysLineLogic.GetByConfigId(configId);
             //没有激活订单才可以激活，且当前订单状态为0-未开工或2- 暂停
             ParamOrder entity = orderLogic.GetSelected( configId);
             if(entity != null)
@@ -112,9 +113,9 @@ namespace MES.WebUI.Areas.Param.Controllers
                     taskOrderNumbers = new List<SelectOrder>() { new SelectOrder() { 
                         taskOrderNumber = order.TaskOrderNumber ,
                         actionCode = ActionCode.Start, } } ,
-                    stationCode = "",    //此处填充内容根据工厂确定
-                    equipmentID = "",
-                    productionLine = configId,
+                    stationCode = "M300",    //此处填充内容根据工厂确定
+                    equipmentID = "FN-GZXNY-PACK-024",
+                    productionLine = sysLine.EnCode,
                     operatorNo = OperatorProvider.Instance.Current.UserId,
                     actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
                 };
@@ -148,7 +149,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         public ActionResult Pause(string primaryKey, string configId)
         {
             //激活才能暂停
-
+            SysLine sysLine = sysLineLogic.GetByConfigId(configId);
             ParamOrder order = orderLogic.Get(long.Parse(primaryKey), configId);
             if (order == null)
             {
@@ -162,9 +163,9 @@ namespace MES.WebUI.Areas.Param.Controllers
                     taskOrderNumbers = new List<SelectOrder>() { new SelectOrder() { 
                         taskOrderNumber = order.TaskOrderNumber, 
                         actionCode = ActionCode.Pause } },
-                    stationCode = "",    //此处填充内容根据工厂确定
-                    equipmentID = "",
-                    productionLine = configId,
+                    stationCode = "M300",    //此处填充内容根据工厂确定
+                    equipmentID = "FN-GZXNY-PACK-024",
+                    productionLine = sysLine.EnCode,
                     operatorNo = OperatorProvider.Instance.Current.UserId,
                     actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
                 };
@@ -197,6 +198,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         [HttpPost, LoginChecked]
         public ActionResult Cancel(string primaryKey, string configId)
         {
+            SysLine sysLine = sysLineLogic.GetByConfigId(configId);
             ParamOrder order = orderLogic.Get(long.Parse(primaryKey), configId);
             if (order == null)
             {
@@ -210,9 +212,9 @@ namespace MES.WebUI.Areas.Param.Controllers
                     taskOrderNumbers = new List<SelectOrder>() { new SelectOrder() { 
                         taskOrderNumber = order.TaskOrderNumber,
                         actionCode = ActionCode.Cancel} },
-                    stationCode = "",    //此处填充内容根据工厂确定
-                    equipmentID = "",
-                    productionLine = configId,
+                    stationCode = "M300",    //此处填充内容根据工厂确定S
+                    equipmentID = "FN-GZXNY-PACK-024",
+                    productionLine = sysLine.EnCode,
                     operatorNo = OperatorProvider.Instance.Current.UserId,
                     actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
                 };
@@ -244,11 +246,11 @@ namespace MES.WebUI.Areas.Param.Controllers
         [HttpPost, LoginChecked]
         public ActionResult GetOrder(string configId)
         {
-            //SysLine sysLine = sysLineLogic.GetByConfigId(configId);
+            SysLine sysLine = sysLineLogic.GetByConfigId(configId);
             
             GetOrderParam getOrderParam = new GetOrderParam() { 
-                productionLine = configId,
-                stationCode = "",
+                productionLine = sysLine.EnCode,
+                stationCode = "M300",
                 operatorNo = OperatorProvider.Instance.Current.Name
             };
             RetMessage<GetOrderData> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.GetOrderUrl, getOrderParam, configId).ToObject<RetMessage<GetOrderData>>();
@@ -266,9 +268,9 @@ namespace MES.WebUI.Areas.Param.Controllers
                     } ).ToList();
                     SelectOrderParam selectOrderParam = new SelectOrderParam() { 
                         taskOrderNumbers = orders,
-                        productionLine=configId,
-                        stationCode = "A001",
-                        equipmentID = "E123456",
+                        productionLine= sysLine.EnCode,
+                        stationCode = "M300",
+                        equipmentID = "FN-GZXNY-PACK-024",
                         operatorNo = OperatorProvider.Instance.Current.Name,
                         actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
                     };
@@ -297,6 +299,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         [HttpPost]
         public ActionResult GetRecipe(string configId, string primaryKey, bool force)
         {
+            SysLine sysLine = sysLineLogic.GetByConfigId(configId);
             ParamOrder order = orderLogic.Get(long.Parse(primaryKey), configId);
             //从工厂同步配方
             if(order == null)
@@ -306,12 +309,12 @@ namespace MES.WebUI.Areas.Param.Controllers
 
             GetRecipeParam param = new()
             {
-                productionLine = configId,
+                productionLine = sysLine.EnCode,
                 productPartNo = order.ProductPartNo,
                 smallStationCode = "",
                 stationCode = "",
                 section = "后段",
-                equipmentID = "",
+                equipmentID = "FN-GZXNY-PACK-024",
                 operatorNo = OperatorProvider.Instance.Current.UserId,
                 actualStartTime = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString()
             };

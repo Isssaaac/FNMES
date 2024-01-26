@@ -21,10 +21,10 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public SysUserLogOn GetByAccount(long userId)
         {
-            using (var db = GetInstance())
-            {
-                return db.Queryable<SysUserLogOn>().Where(it => it.UserId == userId).First();
-            }
+            var db = GetInstance();
+            
+                return db.MasterQueryable<SysUserLogOn>().Where(it => it.UserId == userId).First();
+            
         }
 
         /// <summary>
@@ -34,8 +34,7 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public int UpdateLogin(SysUserLogOn model)
         {
-            using (var db = GetInstance())
-            {
+            var db = GetInstance();
                 model.IsOnLine = "1";
                 model.LastVisitTime = DateTime.Now;
                 model.PrevVisitTime = model.LastVisitTime;
@@ -51,7 +50,7 @@ namespace FNMES.WebUI.Logic.Sys
                     it.ModifyTime,
                     it.ModifyUserId
                 }).ExecuteCommand();
-            }
+            
         }
 
         /// <summary>
@@ -61,8 +60,8 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public int ModifyPwd(SysUserLogOn userLoginEntity)
         {
-            using (var db = GetInstance())
-            {
+            var db = GetInstance();
+            
                 userLoginEntity.ChangePwdTime = DateTime.Now;
                 userLoginEntity.ModifyUserId = userLoginEntity.UserId;
                 userLoginEntity.ModifyTime = DateTime.Now;
@@ -74,7 +73,7 @@ namespace FNMES.WebUI.Logic.Sys
                     it.ModifyUserId,
                     it.ModifyTime
                 }).ExecuteCommand();
-            }
+            
         }
 
         /// <summary>
@@ -84,10 +83,10 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public int Delete(List<long> userIds)
         {
-            using (var db = GetInstance())
-            {
-                return db.Deleteable<SysUserLogOn>().Where(it => userIds.Contains(it.UserId)).ExecuteCommand();
-            }
+            var db = GetInstance();
+            
+            return db.Deleteable<SysUserLogOn>().Where(it => userIds.Contains(it.UserId)).ExecuteCommand();
+            
         }
 
         /// <summary>
@@ -97,17 +96,13 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public int Insert(SysUserLogOn model)
         {
-            using (var db = GetInstance())
-            {
+            var db = GetInstance();
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 model.SecretKey = model.Id.ToString().DESEncrypt().Substring(0, 8);
                 model.Password = model.Password.MD5Encrypt().DESEncrypt(model.SecretKey).MD5Encrypt();
                 model.LoginCount = 0;
                 model.IsOnLine = "0";
-               
-              
                 return db.Insertable<SysUserLogOn>(model).ExecuteCommand();
-            }
         }
 
         /// <summary>
@@ -117,11 +112,9 @@ namespace FNMES.WebUI.Logic.Sys
         /// <returns></returns>
         public int UpdateInfo(SysUserLogOn model)
         {
-            using (var db = GetInstance())
-            {
+            var db = GetInstance();
                 model.ModifyTime = DateTime.Now;
                 model.ModifyUserId = model.UserId;
-
                 return db.Updateable<SysUserLogOn>(model).UpdateColumns(it => new
                 {
                     it.AllowMultiUserOnline,
@@ -129,13 +122,11 @@ namespace FNMES.WebUI.Logic.Sys
                     it.ModifyUserId,
                     it.ModifyTime
                 }).ExecuteCommand();
-            }
         }
 
         public int UpdateTheme(SysUserLogOn model)
         {
-            using (var db = GetInstance())
-            {
+            var db = GetInstance();
                 model.ModifyTime = DateTime.Now;
                 model.ModifyUserId = model.UserId;
                 return db.Updateable<SysUserLogOn>(model).UpdateColumns(it => new
@@ -144,13 +135,12 @@ namespace FNMES.WebUI.Logic.Sys
                     it.ModifyUserId,
                     it.ModifyTime
                 }).ExecuteCommand();
-            }
+            
         }
 
         public int UpdatePassword(SysUserLogOn model)
         {
-            using (var db = GetInstance())
-            {
+            var db = GetInstance();
                 model.ModifyTime = DateTime.Now;
                 model.ModifyUserId = model.UserId;
                 return db.Updateable<SysUserLogOn>(model).UpdateColumns(it => new
@@ -159,7 +149,7 @@ namespace FNMES.WebUI.Logic.Sys
                     it.ModifyUserId,
                     it.ModifyTime
                 }).ExecuteCommand();
-            }
+            
         }
     }
 }

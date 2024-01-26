@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.Record
 {
-    [SplitTable(SplitType.Month)]
+    [SplitTable(SplitType.Season)]
     [SugarTable("Record_EquipmentStatus_{year}{month}{day}")]
     public class RecordEquipmentStatus : BaseRecord
     {

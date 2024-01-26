@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.Record
 {
-    [SplitTable(SplitType.Month)]
+    [SplitTable(SplitType.Season)]
     [SugarTable("Record_ProcessUpload_{year}{month}{day}")]
     [SugarIndex("index_processUpload_productCode", nameof(RecordProcessUpload.ProductCode), OrderByType.Asc)]    //索引
     public class RecordProcessUpload : BaseRecord
@@ -46,8 +46,9 @@ namespace FNMES.Entity.Record
         [SugarColumn(ColumnName = "operatorNo", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string OperatorNo { get; set; }
 
-        [Navigate(NavigateType.OneToMany, nameof(RecordProcessData.ProcessUploadId))]
-        // 过程列表
+        //[Navigate(NavigateType.OneToMany, nameof(RecordProcessData.ProcessUploadId))]
+        // 过程列表    分表后不支持导航
+        [SugarColumn(IsIgnore = true)]
         public List<RecordProcessData> ProcessList { get; set; }
 
         [SplitField]
