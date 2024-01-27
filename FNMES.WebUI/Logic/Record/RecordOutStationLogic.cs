@@ -6,6 +6,8 @@ using FNMES.Entity.Record;
 using System.Collections.Generic;
 using FNMES.Utility.Core;
 using System.Linq;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
+using System.Drawing.Printing;
 
 namespace FNMES.WebUI.Logic.Record
 {
@@ -126,6 +128,53 @@ namespace FNMES.WebUI.Logic.Record
             {
                 Logger.ErrorInfo(e.Message);
                 return false;
+            }
+        }
+
+        public List<RecordPartData> GetPartData(int pageIndex, int pageSize, ref int totalCount, string configId, string productCode, string stationCode)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                RecordPartUpload recordPartUpload = db.Queryable<RecordPartUpload>().Where(it => it.ProductCode == productCode && it.StationCode == stationCode)
+                    .SplitTable(tabs => tabs.Take(4)).OrderByDescending(it => it.Id).First();
+                if (recordPartUpload != null) { 
+                    return db.Queryable<RecordPartData>().Where(it => it.PartUploadId == recordPartUpload.Id)
+                        .SplitTable(tabs => tabs.Take(4)).ToPageList(pageIndex, pageSize, ref totalCount);
+                }
+                else
+                {
+                    return new List<RecordPartData>();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<RecordPartData>();
+            }
+        }
+
+        public List<RecordProcessData> GetProcessData(int pageIndex,int pageSize, string keyWord, ref int totalCount, string configId, string productCode, string stationCode)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                RecordProcessUpload record = db.Queryable<RecordProcessUpload>().Where(it => it.ProductCode == productCode && it.StationCode == stationCode)
+                    .SplitTable(tabs => tabs.Take(4)).OrderByDescending(it => it.Id).First();
+                if (record != null)
+                {
+                    return db.Queryable<RecordProcessData>().Where(it => it.ProcessUploadId == record.Id)
+                        .SplitTable(tabs => tabs.Take(4)).ToPageList(pageIndex, pageSize, ref totalCount);
+                }
+                else
+                {
+                    return new List<RecordProcessData>();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<RecordProcessData>();
             }
         }
     }

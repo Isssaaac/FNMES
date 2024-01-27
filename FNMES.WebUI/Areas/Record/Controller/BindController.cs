@@ -57,11 +57,11 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
             catch (Exception E)
             {
-                return Content(new LayPadding<ParamOrder>()
+                return Content(new LayPadding<ProcessBind>()
                 {
                     result = false,
                     msg = E.Message,
-                    list = new List<ParamOrder>(),
+                    list = new List<ProcessBind>(),
                     count =0
                 }.ToJson()) ;
             }

@@ -46,7 +46,6 @@
 
 	<ItemGroup>
 	  <Folder Include="Areas\BigScreen\Controller\" />
-	  <Folder Include="Areas\Param\Views\Param\" />
 	</ItemGroup>
 
 

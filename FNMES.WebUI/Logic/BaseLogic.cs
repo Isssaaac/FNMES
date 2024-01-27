@@ -232,6 +232,7 @@ namespace FNMES.WebUI.Logic.Base
                     typeof(ParamStepItem),
                     typeof(ParamUnitProcedure),
                     typeof(ProcessBind),
+                    typeof(ParamLocalRoute),
                 };
                     db.CodeFirst.SetStringDefaultLength(200).InitTables(types);
                 }

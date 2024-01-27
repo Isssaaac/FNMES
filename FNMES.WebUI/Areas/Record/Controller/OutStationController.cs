@@ -49,17 +49,36 @@ namespace MES.WebUI.Areas.Param.Controllers
         
         [Route("record/process/index")]
         [HttpPost, AuthorizeChecked]
-        public ActionResult Process(string productCode,string stationCode, string configId)
+        public ActionResult Process(int pageIndex, int pageSize, string keyWord, string configId, string productCode, string stationCode)
         {
-            return View();
+            try
+            {
+                int totalCount = 0;
+                List<RecordProcessData> pageData = outStationLogic.GetProcessData(pageIndex, pageSize, keyWord, ref totalCount, configId, productCode, stationCode);
+                LayPadding<RecordProcessData> result = new LayPadding<RecordProcessData>()
+                {
+                    result = true,
+                    msg = "success",
+                    list = pageData,
+                    count = totalCount//pageData.Count
+                };
+                return Content(result.ToJson());
+            }
+            catch (Exception E)
+            {
+                return Content(new LayPadding<RecordProcessData>()
+                {
+                    result = false,
+                    msg = E.Message,
+                    list = new List<RecordProcessData>(),
+                    count = 0
+                }.ToJson());
+            }
+
+
         }
 
-        [Route("record/process/data")]
-        [HttpPost, AuthorizeChecked]
-        public ActionResult ProcessData(int pageIndex, int pageSize, string configId, string pId)
-        {
-            return View();
-        }
+      
 
 
 
@@ -70,12 +89,40 @@ namespace MES.WebUI.Areas.Param.Controllers
             return View();
         }
 
-        /*[Route("record/part/index")]
+        [Route("record/part/index")]
         [HttpPost, AuthorizeChecked]
-        public ActionResult Part(string productCode, string stationCode, string configId)
+        public ActionResult Part(int pageIndex, int pageSize, string configId, string productCode, string stationCode)
         {
-            
+            try
+            {
+                int totalCount = 0;
+                List<RecordPartData> pageData = outStationLogic.GetPartData(pageIndex, pageSize, ref totalCount, configId, productCode, stationCode);
+                LayPadding<RecordPartData> result = new LayPadding<RecordPartData>()
+                {
+                    result = true,
+                    msg = "success",
+                    list = pageData,
+                    count = totalCount//pageData.Count
+                };
+                return Content(result.ToJson());
+            }
+            catch (Exception E)
+            {
+                return Content(new LayPadding<RecordPartData>()
+                {
+                    result = false,
+                    msg = E.Message,
+                    list = new List<RecordPartData>(),
+                    count = 0
+                }.ToJson());
+            }
+
+
+
         }
+       
+        
+        /*
         [Route("record/part/data")]
         [HttpPost, AuthorizeChecked]
         public ActionResult PartData(int pageIndex, int pageSize, string configId, string pId)

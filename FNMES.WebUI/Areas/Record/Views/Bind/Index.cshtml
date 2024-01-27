@@ -58,6 +58,7 @@
                         <th>工单</th>
                         <th>产品名称</th>
                         <th>所属线体</th>
+                        <th>最近工站</th>
                         <th>状态</th>
                         <th>返修</th>
                         <th>返修站</th>
@@ -83,6 +84,7 @@
         <td>{{item.TaskOrderNumber}}</td>
         <td>{{item.ProductPartNo}}</td>
         <td>{{item.ConfigId}}</td>
+        <td>{{item.CurrentStation}}</td>
         <td>{{# if(item.Status=="1"){ }}  <span class="label label-success label-sm">OK</span>
             {{# }else{ }}  <span class="label label-dark label-sm">NG</span>
             {{# } }}

@@ -187,11 +187,11 @@
                         id: "detail",
                         title: "查看数据",
                         width: "800px",
-                        height: "700px",
+                        height: "500px",
                         content: "/record/process/index?productCode=" + data[1] + "&stationCode=" + data[2] + "&configId=" + $("#lineId").val(),
                         btn: null
                     });
-                } else {
+                }else {
                     $.layerMsg("没有找到相关数据。", "warning");
                 }
             },
@@ -217,19 +217,20 @@
                 stationCode: data[2],
                 configId: $("#lineId").val()
             },
-            success: function (data) {
-                if (data.state == 1) {
+            success: function (res) {
+                var response = JSON.parse(res);
+                if (response.state == 1) {
                     // 打开子页面
                     $.layerOpen({
                         id: "detail",
                         title: "查看物料",
                         width: "800px",
-                        height: "700px",
+                        height: "500px",
                         content: "/record/part/index?productCode=" + data[1] + "&stationCode=" + data[2] + "&configId=" + $("#lineId").val(),
                         btn: null
                     });
-                }
-                $.layerMsg("没有找到相关数据。", "warning");
+                }else { $.layerMsg("没有找到相关数据。", "warning"); }
+               
             },
             error: function (error) {
                 // 处理查询错误

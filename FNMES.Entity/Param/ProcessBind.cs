@@ -41,13 +41,13 @@ namespace FNMES.Entity.Param
         ///</summary>
         [SugarColumn(ColumnName = "configId", IsNullable = true)]
         public string ConfigId { get; set; }
-        /// <summary>
-        ///  
-        ///</summary>
+
+        [SugarColumn(ColumnName = "currentStation", IsNullable = true)]
+        public string CurrentStation { get; set; }
+
         [SugarColumn(ColumnName = "status", IsNullable = true)]
          public string Status { get; set; }
-        /// <summary>
-        ///  
+        /// <summary>`
         ///</summary>
          [SugarColumn(ColumnName = "repairFlag", IsNullable = true)]
          public string RepairFlag { get; set; }

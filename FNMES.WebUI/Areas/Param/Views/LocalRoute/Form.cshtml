@@ -1,0 +1,150 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>用户列表</title>
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery-3.6.0.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+<body>
+    <form id="form" class="layui-form" style="margin-top: 25px">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">编码</label>
+                <div class="layui-input-inline">
+                    <input type="hidden" name="Id" id="Id" />
+                    <input type="hidden" name="ConfigId" id="ConfigId" />
+                    <input type="text" name="Encode" id="Encode" lay-verify="required" placeholder="请输入工站号" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">工站名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="Name" id="Name" lay-verify="required" placeholder="请输入名称" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">工站类型</label>
+                <div class="layui-input-inline">
+                    <div class="layui-input-inline">
+                        <input type="radio" name="IsParent" value="1" title="大工站" checked />
+                        <input type="radio" name="IsParent" value="0" title="小工站" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label ">所属工站</label>
+                <div class="layui-input-inline">
+                    <select class="select2 layui-input-inline" lay-ignore name="Pid" lay-verify="required" id="Pid" style="width: 130px"></select>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">备注</label>
+                <div class="layui-input-inline" style="width: 514px;">
+                    <textarea name="Description" placeholder="请输入备注" class="layui-textarea"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <div class="layui-input-block">
+                <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="add">提交</button>
+            </div>
+        </div>
+    </form>
+
+    <script src="~/Content/jquery/jquery.md5.js"></script>
+    <script >
+        layui.use(['element', 'form', 'laydate', 'layer'], function () {
+            var form = layui.form;
+            var element = layui.element;
+            var laydate = layui.laydate;
+            laydate.render({
+            });
+
+            var configId = $.getQueryString("configId");
+            $("#ConfigId").val(configId);
+        
+            $("#pidContainer").show();
+            $("#pidContainer").prop("disabled", true);
+
+            $("#Pid").bindSelect({
+                type: "POST",
+                url: "/param/unitProcedure/getParent?configId=" + configId
+            });
+
+
+
+            var configId = $.getQueryString("configId");
+            $("#ConfigId").val(configId);
+            var primaryKey = $.getQueryString("primaryKey");
+            if (primaryKey) {
+                
+                $.ajax({
+                    url: "/param/unitProcedure/getForm",
+                    data: { primaryKey: primaryKey,
+                            configId: configId },
+                    type: "post",
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        $("#form").formSerialize(data);
+                        $("#ConfigId").val(configId);
+                    }
+                });
+               
+            }
+
+            form.render();
+
+            form.on('submit(add)', function (form) {
+               
+                var type = $('input[name="IsParent"]:checked').val();
+                var parentIsNull = $("#Pid").val() == null;
+                //小工站必须要有
+                if (type == "0" && parentIsNull) {
+                    $.layerMsg("请选择所属大工站。", "warning");
+                } else {
+                    $.formSubmit({
+                        url: "/param/unitProcedure/form",
+                        data: form.field
+                    });
+                    return false;
+                }
+            });
+
+        });
+
+
+    </script>
+    </body>
+</html>
+
+  

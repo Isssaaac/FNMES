@@ -24,7 +24,7 @@ namespace FNMES.WebUI.Logic.Record
                 recordPartUpload.Id = SnowFlakeSingle.instance.NextId();
                 recordPartUpload.CreateTime = DateTime.Now;
                 List<RecordPartData> partList = new();
-                foreach (var item in model.partList)
+                foreach (Part item in model.partList)
                 {
                     RecordPartData buf = new RecordPartData();
                     buf.CopyField(item);

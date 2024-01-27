@@ -109,7 +109,10 @@ namespace FNMES.Service.WebService
         [OperationContract]
         public RetMessage<UserInfo> GetUserInfo(LoginParam param, string configId)
         {
-            param.password = AesHelper.Encrypt(param.password);
+            if (!param.operatorNo.IsNullOrEmpty())
+            {
+                param.password = AesHelper.Encrypt(param.password); 
+            }
             SysLine sysLine = lineLogic.GetByConfigId(configId);
             param.productionLine = sysLine.EnCode;
             if (configId.IsNullOrEmpty())
@@ -165,7 +168,11 @@ namespace FNMES.Service.WebService
         [OperationContract]
         public RetMessage<UserInfo> GetUserRoles(LoginParam param, string configId)
         {
-            param.password = AesHelper.Encrypt(param.password);
+            if (!param.operatorNo.IsNullOrEmpty())
+            {
+                //员工号不为空时需要加密密码      员工为空时密码项目不处理
+                param.password = AesHelper.Encrypt(param.password); 
+            }
             SysLine sysLine = lineLogic.GetByConfigId(configId);
             param.productionLine = sysLine.EnCode;
             if (configId.IsNullOrEmpty())
@@ -737,7 +744,9 @@ namespace FNMES.Service.WebService
             {
                 return NewErrorMessage<OutStationData>("未查到绑定数据");
             }
-
+            //出站时更新绑定表的当前工站
+            processBind.CurrentStation = param.stationCode;
+            processBindLogic.Update(processBind, configId);
             if (processBind.RepairFlag == "1")
             {
                 param.productStatus = "REWORK";

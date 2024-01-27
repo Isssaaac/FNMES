@@ -9,7 +9,7 @@ namespace FNMES.Entity.Record
 {
     [SplitTable(SplitType.Month)]
     [SugarTable("Record_Process_{year}{month}{day}")]
-    [SugarIndex("index_process_pid", nameof(RecordProcessData.ProcessUploadId), OrderByType.Asc)]    //索引
+    [SugarIndex("index_recordProcess_pid", nameof(RecordProcessData.ProcessUploadId), OrderByType.Asc)]    //索引
     public class RecordProcessData : BaseRecord
     {
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
@@ -19,6 +19,12 @@ namespace FNMES.Entity.Record
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
         [SugarColumn(ColumnName = "pid")]
         public long ProcessUploadId { get; set; }
+
+        // 参数名称（检验项）
+        [SugarColumn(ColumnName = "paramCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        public string ParamCode { get; set; }
+
+
         // 参数名称（检验项）
         [SugarColumn(ColumnName = "paramName", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string ParamName { get; set; }
