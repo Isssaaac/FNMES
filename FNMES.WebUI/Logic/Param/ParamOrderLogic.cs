@@ -56,7 +56,8 @@ namespace FNMES.WebUI.Logic.Param
                     });
                 }
                 Db.BeginTran();
-                db.Deleteable<ParamOrder>().Where(it => it.Flag == "0").ExecuteCommand();
+                //同步工单的时候不再删除旧工单
+                //db.Deleteable<ParamOrder>().Where(it => it.Flag == "0").ExecuteCommand();
                 int v = db.Insertable<ParamOrder>(orders).ExecuteCommand();
                 Db.CommitTran();
                 return v;

@@ -145,6 +145,19 @@ namespace FNMES.Entity.DTO.AppData
         public string ProductPartNo { get; set; }
         [DataMember]
         public string ConfigId { get; set; }
+
+        [DataMember]
+        public string ReessNo { get; set; }      //国标码
+
+        [DataMember]
+        public string Diverter { get; set; }    //分流器条码
+
+        [DataMember]
+        public string GlueTime { get; set; }    //中段涂胶时间
+
+
+
+
     }
 
     [DataContract]
@@ -184,13 +197,17 @@ namespace FNMES.Entity.DTO.AppData
             foreach (var item in paramRecipeItem.ParamList)
             {
                 Param param = ConvertHelper.Mapper<Param, ParamItem>(item);
-                if (item.StepNo.IsNullOrEmpty())
+                if (item.StepNo.IsNullOrEmpty() || 0 == int.Parse(item.StepNo))
                 {
                     //不存在工步，将参数存入工序参数中
                     paramlist.Add(param);
                 }
-                //存在工步，将参数添加到对应的工步中
-                steplist.FirstOrDefault(it => it.stepNo == item.StepNo)?.paramList.Add(param);
+                else
+                {
+                    //存在工步，将参数添加到对应的工步中
+                    steplist.FirstOrDefault(it => it.stepNo == item.StepNo)?.paramList.Add(param);
+                }
+                
             }
             foreach (var item in paramRecipeItem.PartList)
             {
@@ -202,13 +219,17 @@ namespace FNMES.Entity.DTO.AppData
                     alternative.Add(alternativePartItem);
                 }
                 part.alternativePartList = alternative;
-                if (item.StepNo.IsNullOrEmpty())
+                if (item.StepNo.IsNullOrEmpty() || 0 == int.Parse(item.StepNo))
                 {
                     //不存在工步，将参数存入工序参数中
                     partlist.Add(part);
                 }
-                //存在工步，将参数添加到对应的工步中
-                steplist.FirstOrDefault(it => it.stepNo == item.StepNo)?.partList.Add(part);
+                else
+                {
+                    //存在工步，将参数添加到对应的工步中
+                    steplist.FirstOrDefault(it => it.stepNo == item.StepNo)?.partList.Add(part);
+                }
+                
             }
             foreach (var item in paramRecipeItem.EsopList)
             {
@@ -356,11 +377,35 @@ namespace FNMES.Entity.DTO.AppData
         public List<AlternativePartItem> alternativePartList { get; set; }
     }
 
+    //测试仪的响应
     [DataContract]
     public class TestUploadRes {
         [DataMember]
         public long primaryKey;
     }
+
+    [DataContract]
+    public class Product{
+        [DataMember]
+        public string lineId;   //所属线体
+        [DataMember]
+        public string productPartNo;    //产品编码
+        [DataMember]
+        public string productDescription;     //产品描述
+    }
+
+    [DataContract]
+    public class ProductList
+    {
+        [DataMember]
+        public List<Product> products;   //产品列表
+
+        [DataMember]
+        public Product SelectedProduct;
+    }
+
+    
+
 
 
 

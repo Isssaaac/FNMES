@@ -60,7 +60,7 @@ namespace FNMES.Utility.Network
                 return null;
             }
         }
-        public static string DoPostJson(string url, object data, int? timeout = 15000) 
+        public static string DoPostJson(string url, object data, int? timeout = 20000) 
         {
             try
             {
@@ -111,7 +111,10 @@ namespace FNMES.Utility.Network
 
     public class RetCode
     {
-        public const string success = "S";
-        public const string error = "E";
+        public const string Success = "S";
+        public const string Error = "E";
+        public const string Ng = "N";   //产品NG
+        //空箱体直接在人工扫码的时候确认，通过交互传递给PLC让其执行动作逻辑
+
     }
 }

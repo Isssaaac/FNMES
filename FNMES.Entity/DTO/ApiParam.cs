@@ -214,6 +214,8 @@ namespace FNMES.Entity.DTO.ApiParam
         // 内控码
         [DataMember]
         public string productCode { get; set; }
+        [DataMember]
+        public string palletNo { get; set; } // AGV工装码
 
         // 进站电芯状态（合格状态、不合格状态、返修状态）
         [DataMember]
@@ -780,4 +782,6 @@ namespace FNMES.Entity.DTO.ApiParam
         public const string END = "reessNo";
     }
 
+
+    
 }

@@ -48,8 +48,10 @@ namespace FNMES.WebUI.API
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             string response = WebApiRequest.DoPostJson(method, param);
+            
             if(response.IsNullOrEmpty()) {
-                response = "{\"messageType\":\"E\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+                //此处用F表示，访问接口失败。。用于区分访问接口失败和调用结果的E
+                response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
             }
             stopwatch.Stop();
             if(!disableLog)

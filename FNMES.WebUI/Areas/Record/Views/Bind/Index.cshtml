@@ -59,6 +59,9 @@
                         <th>产品名称</th>
                         <th>所属线体</th>
                         <th>最近工站</th>
+                        <th>分流器条码</th>
+                        <th>国标码</th>
+                        <th>中段涂胶时间</th>
                         <th>状态</th>
                         <th>返修</th>
                         <th>返修站</th>
@@ -85,7 +88,10 @@
         <td>{{item.ProductPartNo}}</td>
         <td>{{item.ConfigId}}</td>
         <td>{{item.CurrentStation}}</td>
-        <td>{{# if(item.Status=="1"){ }}  <span class="label label-success label-sm">OK</span>
+        <td>{{item.Diverter}}</td>
+        <td>{{item.ReessNo}}</td>
+        <td>{{item.GlueTime}}</td>
+        <td>{{# if(item.Status=="OK"){ }}  <span class="label label-success label-sm">OK</span>
             {{# }else{ }}  <span class="label label-dark label-sm">NG</span>
             {{# } }}
         </td>

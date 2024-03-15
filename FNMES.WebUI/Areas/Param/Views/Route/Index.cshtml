@@ -65,6 +65,9 @@
                                     <th>校验工站</th>
                                     <th>允许跳站</th>
                                     <th>允许重复作业</th>
+                                    <th>转运工序</th>
+                                    <th>生成国标码工序</th>
+                                    <th>入口工序</th>
                                 </tr>
                             </thead>
                             <!--内容容器-->
@@ -90,12 +93,26 @@
         <td>{{item.StationCode}}</td>
         <td>{{item.Criterion}}</td>
         <td>
-            {{# if(item.AllowJump==1){ }}  <span class="label label-success label-sm">是</span>
+            {{# if(item.IsAllowJump==true){ }}  <span class="label label-success label-sm">是</span>
             {{# }else{ }}  <span class="label label-dark label-sm">否</span>
             {{# } }}
         </td>
         <td>
-            {{# if(item.AllowRepeat==1){ }}  <span class="label label-success label-sm">是</span>
+            {{# if(item.IsAllowRepeat==true){ }}  <span class="label label-success label-sm">是</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">否</span>
+            {{# } }}
+        </td>
+        <td>
+            {{# if(item.IsTranshipStation==true){ }}  <span class="label label-success label-sm">是</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">否</span>
+            {{# } }}
+        </td><td>
+            {{# if(item.IsGenerateCodeStation==true){ }}  <span class="label label-success label-sm">是</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">否</span>
+            {{# } }}
+        </td>
+        <td>
+            {{# if(item.IsEntrance==true){ }}  <span class="label label-success label-sm">是</span>
             {{# }else{ }}  <span class="label label-dark label-sm">否</span>
             {{# } }}
         </td>
@@ -180,12 +197,12 @@
         }
 
         paging.init({
-            url: '/param/recipe/index',
+            url: '/param/route/index',
             elem: '#content',
             tempElem: '#contentTpl',
             params: {
                 keyWord: $("#keyWord").val(),
-                productId: selectedNode.id,
+                productPartNo: selectedNode.name,
                 configId: $("#lineId").val()
             },
             pageConfig: {
@@ -202,12 +219,14 @@
     }
  
     function btn_add() {
+        var treeObj = $.fn.zTree.getZTreeObj("treeItem");
+        var selectedNode = treeObj.getSelectedNodes()[0];
         $.layerOpen({
             id: "add",
-            title: "新增工站",
+            title: "新增工序",
             width: "750px",
             height: "400px",
-            content: "/param/unitProcedure/form?configId=" + $("#lineId").val(),
+            content: "/param/route/form?configId=" + $("#lineId").val() + "&productPartNo=" + selectedNode.name,
             yes: function (iBody) {
                 iBody.find('#btnSubmit').click();
                 initGrid();
@@ -223,10 +242,10 @@
         }
         $.layerOpen({
             id: "edit",
-            title: "修改工站",
+            title: "修改工序",
             width: "750px",
             height: "400px",
-            content: "/param/unitProcedure/form?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
+            content: "/param/route/form?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
             yes: function (iBody) {
                 iBody.find('#btnSubmit').click();
                 initGrid();
@@ -244,7 +263,7 @@
             content: "您已选中1条数据, 确定删除吗？",
             callback: function () {
                 $.formSubmit({
-                    url: '/param/unitProcedure/delete',
+                    url: '/param/route/delete',
                     data: {
                         primaryId: ids[0],
                         configId: $("#lineId").val()

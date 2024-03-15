@@ -48,7 +48,7 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("record/general/bindhistory")]
         [HttpGet]
-        public ActionResult bindhistory(int page, int limit, string keyWord,string configId,string index)
+        public ActionResult Bindhistory(int page, int limit, string keyWord,string configId,string index)
         {
             try
             {
@@ -77,7 +77,7 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("record/general/api")]
         [HttpGet]
-        public ActionResult api( int page, int limit, string keyWord, string configId, string index)
+        public ActionResult Api( int page, int limit, string keyWord, string configId, string index)
         {
             try
             {
@@ -106,7 +106,7 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("record/general/error")]
         [HttpGet]
-        public ActionResult error(int page, int limit, string keyWord, string configId, string index)
+        public ActionResult Error(int page, int limit, string keyWord, string configId, string index)
         {
             try
             {
@@ -135,7 +135,7 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("record/general/status")]
         [HttpGet]
-        public ActionResult status(int page, int limit, string keyWord, string configId, string index)
+        public ActionResult Status(int page, int limit, string keyWord, string configId, string index)
         {
             try
             {
@@ -164,7 +164,7 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("record/general/stop")]
         [HttpGet]
-        public ActionResult stop(int page, int limit, string keyWord, string configId, string index)
+        public ActionResult Stop(int page, int limit, string keyWord, string configId, string index)
         {
             try
             {
@@ -193,7 +193,7 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("record/general/start")]
         [HttpGet]
-        public ActionResult start(int page, int limit, string keyWord, string configId, string index)
+        public ActionResult Start(int page, int limit, string keyWord, string configId, string index)
         {
             try
             {
@@ -221,7 +221,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         }
         [Route("record/general/pack")]
         [HttpGet]
-        public ActionResult pack(int page, int limit, string keyWord, string configId, string index)
+        public ActionResult Pack(int page, int limit, string keyWord, string configId, string index)
         {
             try
             {

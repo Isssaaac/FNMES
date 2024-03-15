@@ -30,49 +30,42 @@
     <form id="form" class="layui-form" style="margin-top: 25px">
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label label-required">编码</label>
+                <label class="layui-form-label label-required">选择工序</label>
                 <div class="layui-input-inline">
                     <input type="hidden" name="Id" id="Id" />
                     <input type="hidden" name="ConfigId" id="ConfigId" />
-                    <input type="text" name="Encode" id="Encode" lay-verify="required" placeholder="请输入工站号" autocomplete="off" class="layui-input">
+                    <input type="hidden" name="ProductPartNo" id="ProductPartNo" />
+                    <select class="select2 layui-input-inline" lay-ignore name="StationCode" lay-verify="required" id="StationCode" style="width: 130px"></select>
                 </div>
             </div>
             <div class="layui-inline">
-                <label class="layui-form-label label-required">工站名称</label>
+                <label class="layui-form-label label-required">工序顺序号</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="Name" id="Name" lay-verify="required" placeholder="请输入名称" autocomplete="off" class="layui-input">
+                    <input type="number" name="Step" id="Step" lay-verify="required" placeholder="请输入序号" autocomplete="off" class="layui-input">
                 </div>
             </div>
         </div>
         <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label label-required">工站类型</label>
-                <div class="layui-input-inline">
+             <div class="layui-inline">
+                    <label class="layui-form-label label-required">校验工站</label>
                     <div class="layui-input-inline">
-                        <input type="radio" name="IsParent" value="1" title="大工站" checked />
-                        <input type="radio" name="IsParent" value="0" title="小工站" />
-                    </div>
+                    <select lay-ignore name="CheckStations" class="select2" id="CheckStations" multiple="multiple" style="width: 514px;" ></select>
+                     </div>
+             </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">选项</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" lay-skin="primary" name="IsAllowJump" value="true" title="允许跳站" checked>
+                    <input type="checkbox" lay-skin="primary" name="IsAllowRepeat" value="true" title="允许重复作业">
+                    <input type="checkbox" lay-skin="primary" name="IsTranshipStation" value="true" title="中转工序">
+                    <input type="checkbox" lay-skin="primary" name="IsGenerateCodeStation" value="true" title="生成国标码工序">
+                    <input type="checkbox" lay-skin="primary" name="IsEntrance" value="true" title="入口工序">
                 </div>
             </div>
         </div>
         
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label ">所属工站</label>
-                <div class="layui-input-inline">
-                    <select class="select2 layui-input-inline" lay-ignore name="Pid" lay-verify="required" id="Pid" style="width: 130px"></select>
-                </div>
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label">备注</label>
-                <div class="layui-input-inline" style="width: 514px;">
-                    <textarea name="Description" placeholder="请输入备注" class="layui-textarea"></textarea>
-                </div>
-            </div>
-        </div>
         <div class="layui-form-item" style="display: none">
             <div class="layui-input-block">
                 <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="add">提交</button>
@@ -95,9 +88,14 @@
             $("#pidContainer").show();
             $("#pidContainer").prop("disabled", true);
 
-            $("#Pid").bindSelect({
+            $("#StationCode").bindSelect({
                 type: "POST",
-                url: "/param/unitProcedure/getParent?configId=" + configId
+                url: "/param/unitProcedure/getParentCode?configId=" + configId
+            });
+            $("#CheckStations").bindSelect({
+                type: "POST",
+                url: "/param/unitProcedure/getParentCode?configId=" + configId,
+                title: '请选择校验工序'
             });
 
 
@@ -105,10 +103,13 @@
             var configId = $.getQueryString("configId");
             $("#ConfigId").val(configId);
             var primaryKey = $.getQueryString("primaryKey");
+            var productPartNo = $.getQueryString("productPartNo");
+            $("#ProductPartNo").val(productPartNo);
+
             if (primaryKey) {
                 
                 $.ajax({
-                    url: "/param/unitProcedure/getForm",
+                    url: "/param/route/getForm",
                     data: { primaryKey: primaryKey,
                             configId: configId },
                     type: "post",
@@ -128,16 +129,15 @@
                
                 var type = $('input[name="IsParent"]:checked').val();
                 var parentIsNull = $("#Pid").val() == null;
-                //小工站必须要有
-                if (type == "0" && parentIsNull) {
-                    $.layerMsg("请选择所属大工站。", "warning");
-                } else {
-                    $.formSubmit({
-                        url: "/param/unitProcedure/form",
-                        data: form.field
-                    });
-                    return false;
-                }
+                
+                form.field.Criterion = $("#CheckStations").val().join();
+                
+                $.formSubmit({
+                    url: "/param/route/form",
+                    data: form.field
+                });
+                return false;
+                
             });
 
         });

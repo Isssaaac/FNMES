@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace FNMES.Entity.Sys
 {
     [SugarTable("Sys_Equipment")]
-    public partial class SysEquipment : BaseModelEntity
+    public class SysEquipment : BaseModelEntity
     {
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
         [SugarColumn(ColumnName = "id", IsPrimaryKey = true)]

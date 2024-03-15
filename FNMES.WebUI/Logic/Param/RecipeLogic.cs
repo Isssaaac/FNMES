@@ -73,9 +73,10 @@ namespace FNMES.WebUI.Logic.Param
                 ISugarQueryable<ParamItem> queryable = db.MasterQueryable<ParamItem>().Where(it => it.RecipeItemId == pid);
                 if (!keyWord.IsNullOrEmpty())
                 {
-                    queryable = queryable.Where(it => it.StepName.Contains(keyWord) || it.ParamName.Contains(keyWord)).OrderBy(it => it.StepNo);
+                    queryable = queryable.Where(it => it.StepName.Contains(keyWord) || it.ParamName.Contains(keyWord));
                 }
-                return queryable.ToPageList(pageIndex, pageSize, ref totalCount);
+                //return queryable.OrderBy(it => it.StepNo).ToPageList(pageIndex, pageSize, ref totalCount);
+                return queryable.OrderBy("TRY_CAST(stepNo AS INT)").ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception E)
             {
@@ -91,9 +92,10 @@ namespace FNMES.WebUI.Logic.Param
                 ISugarQueryable<ParamEsopItem> queryable = db.MasterQueryable<ParamEsopItem>().Where(it => it.RecipeItemId == recipeItemId);
                 if (!keyWord.IsNullOrEmpty())
                 {
-                    queryable = queryable.Where(it => it.FilePath.Contains(keyWord) || it.No.Contains(keyWord)).OrderBy(it => it.No);
+                    queryable = queryable.Where(it => it.FilePath.Contains(keyWord) || it.No.Contains(keyWord));
                 }
-                return queryable.ToPageList(pageIndex, pageSize, ref totalCount);
+                //return queryable.OrderBy(it => it.No).ToPageList(pageIndex, pageSize, ref totalCount);
+                return queryable.OrderBy("TRY_CAST(No AS INT) ASC").ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception E)
             {
@@ -110,9 +112,10 @@ namespace FNMES.WebUI.Logic.Param
                 ISugarQueryable<ParamPartItem> queryable = db.MasterQueryable<ParamPartItem>().Where(it => it.RecipeItemId == recipeItemId);
                 if (!keyWord.IsNullOrEmpty())
                 {
-                    queryable = queryable.Where(it => it.PartNumber.Contains(keyWord) || it.PartDescription.Contains(keyWord)).OrderBy(it => it.StepNo);
+                    queryable = queryable.Where(it => it.PartNumber.Contains(keyWord) || it.PartDescription.Contains(keyWord));
                 }
-                return queryable.ToPageList(pageIndex, pageSize, ref totalCount);
+                //return queryable.OrderBy(it => it.StepNo).ToPageList(pageIndex, pageSize, ref totalCount);
+                return queryable.OrderBy("TRY_CAST(stepNo AS INT),TRY_CAST(No AS INT)").ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception E)
             {
@@ -150,9 +153,10 @@ namespace FNMES.WebUI.Logic.Param
                 ISugarQueryable<ParamStepItem> queryable = db.MasterQueryable<ParamStepItem>().Where(it => it.RecipeItemId == recipeItemId);
                 if (!keyWord.IsNullOrEmpty())
                 {
-                    queryable = queryable.Where(it => it.StepName.Contains(keyWord) || it.StepNo.Contains(keyWord)).OrderBy(it => it.StepNo);
+                    queryable = queryable.Where(it => it.StepName.Contains(keyWord) || it.StepNo.Contains(keyWord));
                 }
-                return queryable.ToPageList(pageIndex, pageSize, ref totalCount);
+                //return queryable.OrderBy(it => it.StepNo).ToPageList(pageIndex, pageSize, ref totalCount);
+                return queryable.OrderBy("TRY_CAST(No AS INT) ASC").ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception E)
             {
@@ -172,11 +176,19 @@ namespace FNMES.WebUI.Logic.Param
                 {
                     return null;
                 }
-                return db.Queryable<ParamRecipeItem>()
+
+                //小工位参数不做筛选
+                /*return db.Queryable<ParamRecipeItem>()
                    .Includes(it => it.ParamList.Where( p => p.SmallStationCode == smallStationCode).ToList())
                    .Includes(it => it.EsopList.Where(p => p.SmallStationCode == smallStationCode).ToList())
                    .Includes(it => it.StepList.Where(p => p.SmallStationCode == smallStationCode).ToList())
                    .Includes(it => it.PartList.Where(p => p.SmallStationCode == smallStationCode).ToList(), p => p.AlternativePartList)
+                   .First(it => it.RecipeId == paramRecipe.Id && it.StationCode == stationCode);*/
+                return db.Queryable<ParamRecipeItem>()
+                   .Includes(it => it.ParamList)
+                   .Includes(it => it.EsopList)
+                   .Includes(it => it.StepList)
+                   .Includes(it => it.PartList, p => p.AlternativePartList)
                    .First(it => it.RecipeId == paramRecipe.Id && it.StationCode == stationCode);
             }
             catch (Exception E)

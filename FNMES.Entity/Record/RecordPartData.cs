@@ -29,7 +29,7 @@ namespace FNMES.Entity.Record
         public string PartDescription { get; set; }
 
         // 物料条码
-        [SugarColumn(ColumnName = "partBarcode", ColumnDataType = "varchar(50)", IsNullable = true)]
+        [SugarColumn(ColumnName = "partBarcode", ColumnDataType = "varchar(256)", IsNullable = true)]
         public string PartBarcode { get; set; }
 
         // 类型

@@ -37,7 +37,7 @@ namespace FNMES.Entity.Param
         public string OrderNo { get; set; }
 
         // 物料编码
-        [SugarColumn(ColumnName = "partNumber")]
+        [SugarColumn(ColumnName = "partNumber", IsNullable = true)]
         public string PartNumber { get; set; }
 
         // 物料描述
@@ -49,7 +49,7 @@ namespace FNMES.Entity.Param
         public string PartVersion { get; set; }
 
         // 数量
-        [SugarColumn(ColumnName = "partQty")]
+        [SugarColumn(ColumnName = "partQty", IsNullable = true)]
         public string PartQty { get; set; }
 
         // 单位

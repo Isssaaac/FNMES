@@ -53,6 +53,24 @@ namespace MES.WebUI.Areas.Param.Controllers
             return Content(treeList.ToJson());
         }
 
+        [Route("param/unitProcedure/getParentCode")]
+        [HttpPost]
+        public ActionResult GetParentCode(string configId)
+        {
+            var data = unitProcedureLogic.GetParentList(configId);
+            var treeList = new List<TreeSelect>();
+
+            foreach (ParamUnitProcedure item in data)
+            {
+                TreeSelect model = new()
+                {
+                    id = item.Encode,
+                    text = item.Encode,
+                };
+                treeList.Add(model);
+            }
+            return Content(treeList.ToJson());
+        }
 
         //获取小工序
         [Route("param/unitProcedure/getListTreeUnSelect")]
@@ -221,7 +239,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         public ActionResult Form( ParamUnitProcedure model)
         {
 
-            Logger.RunningInfo(model.ToJson()+"数据库"+model.ConfigId);
+            //Logger.RunningInfo(model.ToJson()+"数据库"+model.ConfigId);
             
             if (model.Id==0)
             {

@@ -38,6 +38,15 @@ namespace FNMES.Entity.Record
          [SugarColumn(ColumnName="productPartNo", ColumnDataType = "varchar(100)", IsNullable = true)]
          public string ProductPartNo { get; set; }
 
+        [SugarColumn(ColumnName = "reessNo", IsNullable = true)]
+        public string ReessNo { get; set; }      //国标码
+
+        [SugarColumn(ColumnName = "diverter", IsNullable = true)]
+        public string Diverter { get; set; }    //分流器条码
+
+        [SugarColumn(ColumnName = "glueTime", IsNullable = true)]
+        public string GlueTime { get; set; }    //中段涂胶时间
+
         [SugarColumn(ColumnName = "configId")]
         public string ConfigId { get; set; }
         /// <summary>

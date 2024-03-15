@@ -1,0 +1,190 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>设备注册</title>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+    <link href="~/Content/ztree/css/metroStyle/metroStyle.css" rel="stylesheet" />
+    <script src="~/Content/ztree/js/jquery.ztree.all.min.js"></script>
+</head>
+<body>
+    <div class="container-fluid fadeIn animated">
+        <div class="row">
+            <div class="col-md-2">
+                <div class="FNMES-panel container-panel">
+                    <ul id="treeItem" class="ztree"></ul>
+                </div>
+            </div>
+            <div class="col-md-10">
+                <div class="panel container-panel">
+                    <div class="panel-body">
+                        <div id="toolbar" class="FNMES-table-toolbar">
+                            <div class="layui-btn-group"></div>
+                            <div class="layui-btn-group" id="queryDate">
+                                <button value="1" class="layui-btn layui-btn-primary layui-btn-small active">只看当前</button>
+                                <button value="2" class="layui-btn layui-btn-primary layui-btn-small">包含历史记录</button>
+                            </div>
+                            <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
+                                <i class="layui-icon">&#xe615;</i>
+                            </button>
+                            <div class="toolbar-search-input">
+                                <input type="text" id="keyWord" placeholder="选项名称或编码" autocomplete="off" class="layui-input" style="height:39px"/>
+                            </div>
+                        </div>
+                        <table id="gridList" class="layui-form layui-table FNMES-table" lay-skin="line">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" lay-skin="primary">
+                                    </th>
+                                    <th>工序</th>
+                                    <th>选中产品</th>
+                                    <th>产品描述</th>
+                                    <th>产品所属线体</th>
+                                    <th>状态</th>
+                                    <th>创建员工</th>
+                                    <th>创建时间</th>
+                                </tr>
+                            </thead>
+                            <!--内容容器-->
+                            <tbody id="content"></tbody>
+                        </table>
+                        <div id="paged"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<!--内容模板-->
+<script id="contentTpl" type="text/html">
+    {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}">
+        </td>
+        <td>{{item.Station}}</td>
+        <td>{{item.ProductPartNo}}</td>
+        <td>{{item.ProductDescription}}</td>
+        <td>{{item.ProductLineId}}</td>
+        <td>
+            {{# if(item.IsEnabled==true){ }}  <span class="label label-success label-sm">当前</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">历史</span>
+            {{# } }}
+        </td>
+        <td>{{item.CreateUser}}</td>
+        <td>{{item.CreateTime}}</td>
+    </tr>
+    {{#  }); }}
+     {{# if(d.list.length<=0) { }}
+        <tr style="color: red">
+            <td colspan="6">查无数据。</td>
+        </tr>
+    {{# } }}
+</script>
+
+<script type="text/javascript">
+    var paging;
+    layui.config({
+        base: parent._baseUrl
+    }).use(['paging', 'form'], function () {
+        var form = layui.form;
+        paging = layui.paging();
+
+        var setting = {
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            check: {
+                enable: false,
+                chkStyle: "checkbox",
+                chkDisabledInherit: false
+            },
+            async: {
+                enable: true,
+                url: "/system/line/getListTree",
+                dataType: "text",
+                autoParam: ["id", "name"]
+            }, callback: {
+                onAsyncSuccess: function (event, treeId, treeNode, msg) {
+                    var node = zTreeObj.getNodesByFilter(function (node) {
+                        return node.level == 1
+                    }, true);
+                    zTreeObj.selectNode(node);
+                    zTreeObj.setting.callback.onClick(event, zTreeObj.setting.treeId, node);
+                },
+                onClick: function (event, treeId, treeNode) {
+                    initGrid();
+                }
+            }
+        };
+
+        var zTreeObj = $.fn.zTree.init($("#treeItem"), setting);
+
+        $("#toolbar").authorizeButton();
+        $('#btnSearch').click(initGrid);
+        $('#keyWord').bindEnterEvent(initGrid);
+        $('#queryDate').find('button').click(function (i, v) {
+            $(this).addClass('active');
+            $(this).siblings('button').removeClass('active');
+            initGrid();
+        });
+    });
+
+    function initGrid() {
+
+        var treeObj = $.fn.zTree.getZTreeObj("treeItem");
+        var selectedNode = treeObj.getSelectedNodes()[0];
+        if (selectedNode.level == 0) {
+            return;
+        }
+
+        paging.init({
+            url: '/param/preEquipment/index',
+            elem: '#content',
+            tempElem: '#contentTpl',
+            params: {
+                keyWord: $("#keyWord").val(),
+                lineId: selectedNode.id,
+                index: $('#queryDate').find('button.active').val()
+            },
+            pageConfig: {
+                elem: 'paged',
+                pageSize: 10,
+            },
+            success: function () {
+
+            },
+            fail: function (msg) {
+                top.layer.msg(msg);
+            }
+        });
+    }
+
+  
+</script>
+

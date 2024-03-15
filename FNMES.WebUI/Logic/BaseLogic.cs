@@ -18,6 +18,7 @@ using FNMES.Entity.Enum;
 using OfficeOpenXml.Drawing.Slicer.Style;
 using System.Data.Entity.ModelConfiguration.Configuration;
 using FNMES.Entity.Param;
+using FNMES.Entity.Sys;
 
 namespace FNMES.WebUI.Logic.Base
 {
@@ -210,30 +211,44 @@ namespace FNMES.WebUI.Logic.Base
         /// </summary>
         public void InitAllTable()
         {
+            //初始化系统库参数表
+            MyConnectionConFig sysConnection = AppSetting.sysConnection;
+            try
+            {
+                ISqlSugarClient db = GetInstance(sysConnection.ConfigId);
+                Type[] types ={
+                        typeof(SysPreSelectProduct),
+                     };
+                db.CodeFirst.SetStringDefaultLength(200).InitTables(types);
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo($"初始化主数据库表{e.Message}");
+            }
+            //初始化分库参数表
             foreach (var item in AppSetting.lineConnections)
             {
                 try
                 {
                     ISqlSugarClient db = GetInstance(item.ConfigId);
-                    Type[] types =
-                    {
-                    typeof(FactoryStatus),
-                    typeof(ParamAlternativePartItem),
-                    typeof(ParamAndon),
-                    typeof(ParamEquipmentError),
-                    typeof(ParamEquipmentStatus),
-                    typeof(ParamEquipmentStopCode),
-                    typeof(ParamEsopItem),
-                    typeof(ParamItem),
-                    typeof(ParamOrder),
-                    typeof(ParamPartItem),
-                    typeof(ParamRecipe),
-                    typeof(ParamRecipeItem),
-                    typeof(ParamStepItem),
-                    typeof(ParamUnitProcedure),
-                    typeof(ProcessBind),
-                    typeof(ParamLocalRoute),
-                };
+                    Type[] types ={
+                        typeof(FactoryStatus),
+                        typeof(ParamAlternativePartItem),
+                        typeof(ParamAndon),
+                        typeof(ParamEquipmentError),
+                        typeof(ParamEquipmentStatus),
+                        typeof(ParamEquipmentStopCode),
+                        typeof(ParamEsopItem),
+                        typeof(ParamItem),
+                        typeof(ParamOrder),
+                        typeof(ParamPartItem),
+                        typeof(ParamRecipe),
+                        typeof(ParamRecipeItem),
+                        typeof(ParamStepItem),
+                        typeof(ParamUnitProcedure),
+                        typeof(ProcessBind),
+                        typeof(ParamLocalRoute),
+                     };
                     db.CodeFirst.SetStringDefaultLength(200).InitTables(types);
                 }
                 catch (Exception e)

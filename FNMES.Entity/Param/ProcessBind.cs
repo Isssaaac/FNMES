@@ -26,19 +26,23 @@ namespace FNMES.Entity.Param
         ///</summary>
          [SugarColumn(ColumnName = "productCode", IsNullable = true)]
          public string ProductCode { get; set; }
-        /// <summary>
-        ///  
-        ///</summary>
+       
          [SugarColumn(ColumnName = "taskOrderNumber", IsNullable = true)]
          public string TaskOrderNumber { get; set; }
-        /// <summary>
-        ///  
-        ///</summary>
+      
          [SugarColumn(ColumnName = "productPartNo", IsNullable = true)]
          public string ProductPartNo { get; set; }
-        /// <summary>
-        ///  
-        ///</summary>
+
+
+        [SugarColumn(ColumnName = "reessNo", IsNullable = true)]
+        public string ReessNo { get; set; }      //国标码
+
+        [SugarColumn(ColumnName = "diverter", IsNullable = true)]
+        public string Diverter { get; set; }    //分流器条码
+
+        [SugarColumn(ColumnName = "glueTime", IsNullable = true)]
+        public string GlueTime { get; set; }    //中段涂胶时间
+
         [SugarColumn(ColumnName = "configId", IsNullable = true)]
         public string ConfigId { get; set; }
 

@@ -48,12 +48,10 @@
                     <th>
                         <input type="checkbox" lay-skin="primary">
                     </th>
-                    <th>物料编码</th>
-                    <th>物料描述</th>
-                    <th>条码</th>
-                    <th>类型</th>
-                    <th>用量</th>
-                    <th>单位</th>
+                    <th>参数编码</th>
+                    <th>参数名称</th>
+                    <th>参数值</th>
+                    <th>结果</th>
                 </tr>
             </thead>
             <!--内容容器-->
@@ -72,12 +70,10 @@
         <td>
             <input type="checkbox" lay-skin="primary" value="{{item.Id}}">
         </td>
-        <td>{{item.PartNumber}}</td>
-        <td>{{item.PartDescription}}</td>
-        <td>{{item.PartBarcode}}</td>
-        <td>{{item.TraceType}}</td>
-        <td>{{item.UsageQty}}</td>
-        <td>{{item.Uom}}</td>
+        <td>{{item.ParamCode}}</td>
+        <td>{{item.ParamName}}</td>
+        <td>{{item.ParamValue}}</td>
+        <td>{{item.ItemFlag}}</td>
     </tr>
      {{#  }); }}
        {{# if(d.list.length<=0) { }}
@@ -111,7 +107,7 @@
             params: {
                 productCode: productCode,
                 configId: configId,
-                stationCode: stationCode，
+                stationCode: stationCode,
                 keyWord: $("#keyWord").val()
             },
             pageConfig: {

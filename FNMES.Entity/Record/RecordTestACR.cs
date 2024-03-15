@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.Record
 {
-    [SplitTable(SplitType.Year)]
+    [SplitTable(SplitType.Season)]
     [SugarTable("Record_Test_ACR_{year}{month}{day}")]
     //[SugarIndex("index_ACR_productCode", nameof(ProductCode), OrderByType.Asc)]    //索引
     public class RecordTestACR

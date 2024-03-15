@@ -59,5 +59,34 @@ namespace FNMES.Entity.DTO
         public string result;  //OK NG 
     }
 
-
+    [DataContract]
+    public class HotRivetRecord
+    {
+        [DataMember]
+        public string productCode;
+        [DataMember]
+        public string batchCode;
+        [DataMember]
+        public string station;
+        [DataMember]
+        public List<HotRivetData> data;
+        [DataMember]
+        public string result;  //OK NG 
+    }
+    [DataContract]
+    public class HotRivetData   //热铆数据
+    {
+        [DataMember]
+        public string no;
+        [DataMember]
+        public string realTimeTemperature;
+        [DataMember]
+        public string holdingTemperature;
+        [DataMember]
+        public string heatingTime;
+        [DataMember]
+        public string holdingTime;
+        [DataMember]
+        public string holdingPressure;
+    }
 }
