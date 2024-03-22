@@ -122,13 +122,13 @@ namespace FNMES.WebUI.Logic.Param
             {
                 var db = GetInstance(configId);
                 ParamLocalRoute entity = db.MasterQueryable<ParamLocalRoute>().Where(it => it.StationCode == station && it.ProductPartNo == productPartNo).First();
-                //if (entity != null)
-                //{
-                //    if (!entity.Criterion.IsNullOrEmpty())
-                //    {
-                //        entity.CheckStations = entity.Criterion.Split(',').ToList();
-                //    }
-                //}
+                if (entity != null)
+                {
+                    if (!entity.Criterion.IsNullOrEmpty())
+                    {
+                        entity.CheckStations = entity.Criterion.Split(',').ToList();
+                    }
+                }
                 return entity;
             }
             catch (Exception E)

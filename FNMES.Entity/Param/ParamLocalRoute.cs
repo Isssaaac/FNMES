@@ -29,17 +29,18 @@ namespace FNMES.Entity.Param
         public string Criterion { get; set; }
         //用于数据显示  
         [SugarColumn(IsIgnore = true)]   
-        public List<string> CheckStations { 
-            get { 
-                 if (Criterion!="")
-                {
-                    return Criterion.Split(',').ToList();
-                }
-                 return null;
-                }
-            set {
-                Criterion = String.Join(",", value);
-                }
+        public List<string> CheckStations {
+            get; set;
+            //get { 
+            //     if (Criterion!="")
+            //    {
+            //        return Criterion.Split(',').ToList();
+            //    }
+            //     return null;
+            //    }
+            //set {
+            //    Criterion = String.Join(",", value);
+            //    }
         }
         //校验是否允许跳站，不允许则需要上次纪录是上个工位
         [SugarColumn(ColumnName = "allowJump", ColumnDataType = "varchar(2)",IsNullable = true)]

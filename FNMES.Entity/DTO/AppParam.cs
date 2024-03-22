@@ -89,4 +89,16 @@ namespace FNMES.Entity.DTO
         [DataMember]
         public string holdingPressure;
     }
+
+    [DataContract]
+    public class PlcRecipeData
+    {
+        [DataMember]
+        public string product;
+        [DataMember]
+        public string plc;
+        [DataMember]
+        public string content;
+        
+    }
 }

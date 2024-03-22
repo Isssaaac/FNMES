@@ -25,7 +25,7 @@ namespace FNMES.WebUI.Logic.Param
     {
 
 
-        public int Insert(ProcessBind model,string configId)
+        public long Insert(ProcessBind model,string configId)
         {
             try
             {
@@ -33,7 +33,7 @@ namespace FNMES.WebUI.Logic.Param
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 int res;
                 List<ProcessBind> oldprocessBind = db.MasterQueryable<ProcessBind>().Where(it => it.PalletNo == model.PalletNo || it.ProductCode == model.ProductCode).ToList(); ;
-                if (oldprocessBind.Count!=0)
+                if (oldprocessBind!= null && oldprocessBind.Count!=0)
                 {
                     try
                     {
@@ -50,7 +50,11 @@ namespace FNMES.WebUI.Logic.Param
                         db.Deleteable<ProcessBind>(oldprocessBind).ExecuteCommand();
                         res = db.Insertable<ProcessBind>(model).ExecuteCommand();
                         Db.CommitTran();
-                        return res;
+                        if (res != 0)
+                        {
+                            return model.Id;
+                        }
+                        return 0L;
                     }
                     catch (Exception)
                     {
@@ -61,16 +65,53 @@ namespace FNMES.WebUI.Logic.Param
                 else
                 {
                     res = db.Insertable<ProcessBind>(model).ExecuteCommand();
-                    return res;
+                    if(res != 0)
+                    {
+                        return model.Id;
+                    }
+                    return 0L;
                 }
             }
             catch (Exception e)
             {
                 Logger.ErrorInfo(e.Message);
-                return 0;
+                return 0L;
             }
         }
 
+        //M500打包工位不直接删除绑定纪录， 不然打包工位可能删除后无法重复作业。
+        //通过时间来删除，在出站的时候，直接删除超过30天旧数据
+        public bool RemoveOldData(string configId)
+        {
+            var db = GetInstance(configId);
+            List<ProcessBind> oldprocessBind = db.MasterQueryable<ProcessBind>().Where(it => it.CreateTime < DateTime.Now.AddDays(-30)).ToList();
+            if (oldprocessBind != null && oldprocessBind.Count != 0)
+            {
+                try
+                {
+                    Db.BeginTran();
+                    List<RecordBindHistory> histories = new List<RecordBindHistory>();
+                    oldprocessBind.ForEach(it =>
+                    {
+                        RecordBindHistory history = new RecordBindHistory();
+                        history.CopyField(it);
+                        histories.Add(history);
+                    });
+
+                    db.Insertable<RecordBindHistory>(histories).SplitTable().ExecuteCommand();
+                    db.Deleteable<ProcessBind>(oldprocessBind).ExecuteCommand();
+                    Db.CommitTran();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    Logger.ErrorInfo(e.Message);
+                    Db.RollbackTran();
+                    return false;
+                }
+            }
+            return true;
+        }
 
 
       

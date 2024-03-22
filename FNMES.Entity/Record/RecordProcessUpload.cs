@@ -39,7 +39,7 @@ namespace FNMES.Entity.Record
         public string RecipeVersion { get; set; }
 
         // 检测最终结果
-        [SugarColumn(ColumnName = "totalFlag", ColumnDataType = "char(10)", IsNullable = true)]
+        [SugarColumn(ColumnName = "totalFlag", ColumnDataType = "varchar(10)", IsNullable = true)]
         public string TotalFlag { get; set; }
 
         // 操作工

@@ -23,7 +23,7 @@ namespace FNMES.Entity.Record
         [SugarColumn(ColumnName = "smallStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string SmallStationCode { get; set; }
 
-        [SugarColumn(ColumnName = "alarmStatus", ColumnDataType = "char(10)", IsNullable = true)]
+        [SugarColumn(ColumnName = "alarmStatus", ColumnDataType = "varchar(10)", IsNullable = true)]
         public string AlarmStatus { get; set; }
 
         [SugarColumn(ColumnName = "alarmCode", ColumnDataType = "varchar(100)", IsNullable = true)]

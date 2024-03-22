@@ -28,11 +28,11 @@ namespace FNMES.Entity.Record
         public string ToolName { get; set; }
 
         // 次数
-        [SugarColumn(ColumnName = "toolRemainValue", ColumnDataType = "char(10)", IsNullable = true)]
+        [SugarColumn(ColumnName = "toolRemainValue", ColumnDataType = "varchar(10)", IsNullable = true)]
         public string ToolRemainValue { get; set; }
 
         // 单位
-        [SugarColumn(ColumnName = "uom", ColumnDataType = "char(10)", IsNullable = true)]
+        [SugarColumn(ColumnName = "uom", ColumnDataType = "varchar(10)", IsNullable = true)]    
         public string Uom { get; set; }
         [SplitField]
         [SugarColumn(ColumnName = "createTime")]

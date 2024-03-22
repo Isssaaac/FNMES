@@ -34,7 +34,7 @@ namespace FNMES.Entity.Record
         public string ParamValue { get; set; }
 
         // 检测结果 OK/NG
-        [SugarColumn(ColumnName = "itemFlag", ColumnDataType = "char(10)", IsNullable = true)]
+        [SugarColumn(ColumnName = "itemFlag", ColumnDataType = "varchar(10)", IsNullable = true)]
         public string ItemFlag { get; set; }
         [SplitField]
         [SugarColumn(ColumnName = "createTime")]

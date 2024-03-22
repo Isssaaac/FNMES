@@ -38,14 +38,14 @@ namespace MES.WebUI.Areas.Param.Controllers
         }
 
 
-        [Route("record/bind/index")]
-        [HttpPost]
-        public ActionResult Index(int pageIndex, int pageSize, string keyWord,string configId,string index)
+        [Route("record/bind/data")]
+        [HttpGet]
+        public ActionResult Index(int page, int limit, string keyWord,string configId,string index)
         {
             try
             {
                 int totalCount = 0;
-                var pageData = bindLogic.GetList(pageIndex, pageSize, keyWord, configId, ref totalCount, index);
+                var pageData = bindLogic.GetList(page, limit, keyWord, configId, ref totalCount, index);
                 var result = new LayPadding<ProcessBind>()
                 {
                     result = true,

@@ -76,23 +76,16 @@
             
 <!--内容模板-->
 <script id="statusTpl" type="text/html">
-     {{# if(d.Status === 1){ }}
+     {{# if(d.Status == "OK"){ }}
      <span class="label label-success label-sm">OK</span>
     {{# } else { }}
        <span  class="label label-red label-sm">NG</span>
         <!-- 其他状态的处理，可以根据实际需求添加更多条件 -->
     {{# } }}
 </script>
-<script id="statusTpl" type="text/html">
-     {{# if(d.Status === 1){ }}
-     <span class="label label-red label-sm">开始</span>
-    {{# } else { }}
-      <span   class="label label-succes label-sm">复位</span>
-        <!-- 其他状态的处理，可以根据实际需求添加更多条件 -->
-    {{# } }}
-</script>
+
 <script id="selectTpl" type="text/html">
-     {{# if(d.Status === 1){ }}
+     {{# if(d.RepairFlag == "1"){ }}
      <span class="label label-success label-sm">是</span>
     {{# } else { }}
        <span  class="label label-dark label-sm">否</span>
@@ -249,8 +242,12 @@
                 { field: 'TaskOrderNumber', title: '工单' },
                 { field: 'ProductPartNo', title: '产品名称' },
                 { field: 'ConfigId', title: '所属线体' },
+                { field: 'CurrentStation', title: '最近工站' },
+                { field: 'Diverter', title: '分流器条码' },
+                { field: 'ReessNo', title: '国标码' },
+                { field: 'GlueTime', title: '中段涂胶时间' },
                 { field: 'Status', title: '状态', templet: '#statusTpl' },
-                { field: 'RepairFlag', title: '返修',templet: '#selectTpl' },
+                { field: 'RepairFlag', title: '返修', templet: '#selectTpl' },
                 { field: 'RepairStations', title: '返修站' },
              ];
         } else if (condition === 12) {
