@@ -147,7 +147,12 @@ namespace FNMES.WebUI.Logic.Base
             }
         }
 
-
+        /// <summary>
+        /// 根据名称获取数据库连接的实例
+        /// </summary>
+        /// <param name="dbName">默认、"1"-"5"</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static ISqlSugarClient GetInstance(string dbName = DatabaseName.Sys)
         {
             if(dbName == DatabaseName.Sys)
@@ -232,23 +237,25 @@ namespace FNMES.WebUI.Logic.Base
                 {
                     ISqlSugarClient db = GetInstance(item.ConfigId);
                     Type[] types ={
-                        typeof(FactoryStatus),
-                        typeof(ParamAlternativePartItem),
-                        typeof(ParamAndon),
-                        typeof(ParamEquipmentError),
-                        typeof(ParamEquipmentStatus),
-                        typeof(ParamEquipmentStopCode),
-                        typeof(ParamEsopItem),
-                        typeof(ParamItem),
-                        typeof(ParamOrder),
-                        typeof(ParamPartItem),
-                        typeof(ParamRecipe),
-                        typeof(ParamRecipeItem),
-                        typeof(ParamStepItem),
+                        typeof(FactoryStatus),//工厂MES状态
+                        typeof(ParamAlternativePartItem),//替换物料
+                        typeof(ParamAndon),//呼叫
+                        typeof(ParamEquipmentError),//设备异常
+                        typeof(ParamEquipmentStatus),//设备状态
+                        typeof(ParamEquipmentStopCode),//设备停机代码
+                        typeof(ParamEsopItem),//ESOP
+                        typeof(ParamItem),//工艺参数
+                        typeof(ParamOrder),//派工参数
+                        typeof(ParamPartItem),//物料清单
+                        typeof(ParamRecipe),//产品列表
+                        typeof(ParamRecipeItem),//各工位配方
+                        typeof(ParamStepItem),//各工步参数
                         typeof(ParamUnitProcedure),
-                        typeof(ProcessBind),
-                        typeof(ParamLocalRoute),
+                        typeof(ProcessBind),//绑定表
+                        typeof(ParamLocalRoute),//工艺路线
+                        typeof(ParamPlcRecipe),//PLC上传下载配方
                      };
+                    //对未配置长度的字符串设置默认字符串长度
                     db.CodeFirst.SetStringDefaultLength(200).InitTables(types);
                 }
                 catch (Exception e)

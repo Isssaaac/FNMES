@@ -80,14 +80,13 @@ namespace MES.WebUI.Areas.Param.Controllers
             ParamRecipe paramRecipe = productLogic.Get(long.Parse(primaryKey),configId);
             //从工厂同步配方
 
-
             GetRecipeParam param = new() { 
                 productionLine = sysLine.EnCode,
                 productPartNo = paramRecipe.ProductPartNo,
                 smallStationCode = "",
                 stationCode = "",
                 section = "后段",
-                equipmentID = "FN-GZXNY-PACK-024",
+                equipmentID = "FN-GZ-XTSX-03-M300-A",   //20240409更新设备编码 FN-GZXNY-PACK-024
                 operatorNo = OperatorProvider.Instance.Current.UserId,
                 actualStartTime = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString()
             };

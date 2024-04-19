@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.DTO.ApiParam
 {
+    //与工厂MES交互时传递的参数数据
     [DataContract]
     public class BaseParam
     {
@@ -262,6 +263,18 @@ namespace FNMES.Entity.DTO.ApiParam
         [DataMember]
         public string operatorNo { get; set; }
 
+        #region 20240408增加
+        //预装件条码（M305 FPC预装或M306喷胶贴泡棉预装件必填） 
+        [DataMember]
+        public string semBarcode { get; set; }
+
+        [DataMember]
+        public string usageQty { get; set; }
+
+        [DataMember]
+        public string uom { get; set; }
+
+        #endregion
         // 请求时间(时间戳)
 
 
@@ -551,39 +564,121 @@ namespace FNMES.Entity.DTO.ApiParam
         public string stopDurationTime { get; set; }
     }
 
-  
+
+    //[DataContract]
+    //public class ReworkParam:BaseParam
+    //{
+    //    // 返修原因
+    //    [DataMember]
+    //    public string reworkReason { get; set; }
+
+    //    // 返修工单（非必填）
+    //    [DataMember]
+    //    public string reworkWorkOrder { get; set; }
+
+    //    // 返修工位号
+    //    [DataMember]
+    //    public string stationCode { get; set; }
+
+    //    [DataMember]
+    //    // 返修小工位
+    //    public string smallStationCode { get; set; }
+    //    [DataMember]
+    //    // 备注（非必填）
+    //    public string reworkComments { get; set; }
+
+    //    // 员工号
+    //    [DataMember]
+    //    public string operatorNo { get; set; }
+
+    //    // 请求时间（时间戳）
+
+    //    [DataMember]
+    //    // 返修的产品清单
+    //    public List<ProductInfo> productList { get; set; }
+    //}
+
     [DataContract]
-    public class ReworkParam:BaseParam
+    public class ReworkParam : BaseParam
     {
-        // 返修原因
+        //返修原因
         [DataMember]
         public string reworkReason { get; set; }
 
-        // 返修工单（非必填）
+        //返修工单，非必填
         [DataMember]
         public string reworkWorkOrder { get; set; }
 
-        // 返修工位号
+        //返修工位号
         [DataMember]
         public string stationCode { get; set; }
 
+        //返修小工位
         [DataMember]
-        // 返修小工位
-        public string smallStationCode { get; set; }
-        [DataMember]
-        // 备注（非必填）
-        public string reworkComments { get; set; }
+        public string smallStationCode { get; set;}
 
-        // 员工号
+        //备注，非必填
         [DataMember]
-        public string operatorNo { get; set; }
+        public string reworkComments { get; set;}
 
-        // 请求时间（时间戳）
-
+        //员工号
         [DataMember]
-        // 返修的产品清单
-        public List<ProductInfo> productList { get; set; }
+        public string operatorNo { get; set;}
+
+        //返修产品清单
+        [DataMember]
+        public List<ProductList> productList { get; set;}
     }
+
+    [DataContract]
+    public class ProductList
+    {
+        //PACK/Module/Cell
+        [DataMember]
+        public string productType { get; set; }
+
+        [DataMember]    
+        public string productCode { get; set; }
+
+        [DataMember]
+        public string productStatus { get; set; }
+
+        //替换进的物料编码，换料返修时，此时不需要调用“追溯件信息上传接口”
+        [DataMember]
+        public List<PartList> partList { get; set; }
+    }
+
+    [DataContract]
+    public class PartList
+    {
+        //旧物料编码 
+        [DataMember]
+        public string oldPartNumber { get; set; }
+
+        //换入的物料编码
+        [DataMember]
+        public string newPartNumber { get; set;}
+
+        //物料描述
+        [DataMember]
+        public string partDescription { get; set;}
+
+        //数量
+        [DataMember]
+        public string partVersion { get; set;}
+
+        //换入的物料的批次号或SN
+        [DataMember]
+        public string partQty { get; set;}
+
+        //单位
+        [DataMember]
+        public string batchOrSN { get; set;}
+
+        [DataMember]    
+        public string uom { get; set;}  
+    }
+
     [DataContract]
     public class ToolRemainParam:BaseParam
     {

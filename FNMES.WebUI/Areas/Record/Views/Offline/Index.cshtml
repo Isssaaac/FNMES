@@ -168,4 +168,74 @@
             }
         });
     }
+
+    // 202404014增加补传数据与删除离线数据
+    var model ={
+
+    }
+
+    function btn_singleUpload(){
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选需要一条删除的数据。", "warning");
+            return;
+        }
+        $.layerConfirm({
+            content: "您已选中1条数据, 确定上传吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/record/offline/singleupload',
+                    data: {
+                        primaryId: ids[0],
+                        configId: $("#lineId").val()
+                    },
+                    success: function () {
+                        initGrid();
+                    }
+                });
+            }
+        });
+    }
+
+    function btn_allUpload() {
+
+        $.layerConfirm({
+            content: "确定上传所有待续传的数据吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/record/offline/allupload',
+                    data: {
+                        data: $("#content").val(),
+                        configId: $("#lineId").val()
+                    },
+                    success: function () {
+                        initGrid();
+                    }
+                });
+            }
+        });
+    }
+
+    function btn_deleteData() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选需要一条删除的数据。", "warning");
+            return;
+        }
+        $.layerConfirm({
+            content: "您已选中1条数据, 确定删除吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/record/offline/delete',
+                    data: {
+                        primaryId: ids[0],
+                        configId: $("#lineId").val()
+                    },
+                    success: function () {
+                        initGrid();
+                    }
+                });
+            }
+        });
+    }
     </script>

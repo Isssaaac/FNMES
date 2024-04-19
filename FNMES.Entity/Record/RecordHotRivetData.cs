@@ -16,7 +16,7 @@ namespace FNMES.Entity.Record
         [SugarColumn(ColumnName = "id", IsPrimaryKey = true)]
         public long Id { get; set; }
         [SugarColumn(ColumnName = "productCode", ColumnDataType = "varchar(40)", IsNullable = true)]
-        public string ProductCode { get; set; }    // FPC条码
+        public string ProductCode { get; set; }    // 内控码
 
         [SugarColumn(ColumnName = "batchCode", ColumnDataType = "varchar(40)", IsNullable = true)]
         public string BatchCode { get; set; } // FPC条码

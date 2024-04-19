@@ -9,27 +9,27 @@ namespace FNMES.WebUI.API
 {
     public class Url
     {
-        public const string HeartbeatUrl = "/api/pa/healthCheck";
-        public const string LoginUrl = "/api/pa/doLogin";
-        public const string GetOrderUrl = "/api/pa/syncTaskOrders";
-        public const string SelectOrderUrl = "/api/pa/syncTaskOrderStatus";
-        public const string GetRecipeUrl = "/api/pa/dispatchRecipe";
-        public const string GetLabelUrl = "/api/pa/applySNCode";
-        public const string InStationUrl = "/api/pa/doInbound";
-        public const string PartUploadUrl = "/api/pa/uploadMaterialConsumption";
-        public const string ProcessUploadUrl = "/api/pa/uploadProcessParameters";
-        public const string OutStationUrl = "/api/pa/doOutbound";
-        public const string EquipmentStateUrl = "/api/pa/syncEquipStatus";
-        public const string EquipmentErrorUrl = "/api/pa/syncEquipAlarms";
-        public const string EquipmentStopUrl = "/api/pa/shutdownEquip";
-        public const string ReworkUrl = "/api/pa/uploadRepairInfo";
-        public const string ToolRemainUrl = "/api/pa/uploadWearPartLife";
-        public const string QualityStop = "/api/pa/qualityStopTag";
-        public const string GetPackInfoUrl = "/api/pa/getPackInfo";
-        public const string BindPalletUrl = "/api/pa/bindSNAndAGV";
-        public const string UnBindPalletUrl = "/api/pa/unbindSNAndAGV";
-        public const string AndonUrl = "/api/pa/getAndonInfo";
-        public const string AndonParamUrl = "/api/pa/getAndonType";
+        public const string HeartbeatUrl = "/api/pa/healthCheck";                          //心跳接口
+        public const string LoginUrl = "/api/pa/doLogin";                                  //人员登录接口
+        public const string GetOrderUrl = "/api/pa/syncTaskOrders";                        //派工单同步接口
+        public const string SelectOrderUrl = "/api/pa/syncTaskOrderStatus";                //派工单状态同步接口
+        public const string GetRecipeUrl = "/api/pa/dispatchRecipe";                       //工艺参数和配方下发接口
+        public const string GetLabelUrl = "/api/pa/applySNCode";                           //内控码&REESS码申请 
+        public const string InStationUrl = "/api/pa/doInbound";                            //进站接口
+        public const string PartUploadUrl = "/api/pa/uploadMaterialConsumption";           //追溯件信息上传接口（物料绑定）
+        public const string ProcessUploadUrl = "/api/pa/uploadProcessParameters";          //过程数据上传接口
+        public const string OutStationUrl = "/api/pa/doOutbound";                          //出站接口
+        public const string EquipmentStateUrl = "/api/pa/syncEquipStatus";                 //工位/设备状态变更接口
+        public const string EquipmentErrorUrl = "/api/pa/syncEquipAlarms";                 //工位/设备报警变更接口
+        public const string EquipmentStopUrl = "/api/pa/shutdownEquip";                    //工位/设备停机接口
+        public const string ReworkUrl = "/api/pa/uploadRepairInfo";                        //返修信息上传接口
+        public const string ToolRemainUrl = "/api/pa/uploadWearPartLife";                  //夹治具寿命上传接口
+        public const string QualityStop = "/api/pa/qualityStopTag";                        //质量停机牌下发接口
+        public const string GetPackInfoUrl = "/api/pa/getPackInfo";                        //PACK信息获取接口  
+        public const string BindPalletUrl = "/api/pa/bindSNAndAGV";                        //内控码与AGV工装码绑定上传接口
+        public const string UnBindPalletUrl = "/api/pa/unbindSNAndAGV";                    //内控码与AGV工装码解绑上传接口
+        public const string AndonUrl = "/api/pa/getAndonInfo";                             //ANDON接口
+        public const string AndonParamUrl = "/api/pa/getAndonType";                        //ANDON异常类型下发接口
     }
     public class APIMethod
     {
@@ -60,6 +60,32 @@ namespace FNMES.WebUI.API
                 {
                     Url = method,
                     RequestBody = param.ToJson(),
+                    ResponseBody = response,
+                    Elapsed = (int)stopwatch.Elapsed.TotalMilliseconds
+                }, configId);
+            }
+            return response;
+        }
+
+        public static string Call(string method,string jsonData,string configId,bool disableLog=false)
+        {
+            method = url + method;
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            string response = WebApiRequest.DoPostJsonData(method, jsonData);
+
+            if (response.IsNullOrEmpty())
+            {
+                //此处用F表示，访问接口失败。。用于区分访问接口失败和调用结果的E
+                response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+            }
+            stopwatch.Stop();
+            if (!disableLog)
+            {
+                logic.Insert(new RecordApi()
+                {
+                    Url = method,
+                    RequestBody = jsonData,
                     ResponseBody = response,
                     Elapsed = (int)stopwatch.Elapsed.TotalMilliseconds
                 }, configId);

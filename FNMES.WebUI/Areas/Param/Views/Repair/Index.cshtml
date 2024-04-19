@@ -1,0 +1,316 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>返修</title>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+    <link href="~/Content/ztree/css/metroStyle/metroStyle.css" rel="stylesheet" />
+    <script src="~/Content/ztree/js/jquery.ztree.all.min.js"></script>
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+<body>
+    <div class="container-fluid fadeIn animated">
+        
+        <div class="row">
+            
+            <div >
+                <div class="panel container-panel">
+                    <div class="panel-body">
+                        <div id="toolbar" class="FNMES-table-toolbar">
+                            <div class="layui-btn-group">
+
+                            </div>
+                            <div class="layui-btn-group">
+                                <button onclick="btn_MarkRepair()" class="layui-btn layui-btn-primary layui-btn-small">登记返修</button>
+                            </div>
+                            <div class="layui-btn-group">
+                                <button onclick="btn_CancelMark()" class="layui-btn layui-btn-primary layui-btn-small">取消登记</button>
+                            </div>
+                            @*  <div class="layui-btn-group">
+                                <button onclick="btn_edit()" class="layui-btn layui-btn-primary layui-btn-small">修改不良代码</button>
+                            </div> *@
+                             @*  <div class="layui-btn-group">
+                                <button onclick="btn_RepairParam()" class="layui-btn layui-btn-primary layui-btn-small">工艺参数</button>
+                            </div>
+                            <div class="layui-btn-group">
+                                <button onclick="btn_RepairStep()" class="layui-btn layui-btn-primary layui-btn-small">工步</button>
+                            </div> *@
+
+                            <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
+                                <i class="layui-icon">&#xe615;</i>
+                            </button>
+                            <div class="toolbar-search-input">
+                                <input type="text" id="keyWord" placeholder="内控码" autocomplete="off" class="layui-input" style="height:39px" />
+                            </div>
+                        </div>
+                        <table id="gridList" class="layui-form layui-table FNMES-table" lay-skin="line">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" lay-skin="primary">
+                                    </th>
+                                    <th>内控码</th>
+                                    <th>所属线体</th>
+                                    <th>工序</th>
+                                    <th>状态</th>
+                                    <th>不良代码</th>
+                                    <th>不良描述</th>
+                                    <th>登记为返修</th>
+                                </tr>
+                            </thead>
+                            <!--内容容器-->
+                            <tbody id="content"></tbody>
+                        </table>
+                        <div id="paged"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<!--内容模板-->
+<script id="contentTpl" type="text/html">
+    {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}">
+        </td>
+        <td>{{item.ProduceCode}}</td>
+        <td>{{item.LineId}}</td>
+        <td>{{item.StationCode}}</td>
+        <td>{{item.ProductStatus}}</td>
+        <td>{{item.DefectCode}}</td>
+        <td>{{item.DefectDesc}}</td>
+
+        <td>
+            {{# if(item.RepairFlag=="1"){ }}  <span class="label label-success label-sm">是</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">否</span>
+            {{# } }}
+        </td>
+    </tr>
+    {{#  }); }}
+    {{# if(d.list.length<=0) { }}
+    <tr style="color: red">
+        <td colspan="8">查无数据。</td>
+    </tr>
+    {{# } }}
+
+</script>
+
+<script type="text/javascript">var paging;
+    layui.config({ base: parent._baseUrl}).use(['paging', 'form'], function () {
+        var form = layui.form;
+        paging = layui.paging();
+        $("#lineId").bindSelect({
+            type: "POST",
+            url: "/system/line/getListTreeSelect",
+            title: '请选择线体'
+        });
+        $("#lineId").on("select2:select", function (e) {
+            // 处理选择事件
+            if ($("#lineId").val() == "0") {
+                return
+            };
+            initTree();
+        });
+
+
+        $("#toolbar").authorizeButton();
+        $('#btnSearch').click(initGrid);
+        $('#keyWord').bindEnterEvent(initGrid);
+    });
+
+    // function initTree() {
+    //     var setting = {
+    //         data: {
+    //             simpleData: {
+    //                 enable: true
+    //             }
+    //         },
+    //         check: {
+    //             enable: false,
+    //             chkStyle: "checkbox",
+    //             chkDisabledInherit: false
+    //         },
+    //         async: {
+    //             enable: true,
+    //             url: "/param/product/getListTree?configId=" + $("#lineId").val(),
+    //             dataType: "text",
+    //             autoParam: ["id", "name"]
+    //         }, callback: {
+    //             onAsyncSuccess: function (event, treeId, treeNode, msg) {
+    //                 var node = zTreeObj.getNodesByFilter(function (node) {
+    //                     return node.level == 1
+    //                 }, true);
+    //                 zTreeObj.selectNode(node);
+    //                 zTreeObj.setting.callback.onClick(event, zTreeObj.setting.treeId, node);
+    //             },
+    //             onClick: function (event, treeId, treeNode) {
+    //                 initGrid();
+    //             }
+    //         }
+    //     };
+
+    //     var zTreeObj = $.fn.zTree.init($("#treeItem"), setting);
+    // }
+
+
+
+    function initGrid() {
+
+        paging.init({
+            url: '/param/repair/index',
+            elem: '#content',
+            tempElem: '#contentTpl',
+            params: {
+                productCode: $("#keyWord").val(),
+                
+            },
+            pageConfig: {
+                elem: 'paged',
+                pageSize: 10,
+            },
+            success: function () {
+
+            },
+            fail: function (msg) {
+                top.layer.msg(msg);
+            }
+        });
+    }
+
+    function btn_MarkRepair() {
+        var data = $("#gridList").gridSelectedRowData();
+        
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选需要登记的数据。", "warning");
+            return;
+        }
+        $.layerConfirm({
+            content: "您已选中1条数据, 确定登记为返修吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/param/repair/mark',
+                    data: {
+                        productCode: data[1],
+                        configId: data[2],
+                        stationCode: data[3],
+                    },
+                    success: function () {
+                        initGrid();
+                    }
+                });
+            }
+        });
+    }
+
+    function btn_CancelMark() {
+        var data = $("#gridList").gridSelectedRowData();
+
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选需要取消登记的数据。", "warning");
+            return;
+        }
+        $.layerConfirm({
+            content: "您已选中1条数据, 确定取消返修登记吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/param/repair/dismark',
+                    data: {
+                        productCode: data[1],
+                        configId: data[2],
+                        stationCode: data[3],
+                    },
+                    success: function () {
+                        initGrid();
+                    }
+                });
+            }
+        });
+
+    }
+
+    // function btn_edit() {
+    //     var ids = $("#gridList").gridSelectedRowValue();
+    //     if (ids.length != 1) {
+    //         $.layerMsg("请勾选单条记录修改。", "warning");
+    //         return;
+    //     }
+    //     $.layerOpen({
+    //         id: "edit",
+    //         title: "修改不良代码",
+    //         width: "750px",
+    //         height: "400px",
+    //         content: "/param/repair/form?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
+    //         yes: function (iBody) {
+    //             iBody.find('#btnSubmit').click();
+    //             initGrid();
+    //         }
+    //     });
+    // }
+
+    // function btn_RepairParam() {
+    //     var data = $("#gridList").gridSelectedRowData();
+
+    //     var ids = $("#gridList").gridSelectedRowValue();
+    //     if (ids.length != 1) {
+    //         $.layerMsg("请勾选需要查看的数据。", "warning");
+    //         return;
+    //     }
+
+    //     $.layerOpen({
+    //         id: "detail",
+    //         title: "工艺参数",
+    //         width: "1000px",
+    //         height: "600px",
+    //         content: "/param/repair/param?primaryKey=" + ids[0] + "&configId=" + data[2],
+    //         btn: null
+    //     });
+    // }
+
+    // function btn_RepairStep() {
+    //     var data = $("#gridList").gridSelectedRowData();
+
+    //     var ids = $("#gridList").gridSelectedRowValue();
+    //     if (ids.length != 1) {
+    //         $.layerMsg("请勾选需要查看的数据。", "warning");
+    //         return;
+    //     }
+
+    //     $.layerOpen({
+    //         id: "detail",
+    //         title: "工步",
+    //         width: "1000px",
+    //         height: "600px",
+    //         content: "/param/repair/step?primaryKey=" + ids[0] + "&configId=" + data[2],
+    //         btn: null
+    //     });
+    // }
+</script>
+

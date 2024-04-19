@@ -114,7 +114,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                         taskOrderNumber = order.TaskOrderNumber ,
                         actionCode = ActionCode.Start, } } ,
                     stationCode = "M300",    //此处填充内容根据工厂确定
-                    equipmentID = "FN-GZXNY-PACK-024",
+                    equipmentID = "FN-GZ-XTSX-03-M300-A",          //20240409更新设备编码FN-GZXNY-PACK-024 
                     productionLine = sysLine.EnCode,
                     operatorNo = OperatorProvider.Instance.Current.UserId,
                     actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
@@ -164,7 +164,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                         taskOrderNumber = order.TaskOrderNumber, 
                         actionCode = ActionCode.Pause } },
                     stationCode = "M300",    //此处填充内容根据工厂确定
-                    equipmentID = "FN-GZXNY-PACK-024",
+                    equipmentID = "FN-GZ-XTSX-03-M300-A",    //20240409更新设备编码FN-GZXNY-PACK-024
                     productionLine = sysLine.EnCode,
                     operatorNo = OperatorProvider.Instance.Current.UserId,
                     actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
@@ -213,7 +213,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                         taskOrderNumber = order.TaskOrderNumber,
                         actionCode = ActionCode.Cancel} },
                     stationCode = "M300",    //此处填充内容根据工厂确定S
-                    equipmentID = "FN-GZXNY-PACK-024",
+                    equipmentID = "FN-GZ-XTSX-03-M300-A",   //20240409更新设备编码FN-GZXNY-PACK-024        
                     productionLine = sysLine.EnCode,
                     operatorNo = OperatorProvider.Instance.Current.UserId,
                     actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
@@ -270,7 +270,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                         taskOrderNumbers = orders,
                         productionLine= sysLine.EnCode,
                         stationCode = "M300",
-                        equipmentID = "FN-GZXNY-PACK-024",
+                        equipmentID = "FN-GZ-XTSX-03-M300-A",//20240409FN-GZXNY-PACK-024     更改设备编码20240409
                         operatorNo = OperatorProvider.Instance.Current.Name,
                         actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
                     };
@@ -314,7 +314,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                 smallStationCode = "",
                 stationCode = "",
                 section = "后段",
-                equipmentID = "FN-GZXNY-PACK-024",
+                equipmentID = "FN-GZ-XTSX-03-M300-A",   //20240409更新设备编码FN-GZXNY-PACK-024
                 operatorNo = OperatorProvider.Instance.Current.UserId,
                 actualStartTime = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString()
             };

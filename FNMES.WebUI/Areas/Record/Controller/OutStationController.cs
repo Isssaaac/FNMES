@@ -18,6 +18,8 @@ using FNMES.Entity.Sys;
 using FNMES.Entity.DTO.ApiData;
 using FNMES.WebUI.Logic.Record;
 using FNMES.Entity.Record;
+using System.Linq;
+using SqlSugar;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -142,11 +144,14 @@ namespace MES.WebUI.Areas.Param.Controllers
             {
                 int totalCount = 0;
                 var pageData = outStationLogic.GetList(pageIndex, pageSize, keyWord, ref totalCount, configId,index);
+                //在分页查询后去重导致页面不足10条
+                var pageData1 = pageData.GroupBy(e => new { e.ProductCode, e.StationCode }).Select(e => e.First()).ToList();
+                
                 var result = new LayPadding<RecordOutStation>()
                 {
                     result = true,
                     msg = "success",
-                    list = pageData,
+                    list = pageData1,
                     count = totalCount//pageData.Count
                 };
                 return Content(result.ToJson());

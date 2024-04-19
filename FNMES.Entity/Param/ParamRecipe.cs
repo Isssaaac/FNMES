@@ -17,37 +17,58 @@ namespace FNMES.Entity.Param
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
         [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]
          public long Id { get; set; }
+
         [SugarColumn(ColumnName = "productPartNo")]
         public string ProductPartNo { get; set; }
+
         /// <summary>
         /// 名称 
         ///</summary>
         [SugarColumn(ColumnName = "productDescription", IsNullable = true)]
         public string ProductDescription { get; set; }
+
+        /// <summary>
+        /// sap客户项目号 
+        ///</summary>
+        [SugarColumn(ColumnName = "sapCustomerProjNo", IsNullable = true)]
+        public string SapCustomerProjNo { get; set; }
+
         /// <summary>
         /// 编码 
-        ///</summary>
+        ///</summary>s
         [SugarColumn(ColumnName = "bomNo", IsNullable = true)]
          public string BomNo { get; set; }
+
         /// <summary>
         /// 名称 
         ///</summary>
          [SugarColumn(ColumnName = "bomDescription", IsNullable = true)]
          public string BomDescription { get; set; }
+
+        /// <summary>
+        /// BOM版本
+        /// </summary>
         [SugarColumn(ColumnName = "bomVersion", IsNullable = true)]
         public string BomVersion { get; set; }
+
         [SugarColumn(ColumnName = "processConfigName", IsNullable = true)]
         public string ProcessConfigName { get; set; }
+
         [SugarColumn(ColumnName = "routeNo", IsNullable = true)]
         public string RouteNo { get; set; }
+
         [SugarColumn(ColumnName = "routeName", IsNullable = true)]
         public string RouteName { get; set; }
+
         [SugarColumn(ColumnName = "routeVersion", IsNullable = true)]
         public string RouteVersion { get; set; }
+
         [SugarColumn(ColumnName = "createTime", IsNullable = true)]
         public DateTime? CreateTime { get; set; }
+
         [Navigate(NavigateType.OneToMany, nameof(ParamRecipeItem.RecipeId))]//一对多
         public List<ParamRecipeItem> processParamItems { get; set; }
+
         //分库的数据库标识
         [SugarColumn(IsIgnore = true)]
         public string ConfigId
@@ -60,6 +81,7 @@ namespace FNMES.Entity.Param
             this.Id = SnowFlakeSingle.instance.NextId();
             this.ProductPartNo = source.productPartNo;
             this.ProductDescription = source.productDescription;
+            this.SapCustomerProjNo = source.sapCustomerProjNo;
             this.BomNo = source.bomNo;
             this.BomDescription = source.bomDescription;
             this.BomVersion = source.bomVersion;

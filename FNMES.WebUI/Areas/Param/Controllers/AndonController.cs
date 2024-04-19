@@ -56,6 +56,8 @@ namespace FNMES.WebUI.Areas.Param.Controllers
             };
             return Content(result.ToJson());
         }
+
+
         [Route("param/andon/get")]
         [HttpPost]
         //获取andon参数并更新

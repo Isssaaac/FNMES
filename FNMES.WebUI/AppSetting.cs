@@ -45,6 +45,8 @@ namespace CCS.WebUI
 
         public static string FactoryUrl { get; set; }
 
+        public static string PlantCode { get; set; }
+
         public static int WorkId { get; set; }
 
         public static string Copyright { get; set; }
@@ -72,6 +74,7 @@ namespace CCS.WebUI
             LogOutDateDays = Convert.ToInt32(configuration["LogOutDateDays"] ?? "30");
             SessionTimeout = Convert.ToInt32(configuration["SessionTimeout"] ?? "20");
             FactoryUrl = (configuration["FactoryUrl"] ?? "");
+            PlantCode = (configuration["PlantCode"] ?? "");//20240418 添加
             WorkId = Convert.ToInt32(configuration["WorkId"] ?? "http://221.230.79.84:9199");
             if (string.IsNullOrEmpty(_connection.DbConnectionString))
                 throw new Exception("未配置好数据库默认连接");

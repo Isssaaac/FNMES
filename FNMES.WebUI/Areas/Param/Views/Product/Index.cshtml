@@ -52,6 +52,7 @@
                         </th>
                         <th>编码</th>
                         <th>名称</th>
+                        <th>客户项目号</th>
                         <th>Bom</th>
                         <th>Bom名称</th>
                         <th>Bom版本</th>
@@ -79,6 +80,7 @@
             <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
           <td>{{item.ProductPartNo}}</td>
         <td>{{item.ProductDescription}}</td>
+        <td>{{item.SapCustomerProjNo}}</td>
         <td>{{item.BomNo}}</td>
         <td>{{item.BomDescription}}</td>
         <td>{{item.BomVersion}}</td>
@@ -167,6 +169,7 @@
         $.layerConfirm({
             content: "您已选中1个产品, 确定同步工艺配方吗？",
             callback: function () {
+               
                 $.formSubmit({
                     url: '/param/product/getRecipe',
                     data: { primaryKey: ids[0],
@@ -177,6 +180,7 @@
                         initGrid();
                     }
                 });
+               
             }
         });
     }

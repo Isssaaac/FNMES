@@ -18,6 +18,7 @@ using FNMES.Entity.Sys;
 using FNMES.Entity.DTO.ApiData;
 using FNMES.WebUI.Logic.Record;
 using FNMES.Entity.Record;
+using System.Linq;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -69,5 +70,30 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
         }
 
+        #region  20240414更新，页面是否允许传递结构体
+        [Route("record/offline/singleupload")]
+        [HttpPost, AuthorizeChecked]
+        public ActionResult SingleUpload(string primaryId, string configId)
+        {
+            var models = apiLogic.GetUnload(configId);
+            var model = models.Where(e => e.Id == long.Parse(primaryId)).First();
+            return apiLogic.Upload(model, configId) > 0 ? Success() : Error();
+        }
+
+        [Route("record/offline/allupload")]
+        [HttpPost, AuthorizeChecked]
+        public ActionResult AllUpload(string configId)
+        {
+            var models = apiLogic.GetUnload(configId);
+            return apiLogic.UploadAll(models, configId) > 0 ? Success() : Error();
+        }
+
+        [Route("record/offline/delete")]
+        [HttpPost, AuthorizeChecked]
+        public ActionResult Delete(string primaryId, string configId)
+        {
+            return apiLogic.Delete(long.Parse(primaryId), configId) > 0 ? Success() : Error();
+        }
+        #endregion
     }
 }

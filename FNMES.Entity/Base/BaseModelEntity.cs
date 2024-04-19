@@ -9,6 +9,7 @@ namespace FNMES.Entity
         [SugarColumn(ColumnName = "enableFlag")]
         public string EnableFlag { get; set; }
 
+        //启用
         [SugarColumn(IsIgnore = true)]
         public bool IsEnabled
         {

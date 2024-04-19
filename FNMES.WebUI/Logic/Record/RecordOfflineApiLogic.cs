@@ -5,6 +5,13 @@ using FNMES.Entity.Record;
 using System.Collections.Generic;
 using FNMES.Utility.Core;
 using System.Linq;
+using FNMES.WebUI.API;
+using FNMES.Utility.Network;
+using System.Diagnostics;
+using System.Security.Policy;
+using System.Threading.Tasks;
+using FNMES.Entity.Param;
+using FNMES.WebUI.Logic.Param;
 
 namespace FNMES.WebUI.Logic.Record
 {
@@ -126,6 +133,81 @@ namespace FNMES.WebUI.Logic.Record
             }
         }
 
+        #region 20240414添加
+        public int Upload(RecordOfflineApi model, string configId)
+        {
+            FactoryStatus factoryStatus = GetStatus(configId);
+            if (factoryStatus.isOnline)
+            {
+                var result = APIMethod.Call(model.Url, model.RequestBody, configId).ToObject<RetMessage<object>>();
+                if (result != null && result.messageType == "S")
+                {
+                    return this.Delete(model.Id, configId);
+                }
+            }
+                return 0;
+        }
 
+        private FactoryStatus GetStatus(string configId)
+        {
+            FactoryStatusLogic factoryLogic = new FactoryStatusLogic();
+            FactoryStatus status = factoryLogic.Get(configId);
+            if (status == null)
+            {
+                status = new FactoryStatus()
+                {
+                    Id = SnowFlakeSingle.instance.NextId(),
+                    Status = 0,
+                    CreateTime = DateTime.Now,
+                    Retry = 0,
+                    ConfigId = configId
+
+                };
+                factoryLogic.Insert(status);
+            }
+            status.ConfigId = configId;
+
+            return status;
+        }
+
+        public int UploadAll( List<RecordOfflineApi> models, string configId)
+        {
+            FactoryStatus factoryStatus = GetStatus(configId);
+            var noUploads = models.Where(e=>e.ReUpload == 0).OrderBy(e=>e.CreateTime).ToList();
+            int v = 0;
+            foreach (var model in noUploads)
+            {
+                if (factoryStatus.isOnline)
+                {
+                    var result = APIMethod.Call(model.Url, model.RequestBody, configId).ToObject<RetMessage<object>>();
+                    if (result != null && result.messageType == "S")
+                    {
+                        v += this.Delete(model.Id, configId);
+                    }
+                }
+               
+            }
+            return v;
+            
+        }
+
+        public int Delete(long primaryKey, string configId)
+        {
+            var db = GetInstance(configId);
+            try
+            {
+                Db.BeginTran();
+                db.Deleteable<RecordOfflineApi>().Where((it) => primaryKey == it.Id).SplitTable(tabs => tabs.Take(2)).ExecuteCommand();
+                Db.CommitTran();
+                return 1;
+            }
+            catch (Exception E)
+            {
+                Db.RollbackTran();
+                Logger.ErrorInfo(E.Message);
+                return 0;
+            }
+        }
+        #endregion
     }
 }

@@ -467,8 +467,6 @@ $.formSubmit = function (options) {
         }
     });
 }
-
-
 $.today = function () {
     return $.formatDate(new Date());
 }

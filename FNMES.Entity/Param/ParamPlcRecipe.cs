@@ -34,6 +34,7 @@ namespace FNMES.Entity.Param
          public string Content { get; set; }
         [SugarColumn(ColumnName = "createTime", IsNullable = true)]
         public DateTime? CreateTime { get; set; }
-        
+
+       
     }
 }

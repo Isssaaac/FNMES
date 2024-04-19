@@ -19,25 +19,33 @@ namespace FNMES.Entity.Record
         [SugarColumn(ColumnName = "productCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 内控码
         public string ProductCode { get; set; }
+        
         [SugarColumn(ColumnName = "taskOrderNumber", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 派工单号
         public string TaskOrderNumber { get; set; }
+       
         [SugarColumn(ColumnName = "productStatus", ColumnDataType = "varchar(10)", IsNullable = true)]
         // 出站电芯状态（合格状态、不合格状态、返修状态）
         public string ProductStatus { get; set; }
+        
         [SugarColumn(ColumnName = "defectCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 不良代码
         public string DefectCode { get; set; }
+      
         [SugarColumn(ColumnName = "defectDesc", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 不良描述
         public string DefectDesc { get; set; }
+      
         [SugarColumn(ColumnName = "stationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string StationCode { get; set; }
+      
         [SugarColumn(ColumnName = "smallStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string SmallStationCode { get; set; }
+       
         [SugarColumn(ColumnName = "equipmentID", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 设备编码（选填）
         public string EquipmentID { get; set; }
+      
         [SugarColumn(ColumnName = "operatorNo", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 操作工
         public string OperatorNo { get; set; }

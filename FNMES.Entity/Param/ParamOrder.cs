@@ -17,7 +17,7 @@ namespace FNMES.Entity.Param
         [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]
          public long Id { get; set; }
         /// <summary>
-        ///  
+        ///  派工单号
         ///</summary>
          [SugarColumn(ColumnName="taskOrderNumber"  )]
          public string TaskOrderNumber { get; set; }

@@ -18,6 +18,10 @@ using FNMES.Entity.Param;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using FNMES.Entity.Record;
 using ServiceStack;
+using FNMES.WebUI.API;
+using FNMES.Entity.DTO.ApiParam;
+using FNMES.Utility.Network;
+using FNMES.Entity.DTO.ApiData;
 
 namespace FNMES.WebUI.Logic.Param
 {
@@ -130,6 +134,7 @@ namespace FNMES.WebUI.Logic.Param
                 return null;
             }
         }
+      
         public ProcessBind GetByProductCode(string productCode, string configId)
         {
             //业务逻辑，必须走主库
@@ -288,6 +293,101 @@ namespace FNMES.WebUI.Logic.Param
 
                 return 0;
             }
+        }
+
+        public int FastBinding(long id, string palletNo, string configId)
+        {
+          
+            var linedb = GetInstance(configId);
+            var bindData = linedb.Queryable<ProcessBind>().Where(it => it.Id == id).First();
+
+            if (bindData == null)
+            {
+                return 0;
+            }
+            bindData.PalletNo = palletNo;
+
+            //根据工站查询设备编码
+            var db = GetInstance();
+            SysLine sysline = db.Queryable<SysLine>().Where(e=>e.ConfigId == configId).First();
+            SysEquipment equipment = db.Queryable<SysEquipment>()
+                .Where(it => it.LineId == sysline.Id && it.BigProcedure == bindData.CurrentStation).First();
+            if (equipment == null)
+            {
+                return 0;
+            }
+
+            //调用工厂MES 绑定，绑定成功后更新绑定表
+            BindPalletParam bindPalletParam = new BindPalletParam
+            {
+                productCode = bindData.ProductCode,
+                palletNo = bindData.PalletNo,
+                stationCode = bindData.CurrentStation,
+                smallStationCode = equipment.UnitProcedure,
+                equipmentID = equipment.EnCode,
+                productionLine = sysline.EnCode,
+                operatorNo = OperatorProvider.Instance.Current.Account
+            };
+            var ret = APIMethod.Call(Url.BindPalletUrl, bindPalletParam, configId);
+            var result = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();
+
+            if (result!=null && result.messageType=="S")
+            {
+                var v = linedb.Updateable<ProcessBind>(bindData).IgnoreColumns(it => new
+                {
+                    it.CreateTime
+                }).ExecuteCommand();
+                return 1;
+            }
+            return 0;
+
+
+        }
+
+        public int FastUnbinding(long id, string configId)
+        {
+            var linedb = GetInstance(configId);
+            var bindData = linedb.Queryable<ProcessBind>().Where(it => it.Id == id).First();
+
+            if (bindData == null)
+            {
+                return 0;
+            }
+            bindData.PalletNo = "";
+
+            //根据工站查询设备编码
+            var db = GetInstance();
+            SysLine sysline = db.Queryable<SysLine>().Where(e => e.ConfigId == configId).First();
+            SysEquipment equipment = db.Queryable<SysEquipment>()
+                .Where(it => it.LineId == sysline.Id && it.BigProcedure == bindData.CurrentStation).First();
+            if (equipment == null)
+            {
+                return 0;
+            }
+
+            //调用工厂MES 绑定，绑定成功后更新绑定表
+            BindPalletParam bindPalletParam = new BindPalletParam
+            {
+                productCode = bindData.ProductCode,
+                palletNo = bindData.PalletNo,
+                stationCode = bindData.CurrentStation,
+                smallStationCode = equipment.UnitProcedure,
+                equipmentID = equipment.EnCode,
+                productionLine = sysline.EnCode,
+                operatorNo = OperatorProvider.Instance.Current.Account
+            };
+            var ret = APIMethod.Call(Url.UnBindPalletUrl, bindPalletParam, configId);
+            var result = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();
+
+            if (result != null && result.messageType == "S")
+            {
+                var v = linedb.Updateable<ProcessBind>(bindData).IgnoreColumns(it => new
+                {
+                    it.CreateTime
+                }).ExecuteCommand();
+                return 1;
+            }
+            return 0;
         }
     }
 }

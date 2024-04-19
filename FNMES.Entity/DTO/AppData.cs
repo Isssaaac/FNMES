@@ -387,11 +387,14 @@ namespace FNMES.Entity.DTO.AppData
     [DataContract]
     public class Product{
         [DataMember]
-        public string lineId;   //所属线体
+        public string lineId;               //所属线体
         [DataMember]
-        public string productPartNo;    //产品编码
+        public string productPartNo;        //产品编码
         [DataMember]
-        public string productDescription;     //产品描述
+        public string productDescription;   //产品描述
+        [DataMember]
+        public string sapCustomerProjNo;    //客户产品代码
+
     }
 
     [DataContract]

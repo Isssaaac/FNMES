@@ -31,6 +31,8 @@ namespace FNMES.Entity.Sys
 
         [SugarColumn(ColumnName = "productDescription", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string ProductDescription { get; set; }   //所选产品描述
+        [SugarColumn(ColumnName = "sapCustomerProjNo",  IsNullable = true)]
+        public string SapCustomerProjNo { get; set; }   //客户产品代码，，给PLC用
 
         [SugarColumn(ColumnName = "productLineId", ColumnDataType = "varchar(5)", IsNullable = true)]
         public string ProductLineId { get; set; }    //产品归属线体标识，，，此字段直接存标识，不存线体主键

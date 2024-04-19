@@ -75,7 +75,20 @@ namespace FNMES.Utility.Network
             }
         }
 
-
+        public static string DoPostJsonData(string url, string jsonData, int? timeout = 10000)
+        {
+            try
+            {
+                string ret = HttpUtils.DoPostData(url, jsonData, "application/json", timeout);
+                if (ret.IsNullOrEmpty())
+                    return "";
+                return ret;
+            }
+            catch
+            {
+                return "";
+            }
+        }
 
 
 
@@ -114,6 +127,7 @@ namespace FNMES.Utility.Network
         public const string Success = "S";
         public const string Error = "E";
         public const string Ng = "N";   //产品NG
+        public const string Repair = "R";
         //空箱体直接在人工扫码的时候确认，通过交互传递给PLC让其执行动作逻辑
 
     }

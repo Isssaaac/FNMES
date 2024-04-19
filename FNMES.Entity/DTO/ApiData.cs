@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace FNMES.Entity.DTO.ApiData
 {
 
-   
+   //与工厂MES交互时获取的数据
     public class LoginData
     {
         public string operatorName { get; set; }
@@ -54,6 +54,9 @@ namespace FNMES.Entity.DTO.ApiData
 
         // 产品物料描述
         public string productDescription { get; set; }
+
+        // sap客户项目号
+        public string sapCustomerProjNo { get; set; }
 
         // BOM编码
         public string bomNo { get; set; }
@@ -217,6 +220,12 @@ namespace FNMES.Entity.DTO.ApiData
         // 单位
         public string uom { get; set; }
 
+        // 是否判定保质期（是，否）
+        public string isShelfLife { get; set; }
+
+        //保质期天数
+        public string shelfLifeDays { get; set; }
+
         // 替代物料
         public List<AlternativePartItem> alternativePartList { get; set; }
     }
@@ -241,6 +250,12 @@ namespace FNMES.Entity.DTO.ApiData
         [DataMember]
         // 单位
         public string uom { get; set; }
+
+        // 是否判定保质期（是，否）
+        public string isShelfLife { get; set; }
+
+        //保质期天数
+        public string shelfLifeDays { get; set; }
     }
 
     public class StepItem
@@ -394,6 +409,7 @@ namespace FNMES.Entity.DTO.ApiData
     public class GetPackInfoData
     {
         public string productCode { get; set;}
+        public string coatingTime { get; set;}
         public List<Module> moduleList { get; set; }
     }
 
