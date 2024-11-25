@@ -75,7 +75,10 @@ namespace FNMES.WebUI.Logic.Record
                     queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
                 }
                 //按季度分表三个月取2张表
-                return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
+                return queryable.SplitTable(tabs => tabs.Take(2))
+                    .MergeTable()
+                    .OrderByDescending(it => it.Id)
+                    .ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception E)
             {
@@ -143,7 +146,10 @@ namespace FNMES.WebUI.Logic.Record
                     queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
                 }
                 //按季度分表三个月取2张表
-                return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
+                return queryable.SplitTable(tabs => tabs.Take(2))
+                    .MergeTable()
+                    .OrderByDescending(it => it.Id)
+                    .ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception e)
             {

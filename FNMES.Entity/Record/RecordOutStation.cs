@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -54,5 +55,13 @@ namespace FNMES.Entity.Record
         [SugarColumn(ColumnName = "createTime")]
         public DateTime CreateTime { get; set; }
 
+
+        //2024.5.13添加
+        //进站时间
+        [SugarColumn(ColumnName = "instationTime", ColumnDataType = "varchar(100)", IsNullable = true)]
+        public string instationTime { get; set; }
+
+        [SugarColumn(ColumnName = "palletNo", ColumnDataType = "varchar(100)", IsNullable = true)]
+        public string palletNo { get; set; }
     }
 }

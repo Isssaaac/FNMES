@@ -6,7 +6,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>工单列表</title>
+    <title>预处理记录</title>
     <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
     <link href="~/Content/framework/css/console.css" rel="stylesheet" />
     <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
@@ -25,17 +25,17 @@
     <script src="~/Content/layui/layui.js"></script>
     <script src="~/Content/select2/js/select2.min.js"></script>
     <script src="~/Content/framework/js/global.js"></script>
-
     <style>
         .container {
             width: 100%;
             overflow: auto;
         }
-        .div-test{
-            overflow-x: auto; 
-            overflow-y: auto; 
-            height: 100%; 
-            width:100%;
+
+        .div-test {
+            overflow-x: auto;
+            overflow-y: auto;
+            height: 100%;
+            width: 100%;
         }
 
             .div-test::-webkit-scrollbar {
@@ -68,7 +68,7 @@
             width: 100%;
             border-collapse: collapse;
             border-spacing: 0;
-            margin-top:10px;
+            margin-top: 10px;
         }
 
         th, td {
@@ -80,12 +80,10 @@
         th {
             background-color: #f2f2f2;
             white-space: nowrap;
-            
         }
 
         tr:nth-child(even) {
             background-color: #f9f9f9;
-            
         }
 
         tr:hover {
@@ -99,51 +97,50 @@
             max-width: 200px;
         }
     </style>
-
-
 </head>
 <body>
     <div class="panel animated fadeIn">
         <div class="panel-body div-test">
             <div class="layui-inline" style="margin-bottom: 10px;">
-                    <select lay-ignore name="lineId" class="select2" id="lineId"  style="width: 250px;height: 30px;" lay-verify="required"></select>
-                <span style="display:inline-block;margin-left: 50px">请输入重新绑定的AGV码：</span>
-                <input type="text" id="agvCode" placeholder="托盘码/AGV码" autocomplete="off" class="layui-input"
-                       style="height:39px;width:160px;display:inline-block;" oninput="validateInput(this)"/>
-           </div>
+                <select lay-ignore name="lineId" class="select2" id="lineId" style="width: 250px;height: 30px;" lay-verify="required"></select>
+            </div>
 
             <div id="toolbar" class="FNMES-table-toolbar">
                 <div class="layui-btn-group"> </div>
                 <div class="layui-btn-group" id="queryDate">
-                    <button value="1" class="layui-btn layui-btn-primary layui-btn-small active">正序</button>
-                    <button value="2" class="layui-btn layui-btn-primary layui-btn-small ">倒序</button>
+                    <button value="1" class="layui-btn layui-btn-primary layui-btn-small">今天</button>
+                    <button value="2" class="layui-btn layui-btn-primary layui-btn-small active">近7天</button>
+                    <button value="3" class="layui-btn layui-btn-primary layui-btn-small">近1个月</button>
+                    <button value="4" class="layui-btn layui-btn-primary layui-btn-small">近3个月</button>
                 </div>
-                
+                <div class="layui-btn-group">
+                    <button onclick="export_btn()" class="layui-btn layui-btn-primary layui-btn-small">导出数据</button>
+                </div>
                 <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
-                        <i class="layui-icon">&#xe615;</i>
+                    <i class="layui-icon">&#xe615;</i>
                 </button>
                 <div class="toolbar-search-input">
-                    <input type="text" id="keyWord" placeholder="托盘或内控码" autocomplete="off" class="layui-input" style="height:39px">
+                    <input type="text" id="keyWord" placeholder="key" autocomplete="off" class="layui-input" style="height:39px">
                 </div>
             </div>
-            <table id="gridList" class="container" lay-skin="line">
+            <table id="gridList" lay-skin="line">
                 <thead>
                     <tr>
-                        <th>
-                            <input type="checkbox" lay-skin="primary">
-                        </th>
-                        <th>托盘</th>
-                        <th>内控码</th>
-                        <th>工单</th>
-                        <th>产品名称</th>
-                        <th>所属线体</th>
-                        <th>最近工站</th>
-                        <th>分流器条码</th>
-                        <th>国标码</th>
-                        <th>中段涂胶时间</th>
-                        <th>状态</th>
-                        <th>返修</th>
-                        <th>返修站</th>
+                        <th>条码</th>
+                        <th>工站</th>
+                        <th>总结果</th>
+                        <th>参数代码</th>
+                        <th>参数名称</th>
+                        <th>参数值</th>
+                        <th>结果</th>
+                        <th>判断类型</th>
+                        <th>参数类型</th>
+                        <th>标准值</th>
+                        <th>最大值</th>
+                        <th>最小值</th>
+                        <th>设定值</th>
+                        <th>单位</th>
+                        <th>创建时间</th>
                     </tr>
                 </thead>
                 <!--内容容器-->
@@ -159,31 +156,26 @@
 <script id="contentTpl" type="text/html">
       {{#  layui.each(d.list, function(index, item){ }}
     <tr>
-        <td>
-            <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
-          <td>{{item.PalletNo}}</td>
-        <td>{{item.ProductCode}}</td>
-        <td>{{item.TaskOrderNumber}}</td>
-        <td>{{item.ProductPartNo}}</td>
-        <td>{{item.ConfigId}}</td>
-        <td>{{item.CurrentStation}}</td>
-        <td>{{item.Diverter}}</td>
-        <td>{{item.ReessNo}}</td>
-        <td>{{item.GlueTime}}</td>
-        <td>{{# if(item.Status=="OK"){ }}  <span class="label label-success label-sm">OK</span>
-            {{# }else{ }}  <span class="label label-dark label-sm">NG</span>
-            {{# } }}
-        </td>
-        <td>{{# if(item.RepairFlag=="1"){ }}  <span class="label label-success label-sm">是</span>
-            {{# }else{ }}  <span class="label label-dark label-sm">否</span>
-            {{# } }}
-        </td>
-        <td>{{item.RepairStations}}</td>
+         <td>{{item.productCode}}</td>
+         <td>{{item.stationCode}}</td>
+        <td>{{item.totalFlag}}</td>
+        <td>{{item.paramCode}}</td>
+        <td>{{item.paramName}}</td>
+        <td>{{item.paramValue}}</td>
+        <td>{{item.itemFlag}}</td>
+        <td>{{item.decisionType}}</td>
+        <td>{{item.paramType}}</td>
+        <td>{{item.standValue}}</td>
+        <td>{{item.maxValue}}</td>
+        <td>{{item.minValue}}</td>
+        <td>{{item.setValue}}</td>
+        <td>{{item.uom}}</td>
+        <td>{{item.createTime}}</td>
     </tr>
       {{#  }); }}
        {{# if(d.list.length<=0) { }}
           <tr style="color: red">
-              <td colspan="13">查无数据。</td>
+              <td colspan="15">查无数据。</td>
           </tr>
       {{# } }}
 </script>
@@ -204,20 +196,20 @@
         $("#toolbar").authorizeButton();
         $('#btnSearch').click(initGrid);
         $('#keyWord').bindEnterEvent(initGrid);
-        //initGrid();
+        // initGrid();
 
     });
     //$("#lineId").bindChangeEvent(initGrid);
     $("#lineId").on("select2:select", function (e) {
-    // 处理选择事件
+        // 处理选择事件
         if ($("#lineId").val() == "0") {
             return
         };
         initGrid();
     });
 
-    function flush(){
-        if( $("#lineId").val() == "0"){
+    function flush() {
+        if ($("#lineId").val() == "0") {
             return
         };
         initGrid();
@@ -229,21 +221,19 @@
         initGrid();
     });
 
-
     function initGrid() {
-       
         if ($("#lineId").val() == "0") {
             return
         };
         paging.init({
-            url: '/record/bind/index',
+            url: '/param/preEquipment/form',
             elem: '#content',
             tempElem: '#contentTpl',
             singleSelected: true, //单选
             params: {
                 keyWord: $("#keyWord").val(),
                 configId: $("#lineId").val(),
-                index: $('#queryDate').find('button.active').val()
+                index: $('#queryDate').find('button.active').val(),
             },
             pageConfig: {
                 elem: 'paged',
@@ -255,77 +245,24 @@
         });
     }
 
-    function btn_binding() {
-        var data = $("#gridList").gridSelectedRowData();
-        var ids = $("#gridList").gridSelectedRowValue();
-        var agvcode = $("#agvCode").val();
-        if (ids.length != 1) {
-            $.layerMsg("请勾选需要绑定的数据。", "warning");
+    function export_btn() {
+        if ($("#lineId").val() == "0") {
+            $.layerMsg("请先选择线体。", "warning");
             return;
         }
-        if (agvcode < 1) {
-            $.layerMsg("请输入新绑定的AGV码。", "warning");
-            return;
-        }
-        $.layerConfirm({
-            content: "您已选中1条数据, 确定绑定吗？",
-            callback: function () {
-                $.formSubmit({
-                    url: '/record/bind/binding',
-                    data: {
-                        palletNo: $("#agvCode").val(),
-                        id: ids,
-                        configId: $("#lineId").val(),
-
-                    },
-                    success: function () {
-                        initGrid();
-                        var inputElement = document.getElementById("agvCode");
-                        // 清空input元素的值
-                        inputElement.value = "";
-                    }
-                });
-            }
-        });
-       
-    }
-
-    function btn_unbinding() {
-        var data = $("#gridList").gridSelectedRowData();
-        var ids = $("#gridList").gridSelectedRowValue();
-        if (ids.length != 1) {
-            $.layerMsg("请勾选需要解绑的数据。", "warning");
-            return;
-        }
-        $.layerConfirm({
-            content: "您已选中1条数据, 确定解绑吗？",
-            callback: function () {
-                $.formSubmit({
-                    url: '/record/bind/unbinding',
-                    data: {
-                        id:ids,
-                        configId: $("#lineId").val(),
-
-                    },
-                    success: function () {
-                        initGrid();
-                    }
-                });
-            }
-        });
-    }
- </script>
-
-<script>
-    function validateInput(input) {
-        // 获取用户输入的值
-        var value = input.value;
-
-        // 检查输入是否是1到255之间的数值
-        if (value !== "" && (isNaN(value) || value < 1 || value > 255)) {
-            // 如果输入不符合要求，清空输入框
-            input.value = "";
-            alert("请输入1到255之间的数值");
-        }
+        // 发送请求到后端以触发文件导出
+        fetch("/param/preEquipment/export?configId=" + $("#lineId").val() + "&index=" + $('#queryDate').find('button.active').val(), {
+            method: "GET",
+        }).then(response => response.blob())
+            .then(blob => {
+                // 创建一个临时链接以下载文件
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = $("#lineId").val() + "-HotRivetData.xlsx"; // 文件名
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            });
     }
 </script>

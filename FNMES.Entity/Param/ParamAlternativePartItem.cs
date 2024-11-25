@@ -28,6 +28,10 @@ namespace FNMES.Entity.Param
         [SugarColumn(ColumnName = "partDescription", IsNullable = true)]
         public string PartDescription { get; set; }
 
+        // 物料类型：精准追溯/批次追溯 2024.5.10增加
+        [SugarColumn(ColumnName = "partType", IsNullable = true)]
+        public string PartType { get; set; }
+
         // 物料版本
         [SugarColumn(ColumnName = "partVersion", IsNullable = true)]
         public string PartVersion { get; set; }

@@ -78,7 +78,8 @@ namespace FNMES.WebUI.Controllers
         [HttpPost]
         public ActionResult Login(string userName, string password, string verifyCode)
         {
-            if (userName.IsNullOrEmpty() || password.IsNullOrEmpty() || verifyCode.IsNullOrEmpty())
+            //if (userName.IsNullOrEmpty() || password.IsNullOrEmpty() || verifyCode.IsNullOrEmpty())
+            if (userName.IsNullOrEmpty() || password.IsNullOrEmpty())
             {
                 return Error("请求失败，缺少必要参数。");
             }

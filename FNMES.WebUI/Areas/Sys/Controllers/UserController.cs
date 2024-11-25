@@ -69,9 +69,14 @@ namespace MES.WebUI.Areas.Sys.Controllers
         public ActionResult Form(SysUser model)
         {
             
-            
             if (model.Id==0)
             {
+                var userEntity = userLogic.GetByUserName(model.UserNo);
+                if (userEntity != null)
+                {
+                    return Error("操作失败，已存在该用户！");
+                }
+
                 DateTime defaultDt = DateTime.Today;
                 int row = userLogic.Insert(model, model.password, long.Parse(OperatorProvider.Instance.Current.UserId), model.roleIds.SplitToList().ToArray());
                 return row > 0 ? Success() : Error();

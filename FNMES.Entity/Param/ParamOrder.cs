@@ -5,7 +5,7 @@ using SqlSugar;
 namespace FNMES.Entity.Param
 {
     /// <summary>
-    /// 
+    /// 工单表：同步工单
     ///</summary>
     [SugarTable("Order")]
     public class ParamOrder
@@ -22,7 +22,7 @@ namespace FNMES.Entity.Param
          [SugarColumn(ColumnName="taskOrderNumber"  )]
          public string TaskOrderNumber { get; set; }
         /// <summary>
-        ///  
+        ///  物料编号
         ///</summary>
          [SugarColumn(ColumnName="productPartNo"    )]
          public string ProductPartNo { get; set; }
@@ -32,7 +32,7 @@ namespace FNMES.Entity.Param
          [SugarColumn(ColumnName="productDescription", IsNullable = true)]
          public string ProductDescription { get; set; }
         /// <summary>
-        ///  
+        ///  计划产量
         ///</summary>
          [SugarColumn(ColumnName = "planQty", IsNullable = true)]
          public int PlanQty { get; set; }
@@ -52,22 +52,22 @@ namespace FNMES.Entity.Param
         [SugarColumn(ColumnName = "uom", IsNullable = true)]
          public string Uom { get; set; }
         /// <summary>
-        ///  
+        ///  计划开始时间
         ///</summary>
          [SugarColumn(ColumnName = "planStartTime", IsNullable = true)]
          public DateTime? PlanStartTime { get; set; }
         /// <summary>
-        ///  
+        ///  计划结束时间
         ///</summary>
          [SugarColumn(ColumnName = "planEndTime", IsNullable = true)]
          public DateTime? PlanEndTime { get; set; }
         /// <summary>
-        ///  
+        ///  获取时间
         ///</summary>
          [SugarColumn(ColumnName = "receiveTime", IsNullable = true)]
          public DateTime? ReceiveTime { get; set; }
         /// <summary>
-        ///  
+        ///  工单状态
         ///</summary>
          [SugarColumn(ColumnName = "flag", IsNullable = true)]
          public string Flag { get; set; }
@@ -84,19 +84,19 @@ namespace FNMES.Entity.Param
                     default:return "未开工";
                 }
             }
-                }
+        }
         /// <summary>
-        ///  
+        ///  完成标志
         ///</summary>
         [SugarColumn(ColumnName="finishFlag", IsNullable = true)]
          public string FinishFlag { get; set; }
         /// <summary>
-        ///  
+        ///  开始时间
         ///</summary>
          [SugarColumn(ColumnName = "startTime", IsNullable = true)]
          public DateTime? StartTime { get; set; }
         /// <summary>
-        ///  
+        ///  结束时间
         ///</summary>
          [SugarColumn(ColumnName = "endTime", IsNullable = true)]
          public DateTime? EndTime { get; set; }

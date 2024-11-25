@@ -12,6 +12,7 @@ using System.Net;
 using System.Threading.Tasks;
 using FNMES.Utility.Files;
 using CCS.WebUI;
+using System.Linq;
 
 namespace FNMES.WebUI.Logic.Param
 {
@@ -114,15 +115,22 @@ namespace FNMES.WebUI.Logic.Param
                     List<EsopItem> temp = new List<EsopItem>();
                     foreach (var esop in item.esopList)
                     {
-                        if(esop.filePath.IsNullOrEmpty()) continue;
-                        string[] strings = esop.filePath.Split(new[] { '/' }, 2);
-                        if(strings.Length > 1)
+                        if (esop.filePath.IsNullOrEmpty()) continue;
+                        string[] urlParts = esop.filePath.Split(new string[] { ".pdf" }, StringSplitOptions.None);
+                        string[] httpParts = urlParts[0].Split(new string[] { "http://" }, StringSplitOptions.None);
+                        string httpAfter = httpParts[1] + ".pdf";
+                        string[] strings = httpAfter.Split(new[] { '/' }, 2);
+
+                        //string[] strings = esop.filePath.Split(new[] { '/' }, 2);
+                        if (strings.Length > 1)
                         {
                             esop.filePath = strings[1];
                             if (!files.Contains(strings[1]))
                             {
-                                fileServer = strings[0];
-                                files.Add(strings[1]);
+                                //fileServer = strings[0];
+                                fileServer = @"http://" + strings[0];
+                                string filepath = strings[1];
+                                files.Add(filepath);
                             }
                         }
                         temp.Add(esop);
@@ -132,8 +140,8 @@ namespace FNMES.WebUI.Logic.Param
                 //从文件服务器把esop文件下载并上传到本地ftp服务器
                 foreach (var item in files)
                 {
-                    string url = fileServer + "/" + item;
-                     UploadFileIfNotExistsAsync(url, item);
+                    string url = fileServer + @"/" + item;
+                    UploadFileIfNotExistsAsync(url, item);
                 }
 
                 //存在旧值判断怎么处理
@@ -180,16 +188,5 @@ namespace FNMES.WebUI.Logic.Param
             _ = Task.Run(() => ftpHelper.UploadServerFileToFtp(sourceUrl, ftpFilePath));
 
         }
-
-        
-
-        
-
-
-
-
-
-
-
     }
 }

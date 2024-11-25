@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SqlSugar;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -100,6 +101,9 @@ namespace FNMES.Entity.DTO.ApiParam
         [DataMember]
         // 设备编码
         public string equipmentID { get; set; }
+        //读卡器ID
+        [DataMember]
+        public string cardReaderID { get; set; }
 
     }
     [DataContract]
@@ -140,6 +144,7 @@ namespace FNMES.Entity.DTO.ApiParam
         public string actionCode { get; set; }
     }
 
+    //工单动作，默认回传的是D
     public static class ActionCode
     {
         public const string Start = "S";
@@ -246,7 +251,8 @@ namespace FNMES.Entity.DTO.ApiParam
         // 内控码
         [DataMember]
         public string productCode { get; set; }
-
+        [DataMember]
+        public string GUID { get; set; }
         // 工位号
         [DataMember]
         public string stationCode { get; set; }
@@ -304,6 +310,7 @@ namespace FNMES.Entity.DTO.ApiParam
         [DataMember]
         public string uom { get; set; }
     }
+
     [DataContract]
     public class ProcessUploadParam:BaseParam
     {
@@ -366,7 +373,118 @@ namespace FNMES.Entity.DTO.ApiParam
         [DataMember]
         // 检测结果 OK/NG
         public string itemFlag { get; set; }
+
+        //2024.5.13 根据孚能要求，在过程数据中需要包含判断标准、判定方式、单位显示
+
+        // 判定类型
+        [DataMember]
+        public string DecisionType { get; set; }
+
+        // 参数类型：定性（字符串）定量（数值型）：标准值，上限，下限。
+        [DataMember]
+        public string ParamType { get; set; }
+
+        // 工艺参数标准值，针对定量类型的
+        [DataMember]
+        public string StandValue { get; set; }
+
+        // 工艺参数最大值，针对定量类型的
+        [DataMember]
+        public string MaxValue { get; set; }
+
+        // 工艺参数最小值，针对定量类型的
+        [DataMember]
+        public string MinValue { get; set; }
+
+        // 针对定性的设定值
+        [DataMember]
+        public string SetValue { get; set; }
+
+        // 单位
+        [DataMember]
+        public string UnitOfMeasure { get; set; }
     }
+
+    [DataContract]
+    public class ProcessUploadParamA : BaseParam
+    {
+        // 内控码
+        [DataMember]
+        public string productCode { get; set; }
+
+        [DataMember]
+        public string GUID { get; set; }
+        // 工位号
+        [DataMember]
+        public string stationCode { get; set; }
+
+        // 小工位
+        [DataMember]
+        public string smallStationCode { get; set; }
+
+        // 设备编码（选填）
+        [DataMember]
+        public string equipmentID { get; set; }
+
+        // 程序编号
+        [DataMember]
+        public string recipeNo { get; set; }
+
+        // 程序名称
+        [DataMember]
+        public string recipeDescription { get; set; }
+
+        // 程序版本
+        [DataMember]
+        public string recipeVersion { get; set; }
+
+        // 检测最终结果
+        [DataMember]
+        public string totalFlag { get; set; }
+
+        // 操作工
+        [DataMember]
+        public string operatorNo { get; set; }
+
+        // 请求时间(时间戳)
+
+
+        // 检测参数列表
+        [DataMember]
+        public List<ProcessA> processData { get; set; }
+    }
+
+    [DataContract]
+    public class ProcessA
+    {
+        [DataMember]
+        // 参数名称（检验项）
+        public string paramCode { get; set; }
+        [DataMember]
+        // 参数名称（检验项）
+        public string paramName { get; set; }
+        [DataMember]
+        // 参数值
+        public string paramValue { get; set; }
+        [DataMember]
+        // 检测结果 OK/NG
+        public string itemFlag { get; set; }
+
+        [DataMember]
+        public string maxValue {  get; set; }
+
+        [DataMember]
+        public string minValue { get; set; }
+
+        [DataMember]
+        public string standardValue { get; set; }
+
+        [DataMember]
+        public string decisionType { get; set; }
+
+
+    }
+
     [DataContract]
     public class OutStationParam:BaseParam
     {
@@ -400,7 +518,52 @@ namespace FNMES.Entity.DTO.ApiParam
         // 操作工
         [DataMember]
         public string operatorNo { get; set; }
+
+        //2024.5.13添加
+        //进站时间
+        [DataMember]
+        public string instationTime { get; set; }
+
+        [DataMember]
+        public string palletNo { get; set; }
     }
+
+    [DataContract]
+    public class OutStationParamA : BaseParam
+    {
+        // 内控码
+        [DataMember]
+        public string productCode { get; set; }
+
+        // 派工单号
+        [DataMember]
+        public string taskOrderNumber { get; set; }
+
+        // 出站电芯状态（合格状态、不合格状态、返修状态）
+        [DataMember]
+        public string productStatus { get; set; }
+
+        [DataMember]
+        public List<DefectItem> defectList { get; set; }
+
+        // 工位号
+        [DataMember]
+        public string stationCode { get; set; }
+
+        // 小工位
+        [DataMember]
+        public string smallStationCode { get; set; }
+
+        // 设备编码（选填）
+        [DataMember]
+        public string equipmentID { get; set; }
+
+        // 操作工
+        [DataMember]
+        public string operatorNo { get; set; }
+
+    }
+
 
     [DataContract]
     public class DefectItem
@@ -416,63 +579,98 @@ namespace FNMES.Entity.DTO.ApiParam
 
 
 
-
+    [DataContract]
     public class DisAssembleParam:BaseParam
     {
+
+        [DataMember]
+        public string GUID { get; set; }
         // 工位号
+        [DataMember]
         public string stationCode { get; set; }
 
         // 小工位
+        [DataMember]
         public string smallStationCode { get; set; }
 
         // 设备编码(选填)
+        [DataMember]
         public string equipmentID { get; set; }
 
         // 内控码
+        [DataMember]
         public string productCode { get; set; }
 
-        // 拆解原因
-        public string disassmblyReason { get; set; }
-
         // 操作员工号
+        [DataMember]
         public string operatorNo { get; set; }
 
         // 请求时间(时间戳)
-       
+
 
         // 拆出的模块信息列表
-        public List<Module> moduleList { get; set; }
+        [DataMember]
+        public List<Material> partList { get; set; }
     }
 
+    [DataContract]
+    public class Material
+    {
+        [DataMember]
+        public string partNumber { get; set; } //物料号
+        [DataMember]
+        public string partDescription { get; set; } //物料描述
+
+        [DataMember]
+        public string partBarcode { get; set; } //物料条码
+
+        [DataMember]
+        public string reason { get; set; } //解绑原因
+    }
+
+    [DataContract]
     public class Module
     {
         // 模块码
+        [DataMember]
         public string moduleCode { get; set; }
 
         // 模块位置
-        public string modulePosition { get; set; }
+        [DataMember]
+        public string lineNo { get; set; }
+        [DataMember]
+        public string columnNo { get; set; }
+        [DataMember]
+        public string layerNo { get; set; }
     }
+    [DataContract]
     public class AssembleParam:BaseParam
     {
         // 工位号
+        [DataMember]
         public string stationCode { get; set; }
 
         // 小工位
+        [DataMember]
         public string smallStationCode { get; set; }
 
         // 设备编码(选填)
+        [DataMember]
         public string equipmentID { get; set; }
 
         // 内控码
+        [DataMember]
         public string productCode { get; set; }
 
         // 操作员工号
+        [DataMember]
         public string operatorNo { get; set; }
 
         // 请求时间(时间戳)
-        
+
 
         // 模块组装电芯信息列表
+        [DataMember]
         public List<Module> moduleList { get; set; }
     }
     [DataContract]
@@ -787,6 +985,9 @@ namespace FNMES.Entity.DTO.ApiParam
         [DataMember]
         public string operatorNo { get; set; }
 
+        [DataMember]
+        public string groupName { get; set; }
+
     }
 
 
@@ -799,7 +1000,11 @@ namespace FNMES.Entity.DTO.ApiParam
     [DataContract]
     public class ToolInfo
     {
-        // 夹治具变化
+        // 夹治具类型
+        [DataMember]
+        public string toolType { get; set; } = "1";
+
+        // 夹治具编号
         [DataMember]
         public string toolNo { get; set; }
 

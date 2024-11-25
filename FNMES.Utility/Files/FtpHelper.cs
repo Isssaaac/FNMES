@@ -137,21 +137,36 @@ namespace FNMES.Utility.Files
         {
             try
             {
-                using (FtpClient client = new FtpClient(_host, _username, _password))
+                // 未设定用户与密码, _username, _password
+                using (FtpClient client = new FtpClient(_host))
                 {
                     try
                     {
                         client.Connect();
-                        if(client.FileExists(filePath)) {
+                        if (client.FileExists(filePath))
+                        {
                             return;
                         }
+                        int lastSlashIndex = filePath.LastIndexOf('/');
+                        string remotePath = filePath;
+                        if (lastSlashIndex != -1 && lastSlashIndex < filePath.Length - 1)
+                        {
+                            string result = "";
+                            result = filePath.Substring(0, lastSlashIndex);
+                            remotePath = @"/" + filePath;
+                            if (!client.DirectoryExists(result))
+                            {
+                                client.CreateDirectory(result);
+                            }
+                        }
+
                         string tempFileName = SnowFlakeSingle.instance.NextId().ToString() + "tempFile.dpf";
                         using (WebClient webClient = new WebClient())
                         {
                             //client.Credentials = new NetworkCredential(username, password);
                             webClient.DownloadFile(sourceUrl, tempFileName);
                         }
-                        client.UploadFile(tempFileName, filePath);
+                        client.UploadFile(tempFileName, remotePath);
                         File.Delete("tempFile.txt");
                     }
                     catch (FtpCommandException ex)

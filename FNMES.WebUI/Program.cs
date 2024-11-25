@@ -160,6 +160,10 @@ app.UseSwaggerUI(c =>
 
 
 app.UseHttpsRedirection();
+
+//为了IIS添加
+//app.UseDefaultFiles();
+
 app.UseStaticFiles();
 
 app.UseRouting();

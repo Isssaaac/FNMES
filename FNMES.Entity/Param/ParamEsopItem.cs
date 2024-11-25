@@ -24,7 +24,7 @@ namespace FNMES.Entity.Param
 
 
         // SOP文件存储在文件服务器URL路径
-        [SugarColumn(ColumnName = "filePath", IsNullable = true)]
+        [SugarColumn(ColumnName = "filePath", ColumnDataType = "varchar(MAX)", IsNullable = true)]
         public string FilePath { get; set; }
 
         // 顺序号（有多本时）

@@ -45,7 +45,11 @@ namespace FNMES.WebUI.Logic.Record
                     DateTime today = DateTime.Today;
                     DateTime startTime = today;
                     DateTime endTime = today.AddDays(1);
-                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                    return queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime)
+                        .SplitTable(tabs => tabs.Take(3))
+                    .MergeTable()
+                    .OrderByDescending(it => it.Id)
+                    .ToPageList(pageIndex, pageSize, ref totalCount);
                 }
                 //近7天
                 else if (index == "2")
@@ -53,7 +57,11 @@ namespace FNMES.WebUI.Logic.Record
                     DateTime today = DateTime.Today;
                     DateTime startTime = today.AddDays(-6);
                     DateTime endTime = today.AddDays(1);
-                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                    return queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime)
+                        .SplitTable(tabs => tabs.Take(3))
+                    .MergeTable()
+                    .OrderByDescending(it => it.Id)
+                    .ToPageList(pageIndex, pageSize, ref totalCount);
                 }
                 //近1月
                 else if (index == "3")
@@ -61,7 +69,11 @@ namespace FNMES.WebUI.Logic.Record
                     DateTime today = DateTime.Today;
                     DateTime startTime = today.AddDays(-29);
                     DateTime endTime = today.AddDays(1);
-                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                    return queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime)
+                        .SplitTable(tabs => tabs.Take(3))
+                    .MergeTable()
+                    .OrderByDescending(it => it.Id)
+                    .ToPageList(pageIndex, pageSize, ref totalCount);
                 }
                 //近3月
                 else if (index == "4")
@@ -69,10 +81,21 @@ namespace FNMES.WebUI.Logic.Record
                     DateTime today = DateTime.Today;
                     DateTime startTime = today.AddDays(-91);
                     DateTime endTime = today.AddDays(1);
-                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                     return queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime)
+                        .SplitTable(tabs => tabs.Take(3))
+                         .OrderByDescending(it => it.Id)
+                         .ToPageList(pageIndex, pageSize, ref totalCount);
+                }
+                else
+                {
+                    return queryable.SplitTable(tabs => tabs.Take(3))
+                   .MergeTable()
+                   .OrderByDescending(it => it.Id)
+                   .ToPageList(pageIndex, pageSize, ref totalCount);
                 }
                 //按月分表三个月取3张表
-                return queryable.SplitTable(tabs => tabs.Take(3)).ToPageList(pageIndex, pageSize, ref totalCount);
+                //2024.5.9增加倒序排序
+               
             }
             catch (Exception E )
             {

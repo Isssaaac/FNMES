@@ -25,10 +25,10 @@ namespace FNMES.WebUI.Logic.Record
                 model.CreateTime = DateTime.Now;
                 int v = 0;
                 Db.BeginTran();
-                if (model.EquipmentStatus == "自动中")
+                if (model.EquipmentStatus == "运行中")
                 {
                     //查询上一次未记录的停机状态
-                    RecordEquipmentStatus lastStop = db.Queryable<RecordEquipmentStatus>().Where(it => it.EquipmentStatus == "停机").
+                    RecordEquipmentStatus lastStop = db.Queryable<RecordEquipmentStatus>().Where(it => it.EquipmentStatus == "停机状态").
                     SplitTable(tabs => tabs.Take(2)).OrderBy(it => it.Id, OrderByType.Desc).First(); 
                     if (lastStop != null && !lastStop.HasRecordStop)
                     {
@@ -106,7 +106,10 @@ namespace FNMES.WebUI.Logic.Record
                     queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
                 }
                 //按月分表三个月取3张表
-                return queryable.SplitTable(tabs => tabs.Take(3)).ToPageList(pageIndex, pageSize, ref totalCount);
+                return queryable.SplitTable(tabs => tabs.Take(3))
+                    .MergeTable()
+                    .OrderByDescending(it => it.Id)
+                    .ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception E)
             {
@@ -157,7 +160,10 @@ namespace FNMES.WebUI.Logic.Record
                     queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
                 }
                 //按月分表三个月取3张表
-                return queryable.SplitTable(tabs => tabs.Take(3)).ToPageList(pageIndex, pageSize, ref totalCount);
+                return queryable.SplitTable(tabs => tabs.Take(3))
+                    .MergeTable()
+                    .OrderByDescending(it => it.Id)
+                    .ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception E)
             {
@@ -208,7 +214,10 @@ namespace FNMES.WebUI.Logic.Record
                     queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
                 }
                 //按月分表三个月取3张表
-                return queryable.SplitTable(tabs => tabs.Take(3)).ToPageList(pageIndex, pageSize, ref totalCount);
+                return queryable.SplitTable(tabs => tabs.Take(3))
+                    .MergeTable()
+                    .OrderByDescending(it => it.Id)
+                    .ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception E)
             {

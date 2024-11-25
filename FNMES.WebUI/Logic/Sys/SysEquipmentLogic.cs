@@ -100,7 +100,24 @@ namespace FNMES.WebUI.Logic.Sys
             }
         }
 
-
+        public SysEquipment GetByLineStation(string station,string configId)
+        {
+            try
+            {
+                var db = GetInstance();
+                //业务逻辑强制走主库
+                return db.MasterQueryable<SysEquipment>()
+                    .Where(it => it.BigProcedure == station)
+                    .Includes(it => it.Line)
+                    .Where(it=>it.Line.ConfigId == configId)
+                    .First();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new SysEquipment();
+            }
+        }
 
 
 

@@ -5,6 +5,7 @@ using FNMES.Utility.Core;
 using ServiceStack;
 using SqlSugar;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Runtime.Serialization;
 using ParamItem = FNMES.Entity.Param.ParamItem;
@@ -43,6 +44,9 @@ namespace FNMES.Entity.DTO.AppData
     {
         [DataMember]
         public string Name { get; set; }
+
+        [DataMember]
+        public string OperatorNo { get; set; }
         [DataMember]
         public List<string> Roles { get; set; }
         [DataMember]
@@ -159,6 +163,117 @@ namespace FNMES.Entity.DTO.AppData
 
 
     }
+    #region 原来的RecipeData
+    //public class RecipeData
+    //{
+    //    public RecipeData()
+    //    {
+    //        this.paramList = new List<Param>();
+    //        this.partList = new List<Part>();
+    //        this.stepList = new List<Step>();
+    //    }
+
+
+    //    public RecipeData(ParamRecipeItem paramRecipeItem)
+    //    {
+    //        this.nextBigStationCode = paramRecipeItem.NextStationCode;
+    //        this.isFirstStation = paramRecipeItem.IsFirstStation;
+    //        this.productionBeat = paramRecipeItem.ProductionBeat;
+    //        this.passStationRestriction = paramRecipeItem.PassStationRestriction;
+    //        List<Step> steplist = new List<Step>();
+    //        List<Param> paramlist = new List<Param>();
+    //        List<Part> partlist = new List<Part>();
+    //        foreach (var step in paramRecipeItem.StepList)
+    //        {
+    //            steplist.Add(new Step()
+    //            {
+    //                identity = step.Identity,
+    //                stepNo = step.StepNo,
+    //                stepName = step.StepName,
+    //                No = step.No,
+    //                stepDesc = step.StepDesc,
+    //                operation = step.Operation,
+    //                paramList = new List<Param>(),
+    //                partList = new List<Part>()
+    //            });
+    //        }
+    //        foreach (var item in paramRecipeItem.ParamList)
+    //        {
+    //            Param param = ConvertHelper.Mapper<Param, ParamItem>(item);
+    //            if (item.StepNo.IsNullOrEmpty() || 0 == int.Parse(item.StepNo))
+    //            {
+    //                //不存在工步，将参数存入工序参数中
+    //                paramlist.Add(param);
+    //            }
+    //            else
+    //            {
+    //                //存在工步，将参数添加到对应的工步中
+    //                steplist.FirstOrDefault(it => it.stepNo == item.StepNo)?.paramList.Add(param);
+    //            }
+
+    //        }
+    //        foreach (var item in paramRecipeItem.PartList)
+    //        {
+    //            Part part = ConvertHelper.Mapper<Part, ParamPartItem>(item);
+    //            List<AlternativePartItem> alternative = new List<AlternativePartItem>();
+    //            foreach (var item1 in item.AlternativePartList)
+    //            {
+    //                AlternativePartItem alternativePartItem = ConvertHelper.Mapper<AlternativePartItem, ParamAlternativePartItem>(item1);
+    //                alternative.Add(alternativePartItem);
+    //            }
+    //            part.alternativePartList = alternative;
+    //            if (item.StepNo.IsNullOrEmpty() || 0 == int.Parse(item.StepNo))
+    //            {
+    //                //不存在工步，将参数存入工序参数中
+    //                partlist.Add(part);
+    //            }
+    //            else
+    //            {
+    //                //存在工步，将参数添加到对应的工步中
+    //                steplist.FirstOrDefault(it => it.stepNo == item.StepNo)?.partList.Add(part);
+    //            }
+
+    //        }
+    //        foreach (var item in paramRecipeItem.EsopList)
+    //        {
+    //            //存在工步，将参数添加到对应的工步中
+    //            var step = steplist.FirstOrDefault(it => it.No == item.No);
+    //            if (step != null)
+    //            {
+    //                step.filePath = item.FilePath;
+    //                step.startPageNo = item.StartPageNo;
+    //                step.endPageNo = item.EndPageNo;
+    //            }
+    //        }
+
+    //        this.stepList = steplist;
+    //        this.partList = partlist;
+    //        this.paramList = paramlist;
+    //    }
+
+    //    [DataMember]
+    //    // 下一站工序编码
+    //    public string nextBigStationCode { get; set; }
+    //    [DataMember]
+    //    // 是否首道工序
+    //    public string isFirstStation { get; set; }
+    //    [DataMember]
+    //    // 节拍，后段需要，单位秒
+    //    public string productionBeat { get; set; }
+    //    // 过站限制：进站校验、出站校验、进出站都校验、都不校验
+    //    [DataMember]
+    //    public string passStationRestriction { get; set; }
+    //    [DataMember]
+    //    // 工艺参数，工序的参数
+    //    public List<Param> paramList { get; set; }
+    //    [DataMember]
+    //    // bom物料，工序的物料
+    //    public List<Part> partList { get; set; }
+    //    [DataMember]
+    //    //工步
+    //    public List<Step> stepList { get; set; }
+    //}
+    #endregion
 
     [DataContract]
     public class RecipeData
@@ -168,6 +283,7 @@ namespace FNMES.Entity.DTO.AppData
             this.paramList = new List<Param>();
             this.partList = new List<Part>();
             this.stepList = new List<Step>() ;
+            this.reworkstepList = new List<Step>();
         }
 
 
@@ -178,21 +294,40 @@ namespace FNMES.Entity.DTO.AppData
             this.productionBeat = paramRecipeItem.ProductionBeat;
             this.passStationRestriction = paramRecipeItem.PassStationRestriction;
             List<Step> steplist = new List<Step>();
+            List<Step> reworksteplist = new List<Step>();
             List<Param> paramlist = new List<Param>();
             List<Part> partlist = new List<Part>();
             foreach (var step in paramRecipeItem.StepList)
             {
-                steplist.Add(new Step()
+                if (step.Identity == "rework")
                 {
-                    identity = step.Identity,
-                    stepNo = step.StepNo,
-                    stepName = step.StepName,
-                    No = step.No,
-                    stepDesc = step.StepDesc,
-                    operation = step.Operation,
-                    paramList = new List<Param>(),
-                    partList = new List<Part>()
-                });
+                    reworksteplist.Add(new Step()
+                    {
+                        identity = step.Identity,
+                        stepNo = step.StepNo,
+                        stepName = step.StepName,
+                        No = step.No,
+                        stepDesc = step.StepDesc,
+                        operation = step.Operation,
+                        paramList = new List<Param>(),
+                        partList = new List<Part>()
+                    });
+                }
+                else
+                {
+                    steplist.Add(new Step()
+                    {
+                        identity = step.Identity,
+                        stepNo = step.StepNo,
+                        stepName = step.StepName,
+                        No = step.No,
+                        stepDesc = step.StepDesc,
+                        operation = step.Operation,
+                        paramList = new List<Param>(),
+                        partList = new List<Part>()
+                    });
+                }
+               
             }
             foreach (var item in paramRecipeItem.ParamList)
             {
@@ -206,6 +341,7 @@ namespace FNMES.Entity.DTO.AppData
                 {
                     //存在工步，将参数添加到对应的工步中
                     steplist.FirstOrDefault(it => it.stepNo == item.StepNo)?.paramList.Add(param);
+                    reworksteplist?.FirstOrDefault(it => it.stepNo == item.StepNo)?.paramList.Add(param);
                 }
                 
             }
@@ -228,6 +364,7 @@ namespace FNMES.Entity.DTO.AppData
                 {
                     //存在工步，将参数添加到对应的工步中
                     steplist.FirstOrDefault(it => it.stepNo == item.StepNo)?.partList.Add(part);
+                    reworksteplist?.FirstOrDefault(it => it.stepNo == item.StepNo)?.partList.Add(part);
                 }
                 
             }
@@ -241,11 +378,21 @@ namespace FNMES.Entity.DTO.AppData
                     step.startPageNo = item.StartPageNo;
                     step.endPageNo = item.EndPageNo;
                 }
+
+                //存在工步，将参数添加到对应的工步中
+                var reworkstep = reworksteplist?.FirstOrDefault(it => it.No == item.No);
+                if (reworkstep != null)
+                {
+                    reworkstep.filePath = item.FilePath;
+                    reworkstep.startPageNo = item.StartPageNo;
+                    reworkstep.endPageNo = item.EndPageNo;
+                }
             }
 
             this.stepList = steplist;
             this.partList = partlist;
             this.paramList  = paramlist;
+            this.reworkstepList = reworksteplist;
         }
 
         [DataMember]
@@ -270,7 +417,12 @@ namespace FNMES.Entity.DTO.AppData
         //工步
         public List<Step> stepList { get; set; }
 
+        [DataMember]
+        //返修工步
+        public List<Step> reworkstepList { get; set; }
+
     }
+
     [DataContract]
     public class Step
     {
@@ -366,6 +518,9 @@ namespace FNMES.Entity.DTO.AppData
         [DataMember]
         // 物料版本
         public string partVersion { get; set; }
+        [DataMember]
+        // 物料类型
+        public string partType { get; set; }
         [DataMember]
         // 数量
         public string partQty { get; set; }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace FNMES.Entity.DTO.ApiData
 {
@@ -12,6 +13,7 @@ namespace FNMES.Entity.DTO.ApiData
     public class LoginData
     {
         public string operatorName { get; set; }
+        public string operatorNo {  get; set; }
         public List<string> operatorRoleCode {  get; set; }
     }
 
@@ -21,7 +23,7 @@ namespace FNMES.Entity.DTO.ApiData
         public List<WorkOrder> workOrderList { get; set; }
 
     }
-
+    //工单字段
     public class WorkOrder
     {
         // 派工单号
@@ -241,6 +243,9 @@ namespace FNMES.Entity.DTO.ApiData
         [DataMember]
         // 物料版本
         public string partVersion { get; set; }
+        [DataMember]
+        // 物料类型
+        public string partType { get; set; }
         [DataMember]
         // 数量
         public string partQty { get; set; }
@@ -480,4 +485,15 @@ namespace FNMES.Entity.DTO.ApiData
         public string kpiActual;
         public string time;
     }
+
+    public class FinishedStation
+    {
+        public string configId;
+        public string equipmentID;
+        public string taskOrderNumber;
+        public string productPartNo;
+        public string reessNo;
+        public List<string> stationCodes;
+    }
+
 }

@@ -6,7 +6,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>用户列表</title>
+    <title>产品列表</title>
     <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
     <link href="~/Content/framework/css/console.css" rel="stylesheet" />
     <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
@@ -25,10 +25,84 @@
     <script src="~/Content/layui/layui.js"></script>
     <script src="~/Content/select2/js/select2.min.js"></script>
     <script src="~/Content/framework/js/global.js"></script>
+
+    <style>
+        .container {
+            width: 100%;
+            overflow: auto;
+        }
+
+        .div-test {
+            overflow-x: auto;
+            overflow-y: auto;
+            height: 100%;
+            width: 100%;
+        }
+
+            .div-test::-webkit-scrollbar {
+                width: 12px;
+                /* 设置竖向滚动条的宽度 */
+                height: 12px;
+                /* 设置横向滚动条的高度 */
+            }
+
+            .div-test::-webkit-scrollbar-thumb {
+                background-color: #888;
+                /* 滚动条的颜色 */
+                border-radius: 10px;
+                /* 滚动条的圆角 */
+            }
+
+                .div-test::-webkit-scrollbar-thumb:hover {
+                    background-color: #555;
+                    /* 滚动条悬停时的颜色 */
+                }
+
+            .div-test::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                /* 滚动条轨道的颜色 */
+                border-radius: 10px;
+                /* 轨道的圆角 */
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            white-space: nowrap;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        td {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-wrap: break-word;
+            max-width: 200px;
+        }
+    </style>
+
 </head>
 <body>
     <div class="panel animated fadeIn">
-        <div class="panel-body">
+        <div class="panel-body div-test">
             <div class="layui-inline" style="margin-bottom: 10px;">
                     <select lay-ignore name="lineId" class="select2" id="lineId"  style="width: 250px;height: 30px;" lay-verify="required"></select>
              </div>
@@ -44,7 +118,7 @@
                     <input type="text" id="keyWord" placeholder="产品编码或姓名" autocomplete="off" class="layui-input" style="height:39px">
                 </div>
             </div>
-            <table id="gridList" class="layui-form layui-table table-hover FNMES-table" lay-skin="line">
+            <table id="gridList"  lay-skin="line">
                 <thead>
                     <tr>
                         <th>
@@ -94,7 +168,7 @@
       {{#  }); }}
        {{# if(d.list.length<=0) { }}
           <tr style="color: red">
-              <td colspan="8">查无数据。</td>
+              <td colspan="12">查无数据。</td>
           </tr>
       {{# } }}
 </script>
@@ -169,7 +243,7 @@
         $.layerConfirm({
             content: "您已选中1个产品, 确定同步工艺配方吗？",
             callback: function () {
-               
+                
                 $.formSubmit({
                     url: '/param/product/getRecipe',
                     data: { primaryKey: ids[0],

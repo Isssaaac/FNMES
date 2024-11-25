@@ -17,6 +17,7 @@ using FNMES.Utility.Network;
 using FNMES.Entity.DTO.ApiData;
 using FNMES.Entity.Sys;
 using FNMES.WebUI.Logic.Sys;
+using System.Threading.Tasks;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -70,17 +71,18 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
         }
 
-        
+
         //强制同步产品配方
         [Route("param/product/getRecipe")]
-        [HttpPost , AuthorizeChecked]
-        public ActionResult GetRecipe(string configId,string primaryKey,bool force)
+        [HttpPost, AuthorizeChecked]
+        public ActionResult GetRecipe(string configId, string primaryKey, bool force)
         {
             SysLine sysLine = sysLineLogic.GetByConfigId(configId);
-            ParamRecipe paramRecipe = productLogic.Get(long.Parse(primaryKey),configId);
+            ParamRecipe paramRecipe = productLogic.Get(long.Parse(primaryKey), configId);
             //从工厂同步配方
 
-            GetRecipeParam param = new() { 
+            GetRecipeParam param = new()
+            {
                 productionLine = sysLine.EnCode,
                 productPartNo = paramRecipe.ProductPartNo,
                 smallStationCode = "",
@@ -90,7 +92,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                 operatorNo = OperatorProvider.Instance.Current.UserId,
                 actualStartTime = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString()
             };
-            RetMessage<GetRecipeData> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.GetRecipeUrl, param,configId).ToObject<RetMessage<GetRecipeData>>();
+            RetMessage<GetRecipeData> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.GetRecipeUrl, param, configId).ToObject<RetMessage<GetRecipeData>>();
             if (retMessage.messageType == "S")
             {
                 int v = productLogic.insert(retMessage.data, configId, force);

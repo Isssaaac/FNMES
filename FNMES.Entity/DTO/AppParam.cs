@@ -1,4 +1,6 @@
 ﻿using FNMES.Entity.DTO.ApiParam;
+using FNMES.Entity.Record;
+using SqlSugar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,6 +62,19 @@ namespace FNMES.Entity.DTO
     }
 
     [DataContract]
+    public class TestELECData
+    {
+        [DataMember]
+        public long id;
+        [DataMember]
+        public string productCode;
+        [DataMember]
+        public string data;
+        [DataMember]
+        public string result;  //OK NG 
+    }
+
+    [DataContract]
     public class HotRivetRecord
     {
         [DataMember]
@@ -100,5 +115,84 @@ namespace FNMES.Entity.DTO
         [DataMember]
         public string content;
         
+    }
+
+    [DataContract]
+    public class RepairStepData 
+    {
+
+        [DataMember]
+        public string StepNo { get; set; }
+
+        [DataMember]
+        public string StepName { get; set; }
+
+        [DataMember]
+        public string No { get; set; }
+
+        [DataMember]
+        public string StepDesc { get; set; }
+    }
+
+    [DataContract]
+    public class RepairPartData 
+    {
+
+        [DataMember]
+        public string StepNo { get; set; }
+
+        [DataMember]
+        public string StepName { get; set; }
+
+        [DataMember]
+        public string PartNumber { get; set; }
+
+        [DataMember]
+        public string PartDescription { get; set; }
+
+    }
+
+    [DataContract]
+    public class RepairProcessData 
+    {
+        [DataMember]
+        public string StepNo { get; set; }
+
+        [DataMember]
+        public string StepName { get; set; }
+
+        [DataMember]
+        public string ParamCode { get; set; }
+
+        [DataMember]
+        public string ParamName { get; set; }
+
+        [DataMember]
+        public string ProcessDescription { get; set; }
+    }
+
+    [DataContract]
+    public class RepairInfoData
+    {
+        [DataMember]
+        public string ProductCode { get; set; }
+
+        [DataMember]
+        public string StationCode { get; set; }
+
+        [DataMember]
+        public string SmallStationCode { get; set; }
+
+        [DataMember]
+        public string Operation { get; set; }
+
+        [DataMember]
+        public List<RepairStepData> LstRepairStepData { get; set; }
+
+        [DataMember]
+        public List<RepairPartData> LstRepairPartData { get; set; }
+
+        [DataMember]
+        public  List<RepairProcessData> LstRepairProcessData { get; set; }
     }
 }

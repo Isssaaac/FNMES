@@ -289,5 +289,93 @@ namespace FNMES.Utility.Files
                 return string.Empty;
             }
         }
+
+        public static void DtExportExcel(ref ExcelPackage package,DataTable dt, Dictionary<string, string> headDict, string sheetName = "", bool showSrNo=false)
+        {
+            Dictionary<string, Type> typeDict = new Dictionary<string, Type>();
+            foreach (DataColumn column in dt.Columns)
+            {
+                typeDict.Add(column.ColumnName, column.DataType);
+            }
+            typeDict.Add("RowNum", typeof(int));
+
+            List<string> keyList = new List<string>();
+            if (showSrNo)
+            {
+                keyList.Add("RowNum");
+                dt.Columns.Add("RowNum", typeof(int));
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    dt.Rows[i]["RowNum"] = i + 1;
+                }
+
+            }
+            //通过键的集合取
+            foreach (string key in headDict.Keys)
+            {
+                keyList.Add(key);
+            }
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+           
+            {
+                ExcelWorksheet sheet = package.Workbook.Worksheets.Add(sheetName.IsNullOrEmpty() ? "Sheet1" : sheetName);
+                if (showSrNo)
+                {
+                    headDict.Add("RowNum", "序号");
+                }
+                for (int i = 0; i < keyList.Count; i++)
+                {
+                    sheet.Cells[1, i + 1].Value = headDict[keyList[i]];//第一行 某列 表头
+                    Type type = typeDict[keyList[i]];//得到类型
+                    if (type == typeof(int))
+                    {
+                        sheet.Column(i + 1).Style.Numberformat.Format = "#,##0";
+                    }
+                    else if (type == typeof(float) || type == typeof(double))
+                    {
+                        sheet.Column(i + 1).Style.Numberformat.Format = "#,##0.00";
+                    }
+                    else if (type == typeof(DateTime))
+                    {
+                        sheet.Column(i + 1).Style.Numberformat.Format = "yyyy/mm/dd hh:mm:ss";
+                    }
+
+                }
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        for (int j = 0; j < keyList.Count; j++)
+                        {
+                            sheet.Cells[i + 2, j + 1].Value = dt.Rows[i][keyList[j]];
+                        }
+                    }
+                }
+                ExcelRange cells = sheet.Cells[1, 1, 1 + dt.Rows.Count, keyList.Count];
+                cells.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                cells.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                cells.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                cells.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                cells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;//水平居中
+                cells.Style.VerticalAlignment = ExcelVerticalAlignment.Center;//垂直居中
+                cells.AutoFitColumns();//自适应列宽
+            }
+        }
+
+        public static byte[] DtExportExcel(List<DataTable> tables,List<Dictionary<string, string>> headDicts,List<string> sheetNames)
+        {
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+            ExcelPackage package = new ExcelPackage();
+            byte[] bytes = null;
+            for (int i = 0; i < tables.Count; i++)
+            {
+                DtExportExcel(ref package, tables[i], headDicts[i], sheetNames[i], true);
+            }
+
+            bytes = package.GetAsByteArray();
+
+            package.Dispose();
+            return bytes;
+        }
     }
 }

@@ -231,7 +231,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-
+                //获取新的，意思是获取Flag等于0的
                 List<ParamOrder> paramProducts = db.MasterQueryable<ParamOrder>().Where(it => it.Flag =="0").ToList();
                 return paramProducts;
             }

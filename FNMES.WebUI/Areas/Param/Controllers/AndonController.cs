@@ -66,6 +66,7 @@ namespace FNMES.WebUI.Areas.Param.Controllers
             SysLine sysLine = sysLineLogic.GetByConfigId(configId);
             AndonTypeParam andonParam = new() { 
                 productionLine = sysLine.EnCode,
+                groupName = "PACK组装",
                 operatorNo = OperatorProvider.Instance.Current.Name,
             };
             RetMessage<AndonTypeData> retMessage = APIMethod.Call(API.Url.AndonParamUrl, andonParam, configId).ToObject<RetMessage<AndonTypeData>>();

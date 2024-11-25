@@ -3,6 +3,10 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
 		<GenerateRuntimeConfigDevFile>true</GenerateRuntimeConfigDevFile>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <Optimize>True</Optimize>
 	</PropertyGroup>
 
 	<ItemGroup>

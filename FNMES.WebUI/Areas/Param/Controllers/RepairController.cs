@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace FNMES.WebUI.Areas.Param.Controllers
 {
@@ -75,7 +76,14 @@ namespace FNMES.WebUI.Areas.Param.Controllers
                 return Error();
             }
             processBind.RepairFlag = "1";
-            processBind.RepairStations = stationCode;
+            if (string.IsNullOrEmpty(processBind.RepairStations))
+            {
+                processBind.RepairStations = stationCode;
+            }
+            else
+            {
+                processBind.RepairStations += ","+ stationCode;
+            }
             int v = bindLogic.Update(processBind, configId);
             return v != 0 ? Success() : Error();
         }
@@ -89,8 +97,28 @@ namespace FNMES.WebUI.Areas.Param.Controllers
             {
                 return Error();
             }
-            processBind.RepairFlag = "0";
-            processBind.RepairStations = "";
+            List<string> strArray = new List<string>(processBind.RepairStations.Split(","));
+            strArray.Remove(stationCode);
+            if (strArray.Count == 0)
+            {
+                processBind.RepairFlag = "0";
+                processBind.RepairStations = "";
+            }
+            else
+            {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < strArray.Count; i++)
+                {
+                    sb.Append(strArray[i]);
+                    if (i < strArray.Count - 1)
+                    {
+                        sb.Append(",");
+                    }
+                }
+                processBind.RepairFlag = "1";
+                processBind.RepairStations = sb.ToString();
+            }
+            
             int v = bindLogic.Update(processBind, configId);
             return v != 0 ? Success() : Error();
         }

@@ -35,8 +35,37 @@ namespace FNMES.WebUI.Logic.Param
             {
                 var db = GetInstance(configId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
-                int res;
-                List<ProcessBind> oldprocessBind = db.MasterQueryable<ProcessBind>().Where(it => it.PalletNo == model.PalletNo || it.ProductCode == model.ProductCode).ToList(); ;
+                int res = 0;
+                List<ProcessBind> oldagvbind = db.MasterQueryable<ProcessBind>().Where(it => it.PalletNo == model.PalletNo).ToList();
+                List<ProcessBind> oldprocessBind = db.MasterQueryable<ProcessBind>().Where(it => it.ProductCode == model.ProductCode).ToList();
+                if (oldagvbind != null && oldagvbind.Count != 0)
+                {
+                    try
+                    {
+                        Db.BeginTran();
+                        if (string.IsNullOrWhiteSpace(model.PalletNo))
+                        {
+                            res = Update(model, configId);
+                        }
+                        else
+                        {
+                            foreach (var item in oldagvbind)
+                            {
+                                item.PalletNo = "";
+                                res = Update(item, configId);
+                            }
+                            
+                        }
+                        Db.CommitTran();
+                    }
+                    catch (Exception)
+                    {
+                        Db.RollbackTran();
+                        return 0L;
+                        throw;
+                    }
+                    
+                }
                 if (oldprocessBind!= null && oldprocessBind.Count!=0)
                 {
                     try

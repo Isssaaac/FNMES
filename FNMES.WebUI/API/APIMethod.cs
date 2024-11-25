@@ -4,6 +4,7 @@ using FNMES.Utility.Core;
 using FNMES.Utility.Network;
 using FNMES.WebUI.Logic.Record;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace FNMES.WebUI.API
 {
@@ -30,6 +31,9 @@ namespace FNMES.WebUI.API
         public const string UnBindPalletUrl = "/api/pa/unbindSNAndAGV";                    //内控码与AGV工装码解绑上传接口
         public const string AndonUrl = "/api/pa/getAndonInfo";                             //ANDON接口
         public const string AndonParamUrl = "/api/pa/getAndonType";                        //ANDON异常类型下发接口
+        public const string UnbindPackUrl = "/api/pa/unbindPack";                          //PACK拆解接口
+        public const string BindPackUrl = "/api/pa/bindPack";                              //PACK重组接口
+        public const string UnbindMaterial = "/api/pa/uploadUnbindMaterial";               //返修房PACK拆解接口
     }
     public class APIMethod
     {
@@ -42,6 +46,7 @@ namespace FNMES.WebUI.API
             url = AppSetting.FactoryUrl;
 
         }
+        //不能在这里修改返回的厂级mes信息，因为厂级mes会返回条码
         public static string Call(string method, object param,string configId,bool disableLog = false)
         {
             method =  url + method;

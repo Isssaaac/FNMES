@@ -272,12 +272,11 @@
             ];
         } else if (condition === 14) {
             return [
-                // Define your columns for condition 1
+                // Define your columns for condition 1   { field: 'StatusCode', title: '状态码' },
                 { field: 'EquipmentID', title: '设备' },
-                { field: 'BigStationCode', title: '大工站' },
+                { field: 'StationCode', title: '大工站' },
                 { field: 'SmallStationCode', title: '小工站' },
                 { field: 'EquipmentStatus', title: '状态' },
-                { field: 'StatusCode', title: '状态码' },
                 { field: 'StatusDescription', title: '状态描述' },
                 { field: 'CreateTime', title: '创建时间' },
             ];
@@ -285,7 +284,7 @@
             return [
                 // Define your columns for condition 1
                 { field: 'EquipmentID', title: '设备' },
-                { field: 'BigStationCode', title: '大工站' },
+                { field: 'StationCode', title: '大工站' },
                 { field: 'SmallStationCode', title: '小工站' },
                 { field: 'OperatorNo', title: '员工号' },
                 { field: 'StopCode', title: '停机代码' },
@@ -352,7 +351,7 @@
         } else if (condition === 13) {
             var headers = ["设备", "大工站", "状态", "报警代码", "报警描述", "创建时间"];
         } else if (condition === 14) {
-            var headers = ["设备", "大工站", "状态", "状态码", "状态描述", "创建时间"];
+            var headers = ["设备", "大工站", "状态", "状态描述", "创建时间"];// "状态码",
         } else if (condition === 15) {
             var headers = ["设备", "大工站", "员工号", "停机代码", "停机描述", "停机时长ms","创建时间"];
         } else if (condition === 16) {

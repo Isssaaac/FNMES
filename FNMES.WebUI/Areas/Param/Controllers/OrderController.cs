@@ -17,6 +17,8 @@ using FNMES.WebUI.Logic.Sys;
 using FNMES.Entity.Sys;
 using FNMES.Entity.DTO.ApiData;
 using System.Linq;
+using SqlSugar;
+
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -242,58 +244,91 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
         }
 
+        object GetOrderLock=new object();
         [Route("param/order/getOrder")]
         [HttpPost, LoginChecked]
         public ActionResult GetOrder(string configId)
         {
-            SysLine sysLine = sysLineLogic.GetByConfigId(configId);
-            
-            GetOrderParam getOrderParam = new GetOrderParam() { 
-                productionLine = sysLine.EnCode,
-                stationCode = "M300",
-                operatorNo = OperatorProvider.Instance.Current.Name
-            };
-            RetMessage<GetOrderData> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.GetOrderUrl, getOrderParam, configId).ToObject<RetMessage<GetOrderData>>();
-            if (retMessage.messageType == "S")
+            lock (GetOrderLock)
             {
-                int v = orderLogic.Insert(retMessage.data.workOrderList, configId);
-                //同步后需要再向工厂发送一个已接收到的指令
-                List<ParamOrder> paramOrders = orderLogic.GetNew(configId);
-                if (!paramOrders.IsNullOrEmpty() && paramOrders.Count > 0)
+                SysLine sysLine = sysLineLogic.GetByConfigId(configId);
+
+                GetOrderParam getOrderParam = new GetOrderParam()
                 {
-
-                    List<SelectOrder> orders = paramOrders.Select(it => new SelectOrder() { 
-                    taskOrderNumber = it.TaskOrderNumber,
-                    actionCode = ActionCode.Received
-                    } ).ToList();
-                    SelectOrderParam selectOrderParam = new SelectOrderParam() { 
-                        taskOrderNumbers = orders,
-                        productionLine= sysLine.EnCode,
-                        stationCode = "M300",
-                        equipmentID = "FN-GZ-XTSX-03-M300-A",//20240409FN-GZXNY-PACK-024     更改设备编码20240409
-                        operatorNo = OperatorProvider.Instance.Current.Name,
-                        actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
-                    };
-
-                    RetMessage<object> retMessage1 = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, selectOrderParam, configId).ToObject<RetMessage<object>>();
-                    if (retMessage1.messageType == "S")
+                    productionLine = sysLine.EnCode,
+                    stationCode = "M300",
+                    operatorNo = OperatorProvider.Instance.Current.Name
+                };
+                //应该是这里同步工单
+                RetMessage<GetOrderData> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.GetOrderUrl, getOrderParam, configId).ToObject<RetMessage<GetOrderData>>();
+                if (retMessage.messageType == "S")
+                {
+                    List<ParamOrder> paramOrders = new List<ParamOrder>();
+                    foreach (var model in retMessage.data.workOrderList)
                     {
-                        return Success("同步完成");
+                        paramOrders.Add(new ParamOrder()
+                        {
+                            Id = SnowFlakeSingle.instance.NextId(),
+                            TaskOrderNumber = model.taskOrderNumber,
+                            ProductPartNo = model.productPartNo,
+                            ProductDescription = model.productDescription,
+                            PlanQty = Convert.ToInt16(model.planQty),
+                            Uom = model.uom,
+                            PlanStartTime = model.planStartTime,
+                            PlanEndTime = model.planEndTime,
+                            ReceiveTime = DateTime.Now,
+                            Flag = "0",
+                            FinishFlag = "0",
+                            OperatorNo = ""
+                        });
                     }
-                    else
+
+                    //这里插入工单信息到线体mes数据库，后面插入
+                    int v = orderLogic.Insert(retMessage.data.workOrderList, configId);
+
+                    //同步后需要再向工厂发送一个已接收到的指令
+                    //List<ParamOrder> paramOrders = orderLogic.GetNew(configId);
+
+                    if (!paramOrders.IsNullOrEmpty() && paramOrders.Count > 0)
                     {
-                        return Error("同步完成后回传失败");
+                        List<SelectOrder> orders = paramOrders.Select(it => new SelectOrder()
+                        {
+                            taskOrderNumber = it.TaskOrderNumber,
+                            actionCode = ActionCode.Received
+                        }).ToList();
+
+                        SelectOrderParam selectOrderParam = new SelectOrderParam()
+                        {
+                            taskOrderNumbers = orders,
+                            productionLine = sysLine.EnCode,
+                            stationCode = "M300",
+                            equipmentID = "FN-GZ-XTSX-03-M300-A",//20240409FN-GZXNY-PACK-024     更改设备编码20240409
+                            operatorNo = OperatorProvider.Instance.Current.Name,
+                            actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+                        };
+
+                        //回传在这里
+                        RetMessage<object> retMessage1 = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, selectOrderParam, configId).ToObject<RetMessage<object>>();
+                        if (retMessage1.messageType == "S")
+                        {
+                            return Success("同步完成");
+                        }
+                        else
+                        {
+                            return Error("同步完成后回传失败");
+                        }
                     }
+
+                    return Success("同步完成");
                 }
+                else
+                {
+                    return Error("工厂接口访问失败");
 
-                return Success("同步完成");
-            }
-            else
-            {
-                return Error("工厂接口访问失败");
-
+                }
             }
         }
+
         //同步产品配方
         [Route("param/order/getRecipe")]
         [HttpPost]

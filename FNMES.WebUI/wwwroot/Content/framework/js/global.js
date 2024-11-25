@@ -73,6 +73,7 @@ $.layerConfirm = function (options) {
         btnclass: ['btn btn-primary', 'btn btn-danger'],
         callback: null
     };
+
     var options = $.extend(defaults, options);
     top.layer.confirm(options.content, {
         title: options.title,
@@ -81,10 +82,18 @@ $.layerConfirm = function (options) {
         btnclass: options.btnclass,
         //skin: options.skin,
         anim: options.anim
-    }, function () {
-        if (options.callback && $.isFunction(options.callback)) {
-            options.callback();
-        }
+    }, function (index) {
+        //if (options.callback && $.isFunction(options.callback)) {
+        //    options.callback();
+        //}
+        top.layer.close(index)
+        var loadingIndex = top.layer.load(); // 显示加载中效果  
+        setTimeout(function () {
+            if (options.callback && $.isFunction(options.callback)) {
+                options.callback();
+            }
+            top.layer.close(loadingIndex); // 关闭加载中效果  
+        }, 100);  //100ms后执行
     }, function () {
         return true;
     });

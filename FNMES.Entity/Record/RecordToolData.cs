@@ -15,10 +15,12 @@ namespace FNMES.Entity.Record
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
         [SugarColumn(ColumnName = "id", IsPrimaryKey = true)]
         public long Id { get; set; }
+
         // 主表ID
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
         [SugarColumn(ColumnName = "pid")]
         public long ToolRemainId { get; set; }
+
         // 参数名称（检验项）
         [SugarColumn(ColumnName = "toolNo", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string ToolNo { get; set; }
@@ -34,6 +36,7 @@ namespace FNMES.Entity.Record
         // 单位
         [SugarColumn(ColumnName = "uom", ColumnDataType = "varchar(10)", IsNullable = true)]    
         public string Uom { get; set; }
+
         [SplitField]
         [SugarColumn(ColumnName = "createTime")]
         public DateTime CreateTime { get; set; }

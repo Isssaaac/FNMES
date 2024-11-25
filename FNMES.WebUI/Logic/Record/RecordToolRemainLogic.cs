@@ -47,30 +47,173 @@ namespace FNMES.WebUI.Logic.Record
                 return 0;
             }
         }
-        public List<RecordToolRemain> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount,string configId)
+        public List<ToolDataList> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount,string configId, string index)
         {
             try
             {
                 var db = GetInstance(configId);
                 ISugarQueryable<RecordToolRemain> queryable = db.Queryable<RecordToolRemain>();
+                ISugarQueryable<RecordToolData> queryable1 = db.Queryable<RecordToolData>();
 
                 if (!keyWord.IsNullOrEmpty())
                 {
-                    queryable = queryable.Where(it => it.StationCode.Contains(keyWord));
+                    queryable = queryable.Where(it => it.StationCode.Contains(keyWord) || it.ProductCode.Contains(keyWord));
                 }
-                return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
+                //查询当日
+                if (index == "1")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today;
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近7天
+                else if (index == "2")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-6);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近1月
+                else if (index == "3")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-29);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近3月
+                else if (index == "4")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-91);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+
+
+                var toolremain = queryable.SplitTable(tabs => tabs.Take(2));
+
+                var tooldata = queryable1.SplitTable(tabs => tabs.Take(2));
+
+                var lst = toolremain.LeftJoin(tooldata, (o, c) => o.Id == c.ToolRemainId) 
+                    .Select((o, c) => new ToolDataList
+                    {
+                        Id = o.Id,
+                        ProductCode = o.ProductCode,
+                        CreateTime = o.CreateTime,
+                        EquipmentID = o.EquipmentID,
+                        OperatorNo = o.OperatorNo,
+                        StationCode = o.StationCode,
+                        ToolName = c.ToolName,
+                        ToolNo = c.ToolNo,
+                        ToolRemainValue = c.ToolRemainValue,
+                        Uom = c.Uom
+                    })
+                    .MergeTable()
+                    .OrderByDescending(e=>e.Id)
+                     .ToPageList(pageIndex, pageSize, ref totalCount);
+
+                return lst;
             }
             catch (Exception e)
             {
                 Logger.ErrorInfo(e.Message);
-                return new List<RecordToolRemain>();
+                return new List<ToolDataList>();
             }
         }
 
+        public List<ToolDataList> GetList(string keyWord, string configId, string index)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                ISugarQueryable<RecordToolRemain> queryable = db.Queryable<RecordToolRemain>();
+                ISugarQueryable<RecordToolData> queryable1 = db.Queryable<RecordToolData>();
+
+                if (!keyWord.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => it.StationCode.Contains(keyWord) || it.ProductCode.Contains(keyWord));
+                }
+                //查询当日
+                if (index == "1")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today;
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近7天
+                else if (index == "2")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-6);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近1月
+                else if (index == "3")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-29);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
+                //近3月
+                else if (index == "4")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-91);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.CreateTime >= startTime && it.CreateTime < endTime);
+                }
 
 
+                var toolremain = queryable.SplitTable(tabs => tabs.Take(2));
 
+                var tooldata = queryable1.SplitTable(tabs => tabs.Take(2));
 
+                var lst = toolremain.LeftJoin(tooldata, (o, c) => o.Id == c.ToolRemainId)
+                    .Select((o, c) => new ToolDataList
+                    {
+                        Id = o.Id,
+                        ProductCode = o.ProductCode,
+                        CreateTime = o.CreateTime,
+                        EquipmentID = o.EquipmentID,
+                        OperatorNo = o.OperatorNo,
+                        StationCode = o.StationCode,
+                        ToolName = c.ToolName,
+                        ToolNo = c.ToolNo,
+                        ToolRemainValue = c.ToolRemainValue,
+                        Uom = c.Uom
+                    })
+                    .MergeTable()
+                    .OrderByDescending(e => e.Id)
+                     .ToList();
 
+                return lst;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<ToolDataList>();
+            }
+        }
+
+    }
+
+    public class ToolDataList
+    {
+        public long Id { get; set; }
+        public string ProductCode { get; set; }
+        public string StationCode { get; set; }
+        public string EquipmentID { get; set; }
+        public string OperatorNo { get; set; }
+        public DateTime CreateTime { get; set; }
+        public string ToolNo { get; set; }
+        public string ToolName { get; set; }
+        public string ToolRemainValue { get; set; }
+        public string Uom { get; set; }
     }
 }

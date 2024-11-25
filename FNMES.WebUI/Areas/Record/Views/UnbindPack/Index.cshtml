@@ -6,7 +6,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>工单列表</title>
+    <title>拆解记录</title>
     <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
     <link href="~/Content/framework/css/console.css" rel="stylesheet" />
     <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
@@ -36,8 +36,8 @@
     <div class="panel animated fadeIn">
         <div class="panel-body">
             <div class="layui-inline" style="margin-bottom: 10px;">
-                    <select lay-ignore name="lineId" class="select2" id="lineId"  style="width: 250px;height: 30px;" lay-verify="required"></select>
-             </div>
+                <select lay-ignore name="lineId" class="select2" id="lineId" style="width: 250px;height: 30px;" lay-verify="required"></select>
+            </div>
 
             <div id="toolbar" class="FNMES-table-toolbar">
                 <div class="layui-btn-group"> </div>
@@ -48,13 +48,13 @@
                     <button value="4" class="layui-btn layui-btn-primary layui-btn-small">近3个月</button>
                 </div>
                 <div class="layui-btn-group">
-                    <button  onclick="export_btn()" class="layui-btn layui-btn-primary layui-btn-small">导出数据</button>
+                    <button onclick="export_btn()" class="layui-btn layui-btn-primary layui-btn-small">导出数据</button>
                 </div>
                 <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
-                        <i class="layui-icon">&#xe615;</i>
+                    <i class="layui-icon">&#xe615;</i>
                 </button>
                 <div class="toolbar-search-input">
-                    <input type="text" id="keyWord" placeholder="key" autocomplete="off" class="layui-input" style="height:39px">
+                    <input type="text" id="keyWord" placeholder="内控码或工站" autocomplete="off" class="layui-input" style="height:39px">
                 </div>
             </div>
             <table id="gridList" class="layui-form layui-table table-hover FNMES-table" lay-skin="line">
@@ -64,14 +64,15 @@
                             <input type="checkbox" lay-skin="primary">
                         </th>
                         <th>内控码</th>
-                        <th>工位</th>
-                        <th>工单号</th>
-                        <th>状态</th>
-                        <th>不良代码</th>
-                        <th>不良描述</th>
-                        <th>过站时间</th>
-                        <th>进站时间</th>
-                        <th>AGV码</th>
+                        <th>工站</th>
+                        <th>小工站</th>
+                        <th>设备ID</th>
+                        <th>操作员</th>
+                        <th>创建时间</th>
+                        <th>物料编码</th>
+                        <th>物料描述</th>
+                        <th>物料条码</th>
+                        <th>拆解原因</th>
                     </tr>
                 </thead>
                 <!--内容容器-->
@@ -91,13 +92,14 @@
             <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
          <td>{{item.ProductCode}}</td>
          <td>{{item.StationCode}}</td>
-        <td>{{item.TaskOrderNumber}}</td>
-        <td>{{item.ProductStatus}}</td>
-        <td>{{item.DefectCode}}</td>
-        <td>{{item.DefectDesc}}</td>
+         <td>{{item.SmallStationCode}}</td>
+        <td>{{item.EquipmentID}}</td>
+        <td>{{item.OperatorNo}}</td>
         <td>{{item.CreateTime}}</td>
-        <td>{{item.instationTime}}</td>
-        <td>{{item.palletNo}}</td>
+        <td>{{item.PartNumber}}</td>
+        <td>{{item.PartDescription}}</td>
+        <td>{{item.PartBarcode}}</td>
+        <td>{{item.Reason}}</td>
     </tr>
       {{#  }); }}
        {{# if(d.list.length<=0) { }}
@@ -123,20 +125,20 @@
         $("#toolbar").authorizeButton();
         $('#btnSearch').click(initGrid);
         $('#keyWord').bindEnterEvent(initGrid);
-       // initGrid();
+        // initGrid();
 
     });
     //$("#lineId").bindChangeEvent(initGrid);
     $("#lineId").on("select2:select", function (e) {
-    // 处理选择事件
+        // 处理选择事件
         if ($("#lineId").val() == "0") {
             return
         };
         initGrid();
     });
 
-    function flush(){
-        if( $("#lineId").val() == "0"){
+    function flush() {
+        if ($("#lineId").val() == "0") {
             return
         };
         initGrid();
@@ -153,7 +155,7 @@
             return
         };
         paging.init({
-            url: '/record/outstation/index',
+            url: '/record/unbindpack/index',
             elem: '#content',
             tempElem: '#contentTpl',
             singleSelected: true, //单选
@@ -171,80 +173,6 @@
             }
         });
     }
-    function btn_process() {
-        var ids = $("#gridList").gridSelectedRowValue();
-
-        if (ids.length != 1) {
-            $.layerMsg("请勾选单条记录查看。", "warning");
-            return;
-        }
-        var data = $("#gridList").gridSelectedRowData();
-        $.ajax({
-            url: '/record/process/exist',
-            method: 'GET',
-            data: {
-                productCode: data[1],
-                stationCode: data[2],
-                configId: $("#lineId").val() },
-            success: function (res) {
-                var response = JSON.parse(res);
-                if (response.state == 1) {
-                    // 打开子页面
-                    $.layerOpen({
-                        id: "detail",
-                        title: "查看数据",
-                        width: "800px",
-                        height: "500px",
-                        content: "/record/process/index?productCode=" + data[1] + "&stationCode=" + data[2] + "&configId=" + $("#lineId").val(),
-                        btn: null
-                    });
-                }else {
-                    $.layerMsg("没有找到相关数据。", "warning");
-                }
-            },
-            error: function (error) {
-                // 处理查询错误
-                $.layerMsg("查询出错。", "error");
-            }
-        });
-    }
-    function btn_part() {
-        var ids = $("#gridList").gridSelectedRowValue();
-
-        if (ids.length != 1) {
-            $.layerMsg("请勾选单条记录查看。", "warning");
-            return;
-        }
-        var data = $("#gridList").gridSelectedRowData();
-        $.ajax({
-            url: '/record/part/exist',
-            method: 'GET',
-            data: {
-                productCode: data[1],
-                stationCode: data[2],
-                configId: $("#lineId").val()
-            },
-            success: function (res) {
-                var response = JSON.parse(res);
-                if (response.state == 1) {
-                    // 打开子页面
-                    $.layerOpen({
-                        id: "detail",
-                        title: "查看物料",
-                        width: "800px",
-                        height: "500px",
-                        content: "/record/part/index?productCode=" + data[1] + "&stationCode=" + data[2] + "&configId=" + $("#lineId").val(),
-                        btn: null
-                    });
-                }else { $.layerMsg("没有找到相关数据。", "warning"); }
-               
-            },
-            error: function (error) {
-                // 处理查询错误
-                $.layerMsg("查询出错。", "error");
-            }
-        });
-    }
 
     function export_btn() {
         if ($("#lineId").val() == "0") {
@@ -252,7 +180,7 @@
             return;
         }
         // 发送请求到后端以触发文件导出  + "&index=" + $('#queryDate').find('button.active').val()
-        fetch("/record/outstation/export?configId=" + $("#lineId").val() + "&index=" + $('#queryDate').find('button.active').val() + "&keyword=" + $("#keyWord").val(), {
+        fetch("/record/unbindpack/export?keyWord=" + $("#keyWord").val() + "&configId=" + $("#lineId").val() + "&index=" + $('#queryDate').find('button.active').val(), {
             method: "GET",
         }).then(response => response.blob())
             .then(blob => {
@@ -260,7 +188,7 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
-                a.download = $("#lineId").val() + "-OutstationData.xlsx"; // 文件名
+                a.download = $("#lineId").val() + "-UnbindPackData.xlsx"; // 文件名
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);

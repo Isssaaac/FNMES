@@ -8,6 +8,9 @@ using FNMES.Utility.Core;
 using System.Linq;
 using FNMES.Entity.DTO.ApiParam;
 using Org.BouncyCastle.Asn1.Ess;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
+using System.Drawing.Printing;
+using FNMES.Utility.Network;
 
 namespace FNMES.WebUI.Logic.Record
 {
@@ -89,5 +92,133 @@ namespace FNMES.WebUI.Logic.Record
             }
         }
 
+        public RetMessage<RecordPartUpload> GetProductCode(string partBarCode, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                var part = db.Queryable<RecordPartData>().Where(it => it.PartBarcode == partBarCode).SplitTable(tables => tables.Take(3)).First();
+                if (part == null)
+                {
+                    return new RetMessage<RecordPartUpload>
+                    {
+                        data = null,
+                        message = $"未查询到物料条码{partBarCode}",
+                        messageType = RetCode.Error,
+                    };
+
+                }
+                else
+                {
+                    var partupload = db.Queryable<RecordPartUpload>().Where(t => t.Id == part.PartUploadId).SplitTable(table => table.Take(3)).First();
+                    if (partupload == null)
+                    {
+                        return new RetMessage<RecordPartUpload>
+                        {
+                            data = null,
+                            message = $"未查询到内控码",
+                            messageType = RetCode.Error,
+                        };
+                    }
+
+                    return new RetMessage<RecordPartUpload>
+                    {
+                        data = partupload,
+                        message = $"内控码查询成功",
+                        messageType = RetCode.Success,
+                    };
+                }
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return new RetMessage<RecordPartUpload>
+                {
+                    data = null,
+                    message = $"查询出错,{E.Message}",
+                    messageType = RetCode.Error,
+                };
+            }
+        }
+
+        public RetMessage<bool> CheckProductCode(string productCode, string partBarCode, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                var part = db.Queryable<RecordPartData>().Where(it => it.PartBarcode == partBarCode).SplitTable(tables => tables.Take(3)).First();
+                if (part == null)
+                {
+                    return new RetMessage<bool>
+                    {
+                        data = false,
+                        message = $"未查询到物料条码{partBarCode}",
+                        messageType = RetCode.Error,
+                    };
+
+                }
+                else
+                {
+                    var partupload = db.Queryable<RecordPartUpload>().Where(t => t.Id == part.PartUploadId).SplitTable(table => table.Take(3)).First();
+                    if (partupload == null)
+                    {
+                        return new RetMessage<bool>
+                        {
+                            data = false,
+                            message = $"未查询到内控码",
+                            messageType = RetCode.Error,
+                        };
+                    }
+                    if (partupload.ProductCode == productCode)
+                    {
+                        return new RetMessage<bool>
+                        {
+                            data = true,
+                            message = $"内控码与物料条码绑定关系正确",
+                            messageType = RetCode.Success,
+                        };
+                    }
+                    else
+                    {
+                        return new RetMessage<bool>
+                        {
+                            data = false,
+                            message = $"内控码与物料条码绑定关系错误",
+                            messageType = RetCode.Error,
+                        };
+                    }
+
+                }
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return new RetMessage<bool>
+                {
+                    data = false,
+                    message = $"查询出错,{E.Message}",
+                    messageType = RetCode.Error,
+                };
+            }
+        }
+
+        //20241125添加，解绑后应删除对应物料记录
+        public bool UnBindPartBarcode(string partBarcode)
+        {
+            //需要查询每条线的数据
+            try
+            {
+                for (int i = 1; i <= 5; i++)
+                {
+                    var db = GetInstance(i.ToString());
+                    db.Deleteable<RecordPartData>().Where(it => it.PartBarcode == partBarcode).SplitTable(tables => tables.Take(2));
+                }
+                return true;
+            }
+            catch
+            {
+                throw;
+            }
+        }
     }
 }

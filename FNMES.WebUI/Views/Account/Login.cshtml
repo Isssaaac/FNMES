@@ -51,14 +51,14 @@
                     </label>
                     <input type="password" name="password" value="" lay-verify="required" autocomplete="off" placeholder="登陆密码" class="layui-input">
                 </div>
-                <div class="layui-form-item">
+@*                 <div class="layui-form-item">
                     <div class="login-code-box">
                         <label class="login-icon"><i class="layui-icon">&#xe62d;</i></label>
                         <input type="text" name="verifyCode" lay-verify="required" autocomplete="off" placeholder="验证码" class="layui-input" value="abcd">
                         <img id="verifyCode" src="/account/verifyCode" title="点击更换验证码">
                     </div>
                     <!--<input class="FNMES-pull-right" type="checkbox" lay-skin="primary" name="isSaveAccount" value="true" title="记住账号" />-->
-                </div>
+                </div> *@
                 <div class="layui-form-item">
                     <button class="layui-btn btn-submit" lay-submit lay-filter="login">立即登录</button>
                 </div>
@@ -105,14 +105,14 @@
                     } else {
                         $(".btn-submit").html("立即登录");
                         $(".btn-submit").attr('disabled', false).removeClass('layui-disabled');
-                        $("#verifyCode").trigger('click');
+                         $("#verifyCode").trigger('click');
                         $.layerMsg(result.message, result.state);
                     }
                 },
                 error: function (e) {
                     $(".btn-submit").html("立即登录");
                     $(".btn-submit").attr('disabled', false).removeClass('layui-disabled');
-                    $("#verifyCode").trigger('click');
+                     $("#verifyCode").trigger('click');
                     $.layerMsg("登录过程发生异常");
                 }
             });

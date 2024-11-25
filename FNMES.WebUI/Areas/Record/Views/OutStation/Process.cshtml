@@ -52,6 +52,13 @@
                     <th>参数名称</th>
                     <th>参数值</th>
                     <th>结果</th>
+                    <th>判断类型</th>
+                    <th>参数类型</th>
+                    <th>标准值</th>
+                    <th>最大值</th>
+                    <th>最小值</th>
+                    <th>设定值</th>
+                    <th>单位</th>
                 </tr>
             </thead>
             <!--内容容器-->
@@ -74,6 +81,13 @@
         <td>{{item.ParamName}}</td>
         <td>{{item.ParamValue}}</td>
         <td>{{item.ItemFlag}}</td>
+        <td>{{item.DecisionType}}</td>
+        <td>{{item.ParamType}}</td>
+        <td>{{item.StandValue}}</td>
+        <td>{{item.MaxValue}}</td>
+        <td>{{item.MinValue}}</td>
+        <td>{{item.SetValue}}</td>
+        <td>{{item.UnitOfMeasure}}</td>
     </tr>
      {{#  }); }}
        {{# if(d.list.length<=0) { }}
@@ -93,7 +107,13 @@
         var configId = $.getQueryString("configId");
         var productCode = $.getQueryString("productCode");
         var stationCode = $.getQueryString("stationCode");
-        $('#keyWord').bindEnterEvent(initGrid(configId, productCode, stationCode));
+        // $('#keyWord').bindEnterEvent(initGrid(configId, productCode, stationCode));
+        $('#btnSearch').click(function () {
+            var configId = $.getQueryString("configId");
+            var productCode = $.getQueryString("productCode");
+            var stationCode = $.getQueryString("stationCode");
+            initGrid(configId, productCode, stationCode);
+        });
         initGrid(configId, productCode, stationCode);
 
     });
@@ -108,7 +128,7 @@
                 productCode: productCode,
                 configId: configId,
                 stationCode: stationCode,
-                keyWord: $("#keyWord").val()
+                keyWord: $("#keyWord").val(),
             },
             pageConfig: {
                 elem: 'paged',
@@ -122,14 +142,5 @@
             }
         });
     }
-
-
-
-
-
-
-
-
-
 </script>
 

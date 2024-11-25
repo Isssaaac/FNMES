@@ -82,7 +82,11 @@ namespace FNMES.WebUI.Logic.Record
                 }
 
                 //按季分表三个月取2张表
-                return queryable.SplitTable(tabs => tabs.Take(2)).ToPageList(pageIndex, pageSize, ref totalCount);
+                //2024.5.9增加倒序排序
+                return queryable.SplitTable(tabs => tabs.Take(2))
+                    .MergeTable()
+                    .OrderByDescending(it=>it.Id)
+                    .ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception e)
             {
