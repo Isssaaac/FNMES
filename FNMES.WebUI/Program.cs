@@ -157,8 +157,7 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
 });
 
-//新增suger
-//新增suger3
+
 app.UseHttpsRedirection();
 
 //为了IIS添加

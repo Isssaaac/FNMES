@@ -326,7 +326,6 @@ namespace FNMES.WebUI.Logic.Param
 
         public int FastBinding(long id, string palletNo, string configId)
         {
-          
             var linedb = GetInstance(configId);
             var bindData = linedb.Queryable<ProcessBind>().Where(it => it.Id == id).First();
 
@@ -369,8 +368,6 @@ namespace FNMES.WebUI.Logic.Param
                 return 1;
             }
             return 0;
-
-
         }
 
         public int FastUnbinding(long id, string configId)
@@ -417,6 +414,15 @@ namespace FNMES.WebUI.Logic.Param
                 return 1;
             }
             return 0;
+        }
+
+        //1125更改，仍在线的工站获取的是内控码的信息
+        //这里面有个问题，返修要求可以五条线的都能返修？那查的时候，需要查5条线的数据库？
+        public RecordBindHistory GetBindByProductCode(string productCode, string configId)
+        {
+            var db = GetInstance(configId);
+            RecordBindHistory oldProcessBind = db.MasterQueryable<RecordBindHistory>().Where(it => it.ProductCode == productCode).First();
+            return oldProcessBind;
         }
     }
 }

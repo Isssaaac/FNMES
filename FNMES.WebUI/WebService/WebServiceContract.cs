@@ -455,6 +455,7 @@ namespace FNMES.Service.WebService
         //如果是中转或入口工位，则返回OK结果，让人工判定有没有箱子
         //如果不是中转或入口工位，则根据AGV码查询，如无记录则返回N
         //出现如果没有激活工单，线体仍然在做的产品会报没有激活工单，应改为上线时候检查，其余时候不检查
+        
         [OperationContract]
         public RetMessage<GetPackInfoData> GetPackInfo(GetPackInfoParam param, string configId)
         {
