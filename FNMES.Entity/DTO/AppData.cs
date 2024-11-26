@@ -106,6 +106,49 @@ namespace FNMES.Entity.DTO.AppData
         [DataMember]
         public int StopCodeOffset { get; set; }
     }
+
+    //这个里面有分流器条码
+    [DataContract]
+    public class TranshipStationBindProcessParam : BaseParam
+    {
+        [DataMember]
+        public string productCode { get; set; } // 内控码
+        [DataMember]
+        public string palletNo { get; set; } // AGV工装码 
+        [DataMember]
+        public string stationCode { get; set; }
+        [DataMember]
+        public string smallStationCode { get; set; }
+        [DataMember]
+        public string equipmentID { get; set; } // 设备编码（选填）
+        [DataMember]
+        public string operatorNo { get; set; } // 操作工
+
+        //上面部分为api需要的参数，下面为线体绑定需要的参数
+        [DataMember]
+        public string TaskOrderNumber { get; set; }
+        [DataMember]
+        public string ProductPartNo { get; set; }
+        [DataMember]
+        public string ConfigId { get; set; }
+        [DataMember]
+        public string Status { get; set; } //
+        [DataMember]
+        public string RepairFlag { get; set; } //返修标志
+        [DataMember]
+        public string RepairStations { get; set; } //返修工站
+
+        [DataMember]
+        public string ReessNo { get; set; }      //国标码
+
+        [DataMember]
+        public string Diverter { get; set; }    //分流器条码
+
+        [DataMember]
+        public string GlueTime { get; set; }    //中段涂胶时间
+    }
+
+    //这个里面没分流器条码
     [DataContract]
     public class BindProcessParam :BaseParam
     {
@@ -130,11 +173,11 @@ namespace FNMES.Entity.DTO.AppData
         [DataMember]
         public string ConfigId { get; set; }
         [DataMember]
-        public string Status { get; set; }
+        public string Status { get; set; } //
         [DataMember]
-        public string RepairFlag { get; set; }
+        public string RepairFlag { get; set; } //返修标志
         [DataMember]
-        public string RepairStations { get; set; }
+        public string RepairStations { get; set; } //返修工站
     }
 
     [DataContract]
@@ -158,10 +201,6 @@ namespace FNMES.Entity.DTO.AppData
 
         [DataMember]
         public string GlueTime { get; set; }    //中段涂胶时间
-
-
-
-
     }
     #region 原来的RecipeData
     //public class RecipeData

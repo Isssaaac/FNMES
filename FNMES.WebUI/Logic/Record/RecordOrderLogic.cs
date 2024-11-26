@@ -22,7 +22,9 @@ namespace FNMES.WebUI.Logic.Record
                 var db = GetInstance(configId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 model.CreateTime = DateTime.Now;
+                //插入这个RecordOrderStart这份表，这份表用来统计完成个数
                 db.Insertable<RecordOrderStart>(model).SplitTable().ExecuteCommand();
+                //统计RecordOrderStart有多少个产品
                 return db.MasterQueryable<RecordOrderStart>().Where(it => it.TaskOrderNumber == model.TaskOrderNumber).SplitTable(tabs => tabs.Take(2)).Select(s => SqlFunc.AggregateDistinctCount(s.ProductCode)).First();
             }
             catch (Exception e)

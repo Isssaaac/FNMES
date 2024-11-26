@@ -278,7 +278,9 @@ namespace FNMES.Service.WebService
             //Logger.RunningInfo(result.ToJson());
             return result;
         }
+
         //根据箱体码或内控码申请条码     M300工位生成内控码，， M490工位生成RESS码给M500工位使用。
+        //Getlabel这个接口来改变工单状态，如果满足数量要求了，就会将工单状态设置为4(完成)
         [OperationContract]
         public RetMessage<LabelAndOrderData> GetLabel(GetLabelParam param, string configId)
         {
@@ -342,9 +344,12 @@ namespace FNMES.Service.WebService
                         PackNo = param.productCode,
                         ProductCode = retMessage.data.CodeContent
                     }, configId);
-                    //判断订单是否已完成
-                    if (selectedOrder.PlanQty <= v)
+                    Logger.RunningInfo($"当前工单:<{selectedOrder.TaskOrderNumber}>,计划产量:<{selectedOrder.PlanQty}>,实际产量:<{v}>");
+                    //判断订单是否已完成，1126，计划10个，做了11个才报无激活工单
+                    //if (selectedOrder.PlanQty <= v)
+                    if (selectedOrder.PlanQty < v)
                     {
+                        Logger.RunningInfo($"当前工单已完成:<{selectedOrder.TaskOrderNumber}>,计划产量:<{selectedOrder.PlanQty}>,实际产量:<{v}>");
                         selectedOrder.OperatorNo = param.operatorNo;
                         selectedOrder.Flag = "4";
                         paramOrderLogic.Update(selectedOrder,configId);
@@ -393,7 +398,35 @@ namespace FNMES.Service.WebService
             }
         }
 
-        //获取当前工单参数  
+        //用对应条码获取ProcessBind数据
+        [OperationContract]
+        public RetMessage<ProcessBind> GetProcessBind(string productCode, string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<ProcessBind>("没有给configId参数赋值");
+            }
+
+            //当内控码非空时，查询内控码绑定的工单纪录
+            //当内控码非空时，从绑定记录表中获取内控码绑定的记录
+            ProcessBind processBind = processBindLogic.GetByProductCode(productCode, configId);
+            if (processBind == null)
+            {
+                return new RetMessage<ProcessBind>(new ProcessBind())
+                {
+                    messageType = RetCode.Error,
+                    message = $"未查询到内控码:<{productCode}>绑定的记录",
+                };
+            }
+            return new RetMessage<ProcessBind>(new ProcessBind())
+            {
+                messageType = RetCode.Success,
+                message = "查询成功",
+                data = processBind,
+            };
+        }
+
+        //获取当前工单参数，是从process_bind这份表获取的信息，包括分流器条码，物料编码等信息
         [OperationContract]
         public RetMessage<LabelAndOrderData> GetInfo(string productCode, string configId)
         {   
@@ -401,6 +434,7 @@ namespace FNMES.Service.WebService
             {
                 return NewErrorMessage<LabelAndOrderData>("没有给configId参数赋值");
             }
+
             //当内控码为空时，查询当前激活的工单信息
             if(productCode.IsNullOrEmpty())
             {
@@ -425,6 +459,7 @@ namespace FNMES.Service.WebService
             }
 
             //当内控码非空时，查询内控码绑定的工单纪录
+            //当内控码非空时，从绑定记录表中获取内控码绑定的记录
             ProcessBind processBind = processBindLogic.GetByProductCode(productCode, configId);
             if (processBind == null)
             {
@@ -434,6 +469,7 @@ namespace FNMES.Service.WebService
                     message = $"未查询到内控码:<{productCode}>绑定的记录",
                 };
             }
+
             return new RetMessage<LabelAndOrderData>(new LabelAndOrderData())
             {
                 messageType = RetCode.Success,
@@ -451,11 +487,29 @@ namespace FNMES.Service.WebService
             };
         }
 
+        //入口调的
+        [OperationContract]
+        public RetMessage<GetPackInfoData> CheckOrder(string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<GetPackInfoData>("没有给configId参数赋值");
+            }
+            //查询当前工单
+            ParamOrder selectedOrder = paramOrderLogic.GetSelected(configId);
+            if (selectedOrder == null)
+            {
+                return NewErrorMessage<GetPackInfoData>("无激活的工单！");
+            }
+            return NewSuccessMessage<GetPackInfoData>($"该工站为入口工序，存在激活工单<{selectedOrder.TaskOrderNumber}>，产品编码:<{selectedOrder.ProductPartNo}>,计划数量:<{selectedOrder.PlanQty}>,实际生产:<{selectedOrder.PackQty}>");
+        }
+
+
         //获取Pack信息  自动工位使用  通过pallet码获取内控码  非340工位
         //如果是中转或入口工位，则返回OK结果，让人工判定有没有箱子
         //如果不是中转或入口工位，则根据AGV码查询，如无记录则返回N
         //出现如果没有激活工单，线体仍然在做的产品会报没有激活工单，应改为上线时候检查，其余时候不检查
-        
+
         [OperationContract]
         public RetMessage<GetPackInfoData> GetPackInfo(GetPackInfoParam param, string configId)
         {
@@ -467,26 +521,24 @@ namespace FNMES.Service.WebService
             {
                 return NewErrorMessage<GetPackInfoData>("没有给palletNo参数赋值");
             }
+            //这个是实时绑定
             ProcessBind processBind = processBindLogic.GetByPalletNo(param.palletNo, configId);
-            //查询当前工单
-            ParamOrder selectedOrder = paramOrderLogic.GetSelected(configId);
-            if (selectedOrder == null)
+            ParamLocalRoute route = routeLogic.Get(param.stationCode, processBind.ProductPartNo, configId);
+            if (route == null)
             {
-                return NewErrorMessage<GetPackInfoData>("无激活的工单！");
+                return NewErrorMessage<GetPackInfoData>($"托盘:<{param.palletNo}>绑定条码<{processBind.ProductCode}>,该物料编码<{processBind.ProductPartNo}>,工艺路线中不包含{param.stationCode}工序");
             }
-            ParamLocalRoute route = routeLogic.Get(param.stationCode, selectedOrder.ProductPartNo, configId);
-            if(route == null)
-            {
-                return NewErrorMessage<GetPackInfoData>($"工艺路线中不包含{param.stationCode}工序");
-            }
+
             if (route.IsEntrance || route.IsTranshipStation)
             {
                 return NewSuccessMessage<GetPackInfoData>($"该工站:<{param.stationCode}>为中转或重新上线工位，不通过AGV:<{param.palletNo}>查询箱体信息");
             }
-            if(processBind == null)
+
+            if (processBind == null)
             {
                 return NewNgMessage<GetPackInfoData>($"查询agv:<{param.palletNo}>上没有绑定纪录！");
             }
+
             return new RetMessage<GetPackInfoData>()
             {
                 messageType = RetCode.Success,
@@ -551,6 +603,55 @@ namespace FNMES.Service.WebService
             return NewSuccessMessage<LabelAndOrderData>("待完成");
         }
 
+        //重新AGV工装与箱体  中转工位使用  绑定信息上传
+        [OperationContract]
+        public RetMessage<nullObject> TranshipStationBindPallet(TranshipStationBindProcessParam param, string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<nullObject>("没有给configId参数赋值");
+            }
+            long result = processBindLogic.Insert(new ProcessBind()
+            {
+                PalletNo = param.palletNo,
+                ProductCode = param.productCode,
+                TaskOrderNumber = param.TaskOrderNumber,
+                ProductPartNo = param.ProductPartNo,
+                Status = param.Status == "OK" || param.Status == "1" ? "OK" : "NG",
+                ConfigId = param.ConfigId,
+                RepairFlag = param.RepairFlag,
+                RepairStations = param.RepairStations,
+                CreateTime = DateTime.Now,
+                Diverter = param.Diverter,
+                GlueTime = param.GlueTime,
+                ReessNo = param.ReessNo,
+            }, configId);
+            if (result == 0)
+            {
+                return NewErrorMessage<nullObject>($"绑定载盘<{param.palletNo}>和内控码<{param.productCode}>失败");
+            }
+            FactoryStatus factoryStatus = GetStatus(configId);
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
+
+            BindPalletParam bindPalletParam = new();
+            bindPalletParam.CopyField(param);
+            //在线则上传工厂，agv和内控码要上传到厂级mes的
+            if (factoryStatus.isOnline)
+            {
+                string ret = APIMethod.Call(Url.BindPalletUrl, bindPalletParam, configId);
+                return ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();
+            }
+            //不在线，新建未传内容的表，等后续再人工恢复上传。  
+            offlineApiLogic.Insert(new RecordOfflineApi()
+            {
+                Url = Url.BindPalletUrl,
+                RequestBody = param.ToJson(),
+                ReUpload = 0
+            }, configId);
+            return NewSuccessMessage<nullObject>("工厂离线中，已离线绑定完成");
+        }
+
         //上线绑定AGV工装与箱体     M300工位使用    绑定信息上传
         [OperationContract]
         public RetMessage<nullObject> BindPallet(BindProcessParam param,  string configId)
@@ -578,9 +679,10 @@ namespace FNMES.Service.WebService
             FactoryStatus factoryStatus = GetStatus(configId);
             SysLine sysLine = lineLogic.GetByConfigId(configId);
             param.productionLine = sysLine.EnCode;
+
             BindPalletParam bindPalletParam = new();
             bindPalletParam.CopyField(param);
-            //在线则上传工厂
+            //在线则上传工厂，agv和内控码要上传到厂级mes的
             if (factoryStatus.isOnline)
             {
                 string ret = APIMethod.Call(Url.BindPalletUrl, bindPalletParam, configId);
@@ -2317,7 +2419,7 @@ namespace FNMES.Service.WebService
                 //return APIMethod.Call(Url.UnbindPackUrl, param, configId).ToObject<RetMessage<nullObject>>();
             }
 
-            //要删除物料绑定记录
+            //要删除物料绑定记录，没删除process_bind的数据
             RecordPartUploadLogic l = new RecordPartUploadLogic();
             foreach (var e in param.partList)
             {

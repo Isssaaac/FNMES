@@ -29,4 +29,7 @@ db.CodeFirst.InitTables(typeof(SysUser));
 //    db.Insertable(newUser).SplitTable().ExecuteCommand();
 //}
 var users = db.Queryable<SysUser>().SplitTable(tabs => tabs.Take(3)).ToList();
+var i = db.MasterQueryable<SysUser>().Where(it => it.Name == "John Doe").SplitTable(tabs => tabs.Take(2)).Select(s => SqlFunc.AggregateDistinctCount(s.Id)).First();
+
+
 Console.WriteLine(JsonConvert.SerializeObject(users));

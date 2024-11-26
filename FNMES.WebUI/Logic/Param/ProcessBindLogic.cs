@@ -36,8 +36,11 @@ namespace FNMES.WebUI.Logic.Param
                 var db = GetInstance(configId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 int res = 0;
+                //旧的托盘绑定
                 List<ProcessBind> oldagvbind = db.MasterQueryable<ProcessBind>().Where(it => it.PalletNo == model.PalletNo).ToList();
+                //旧的产品条码绑定
                 List<ProcessBind> oldprocessBind = db.MasterQueryable<ProcessBind>().Where(it => it.ProductCode == model.ProductCode).ToList();
+                //假如旧的agv绑定存在，则更新
                 if (oldagvbind != null && oldagvbind.Count != 0)
                 {
                     try
@@ -54,7 +57,6 @@ namespace FNMES.WebUI.Logic.Param
                                 item.PalletNo = "";
                                 res = Update(item, configId);
                             }
-                            
                         }
                         Db.CommitTran();
                     }
@@ -66,6 +68,7 @@ namespace FNMES.WebUI.Logic.Param
                     }
                     
                 }
+                //假如旧的产品条码存在
                 if (oldprocessBind!= null && oldprocessBind.Count!=0)
                 {
                     try
@@ -80,7 +83,9 @@ namespace FNMES.WebUI.Logic.Param
                         });
 
                         db.Insertable<RecordBindHistory>(histories).SplitTable().ExecuteCommand();
+                        //删除了旧的绑定又插入新的
                         db.Deleteable<ProcessBind>(oldprocessBind).ExecuteCommand();
+
                         res = db.Insertable<ProcessBind>(model).ExecuteCommand();
                         Db.CommitTran();
                         if (res != 0)
