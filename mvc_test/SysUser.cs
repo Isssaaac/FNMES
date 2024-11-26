@@ -4,8 +4,8 @@ namespace FNMES.TEST
     /// <summary>
     /// 
     ///</summary>
-    [SplitTable(SplitType.Year)]//指定按照时间分表
-    [SugarTable("CommodityInfo_{year}{month}{day}")]
+    [SplitTable(SplitType.Day)]//指定按照时间分表
+    [SugarTable("UserSplit{year}{month}{day}")]
     public class SysUser
     {
         /// <summary>
@@ -17,23 +17,21 @@ namespace FNMES.TEST
         /// <summary>
         /// 卡号 
         ///</summary>
-         [SugarColumn(ColumnName="cardNo"    )]
+         [SugarColumn(ColumnName="cardNo",IsNullable =true)]
          public string? CardNo { get; set; }
         /// <summary>
         /// 用户名 
         ///</summary>
-         [SugarColumn(ColumnName="userNo"  )]
+         [SugarColumn(ColumnName="userNo" , IsNullable = true)]
          public string? UserNo { get; set; }
        
         /// <summary>
         /// 用户名 
         ///</summary>
-         [SugarColumn(ColumnName="name"    )]
+         [SugarColumn(ColumnName="name")]
          public string? Name { get; set; }
 
         [SplitField] //分表以当前这个属性  对应的数据库表字段数据为维度来分表
-        public DateTime CreateTime { get; set; }
-
-
+        public DateTime CreateTime { get; set; } = DateTime.Now;
     }
 }

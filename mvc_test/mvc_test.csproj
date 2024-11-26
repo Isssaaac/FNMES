@@ -8,9 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FNMES.Entity\FNMES.Entity.csproj" />
-    <ProjectReference Include="..\FNMES.Utility\FNMES.Utility.csproj" />
-    <ProjectReference Include="..\FNMES.WebUI\FNMES.WebUI.csproj" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>E:\gd_mes\test\asyn\ConsoleApp1\ConsoleApp1\obj\Debug\net8.0\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SqlSugar">
+      <HintPath>E:\gd_mes\test\ASP_NET_MVC5\main\Utility\bin\Debug\net8.0\SqlSugar.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
