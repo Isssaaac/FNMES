@@ -133,6 +133,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             try
             {
                 int totalCount = 0;
+
                 var pageData = outStationLogic.GetList(pageIndex, pageSize, keyWord, ref totalCount, configId,index);
                 //在分页查询后去重导致页面不足10条，已在查询时去重，分页后去重影响界面显示，pagesize=10，可能不足10条
                 //var pageData1 = pageData.GroupBy(e => new { e.ProductCode, e.StationCode }).Select(e => e.First()).ToList();

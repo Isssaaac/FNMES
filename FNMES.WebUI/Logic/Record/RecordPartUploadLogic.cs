@@ -80,6 +80,8 @@ namespace FNMES.WebUI.Logic.Record
                     bool v = db.Queryable<RecordPartData>().Where(it => it.PartBarcode == partBarCode).SplitTable(tables => tables.Take(2)).Any();
                     if (v)
                     {
+                        var data = db.Queryable<RecordPartData>().Where(it => it.PartBarcode == partBarCode).SplitTable(tables => tables.Take(2)).ToList();
+                        Logger.RunningInfo($"物料条码查重:{partBarCode},数据:{data.ToString()}");
                         //如果存在，直接跳出循环，查重结束
                         return false;
                     }
@@ -211,13 +213,16 @@ namespace FNMES.WebUI.Logic.Record
                 for (int i = 1; i <= 5; i++)
                 {
                     var db = GetInstance(i.ToString());
-                    db.Deleteable<RecordPartData>().Where(it => it.PartBarcode == partBarcode).SplitTable(tables => tables.Take(2));
+                    //所有线体的对应条码数据全部删除
+                    var count = db.Deleteable<RecordPartData>().Where(it => it.PartBarcode == partBarcode).SplitTable(tables => tables.Take(2)).ExecuteCommand();
                 }
+                Logger.RunningInfo($"解绑物料条码{partBarcode}完成");
                 return true;
             }
-            catch
+            catch(Exception e)
             {
-                throw;
+                Logger.ErrorInfo($"解绑物料条码{partBarcode}失败",e);
+                return false;
             }
         }
     }

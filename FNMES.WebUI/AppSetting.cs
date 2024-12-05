@@ -18,10 +18,6 @@ namespace CCS.WebUI
         private static MyConnectionConFig _connection;
         private static MyConnectionConFig[] _LineConnections;
         
-
-
-
-
         public static MyConnectionConFig sysConnection 
         {
             get { return _connection; } 
@@ -30,8 +26,6 @@ namespace CCS.WebUI
         {
             get { return _LineConnections; }
         }
-
-
         public static string DbConnectionString
         {
             get { return _connection.DbConnectionString; }
@@ -42,20 +36,13 @@ namespace CCS.WebUI
         }
 
         public static string WebSoftwareName { get; set; }
-
         public static string FactoryUrl { get; set; }
-
         public static string PlantCode { get; set; }
-
         public static int WorkId { get; set; }
-
         public static string Copyright { get; set; }
-
         public static int LogOutDateDays { get; set; }
         public static int SessionTimeout { get; set; }
-
         public static FTPparam FTPparam { get; set; }
-
         public static void Init(this IServiceCollection services, IConfiguration configuration)
         {
             Configuration = configuration;

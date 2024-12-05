@@ -174,25 +174,26 @@ namespace FNMES.Entity.DTO
     [DataContract]
     public class RepairInfoData
     {
+        //内控码
         [DataMember]
         public string ProductCode { get; set; }
-
+        //大工站
         [DataMember]
         public string StationCode { get; set; }
-
+        //小工站
         [DataMember]
         public string SmallStationCode { get; set; }
 
         [DataMember]
         public string Operation { get; set; }
+        
+        [DataMember]
+        public List<RepairStepData> LstRepairStepData { get; set; } //返修工步
 
         [DataMember]
-        public List<RepairStepData> LstRepairStepData { get; set; }
+        public List<RepairPartData> LstRepairPartData { get; set; } //返修物料
 
         [DataMember]
-        public List<RepairPartData> LstRepairPartData { get; set; }
-
-        [DataMember]
-        public  List<RepairProcessData> LstRepairProcessData { get; set; }
+        public  List<RepairProcessData> LstRepairProcessData { get; set; } //返修工艺信息，扭矩，电压等
     }
 }

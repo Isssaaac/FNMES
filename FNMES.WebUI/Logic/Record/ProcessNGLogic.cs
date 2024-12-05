@@ -19,6 +19,7 @@ namespace FNMES.WebUI.Logic.Record
     //2024-04-11 添加，获取生成过程中的NG数据
     public class ProcessNGLogic : BaseLogic
     {
+        //人工位获取返修数据，首先是从ProcessBind中的
         public ProcessUploadParam GetProcessNGData(string productCode,string currentStationCode, string configId)
         {
             try
@@ -66,7 +67,7 @@ namespace FNMES.WebUI.Logic.Record
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message);
+                Logger.ErrorInfo($"内控码<{productCode}>,工站<{currentStationCode}>,获取返修数据异常",E);
                 return null;
             }
         }
@@ -136,15 +137,21 @@ namespace FNMES.WebUI.Logic.Record
                         finishedStation.taskOrderNumber = processBind.TaskOrderNumber;
                         finishedStation.reessNo = processBind.ReessNo;
 
-                        //查工艺路线的工站
-                        var route = db.Queryable<ParamLocalRoute>()
-                            .Where(it => it.ProductPartNo == processBind.ProductPartNo)
-                            .OrderBy(it => it.Step)
-                            .ToList();
-                        var stations = route.Select(e => e.StationCode).ToList();
-                        var index = stations.IndexOf(processBind.CurrentStation);
-                        stations = stations.Take(index + 1).ToList();
+                        //查工艺路线的工站，以当前工站为准，只能返修当前工站之前的工站
+                        //var route = db.Queryable<ParamLocalRoute>()
+                        //    .Where(it => it.ProductPartNo == processBind.ProductPartNo)
+                        //    .OrderBy(it => it.Step)
+                        //    .ToList();
+                        //var stations = route.Select(e => e.StationCode).ToList();
+                        //var index = stations.IndexOf(processBind.CurrentStation);
+                        //stations = stations.Take(index + 1).ToList();
+                        //finishedStation.stationCodes = stations;
+
+                        //db.MasterQueryable<RecordOutStation>().Where(it => it.ProductCode == productCode).SplitTable(tabs => tabs.Take(2)).ToList();
+                        //241129，查询过往工站改为从过站记录表中查
+                        var stations = db.MasterQueryable<RecordOutStation>().Where(it => it.ProductCode == productCode).SplitTable(tabs => tabs.Take(3)).Select(u => u.StationCode).Distinct().ToList();
                         finishedStation.stationCodes = stations;
+
                         return finishedStation;
                     }
                 }
@@ -206,140 +213,159 @@ namespace FNMES.WebUI.Logic.Record
 
             return infoData;
         }
-
+        //这里上传返修工步
         public string UploadRepairInfo(RepairInfoData param, string configId)
         {
-            ISqlSugarClient db = GetInstance(configId);
-            int result = 0;
-            //返修工步
-            List<RecordRepairStep> recordRepairSteps = new List<RecordRepairStep>();
-            foreach(var recordRepairStep in param.LstRepairStepData)
+            try
             {
-                RecordRepairStep repairStep = new RecordRepairStep();
-                repairStep.CopyField(recordRepairStep);
-                repairStep.Id = SnowFlakeSingle.instance.NextId();
-                repairStep.ProductCode = param.ProductCode;
-                repairStep.StationCode = param.StationCode;
-                repairStep.SmallStationCode = param.SmallStationCode;
-                repairStep.CreateTime = DateTime.Now;
-                recordRepairSteps.Add(repairStep);
-            }
-
-            List<string> productCodes = recordRepairSteps.Select(t => t.ProductCode).ToList();
-            List<string> distProductCode = productCodes.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct().ToList();
-            if (distProductCode == null || distProductCode.Count != 1)
-            {
-                return "工步内控码异常！";
-            }
-            List<string> stations = recordRepairSteps.Select(t => t.StationCode).ToList();
-            List<string> distStations = stations.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct().ToList();
-            if (distStations == null || distStations.Count == 0)
-            {
-                return "工步中工站信息异常！";
-            }
-
-            foreach (var item in distStations)
-            {
-                //先查询该工站是否已经有登记过返修数据，删掉已登记的数据，再上传新的
-                var data = db.Queryable<RecordRepairStep>()
-                    .Where(t => t.ProductCode == distProductCode[0] && t.StationCode == item)
-                    .SplitTable(tabs => tabs.Take(4)).ToList();
-                if (data != null && data.Count > 0)
+                ISqlSugarClient db = GetInstance(configId);
+                int result = 0;
+                //返修工步
+                List<RecordRepairStep> recordRepairSteps = new List<RecordRepairStep>();
+                foreach (var recordRepairStep in param.LstRepairStepData)
                 {
-                    db.Deleteable<RecordRepairStep>(data).SplitTable().ExecuteCommand();
+                    RecordRepairStep repairStep = new RecordRepairStep();
+                    repairStep.CopyField(recordRepairStep);
+                    repairStep.Id = SnowFlakeSingle.instance.NextId();
+                    repairStep.ProductCode = param.ProductCode;
+                    repairStep.StationCode = param.StationCode;
+                    repairStep.SmallStationCode = param.SmallStationCode;
+                    repairStep.CreateTime = DateTime.Now;
+                    recordRepairSteps.Add(repairStep);
+                }
+
+                List<string> productCodes = recordRepairSteps.Select(t => t.ProductCode).ToList();
+                //筛选岀正确的内控码，只有一个，distProductCode[0]就是内控码
+                List<string> distProductCode = productCodes.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct().ToList();
+                if (distProductCode == null || distProductCode.Count != 1)
+                {
+                    return "工步内控码异常！";
+                }
+                //返修工站
+                List<string> stations = recordRepairSteps.Select(t => t.StationCode).ToList();
+                //筛选岀返修的工步
+                List<string> distStations = stations.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct().ToList();
+                if (distStations == null || distStations.Count == 0)
+                {
+                    return "工步中工站信息异常！";
+                }
+
+                foreach (var item in distStations)
+                {
+                    //先查询该工站是否已经有登记过返修数据，删掉已登记的数据，再上传新的
+                    var data = db.Queryable<RecordRepairStep>()
+                        .Where(t => t.ProductCode == distProductCode[0] && t.StationCode == item)
+                        .SplitTable(tabs => tabs.Take(4)).ToList();
+                    if (data != null && data.Count > 0)
+                    {
+                        db.Deleteable<RecordRepairStep>(data).SplitTable().ExecuteCommand();
+                    }
+                }
+
+                result = db.Insertable<RecordRepairStep>(recordRepairSteps).SplitTable().ExecuteCommand();
+                if (result == 0) return "插入返修工步数据失败！";
+
+                //返修物料数据
+                result = 0;
+                List<RecordRepairPart> recordRepairParts = new List<RecordRepairPart>();
+                //if (!param.LstRepairPartData.IsNullOrEmpty())
+                //{ 
+                
+                //}
+                foreach (var item in param.LstRepairPartData)
+                {
+                    RecordRepairPart repairPart = new RecordRepairPart();
+                    repairPart.CopyField(item);
+                    repairPart.Id = SnowFlakeSingle.instance.NextId();
+                    repairPart.ProductCode = param.ProductCode;
+                    repairPart.StationCode = param.StationCode;
+                    repairPart.SmallStationCode = param.SmallStationCode;
+                    repairPart.CreateTime = DateTime.Now;
+                    recordRepairParts.Add(repairPart);
+                }
+
+                List<string> partProductCodes = recordRepairParts.Select(t => t.ProductCode).ToList();
+                List<string> partDistProductCode = partProductCodes.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct().ToList();
+                if (partDistProductCode == null || partDistProductCode.Count != 1 || partDistProductCode[0] != distProductCode[0])
+                {
+                    return "物料内控码异常！";
+                }
+                List<string> partStations = recordRepairParts.Select(t => t.StationCode).ToList();
+                List<string> partDistStations = partStations.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct().ToList();
+                if (partDistStations == null || partDistStations.Count == 0)
+                {
+                    return "物料中工站信息异常！";
+                }
+
+                foreach (var item in partDistStations)
+                {
+                    //先查询该工站是否已经有登记过返修数据，删掉已登记的数据，再上传新的
+                    var data = db.Queryable<RecordRepairPart>()
+                        .Where(t => t.ProductCode == partDistProductCode[0] && t.StationCode == item)
+                        .SplitTable(tabs => tabs.Take(4)).ToList();
+                    if (data != null && data.Count > 0)
+                    {
+                        db.Deleteable<RecordRepairPart>(data).SplitTable().ExecuteCommand();
+                    }
+                }
+
+                result = db.Insertable<RecordRepairPart>(recordRepairParts).SplitTable().ExecuteCommand();
+                if (result == 0) return "插入返修物料数据失败！";
+
+                //返修过程数据
+                result = 0;
+                List<RecordRepairProcess> recordProcessDatas = new List<RecordRepairProcess>();
+                if (!param.LstRepairProcessData.IsNullOrEmpty())
+                {
+                    foreach (var item in param.LstRepairProcessData)
+                    {
+                        RecordRepairProcess processData = new RecordRepairProcess();
+                        processData.CopyField(item);
+                        processData.Id = SnowFlakeSingle.instance.NextId();
+                        processData.ProductCode = param.ProductCode;
+                        processData.StationCode = param.StationCode;
+                        processData.SmallStationCode = param.SmallStationCode;
+                        processData.CreateTime = DateTime.Now;
+                        recordProcessDatas.Add(processData);
+                    }
+
+                    List<string> processProductCodes = recordProcessDatas.Select(t => t.ProductCode).ToList();
+                    List<string> processDistProductCode = processProductCodes.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct().ToList();
+                    if (partDistProductCode == null || partDistProductCode.Count != 1 || processDistProductCode[0] != distProductCode[0])
+                    {
+                        return "过程数据内控码异常！";
+                    }
+                    List<string> processStations = recordProcessDatas.Select(t => t.StationCode).ToList();
+                    List<string> processDistStations = processStations.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct().ToList();
+                    if (processDistStations == null || processDistStations.Count == 0)
+                    {
+                        return "过程数据中工站信息异常！";
+                    }
+                    foreach (var item in processDistStations)
+                    {
+                        //先查询该工站是否已经有登记过返修数据，删掉已登记的数据，再上传新的
+                        var data = db.Queryable<RecordRepairProcess>()
+                            .Where(t => t.ProductCode == processDistProductCode[0] && t.StationCode == item)
+                            .SplitTable(tabs => tabs.Take(4)).ToList();
+                        if (data != null && data.Count > 0)
+                        {
+                            db.Deleteable<RecordRepairProcess>(data).SplitTable().ExecuteCommand();
+                        }
+                    }
+                    result = db.Insertable<RecordRepairProcess>(recordProcessDatas).SplitTable().ExecuteCommand();
+                    if (result == 0) return "插入返修过程数据失败！";
+                    return "OK";
+                }
+                else {
+                    //可以没有过程数据
+                    return "OK";
                 }
             }
-            
-            result = db.Insertable<RecordRepairStep>(recordRepairSteps).SplitTable().ExecuteCommand();
-            if (result == 0) return "插入返修工步数据失败！";
-
-            //返修物料数据
-            result = 0;
-            List<RecordRepairPart> recordRepairParts = new List<RecordRepairPart>();
-            foreach (var item in param.LstRepairPartData)
+            catch (Exception ex)
             {
-                RecordRepairPart repairPart = new RecordRepairPart();
-                repairPart.CopyField(item);
-                repairPart.Id = SnowFlakeSingle.instance.NextId();
-                repairPart.ProductCode = param.ProductCode;
-                repairPart.StationCode = param.StationCode; 
-                repairPart.SmallStationCode = param.SmallStationCode;
-                repairPart.CreateTime = DateTime.Now;
-                recordRepairParts.Add(repairPart);
+                Logger.ErrorInfo($"更新返修数据异常:{ex.Message}");
+                throw;
             }
-
-            List<string> partProductCodes = recordRepairParts.Select(t => t.ProductCode).ToList();
-            List<string> partDistProductCode = partProductCodes.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct().ToList();
-            if (partDistProductCode == null || partDistProductCode.Count != 1 || partDistProductCode[0] != distProductCode[0])
-            {
-                return "物料内控码异常！";
-            }
-            List<string> partStations = recordRepairParts.Select(t => t.StationCode).ToList();
-            List<string> partDistStations = partStations.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct().ToList();
-            if (partDistStations == null || partDistStations.Count == 0)
-            {
-                return "物料中工站信息异常！";
-            }
-
-            foreach (var item in partDistStations)
-            {
-                //先查询该工站是否已经有登记过返修数据，删掉已登记的数据，再上传新的
-                var data = db.Queryable<RecordRepairPart>()
-                    .Where(t => t.ProductCode == partDistProductCode[0] && t.StationCode == item)
-                    .SplitTable(tabs => tabs.Take(4)).ToList();
-                if (data != null && data.Count > 0)
-                {
-                    db.Deleteable<RecordRepairPart>(data).SplitTable().ExecuteCommand();
-                }
-            }
-
-            result = db.Insertable<RecordRepairPart>(recordRepairParts).SplitTable().ExecuteCommand();
-            if (result == 0) return "插入返修物料数据失败！";
-
-            //返修过程数据
-            result = 0;
-            List<RecordRepairProcess> recordProcessDatas = new List<RecordRepairProcess>();
-            foreach (var item in param.LstRepairProcessData)
-            {
-                RecordRepairProcess processData = new RecordRepairProcess();
-                processData.CopyField(item);
-                processData.Id = SnowFlakeSingle.instance.NextId();
-                processData.ProductCode = param.ProductCode;
-                processData.StationCode = param.StationCode;
-                processData.SmallStationCode = param.SmallStationCode;
-                processData.CreateTime = DateTime.Now;
-                recordProcessDatas.Add(processData);
-            }
-
-            List<string> processProductCodes = recordProcessDatas.Select(t => t.ProductCode).ToList();
-            List<string> processDistProductCode = processProductCodes.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct().ToList();
-            if (partDistProductCode == null || partDistProductCode.Count != 1 || processDistProductCode[0] != distProductCode[0])
-            {
-                return "过程数据内控码异常！";
-            }
-            List<string> processStations = recordProcessDatas.Select(t => t.StationCode).ToList();
-            List<string> processDistStations = processStations.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct().ToList();
-            if (processDistStations == null || processDistStations.Count == 0)
-            {
-                return "过程数据中工站信息异常！";
-            }
-
-            foreach (var item in processDistStations)
-            {
-                //先查询该工站是否已经有登记过返修数据，删掉已登记的数据，再上传新的
-                var data = db.Queryable<RecordRepairProcess>()
-                    .Where(t => t.ProductCode == processDistProductCode[0] && t.StationCode == item)
-                    .SplitTable(tabs => tabs.Take(4)).ToList();
-                if (data != null && data.Count > 0)
-                {
-                    db.Deleteable<RecordRepairProcess>(data).SplitTable().ExecuteCommand();
-                }
-            }
-
-            result = db.Insertable<RecordRepairProcess>(recordProcessDatas).SplitTable().ExecuteCommand();
-            if (result == 0) return "插入返修过程数据失败！";
-
-            return "OK";
         }
     }
 }

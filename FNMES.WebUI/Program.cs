@@ -36,8 +36,10 @@ using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddCommandLine(args);
+
 builder.WebHost.UseUrls("http://*:8080");
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+//builder.Configuration直接解释了appsettrings.json
 builder.Services.Init(builder.Configuration);
 
 builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
@@ -73,7 +75,7 @@ builder.Services.Configure<StaticFileOptions>(options =>
 
 
 
-
+//加了缓存？
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -97,10 +99,10 @@ builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation().AddJsonO
 {
     o.JsonSerializerOptions.PropertyNamingPolicy = null;
 });
+//
 builder.Services.AddHostedService<BackgroundServices>();
+//
 builder.Services.AddUEditorService("Configs/ueditor.json");
-
-
 //设置雪花ID的WorkId,每台必须不一样。
 SnowFlakeSingle.WorkId = AppSetting.WorkId;
 
@@ -126,8 +128,6 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.TryAddSingleton<WebServiceContract>();
 
-
-
 var app = builder.Build();
 MyHttpContext.ServiceProvider = app.Services;
 //app.UseDeveloperExceptionPage();
@@ -145,32 +145,24 @@ else
 app.UseSession();
 
 //配置WebService
-
 app.UseSoapEndpoint<WebServiceContract>("/WebService.asmx", new SoapEncoderOptions());
-
-
-
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
 });
-
-
 app.UseHttpsRedirection();
 
 //为了IIS添加
 //app.UseDefaultFiles();
 
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthorization();
-
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
 app.Run();
+

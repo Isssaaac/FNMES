@@ -27,8 +27,6 @@ namespace FNMES.WebUI.Logic.Param
 {
     public class ProcessBindLogic : BaseLogic
     {
-
-
         public long Insert(ProcessBind model,string configId)
         {
             try
@@ -155,7 +153,6 @@ namespace FNMES.WebUI.Logic.Param
       
         public ProcessBind GetByPalletNo(string palletNo, string configId)
         {
-
             try
             {
                 //业务逻辑，必须走主库
@@ -179,7 +176,7 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception e)
             {
-                Logger.ErrorInfo(e.Message);
+                Logger.ErrorInfo($"通过条码<{productCode}>获取绑定信息表数据:",e);
                 return null;
             }
         }

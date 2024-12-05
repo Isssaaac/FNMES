@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.Record
 {
+    //返修记录
     [SplitTable(SplitType.Season)]
     [SugarTable("Record_RepairStep_{year}{month}{day}")]
     [SugarIndex("index_repairStep_productCode", nameof(RecordRepairStep.ProductCode), OrderByType.Asc)]    //索引
@@ -22,6 +23,7 @@ namespace FNMES.Entity.Record
         // 大工站
         [SugarColumn(ColumnName = "stationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string StationCode { get; set; }
+        //小工站
         [SugarColumn(ColumnName = "smallStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string SmallStationCode { get; set; }
 

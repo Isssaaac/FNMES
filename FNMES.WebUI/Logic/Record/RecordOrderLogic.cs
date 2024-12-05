@@ -6,31 +6,55 @@ using FNMES.Entity.Record;
 using System.Collections.Generic;
 using FNMES.Utility.Core;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace FNMES.WebUI.Logic.Record
 {
     public class RecordOrderLogic : BaseLogic
     {
         //注意，分表数据需要加SplitTable()
+        public int GetFinishedCount(string taskOrderNumber, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                //var finishedProduct = db.MasterQueryable<RecordOrderStart>().Where(it => it.TaskOrderNumber == taskOrderNumber).SplitTable(tabs => tabs.Take(2)).Select(s => s.ProductCode).ToList();
+                //统计RecordOrderStart有多少个产品
+                return db.MasterQueryable<RecordOrderStart>().Where(it => it.TaskOrderNumber == taskOrderNumber).SplitTable(tabs => tabs.Take(2)).Select(s => SqlFunc.AggregateDistinctCount(s.ProductCode)).First();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return -1;
+            }
+        }
 
-
-        //返回当前订单的内控码个数
+        //返回当前订单的内控码个数,未测试
         public int InsertInLine(RecordOrderStart model,string configId)
         {
             try
             {
                 var db = GetInstance(configId);
+                Db.BeginTran();
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 model.CreateTime = DateTime.Now;
                 //插入这个RecordOrderStart这份表，这份表用来统计完成个数
                 db.Insertable<RecordOrderStart>(model).SplitTable().ExecuteCommand();
+                //这里插入后查询找不到记录,测试用事务
+                var finishData = db.MasterQueryable<RecordOrderStart>().Where(it => it.TaskOrderNumber == model.TaskOrderNumber).SplitTable(tabs => tabs.Take(2)).Select(s => s.ProductCode).Distinct().ToList();
+                Logger.RunningInfo($"[事务]已上线内控码:<{JsonConvert.SerializeObject(finishData)}>");
+                int finishCount = finishData.Count();
+                Db.CommitTran();
+
                 //统计RecordOrderStart有多少个产品
-                return db.MasterQueryable<RecordOrderStart>().Where(it => it.TaskOrderNumber == model.TaskOrderNumber).SplitTable(tabs => tabs.Take(2)).Select(s => SqlFunc.AggregateDistinctCount(s.ProductCode)).First();
+                //return db.MasterQueryable<RecordOrderStart>().Where(it => it.TaskOrderNumber == model.TaskOrderNumber).SplitTable(tabs => tabs.Take(2)).Select(s => SqlFunc.AggregateDistinctCount(s.ProductCode)).First();
+                return finishCount;
             }
             catch (Exception e)
             {
-                Logger.ErrorInfo(e.Message);
-                return 0;
+                Db.RollbackTran();
+                Logger.ErrorInfo("插入订单记录失败",e);
+                return -1;
             }
         }
         public List<RecordOrderStart> GetStartList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount,  string index)

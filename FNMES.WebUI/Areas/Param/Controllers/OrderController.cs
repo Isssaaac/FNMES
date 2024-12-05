@@ -266,6 +266,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                     List<ParamOrder> paramOrders = new List<ParamOrder>();
                     foreach (var model in retMessage.data.workOrderList)
                     {
+                        //241205同步工单岀档位数据packCellGear
                         paramOrders.Add(new ParamOrder()
                         {
                             Id = SnowFlakeSingle.instance.NextId(),
@@ -282,10 +283,8 @@ namespace MES.WebUI.Areas.Param.Controllers
                             OperatorNo = ""
                         });
                     }
-
                     //这里插入工单信息到线体mes数据库，后面插入
                     int v = orderLogic.Insert(retMessage.data.workOrderList, configId);
-
                     //同步后需要再向工厂发送一个已接收到的指令
                     //List<ParamOrder> paramOrders = orderLogic.GetNew(configId);
 
@@ -296,7 +295,6 @@ namespace MES.WebUI.Areas.Param.Controllers
                             taskOrderNumber = it.TaskOrderNumber,
                             actionCode = ActionCode.Received
                         }).ToList();
-
                         SelectOrderParam selectOrderParam = new SelectOrderParam()
                         {
                             taskOrderNumbers = orders,
@@ -306,7 +304,6 @@ namespace MES.WebUI.Areas.Param.Controllers
                             operatorNo = OperatorProvider.Instance.Current.Name,
                             actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
                         };
-
                         //回传在这里
                         RetMessage<object> retMessage1 = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, selectOrderParam, configId).ToObject<RetMessage<object>>();
                         if (retMessage1.messageType == "S")
@@ -318,13 +315,11 @@ namespace MES.WebUI.Areas.Param.Controllers
                             return Error("同步完成后回传失败");
                         }
                     }
-
                     return Success("同步完成");
                 }
                 else
                 {
                     return Error("工厂接口访问失败");
-
                 }
             }
         }

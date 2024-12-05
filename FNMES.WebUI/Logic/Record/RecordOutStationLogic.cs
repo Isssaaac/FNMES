@@ -153,7 +153,7 @@ namespace FNMES.WebUI.Logic.Record
                 return false;
             }
         }
-
+        //这个是过站记录→物料信息查的RecordPartUpload表
         public bool partExist(string productCode, string stationCode, string configId)
         {
             try
@@ -168,11 +168,13 @@ namespace FNMES.WebUI.Logic.Record
             }
         }
 
+        //过站记录→物料信息调用的查询，先查RecordPartUpload表，然后用id来查RecordePart表
         public List<RecordPartData> GetPartData(int pageIndex, int pageSize, ref int totalCount, string configId, string productCode, string stationCode)
         {
             try
             {
                 var db = GetInstance(configId);
+
                 RecordPartUpload recordPartUpload = db.Queryable<RecordPartUpload>().Where(it => it.ProductCode == productCode && it.StationCode == stationCode)
                     .SplitTable(tabs => tabs.Take(4)).OrderByDescending(it => it.Id).First();
                 if (recordPartUpload != null) { 

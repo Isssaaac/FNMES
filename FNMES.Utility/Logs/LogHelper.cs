@@ -19,7 +19,6 @@ namespace FNMES.Utility.Logs
         {
             MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(configContent));
             XmlConfigurator.Configure(stream);
-            
         }
 
         public static void Info(string message)

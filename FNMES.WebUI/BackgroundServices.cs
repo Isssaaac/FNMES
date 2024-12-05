@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 
 namespace FNMES.WebUI
 {
+    //后台服务
     public class BackgroundServices : IHostedService, IDisposable
     {
         private Timer _timer;

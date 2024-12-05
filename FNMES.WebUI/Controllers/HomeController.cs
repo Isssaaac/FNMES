@@ -16,6 +16,7 @@ using FNMES.Utility.Core;
 using FNMES.WebUI.Controllers;
 using CCS.WebUI;
 using FNMES.WebUI.Logic.Sys;
+using FNMES.WebUI.Logic;
 
 namespace FNMES.WebUI.Controllers
 {
@@ -46,6 +47,7 @@ namespace FNMES.WebUI.Controllers
                 ViewBag.SoftwareName = AppSetting.WebSoftwareName;
                 ViewBag.Copyright = AppSetting.Copyright;
                 ViewBag.CurrentUser = OperatorProvider.Instance.Current;
+                Logger.RunningInfo("open home index");
                 return View();
             }
             else
@@ -65,7 +67,7 @@ namespace FNMES.WebUI.Controllers
         }
 
         /// <summary>
-        /// 获取左侧菜单。
+        /// 获取左侧菜单。这里牵涉到权限
         /// </summary>
         /// <returns></returns>
         [Route("home/getLeftMenu")]
@@ -89,7 +91,8 @@ namespace FNMES.WebUI.Controllers
             foreach (var item in listModules.Where(c => c.Type == ModuleType.Menu && c.Layer == 0).ToList())
             {
                 LayNavbar navbarEntity = new LayNavbar();
-                var listChildNav = listModules.Where(c => c.Type == ModuleType.SubMenu && c.Layer == 1 && c.ParentId == item.Id).Select(c => new LayChildNavbar() { href = c.Url, icon = c.Icon, title = c.Name }).ToList();
+                var listChildNav = listModules.Where(c => c.Type == ModuleType.SubMenu && c.Layer == 1 && c.ParentId == item.Id).
+                    Select(c => new LayChildNavbar() { href = c.Url, icon = c.Icon, title = c.Name }).ToList();
                 navbarEntity.icon = item.Icon;
                 navbarEntity.spread = false;
                 navbarEntity.title = item.Name;

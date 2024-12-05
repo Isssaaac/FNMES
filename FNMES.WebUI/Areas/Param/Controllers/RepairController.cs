@@ -66,6 +66,8 @@ namespace FNMES.WebUI.Areas.Param.Controllers
             }
         }
 
+        
+        //线体mes登记为返修，这里只更新了ProcessBind里的StationCode
         [Route("param/repair/mark")]
         [HttpPost]
         public ActionResult Mark(string productCode,string configId, string stationCode)

@@ -25,9 +25,6 @@ namespace FNMES.WebUI.Logic
             lock (_lock)
             {
                 SimpleClient<SysLog> client = new SimpleClient<SysLog>(BaseLogic.GetInstance());
-
-
-
                 SysLog log = new SysLog();
                 log.Id = SnowFlakeSingle.instance.NextId();
                 log.Type = type;
@@ -72,12 +69,19 @@ namespace FNMES.WebUI.Logic
         public static void ErrorInfo(string message)
         {
             MethodBase methodBase = new StackTrace(true).GetFrame(1).GetMethod();
-
             string methodName = $"{methodBase.DeclaringType.Name}.{methodBase.Name}";
-
             message = methodName + "->" + message;
             Log("Error", message);
             LogHelper.Error(message);
+        }
+
+        public static void ErrorInfo(string message,Exception ex)
+        {
+            MethodBase methodBase = new StackTrace(true).GetFrame(1).GetMethod();
+            string methodName = $"{methodBase.DeclaringType.Name}.{methodBase.Name}";
+            message = methodName + "->" + message;
+            Log("Error", message);
+            LogHelper.Error(message,ex);
         }
     }
 }

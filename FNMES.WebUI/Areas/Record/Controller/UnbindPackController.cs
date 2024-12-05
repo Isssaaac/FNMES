@@ -78,7 +78,6 @@ namespace MES.WebUI.Areas.Param.Controllers
                     {"PartDescription","物料描述" },
                     {"PartBarcode","物料条码" },
                     {"Reason","拆解原因" },
-
                 };
 
             // 填充数据到工作表

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.Record
 {
+    //返修记录表
     [SplitTable(SplitType.Season)]
     [SugarTable("Record_RepairProcess_{year}{month}{day}")]
     [SugarIndex("index_repairProcess_productCode", nameof(RecordRepairProcess.ProductCode), OrderByType.Asc)]    //索引
