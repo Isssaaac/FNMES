@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using FNMES.Utility.Core;
 using System.Linq;
 using ServiceStack;
+using OfficeOpenXml;
+using System.Data;
 
 namespace FNMES.WebUI.Logic.Record
 {
@@ -225,228 +227,210 @@ namespace FNMES.WebUI.Logic.Record
         public List<OutRecord> GetAllRecord(string configId, string index, string keyword,
             ref List<RecordOutStation> outStationData,ref List<ProcRecord> procRecordData,ref List<ParRecord> partRecordData)
         {
-            var db = GetInstance(configId);
-            ISugarQueryable<RecordOutStation> queryable = db.Queryable<RecordOutStation>();
-            if (!keyword.IsNullOrEmpty())
+            try
             {
-                queryable = queryable.Where(it => it.TaskOrderNumber.Contains(keyword) || it.ProductCode.Contains(keyword) || it.ProductStatus.Contains(keyword) || it.StationCode.Contains(keyword));
-            }
-            DateTime today = DateTime.Today;
-            DateTime startTime = today;
-            DateTime endTime = today.AddDays(1);
-            if (index == "1")
-            {
-                startTime = today;
-                endTime = today.AddDays(1);
-            }
-            else if (index == "2")
-            {
-                startTime = today.AddDays(-6);
-                endTime = today.AddDays(1);
-            }
-            else if (index == "3")
-            {
-                startTime = today.AddDays(-29);
-                endTime = today.AddDays(1);
-            }
-            else if (index == "4")
-            {
-                startTime = today.AddDays(-91);
-                endTime = today.AddDays(1);
-            }
-            var lst_outstation = queryable
-                .Where(it => it.CreateTime >= startTime && it.CreateTime < endTime)
-                .SplitTable(tabs => tabs.Take(3))
-                .Select(it => new
+                var db = GetInstance(configId);
+                ISugarQueryable<RecordOutStation> queryable = db.Queryable<RecordOutStation>();
+                if (!keyword.IsNullOrEmpty())
                 {
-                    index = SqlFunc.RowNumber($"{it.Id} desc", $"{it.ProductCode}, {it.StationCode}"),
-                    it.Id,
-                    it.ProductCode,
-                    it.ProductStatus,
-                    it.StationCode,
-                    it.SmallStationCode,
-                    it.TaskOrderNumber,
-                    it.OperatorNo,
-                    it.EquipmentID,
-                    it.DefectCode,
-                    it.DefectDesc,
-                    it.CreateTime,
-                    it.instationTime,
-                    it.palletNo
-                })
-                   .MergeTable()
-                   .Where(it => it.index == 1)
-                   .Select(it => new RecordOutStation()
+                    queryable = queryable.Where(it => it.TaskOrderNumber.Contains(keyword) || it.ProductCode.Contains(keyword) || it.ProductStatus.Contains(keyword) || it.StationCode.Contains(keyword));
+                }
+                DateTime today = DateTime.Today;
+                DateTime startTime = today;
+                DateTime endTime = today.AddDays(1);
+                if (index == "1")
+                {
+                    startTime = today;
+                    endTime = today.AddDays(1);
+                }
+                else if (index == "2")
+                {
+                    startTime = today.AddDays(-6);
+                    endTime = today.AddDays(1);
+                }
+                else if (index == "3")
+                {
+                    startTime = today.AddDays(-29);
+                    endTime = today.AddDays(1);
+                }
+                else if (index == "4")
+                {
+                    startTime = today.AddDays(-91);
+                    endTime = today.AddDays(1);
+                }
+                //
+                var lst_outstation = queryable
+                    .Where(it => it.CreateTime >= startTime && it.CreateTime < endTime)
+                    .SplitTable(tabs => tabs.Take(3))
+                    .Select(it => new
                     {
-                        Id = it.Id,
-                        ProductCode = it.ProductCode,
-                        ProductStatus = it.ProductStatus,
-                        StationCode = it.StationCode,
-                        SmallStationCode = it.SmallStationCode,
-                        TaskOrderNumber = it.TaskOrderNumber,
-                        OperatorNo = it.OperatorNo,
-                        EquipmentID = it.EquipmentID,
-                        DefectCode = it.DefectCode,
-                        DefectDesc = it.DefectDesc,
-                        CreateTime = it.CreateTime,
-                        instationTime = it.instationTime,
-                        palletNo = it.palletNo
+                        index = SqlFunc.RowNumber($"{it.Id} desc", $"{it.ProductCode}, {it.StationCode}"),
+                        it.Id,
+                        it.ProductCode,
+                        it.ProductStatus,
+                        it.StationCode,
+                        it.SmallStationCode,
+                        it.TaskOrderNumber,
+                        it.OperatorNo,
+                        it.EquipmentID,
+                        it.DefectCode,
+                        it.DefectDesc,
+                        it.CreateTime,
+                        it.instationTime,
+                        it.palletNo
                     })
-                   .ToList();
-            outStationData = lst_outstation;
+                       .MergeTable()
+                       .Where(it => it.index == 1)
+                       .Select(it => new RecordOutStation()
+                       {
+                           Id = it.Id,
+                           ProductCode = it.ProductCode,
+                           ProductStatus = it.ProductStatus,
+                           StationCode = it.StationCode,
+                           SmallStationCode = it.SmallStationCode,
+                           TaskOrderNumber = it.TaskOrderNumber,
+                           OperatorNo = it.OperatorNo,
+                           EquipmentID = it.EquipmentID,
+                           DefectCode = it.DefectCode,
+                           DefectDesc = it.DefectDesc,
+                           CreateTime = it.CreateTime,
+                           instationTime = it.instationTime,
+                           palletNo = it.palletNo
+                       })
+                       .ToList();
 
-            var lst_processup = db.Queryable<RecordProcessUpload>()
-                 .Where(it => it.CreateTime >= startTime && it.CreateTime < endTime)
-                 .SplitTable(tabs => tabs.Take(3))
-                 .Select(it => new
-                {
-                    index = SqlFunc.RowNumber($"{it.Id} desc", $"{it.ProductCode}, {it.StationCode}"),
-                    it.Id,
-                    it.ProductCode,
-                    it.TotalFlag,
-                    it.StationCode,
-                    it.SmallStationCode,
-                    it.RecipeDescription,
-                    it.OperatorNo,
-                    it.EquipmentID,
-                    it.RecipeNo,
-                    it.RecipeVersion,
-                    it.CreateTime,
-                    
-                })
-                   .MergeTable()
-                   .Where(it => it.index == 1)
-                   .Select(it => new RecordProcessUpload()
+                outStationData = lst_outstation;
+                Logger.RunningInfo($"过站记录导出,outStationData数据量:{outStationData.Count}");
+                //上传表ProcessUpload
+                var lst_processup = db.Queryable<RecordProcessUpload>()
+                     .Where(it => it.CreateTime >= startTime && it.CreateTime < endTime)
+                     .SplitTable(tabs => tabs.Take(3))
+                     .Select(it => new
+                     {
+                         index = SqlFunc.RowNumber($"{it.Id} desc", $"{it.ProductCode}, {it.StationCode}"),
+                         it.Id,
+                         it.ProductCode,
+                         it.TotalFlag,
+                         it.StationCode,
+                         it.SmallStationCode,
+                         it.RecipeDescription,
+                         it.OperatorNo,
+                         it.EquipmentID,
+                         it.RecipeNo,
+                         it.RecipeVersion,
+                         it.CreateTime,
+
+                     })
+                       .MergeTable()
+                       .Where(it => it.index == 1)
+                       .Select(it => new RecordProcessUpload()
+                       {
+                           Id = it.Id,
+                           CreateTime = it.CreateTime,
+                           EquipmentID = it.EquipmentID,
+                           OperatorNo = it.OperatorNo,
+                           ProductCode = it.ProductCode,
+                           RecipeDescription = it.RecipeDescription,
+                           RecipeNo = it.RecipeNo,
+                           RecipeVersion = it.RecipeVersion,
+                           SmallStationCode = it.SmallStationCode,
+                           StationCode = it.StationCode,
+                           TotalFlag = it.TotalFlag
+                       });
+                //工艺记录表
+                var lst_process = db.Queryable<RecordProcessData>()
+                    .Where(it => it.CreateTime >= startTime && it.CreateTime < endTime)
+                    .SplitTable(tabs => tabs.Take(3));
+
+                var processdata = lst_processup.LeftJoin(lst_process, (o, c) => o.Id == c.ProcessUploadId)
+                     .Select((o, c) => new ProcRecord
+                     {
+                         productCode = o.ProductCode,
+                         stationCode = o.StationCode,
+                         recipeNo = o.RecipeNo,
+                         recipeDescription = o.RecipeDescription,
+                         recipeVersion = o.RecipeVersion,
+                         totalFlag = o.TotalFlag,
+                         paramCode = c.ParamCode,
+                         paramName = c.ParamName,
+                         paramValue = c.ParamValue,
+                         itemFlag = c.ItemFlag,
+                         decisionType = c.DecisionType,
+                         paramType = c.ParamType,
+                         standValue = c.StandValue,
+                         maxValue = c.MaxValue,
+                         minValue = c.MinValue,
+                         setValue = c.SetValue,
+                         uom = c.UnitOfMeasure,
+                         createTime = o.CreateTime.ToString("yyyy-MM-dd HH-mm-ss.fff"),
+                     })
+                    .ToList();
+                procRecordData = processdata;
+                Logger.RunningInfo($"过站记录导出,procRecordData:{procRecordData.Count}");
+                /*******************物料******************/
+                var lst_partup = db.Queryable<RecordPartUpload>()
+                    .Where(it => it.CreateTime >= startTime && it.CreateTime < endTime)
+                    .SplitTable(tabs => tabs.Take(3))
+                    .Select(it => new
                     {
-                        Id = it.Id,
-                        CreateTime = it.CreateTime,
-                        EquipmentID = it.EquipmentID,
-                        OperatorNo = it.OperatorNo,
-                        ProductCode = it.ProductCode,
-                        RecipeDescription = it.RecipeDescription,
-                        RecipeNo = it.RecipeNo,
-                        RecipeVersion = it.RecipeVersion,
-                        SmallStationCode = it.SmallStationCode,
-                        StationCode = it.StationCode,
-                        TotalFlag = it.TotalFlag
-                    });
-            var lst_process = db.Queryable<RecordProcessData>()
-                .Where(it => it.CreateTime >= startTime && it.CreateTime < endTime)
-                .SplitTable(tabs => tabs.Take(3));
-            var processdata = lst_processup.LeftJoin(lst_process, (o, c) => o.Id == c.ProcessUploadId)
-                 .Select((o, c) => new ProcRecord
-                 {
-                     productCode = o.ProductCode,
-                     stationCode = o.StationCode,
-                     recipeNo = o.RecipeNo,
-                     recipeDescription = o.RecipeDescription,
-                     recipeVersion = o.RecipeVersion,
-                     totalFlag = o.TotalFlag,
-                     paramCode = c.ParamCode,
-                     paramName = c.ParamName,
-                     paramValue = c.ParamValue,
-                     itemFlag = c.ItemFlag,
-                     decisionType = c.DecisionType,
-                     paramType = c.ParamType,
-                     standValue = c.StandValue,
-                     maxValue = c.MaxValue,
-                     minValue = c.MinValue,
-                     setValue = c.SetValue,
-                     uom = c.UnitOfMeasure,
-                     createTime = o.CreateTime.ToString("yyyy-MM-dd HH-mm-ss.fff"),
-                 })
-                .ToList();
-            procRecordData = processdata;
-            var lst_partup = db.Queryable<RecordPartUpload>()
-                .Where(it => it.CreateTime >= startTime && it.CreateTime < endTime)
-                .SplitTable(tabs => tabs.Take(3))
-                .Select(it => new
-                {
-                    index = SqlFunc.RowNumber($"{it.Id} desc", $"{it.ProductCode}, {it.StationCode}"),
-                    it.Id,
-                    it.ProductCode,
-                    it.StationCode,
-                    it.SmallStationCode,
-                    it.OperatorNo,
-                    it.EquipmentID,
-                    it.CreateTime
-                })
-                   .MergeTable()
-                   .Where(it => it.index == 1)
-                   .Select(it => new RecordPartUpload()
-                   {
-                       Id = it.Id,
-                       CreateTime = it.CreateTime,
-                       EquipmentID = it.EquipmentID,
-                       OperatorNo = it.OperatorNo,
-                       ProductCode = it.ProductCode,
-                       SmallStationCode = it.SmallStationCode,
-                       StationCode = it.StationCode,
-                   });
-            var lst_part = db.Queryable<RecordPartData>()
-                .Where(it => it.CreateTime >= startTime && it.CreateTime < endTime)
-                .SplitTable(tabs => tabs.Take(3));
-            var partdata = lst_partup.LeftJoin(lst_part, (o,c) => o.Id == c.PartUploadId)
-                .Select((o, c) => new ParRecord
-                {
-                    productCode = o.ProductCode,
-                    stationCode = o.StationCode,
-                    partNumber = c.PartNumber,
-                    partDescription = c.PartDescription,
-                    partBarcode = c.PartBarcode,
-                    traceType = c.TraceType,
-                    usageQty = c.UsageQty,
-                    partuom = c.Uom,
-                    createTime = o.CreateTime.ToString("yyyy-MM-dd HH-mm-ss.fff"),
-                })
-                .ToList();
-            partRecordData = partdata;
-            //var result = from outstation in lst_outstation
-            //             join process in processdata on new { Station = outstation.StationCode, Product = outstation.ProductCode } equals new { Station = process.stationCode, Product = process.productCode } into tempProcess
-            //             from process in tempProcess.DefaultIfEmpty()
-            //             join part in partdata on new { Station = outstation.StationCode, Product = outstation.ProductCode } equals new { Station = part.stationCode, Product = part.productCode } into tempPart
-            //             from part in tempPart.DefaultIfEmpty()
-            //             select new OutRecord()
-            //             {
-            //                 productCode = outstation.ProductCode,
-            //                 taskOrderNumber = outstation.TaskOrderNumber,
-            //                 productStatus = outstation.ProductStatus,
-            //                 defectCode = outstation.DefectCode,
-            //                 defectDesc = outstation.DefectDesc,
-            //                 stationCode = outstation.StationCode,
-            //                 smallStationCode = outstation.SmallStationCode,
-            //                 equipmentID = outstation.EquipmentID,
-            //                 operatorNo = outstation.OperatorNo,
-            //                 createTime = outstation.CreateTime.ToString("yyyy-MM-dd HH-mm-ss.fff"),
-            //                 instationTime = outstation.instationTime,
-            //                 palletNo = outstation.palletNo,
-            //                 recipeNo = process != null ? process.recipeNo : "",
-            //                 recipeDescription = process != null ? process.recipeDescription : "",
-            //                 recipeVersion = process != null ? process.recipeVersion : "",
-            //                 totalFlag = process != null ? process.totalFlag : "",
-            //                 paramCode = process != null ? process.paramCode : "",
-            //                 paramName = process != null ? process.paramName : "",
-            //                 paramValue = process != null ? process.paramValue : "",
-            //                 itemFlag = process != null ? process.itemFlag : "",
-            //                 decisionType = process != null ? process.decisionType : "",
-            //                 paramType = process != null ? process.paramType : "",
-            //                 standValue = process != null ? process.standValue : "",
-            //                 maxValue = process != null ? process.maxValue : "",
-            //                 minValue = process != null ? process.minValue : "",
-            //                 setValue = process != null ? process.setValue : "",
-            //                 uom = process != null ? process.uom : "",
-            //                 partNumber = part != null ? part.partNumber : "",
-            //                 partDescription = part != null ? part.partDescription : "",
-            //                 partBarcode = part != null ? part.partBarcode : "",
-            //                 traceType = part != null ? part.traceType : "",
-            //                 usageQty = part != null ? part.usageQty : "",
-            //                 partuom = part != null ? part.partuom : ""
-            //             };
+                        index = SqlFunc.RowNumber($"{it.Id} desc", $"{it.ProductCode}, {it.StationCode}"),
+                        it.Id,
+                        it.ProductCode,
+                        it.StationCode,
+                        it.SmallStationCode,
+                        it.OperatorNo,
+                        it.EquipmentID,
+                        it.CreateTime
+                    })
+                       .MergeTable()
+                       .Where(it => it.index == 1)
+                       .Select(it => new RecordPartUpload()
+                       {
+                           Id = it.Id,
+                           CreateTime = it.CreateTime,
+                           EquipmentID = it.EquipmentID,
+                           OperatorNo = it.OperatorNo,
+                           ProductCode = it.ProductCode,
+                           SmallStationCode = it.SmallStationCode,
+                           StationCode = it.StationCode,
+                       });
 
-            //return result.ToList();
-            return new List<OutRecord>();
+
+
+                var lst_part = db.Queryable<RecordPartData>()
+                    .Where(it => it.CreateTime >= startTime && it.CreateTime < endTime)
+                    .SplitTable(tabs => tabs.Take(3));
+
+                //lst_part 是 RecordPartData
+                //lst_partup 是 RecordPartUpload
+
+                //241213出现一个没字段的错误，原因是三分分表里面有一些没统一
+                var partdata = lst_partup.LeftJoin(lst_part, (o, c) => o.Id == c.PartUploadId)
+                    .Select((o, c) => new ParRecord
+                     {
+                         productCode = o.ProductCode,
+                         stationCode = o.StationCode,
+                         partNumber = c.PartNumber,
+                         partDescription = c.PartDescription,
+                         partBarcode = c.PartBarcode,
+
+                         traceType = c.TraceType,
+                         usageQty = c.UsageQty,
+                         partuom = c.Uom,
+                         createTime = o.CreateTime.ToString("yyyy-MM-dd HH-mm-ss.fff"),
+                     }).ToList();
+                
+                partRecordData = partdata;
+                Logger.RunningInfo($"过站记录导出,partRecordData:{partRecordData.Count}");
+                //是不用返回值的
+                return new List<OutRecord>();
+            }
+            catch (Exception ex)
+            {
+                Logger.ErrorInfo("GetAllRecord错误", ex);
+                throw ex;
+            }
         }
-
     }
 }
 

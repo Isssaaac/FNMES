@@ -46,6 +46,8 @@ namespace FNMES.Entity.DTO.ApiData
 
         // 计划结束时间
         public DateTime planEndTime { get; set; }
+
+        public string packCellGear { get; set; }
     }
         
 
@@ -433,6 +435,7 @@ namespace FNMES.Entity.DTO.ApiData
         //andon消息ID
         public string andonNoticeCode { get; set; }
     }
+
     [DataContract]
     public class AndonTypeData
     {
@@ -452,9 +455,8 @@ namespace FNMES.Entity.DTO.ApiData
         public string andonName { get; set; }
         [DataMember]
         public string andonDesc { get; set; }
-
-
-
+        [DataMember]
+        public string groupName { get; set; }
     }
 
 

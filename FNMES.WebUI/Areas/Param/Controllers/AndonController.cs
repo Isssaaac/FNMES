@@ -66,13 +66,13 @@ namespace FNMES.WebUI.Areas.Param.Controllers
             SysLine sysLine = sysLineLogic.GetByConfigId(configId);
             AndonTypeParam andonParam = new() { 
                 productionLine = sysLine.EnCode,
-                groupName = "PACK组装",
+                callTime = ExtDateTime.GetTimeStamp(DateTime.Now),
                 operatorNo = OperatorProvider.Instance.Current.Name,
             };
+            //241212:andon接口同步失败
             RetMessage<AndonTypeData> retMessage = APIMethod.Call(API.Url.AndonParamUrl, andonParam, configId).ToObject<RetMessage<AndonTypeData>>();
             if (retMessage.messageType == "S" && !retMessage.data.dataList.IsNullOrEmpty())
             {
-
                 List<ParamAndon> list = new List<ParamAndon>();
                 foreach (var item in retMessage.data.dataList)
                 {
@@ -83,6 +83,7 @@ namespace FNMES.WebUI.Areas.Param.Controllers
                         AndonType = item.andonType,
                         AndonDesc = item.andonDesc,
                         AndonName = item.andonName,
+                        //暂时不写groupName进数据库，这个需要改表结构
                         CreateTime = DateTime.Now.ToString()
                     };
                     list.Add(paramAndon);
@@ -93,14 +94,8 @@ namespace FNMES.WebUI.Areas.Param.Controllers
                     return Success();
                 }
                 return Error();
-
             }
             else { return Error("工厂接口同步失败"); }
-
-
         }
-
-
-
     }
 }

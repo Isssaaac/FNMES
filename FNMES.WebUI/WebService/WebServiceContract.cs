@@ -16,6 +16,7 @@ using FNMES.WebUI.Logic.Record;
 using FNMES.WebUI.Logic.Sys;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Org.BouncyCastle.Asn1.X509.Qualified;
+using Org.BouncyCastle.Ocsp;
 using ServiceStack;
 using SqlSugar;
 using System;
@@ -289,7 +290,7 @@ namespace FNMES.Service.WebService
                 return NewErrorMessage<RecipeData>("未查询到配方");
             }
             RecipeData recipeData = new RecipeData(paramRecipeItem);
-            RetMessage< RecipeData> result = new RetMessage<RecipeData>() { 
+            RetMessage<RecipeData> result = new RetMessage<RecipeData>() { 
                 data = recipeData,
                 messageType = "S",
                 message = "配方查询成功"
@@ -635,6 +636,7 @@ namespace FNMES.Service.WebService
             {
                 return NewErrorMessage<nullObject>("没有给configId参数赋值");
             }
+
             long result = processBindLogic.Insert(new ProcessBind()
             {
                 PalletNo = param.palletNo,
@@ -646,11 +648,15 @@ namespace FNMES.Service.WebService
                 RepairFlag = param.RepairFlag,
                 RepairStations = param.RepairStations,
                 CreateTime = DateTime.Now,
+                //241203 添加，M330出现没有当前工站的问题
+                CurrentStation = param.CurrentStation,
 
                 Diverter = param.Diverter,
                 GlueTime = param.GlueTime,
                 ReessNo = param.ReessNo,
             }, configId);
+            Logger.RunningInfo($"方法TranshipStationBindPallet,本地绑定载盘<{param.palletNo}>和内控码<{param.productCode}>完成");
+
             if (result == 0)
             {
                 return NewErrorMessage<nullObject>($"绑定载盘<{param.palletNo}>和内控码<{param.productCode}>失败");
@@ -665,6 +671,7 @@ namespace FNMES.Service.WebService
             if (factoryStatus.isOnline)
             {
                 string ret = APIMethod.Call(Url.BindPalletUrl, bindPalletParam, configId);
+                Logger.RunningInfo($"方法TranshipStationBindPallet,绑定载盘<{param.palletNo}>和内控码<{param.productCode}>绑定厂级mes返回:<{ret}>");
                 return ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();
             }
             //不在线，新建未传内容的表，等后续再人工恢复上传。  
@@ -817,14 +824,14 @@ namespace FNMES.Service.WebService
 
                 //绑定表状态NG则直接NG
                 
-                //先查询路线，如果路线中无此工位，则直接放行
+                //先查询路线，如果路线中无此工位，则直接放行，绑定表中查的工艺路线
                 List<ParamLocalRoute> paramLocalRoutes = routeLogic.Get(processBind.ProductPartNo, configId);
                 //查询当前工位的工位路线
                 int routStep = paramLocalRoutes.FindIndex(it => it.StationCode == param.stationCode);
                 if (routStep == -1)
                 {
                     Logger.RunningInfo($"{param.productCode}在{param.stationCode}工位过站失败，工艺路线中不包含{param.stationCode}工序");
-                    return NewNgMessage<InStationData>($"工艺路线中不包含{param.stationCode}工序");
+                    return NewNgMessage<InStationData>($"{param.productCode}在{param.stationCode}工位过站失败，工艺路线中不包含{param.stationCode}工序");
                 }
                 ParamLocalRoute currentRoute = paramLocalRoutes.ElementAt(routStep);
                 if (!currentRoute.Criterion.IsNullOrEmpty())
@@ -1096,7 +1103,7 @@ namespace FNMES.Service.WebService
                         };
                         //API接口上传
                         string ret = APIMethod.Call(Url.GetPackInfoUrl, getPackInfo, configId);
-
+                        Logger.RunningInfo($"{param.productCode}在{param.stationCode}工位过站，从工厂中查询包体返回：{ret}");
 
                         RetMessage<GetPackInfoData> getPackRes = ret.ToObject<RetMessage<GetPackInfoData>>();
                         //未从工厂查询到信息
@@ -1107,7 +1114,10 @@ namespace FNMES.Service.WebService
                         }
                         //待更新接口，此次需要更新灌胶时间
                         processBind.GlueTime = getPackRes.data.coatingTime;
+
+                        //
                         int v = processBindLogic.Update(processBind, configId);
+
                         if (v == 0)
                         {
                             Logger.RunningInfo($"{param.productCode}在{param.stationCode}工位过站失败，更新绑定表失败");
@@ -1129,6 +1139,7 @@ namespace FNMES.Service.WebService
                             productionLine = param.productionLine,
                         };
                         RetMessage<GetLabelData> retMessage1 = APIMethod.Call(Url.GetLabelUrl, getLabelParam, configId).ToObject<RetMessage<GetLabelData>>();
+
                         //判断一下生成的REESSNO 长度是否为24位,不为24位则需要将结果写为E
                         if (retMessage1.data != null && !retMessage1.data.codeContent.IsNullOrEmpty()) { 
                             if(retMessage1.data.codeContent.Length != 24)
@@ -1167,8 +1178,8 @@ namespace FNMES.Service.WebService
             }
             catch (Exception e )
             {
-                Logger.ErrorInfo(e.Message);
-                return NewErrorMessage<InStationData>("e.Message");
+                Logger.ErrorInfo($"内控码:<{param.productCode}>,工站:<{param.stationCode}>错误",e);
+                return NewErrorMessage<InStationData>($"内控码:<{param.productCode}>,工站:<{param.stationCode}>,错误信息:<{e.Message}>");
             }
         }
 
@@ -1381,6 +1392,7 @@ namespace FNMES.Service.WebService
             {
                 return NewErrorMessage<AndonTypeData>("未查询到数据");
             }
+
             List<AndonType> andonTypes = new List<AndonType>();
             foreach (ParamAndon param in paramAndons)
             {
@@ -1405,9 +1417,12 @@ namespace FNMES.Service.WebService
                 return NewErrorMessage<AndonData>("没有给configId参数赋值");
             }
             SysLine sysLine = lineLogic.GetByConfigId(configId);
+            //转了一手线体编码
             param.productionLine = sysLine.EnCode;
+            //这里调用了一个接口，接口返回
             return APIMethod.Call(Url.AndonUrl, param, configId).ToObject<RetMessage<AndonData>>();
         } 
+
         #endregion
         #region     报警及状态信息
         //状态报警信息   根据PLC号获取配置信息
@@ -1546,11 +1561,7 @@ namespace FNMES.Service.WebService
             param.productionLine = sysLine.EnCode;
             string ret = APIMethod.Call(Url.ReworkUrl, param, configId);
             RetMessage<nullObject> retMessage = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();
-
             return retMessage;
-
-            //API数据上传
-
         }
 
         //夹治具寿命
@@ -2186,10 +2197,6 @@ namespace FNMES.Service.WebService
             };
             //Logger.RunningInfo(result.ToJson());
             return result;
-
-
-
-
         }
 
         //热铆机数据上传      自动工位上传后，人工工位再根据条码进行查询拿出数据

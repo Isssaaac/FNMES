@@ -38,11 +38,9 @@ namespace FNMES.Entity.Param
         public string AndonDesc { get; set; }
         [SugarColumn(ColumnName = "createTime", IsNullable = true)]
         public string CreateTime { get; set; }
+
         /// <summary>
         ///  
         ///</summary>
-
-
-
     }
 }

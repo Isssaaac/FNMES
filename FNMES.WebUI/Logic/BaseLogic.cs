@@ -19,6 +19,8 @@ using OfficeOpenXml.Drawing.Slicer.Style;
 using System.Data.Entity.ModelConfiguration.Configuration;
 using FNMES.Entity.Param;
 using FNMES.Entity.Sys;
+using System.IO;
+using System.ServiceModel.Channels;
 
 namespace FNMES.WebUI.Logic.Base
 {
@@ -67,7 +69,6 @@ namespace FNMES.WebUI.Logic.Base
                     IsAutoCloseConnection = true,
                     DbType = DbType,
                     MoreSettings = new ConnMoreSettings()
-                    
                     {
                         DisableNvarchar = true
                     },
@@ -129,6 +130,16 @@ namespace FNMES.WebUI.Logic.Base
                     };
                     db.Aop.OnLogExecuting = (s, p) =>
                     {
+                        //没用，没数据
+                        //string message = s + "\r\n" + Db.Utilities.SerializeObject(p.ToDictionary(it => it.ParameterName, it => it.Value));
+                        //Logger.RunningInfo(s + "\r\n" +Db.Utilities.SerializeObject(p.ToDictionary(it => it.ParameterName, it => it.Value)));
+                        //Console.WriteLine(s + "\r\n" + Db.Utilities.SerializeObject(p.ToDictionary(it => it.ParameterName, it => it.Value)));
+
+                        //using (StreamWriter writer = new StreamWriter("D:\\LOG.txt", true)) // true 表示追加到文件末尾  
+                        //{
+                        //    writer.WriteLine($"{DateTime.Now}: {message}"); // 写入时间戳和消息  
+                        //}
+
                         //if (GobalModel.SqlLogEnable)
                         //{
                         //    var _logger = ServiceLocator.Instance?.GetRequiredService<ILogger<SqlSugarClient>>();

@@ -240,10 +240,6 @@ namespace FNMES.Utility.Files
             return list;
         }
 
-
-
-
-
         public static DataSet ImportExcel2DataSet(string filePath)
         {
             DataSet ds = new DataSet();
@@ -369,13 +365,25 @@ namespace FNMES.Utility.Files
             byte[] bytes = null;
             for (int i = 0; i < tables.Count; i++)
             {
-                DtExportExcel(ref package, tables[i], headDicts[i], sheetNames[i], true);
+                DtExportExcel(ref package, tables[i], headDicts[i], sheetNames[i], true );
             }
 
             bytes = package.GetAsByteArray();
 
             package.Dispose();
             return bytes;
+        }
+
+        public static void DtExportExcel(List<DataTable> tables, List<Dictionary<string, string>> headDicts, List<string> sheetNames , string path)
+        {
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+            ExcelPackage package = new ExcelPackage();
+            for (int i = 0; i < tables.Count; i++)
+            {
+                DtExportExcel(ref package, tables[i], headDicts[i], sheetNames[i], true);
+            }
+            package.SaveAs(new System.IO.FileInfo(path));
+            package.Dispose();
         }
     }
 }

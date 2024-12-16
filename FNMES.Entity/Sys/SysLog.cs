@@ -26,10 +26,11 @@ namespace FNMES.Entity.Sys
         ///</summary>
          [SugarColumn(ColumnName="threadId"    )]
          public int? ThreadId { get; set; }
+
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="message"    )]
+        [SugarColumn(ColumnName = "message", ColumnDataType = StaticConfig.CodeFirst_BigString, IsNullable = true)]
          public string Message { get; set; }
         /// <summary>
         ///  

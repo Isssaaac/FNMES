@@ -167,10 +167,10 @@ namespace FNMES.WebUI.Logic.Param
         //查询全部子参数      
         public ParamRecipeItem Query(string productPartNo, string stationCode, string smallStationCode, string configId)
         {
-            
             try
             {
                 var db = GetInstance(configId);
+                //通过productPartNo查
                 ParamRecipe paramRecipe = db.MasterQueryable<ParamRecipe>().First(it => it.ProductPartNo == productPartNo);
                 if (paramRecipe == null)
                 {
@@ -184,6 +184,10 @@ namespace FNMES.WebUI.Logic.Param
                    .Includes(it => it.StepList.Where(p => p.SmallStationCode == smallStationCode).ToList())
                    .Includes(it => it.PartList.Where(p => p.SmallStationCode == smallStationCode).ToList(), p => p.AlternativePartList)
                    .First(it => it.RecipeId == paramRecipe.Id && it.StationCode == stationCode);*/
+
+                //Includes(it => it.PartList, p => p.AlternativePartList)
+                //AlternativePartList在Param_PartItem中，Param_PartItem在Param_RecipeItem中
+                //Param_RecipeItem的PartList
                 return db.Queryable<ParamRecipeItem>()
                    .Includes(it => it.ParamList)
                    .Includes(it => it.EsopList)

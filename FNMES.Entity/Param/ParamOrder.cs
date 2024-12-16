@@ -106,6 +106,10 @@ namespace FNMES.Entity.Param
          [SugarColumn(ColumnName = "operatorNo", IsNullable = true)]
          public string OperatorNo { get; set; }
 
-
+        /// <summary>
+        ///  241206新增字段
+        ///</summary>
+        [SugarColumn(ColumnName = "packCellGear", IsNullable = true)]
+        public string PackCellGear { get; set; }
     }
 }

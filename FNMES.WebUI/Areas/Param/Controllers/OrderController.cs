@@ -244,7 +244,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
         }
 
-        object GetOrderLock=new object();
+        object GetOrderLock = new object();
         [Route("param/order/getOrder")]
         [HttpPost, LoginChecked]
         public ActionResult GetOrder(string configId)
@@ -266,7 +266,8 @@ namespace MES.WebUI.Areas.Param.Controllers
                     List<ParamOrder> paramOrders = new List<ParamOrder>();
                     foreach (var model in retMessage.data.workOrderList)
                     {
-                        //241205同步工单岀档位数据packCellGear
+                        //241205同步工单岀档位数据
+                        //
                         paramOrders.Add(new ParamOrder()
                         {
                             Id = SnowFlakeSingle.instance.NextId(),
@@ -280,7 +281,9 @@ namespace MES.WebUI.Areas.Param.Controllers
                             ReceiveTime = DateTime.Now,
                             Flag = "0",
                             FinishFlag = "0",
-                            OperatorNo = ""
+                            OperatorNo = "",
+                            //广州和赣州的不确定是否能同步，如果不同步的话，这里会不会报错
+                            PackCellGear = model.packCellGear
                         });
                     }
                     //这里插入工单信息到线体mes数据库，后面插入

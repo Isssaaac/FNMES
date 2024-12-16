@@ -27,6 +27,8 @@
 		<None Include="Reports\**">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<Compile Remove="Areas\Record\Views\OutStation\Index1.cshtml.cs" />
+		<Content Remove="Areas\Record\Views\OutStation\Index1.cshtml" />
 		<Content Remove="wwwroot\Content\jquery\jquery-3.6.0.min.js" />
 		<Content Remove="wwwroot\Content\PDFjs\htmlpage.html" />
 

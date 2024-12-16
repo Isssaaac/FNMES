@@ -10,6 +10,10 @@ using FNMES.Entity.Record;
 using FNMES.Utility.Files;
 using System.IO;
 using System.Data;
+using OfficeOpenXml;
+using FNMES.WebUI.Logic;
+using System.Diagnostics;
+using System.Threading;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -70,7 +74,7 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         }
 
-      
+
 
 
 
@@ -81,6 +85,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             return View();
         }
 
+        //查看物料数据
         [Route("record/part/index")]
         [HttpPost, AuthorizeChecked]
         public ActionResult Part(int pageIndex, int pageSize, string configId, string productCode, string stationCode)
@@ -112,8 +117,8 @@ namespace MES.WebUI.Areas.Param.Controllers
 
 
         }
-       
-        
+
+
         /*
         [Route("record/part/data")]
         [HttpPost, AuthorizeChecked]
@@ -122,7 +127,7 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         }*/
 
-
+       
 
 
 
@@ -200,11 +205,168 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("record/outstation/export")]
         [HttpGet]
-        public ActionResult Export(string configId, string index,string keyword)
+        public ActionResult Export(string configId, string index, string keyword)
+        {
+            try
+            {
+                Logger.RunningInfo($"导出线体:<{configId}>,索引:<{index}>过站记录");
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                
+                List<RecordOutStation> outStationData = new List<RecordOutStation>();
+                List<ProcRecord> procRecordData = new List<ProcRecord>();
+                List<ParRecord> partRecordData = new List<ParRecord>();
+
+                List<OutRecord> outrecords = outStationLogic.GetAllRecord(configId, index, keyword, ref outStationData, ref procRecordData, ref partRecordData);
+
+                // 出站字段
+                Dictionary<string, string> outkeyValuePairs = new Dictionary<string, string>() {
+                    {"ProductCode", "内控码"},
+                    {"TaskOrderNumber", "工单"},
+                    {"ProductStatus","产品状态" },
+                    {"DefectCode","不良代码" },
+                    {"DefectDesc","不良描述" },
+                    {"StationCode","工站" },
+                    {"SmallStationCode","小工站" },
+                    {"EquipmentID","设备编码" },
+                    {"OperatorNo","操作员" },
+                    {"CreateTime","出站时间" },
+                    {"instationTime","进站时间" },
+                    {"palletNo","AGV码" },
+            };
+                // 工艺字段
+                Dictionary<string, string> prockeyValuePairs = new Dictionary<string, string>() {
+                    {"productCode", "内控码"},
+                    {"stationCode", "工站"},
+                    {"recipeNo","配方编号" },
+                    {"recipeDescription","配方名称" },
+                    {"recipeVersion","配方版本" },
+                    {"totalFlag","总结果" },
+                    {"paramCode","参数代码" },
+                    {"paramName","参数名称" },
+                    {"paramValue","值" },
+                    {"itemFlag","项结果" },
+                    {"decisionType","判断类型" },
+                    {"paramType","参数类型" },
+                    {"standValue","标准值" },
+                    {"maxValue","最大值" },
+                    {"minValue","最小值" },
+                    {"setValue","设定值" },
+                    {"uom","单位" },
+                    {"createTime","创建时间" },
+            };
+                // 物料字段
+                Dictionary<string, string> partkeyValuePairs = new Dictionary<string, string>() {
+                    {"productCode", "内控码"},
+                    {"stationCode", "工站"},
+                    {"partNumber","物料数量" },
+                    {"partDescription","物料描述" },
+                    {"partBarcode","物料条码" },
+                    {"traceType","批次" },
+                    {"usageQty","用量" },
+                    {"partuom","单位" },
+                    {"createTime","创建时间" },
+                };
+
+                // 填充数据到工作表
+                List<Dictionary<string, string>> keyValues = new List<Dictionary<string, string>>();
+                //keyValues.Add(keyValuePairs);
+                keyValues.Add(outkeyValuePairs);
+                keyValues.Add(prockeyValuePairs);
+                keyValues.Add(partkeyValuePairs);
+
+                List<string> sheetNames = new List<string> { "OutStation", "Process", "Part" };
+                List<DataTable> tables = new List<DataTable>();
+
+                //for (int i = 0; i < 1000; i++)
+                //{
+                //    outStationData.Add(new RecordOutStation()
+                //    {
+                //        Id = 1,
+                //        ProductCode = "1",
+                //        TaskOrderNumber = "1",
+                //        ProductStatus = "2",
+                //        SmallStationCode = "3"
+                //    });
+                //}
+
+                //for (int i = 0; i < 101000; i++)
+                //{
+                //    procRecordData.Add(new ProcRecord()
+                //    {
+                //        productCode = "1",
+                //        stationCode = "1",
+                //        recipeDescription = "1",
+                //        recipeVersion = "1",
+                //        totalFlag = "1",
+                //        paramCode = "1",
+                //        paramName = "1",
+                //        paramValue = "1",
+                //    });
+                //}
+
+                //for (int i = 0; i < 1001000; i++)
+                //{
+                //    partRecordData.Add(new ParRecord()
+                //    {
+                //        productCode = "1",
+                //        stationCode = "2"
+                //    });
+                //}
+
+                //导出的最多能104.7w行，为了避免出现Row out of Range，3个月的数据就会超100w行，需要截断
+                int count = outStationData.Count;
+                int start = Math.Max(0, count - 1000000); 
+                var outStationData100w = outStationData.GetRange(start, count - start);
+
+                count = procRecordData.Count;
+                start = Math.Max(0, count - 1000000);
+                var procRecordData100w = procRecordData.GetRange(start, count - start);
+
+                count = partRecordData.Count;
+                start = Math.Max(0, count - 1000000);
+                var partRecordData100w = partRecordData.GetRange(start, count - start);
+
+                DataTable dt2 = outStationData100w.ToDataTable();
+                DataTable dt3 = procRecordData100w.ToDataTable();
+                DataTable dt4 = partRecordData100w.ToDataTable();
+
+                tables.Add(dt2);
+                tables.Add(dt3);
+                tables.Add(dt4);
+
+                Logger.RunningInfo($"过站记录导出,outStationData数据量:{outStationData.Count},procRecordData:{procRecordData.Count},partRecordData:{partRecordData.Count}");
+                var bytes = ExcelUtils.DtExportExcel(tables, keyValues, sheetNames);
+
+                
+                // 创建文件流
+                var stream = new MemoryStream(bytes);
+
+                stopwatch.Stop();
+                Logger.RunningInfo($"过站记录导出,outStationData数据量:{outStationData.Count},procRecordData:{procRecordData.Count},partRecordData:{partRecordData.Count}，耗时:{stopwatch.Elapsed.TotalSeconds}秒");
+
+                // 设置响应头，指定响应的内容类型和文件名
+                Response.Headers.Add("Content-Disposition", "attachment; filename=exported-file.xlsx");
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            }
+            catch (Exception ex)
+            {
+                Logger.ErrorInfo($"过站记录导出失败",ex);
+                return Error();
+            }
+        }
+
+        //241209导出表格失败
+        //[Route("record/outstation/export")]
+        //[HttpGet]
+        public ActionResult Export_test(string configId, string index,string keyword)
         {
             List<RecordOutStation> outStationData = new List<RecordOutStation>();
+
             List<ProcRecord> procRecordData = new List<ProcRecord>();
             List<ParRecord> partRecordData = new List<ParRecord>();
+
             List<OutRecord> outrecords = outStationLogic.GetAllRecord(configId,index,keyword,ref outStationData,ref procRecordData,ref partRecordData);
 
             //Dictionary<string, string> keyValuePairs = new Dictionary<string, string>() {
@@ -243,6 +405,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             //        {"partuom","单位" }
             //    };
 
+            // 出站字段
             Dictionary<string, string> outkeyValuePairs = new Dictionary<string, string>() {
                     {"ProductCode", "内控码"},
                     {"TaskOrderNumber", "工单"},
@@ -257,7 +420,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                     {"instationTime","进站时间" },
                     {"palletNo","AGV码" },
             };
-
+            // 工艺字段
             Dictionary<string, string> prockeyValuePairs = new Dictionary<string, string>() {
                     {"productCode", "内控码"},
                     {"stationCode", "工站"},
@@ -278,7 +441,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                     {"uom","单位" },
                     {"createTime","创建时间" },
             };
-
+            // 物料字段
             Dictionary<string, string> partkeyValuePairs = new Dictionary<string, string>() {
                     {"productCode", "内控码"},
                     {"stationCode", "工站"},
@@ -290,6 +453,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                     {"partuom","单位" },
                     {"createTime","创建时间" },
                 };
+
             // 填充数据到工作表
             List<Dictionary<string, string>> keyValues = new List<Dictionary<string, string>>();
             //keyValues.Add(keyValuePairs);
@@ -313,6 +477,10 @@ namespace MES.WebUI.Areas.Param.Controllers
             tables.Add(dt4);
             var bytes = ExcelUtils.DtExportExcel(tables, keyValues,sheetNames);
 
+            string path = $"D:\\outStation{DateTime.Now.ToString("yyyyMMddHHmmssffff")}.xlsx";
+            ExcelUtils.DtExportExcel(tables, keyValues, sheetNames , path);
+            
+
             // 创建文件流
             var stream = new MemoryStream(bytes);
 
@@ -320,5 +488,50 @@ namespace MES.WebUI.Areas.Param.Controllers
             Response.Headers.Add("Content-Disposition", "attachment; filename=exported-file.xlsx");
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
+#region
+        //[Route("record/outstation/export")]
+        //[HttpGet]
+        //public ActionResult Export(string configId, string index, string keyword)
+        //{
+        //    var data = new List<MyDataModel>();
+        //    for (int i = 0; i < 1000000; i++)
+        //    {
+        //        data.Add(new MyDataModel { Id = 1, Name = "Item 1", Value = 10 });
+        //    }
+
+        //    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+        //    // 创建 Excel 包  
+        //    using var package = new ExcelPackage();
+        //    var worksheet = package.Workbook.Worksheets.Add("Sheet1");
+
+        //    // 添加表头  
+        //    worksheet.Cells[1, 1].Value = "ID";
+        //    worksheet.Cells[1, 2].Value = "Name";
+        //    worksheet.Cells[1, 3].Value = "Value";
+
+        //    // 添加数据  
+        //    for (int i = 0; i < data.Count; i++)
+        //    {
+        //        worksheet.Cells[i + 2, 1].Value = data[i].Id;
+        //        worksheet.Cells[i + 2, 2].Value = data[i].Name;
+        //        worksheet.Cells[i + 2, 3].Value = data[i].Value;
+        //    }
+
+        //    // 输出流  
+        //    var stream = new MemoryStream();
+        //    package.SaveAs(stream);
+        //    stream.Position = 0;
+
+        //    // 确保返回正确的文件类型  
+        //    return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
+        //}
+
+        //public class MyDataModel
+        //{
+        //    public int Id { get; set; }
+        //    public string Name { get; set; }
+        //    public int Value { get; set; }
+        //}
+#endregion
     }
 }

@@ -141,9 +141,5 @@ namespace MES.WebUI.Areas.Param.Controllers
             Response.Headers.Add("Content-Disposition", "attachment; filename=exported-file.xlsx");
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
-
-
-
-
     }
 }

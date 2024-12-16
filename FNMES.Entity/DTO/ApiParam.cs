@@ -932,13 +932,13 @@ namespace FNMES.Entity.DTO.ApiParam
         [DataMember]
         public string operatorNo { get; set; } // 操作工
     }
+    //安灯系统
     [DataContract]
     public class AndonParam:BaseParam
     {
         // 设备编码（选填）
         [DataMember]
         public string equipmentID { get; set; }
-
         // 工位
         [DataMember]
         public string stationCode { get; set; }
@@ -976,6 +976,11 @@ namespace FNMES.Entity.DTO.ApiParam
         [DataMember]
         // 操作员工号
         public string operatorNo { get; set; }
+        //241205新增
+        [DataMember]
+        public string materialQty { get; set; }
+        [DataMember]
+        public string destination { get; set; }
 
     }
     [DataContract]
@@ -986,7 +991,10 @@ namespace FNMES.Entity.DTO.ApiParam
         public string operatorNo { get; set; }
 
         [DataMember]
-        public string groupName { get; set; }
+        public string callTime { get; set; }
+
+        //[DataMember]
+        //public string groupName { get; set; }
 
     }
 

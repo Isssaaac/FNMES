@@ -1,16 +1,11 @@
 ﻿
-
-using Newtonsoft.Json;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Text;
 using SqlSugar;
-using FNMES.Utility;
-
-using FNMES.Utility.Logs;
-using log4net.Config;
-using log4net;
-using ServiceStack;
+using FNMES.Utility.Core;
+using FNMES.Utility.Files;
+using System.Data;
+using Microsoft.Data.SqlClient;
+using OfficeOpenXml;
+using System;
 
 //string logDirectory = "D:/logs";
 //if (!Directory.Exists(logDirectory))
@@ -30,17 +25,144 @@ using ServiceStack;
 //warningLogger.Warn("This is a warning message.");
 //infoLogger.Info("This is an info message.");
 
+
+
+
 var db = new SqlSugarClient(new ConnectionConfig
 {
     ConnectionString = "Server=127.0.0.1;Database=test;User ID=sa;Password=123456;Trusted_Connection=False;TrustServerCertificate=True;",
-    DbType = DbType.SqlServer,
+    DbType = SqlSugar.DbType.SqlServer,
     IsAutoCloseConnection = true,
 });
-//为什么会失效
-var sql = db.Deleteable<SysUser>().Where(it=>it.Name == "nono").SplitTable(tabs => tabs.Take(3)).ExecuteCommand();
-Console.WriteLine(sql);
-var i = db.Queryable<SysUser>().Where(it => it.Name == "nono").SplitTable(tabs => tabs.Take(3)).ToList();
-Console.WriteLine(JsonConvert.SerializeObject(i));
+
+var types = new List<Type>();
+types.Add(typeof(User));
+types.Add(typeof(Order));
+types.Add(typeof(Info));
+
+db.CodeFirst.InitTables(types.ToArray());
+
+//User user1 = new User() {
+//    Id = 1,
+//    Name = "Test"
+//};
+//db.Insertable<User>(user1).ExecuteCommand();
+
+//Order order = new Order() {
+//    Id = 2,
+//    UserId = 1,
+//    Product = "111",
+//    Price = "123"
+//};
+//db.Insertable<Order>(order).ExecuteCommand();
+
+//var info = new Info()
+//{
+//    Id = 2,
+//    Age = "12",
+//};
+//db.Insertable<Info>(info).ExecuteCommand();
+
+string callTime = DateTime.Now.ToString();
+string currentStamp = ExtDateTime.GetTimeStamp(DateTime.Now);
+DateTime n = ExtDateTime.TimeStampToDateTime("1702339200000");
+Console.WriteLine($"时间戳:{currentStamp},测试时间:{n.ToString()}");
+
+
+//var tab = db.Queryable<User>().Includes(it => it.Orders);
+//// 创建一个 DataTable 用于存储数据  
+//DataTable dataTable = tab.ToDataTable();
+
+//// 导出 DataTable 到 Excel  
+//ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+//using (ExcelPackage excelPackage = new ExcelPackage())
+//{
+//    ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add("Sheet1"); // 创建工作表  
+
+//    // 将列名写入第一行  
+//    for (int i = 0; i < dataTable.Columns.Count; i++)
+//    {
+//        worksheet.Cells[1, i + 1].Value = dataTable.Columns[i].ColumnName;
+//    }
+
+//    // 将数据写入 Excel  
+//    for (int i = 0; i < dataTable.Rows.Count; i++)
+//    {
+//        for (int j = 0; j < dataTable.Columns.Count; j++)
+//        {
+//            worksheet.Cells[i + 2, j + 1].Value = dataTable.Rows[i][j];
+//        }
+//    }
+
+//    // 设置 Excel 文件的路径  
+//    string filePath = @"D:\output.xlsx"; // 替换为您的文件路径  
+
+//    // 保存 Excel 文件  
+//    excelPackage.SaveAs(new System.IO.FileInfo(filePath));
+//}
+
+//Console.WriteLine("数据已成功导出到 Excel 文件。");
+
+
+
+
+
+
+//Dictionary<string, string> outkeyValuePairs = new Dictionary<string, string>() {
+//                    {"Id", "Id"},
+//                    {"Name", "名称"}};
+
+//// 填充数据到工作表
+//List<Dictionary<string, string>> keyValues = new List<Dictionary<string, string>>();
+//keyValues.Add(outkeyValuePairs);
+//List<string> sheetNames = new List<string> { "OutStation"};
+//List<DataTable> tables = new List<DataTable>();
+//DataTable dt2 = tab.ToDataTable();
+////tables.Add(dt1);
+//tables.Add(dt2);
+
+
+////转换称文件流传出去
+//var bytes = ExcelUtils.DtExportExcel(tables, keyValues, sheetNames);
+//// 创建文件流
+//var stream = new MemoryStream(bytes);
+
+
+
+////为什么会失效
+//var sql = db.Deleteable<SysUser>().Where(it=>it.Name == "nono").SplitTable(tabs => tabs.Take(3)).ExecuteCommand();
+//Console.WriteLine(sql);
+//var i = db.Queryable<SysUser>().Where(it => it.Name == "nono").SplitTable(tabs => tabs.Take(3)).ToList();
+//Console.WriteLine(JsonConvert.SerializeObject(i));
+
+public class User
+{
+    [SugarColumn(ColumnName = "id", IsPrimaryKey = true)]
+    public int Id { get; set; }
+    public string Name { get; set; }
+
+    [Navigate(NavigateType.OneToMany, nameof(Order.UserId))]//一对多
+    public List<Order> Orders { get; set; }
+}
+
+public class Info
+{
+    [SugarColumn(ColumnName = "id", IsPrimaryKey = true)]
+    public int Id { get; set; }
+    public string Age { get; set; }
+}
+
+public class Order
+{
+    [SugarColumn(ColumnName = "id", IsPrimaryKey = true)]
+    public int Id { get; set; }
+
+    public int UserId { get; set; }
+    public string Product { get; set; }
+    public string Price { get; set; }
+}
+
+
 
 
 //db.CodeFirst.InitTables(typeof(SysUser));

@@ -108,6 +108,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         {
             return View();
         }
+
         [Route("param/recipe/part")]
         [HttpPost]
         public ActionResult Part(int pageIndex, int pageSize, string keyWord, string configId, string primaryKey)

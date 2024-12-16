@@ -1101,11 +1101,6 @@ namespace FNMES.Utility.Core
         #endregion
 
 
-
-
-
-
-
         #region double?转double
         /// <summary>
         /// double?转double
@@ -1143,24 +1138,22 @@ namespace FNMES.Utility.Core
         public static D Mapper<D, S>(S s)
         {
             D d = Activator.CreateInstance<D>(); //构造新实例
-            
-                var Types = s.GetType();//获得类型  
-                var Typed = typeof(D);
-                foreach (PropertyInfo sp in Types.GetProperties())//获得类型的属性字段  
+            var Types = s.GetType();//获得类型  
+            var Typed = typeof(D);
+            foreach (PropertyInfo sp in Types.GetProperties())//获得类型的属性字段  
+            {
+                foreach (PropertyInfo dp in Typed.GetProperties())
                 {
-                    foreach (PropertyInfo dp in Typed.GetProperties())
+                    if (dp.Name.ToLower() == sp.Name.ToLower() && dp.PropertyType == sp.PropertyType && dp.Name != "Error" && dp.Name != "Item")//判断属性名是否相同  
                     {
-                        if (dp.Name.ToLower() == sp.Name.ToLower() && dp.PropertyType == sp.PropertyType && dp.Name != "Error" && dp.Name != "Item")//判断属性名是否相同  
+                        if (!dp.PropertyType.Name.Contains("List"))
                         {
-                            if (!dp.PropertyType.Name.Contains("List"))
-                            {
-                                dp.SetValue(d, sp.GetValue(s, null), null);//获得s对象属性的值复制给d对象的属性  
-                            }
+                            dp.SetValue(d, sp.GetValue(s, null), null);//获得s对象属性的值复制给d对象的属性  
                         }
                     }
                 }
+            }
             return d;
         }
-      
     }
 }

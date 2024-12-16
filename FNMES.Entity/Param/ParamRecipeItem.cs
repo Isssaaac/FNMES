@@ -53,6 +53,7 @@ namespace FNMES.Entity.Param
        
 
         // 工艺参数，可以到小工位下的工步
+        // 要使用includes，就需要增加这个导航
         [Navigate(NavigateType.OneToMany, nameof(ParamItem.RecipeItemId))]//一对多
         public List<ParamItem> ParamList { get; set; }
 

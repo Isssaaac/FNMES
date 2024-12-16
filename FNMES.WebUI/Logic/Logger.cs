@@ -57,8 +57,8 @@ namespace FNMES.WebUI.Logic
         /// <param name="message"></param>
         public static void RunningInfo(string message)
         {
-            Log("Running", message);
             LogHelper.Info(message);
+            //Log("Running", message);
         }
 
 

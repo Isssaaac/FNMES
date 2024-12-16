@@ -137,15 +137,14 @@ namespace FNMES.Entity.DTO.AppData
         public string RepairFlag { get; set; } //返修标志
         [DataMember]
         public string RepairStations { get; set; } //返修工站
-
         [DataMember]
         public string ReessNo { get; set; }      //国标码
-
         [DataMember]
         public string Diverter { get; set; }    //分流器条码
-
         [DataMember]
         public string GlueTime { get; set; }    //中段涂胶时间
+        [DataMember]
+        public string CurrentStation { get; set; }  //当前工站
     }
 
     //这个里面没分流器条码
