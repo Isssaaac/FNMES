@@ -37,6 +37,7 @@ namespace MES.WebUI.Areas.Sys.Controllers
         public ActionResult Index(int pageIndex, int pageSize, string lineId, string keyWord, string index)
         {
             int totalCount = 0;
+            //预处理
             var pageData = sysPreProductLogic.GetList(pageIndex, pageSize, long.Parse(lineId), keyWord, ref totalCount, index);
             var result = new LayPadding<SysPreSelectProduct>()
             {

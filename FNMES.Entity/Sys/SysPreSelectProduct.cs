@@ -59,16 +59,5 @@ namespace FNMES.Entity.Sys
                 EnableFlag = value ? "1" : "0";
             }
         }
-
-
-
-
-
-
-
-
-
-
     }
-
 }

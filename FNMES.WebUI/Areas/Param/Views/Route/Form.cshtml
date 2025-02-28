@@ -53,6 +53,7 @@
                      </div>
              </div>
         </div>
+
         <div class="layui-form-item">
             <div class="layui-inline">
                 <label class="layui-form-label">选项</label>
@@ -73,77 +74,60 @@
         </div>
     </form>
 
-    <script src="~/Content/jquery/jquery.md5.js"></script>
-    <script >
-        layui.use(['element', 'form', 'laydate', 'layer'], function () {
-            var form = layui.form;
-            var element = layui.element;
-            var laydate = layui.laydate;
-            laydate.render({
-            });
+        <script type="text/javascript">
+            layui.use(['element', 'form', 'laydate', 'layer'], function () {
+                var form = layui.form;
+                var element = layui.element;
+                var laydate = layui.laydate;
+                laydate.render({
+                });
 
-            var configId = $.getQueryString("configId");
-            $("#ConfigId").val(configId);
+                var configId = $.getQueryString("configId");
+                $("#ConfigId").val(configId);
         
-            $("#pidContainer").show();
-            $("#pidContainer").prop("disabled", true);
-
-            $("#StationCode").bindSelect({
-                type: "POST",
-                url: "/param/unitProcedure/getParentCode?configId=" + configId
-            });
-            $("#CheckStations").bindSelect({
-                type: "POST",
-                url: "/param/unitProcedure/getParentCode?configId=" + configId,
-                title: '请选择校验工序'
-            });
-
-
-
-            var configId = $.getQueryString("configId");
-            $("#ConfigId").val(configId);
-            var primaryKey = $.getQueryString("primaryKey");
-            var productPartNo = $.getQueryString("productPartNo");
-            $("#ProductPartNo").val(productPartNo);
-
-            if (primaryKey) {
-                
-                $.ajax({
-                    url: "/param/route/getForm",
-                    data: { primaryKey: primaryKey,
-                            configId: configId },
-                    type: "post",
-                    dataType: "json",
-                    async: false,
-                    success: function (data) {
-                        $("#form").formSerialize(data);
-                        $("#ConfigId").val(configId);
-                    }
+                $("#StationCode").bindSelect({
+                    type: "POST",
+                    url: "/param/unitProcedure/getParentCode?configId=" + configId
                 });
-               
-            }
-
-            form.render();
-
-            form.on('submit(add)', function (form) {
-               
-                var type = $('input[name="IsParent"]:checked').val();
-                var parentIsNull = $("#Pid").val() == null;
-                
-                form.field.Criterion = $("#CheckStations").val().join();
-                
-                $.formSubmit({
-                    url: "/param/route/form",
-                    data: form.field
+                $("#CheckStations").bindSelect({
+                    type: "POST",
+                    url: "/param/unitProcedure/getParentCode?configId=" + configId,
+                    title: '请选择校验工序'
                 });
-                return false;
-                
+                var configId = $.getQueryString("configId");
+                $("#ConfigId").val(configId);
+                var primaryKey = $.getQueryString("primaryKey");
+                var productPartNo = $.getQueryString("productPartNo");
+                $("#ProductPartNo").val(productPartNo);
+
+                if (primaryKey) {
+                    $.ajax({
+                        url: "/param/route/getForm",
+                        data: { primaryKey: primaryKey,
+                                configId: configId },
+                        type: "post",
+                        dataType: "json",
+                        async: false,
+                        success: function (data) {
+                            //在这里反序列化
+                            $("#form").formSerialize(data);
+                            $("#ConfigId").val(configId);
+                        }
+                    });
+                }
+                form.render();
+                form.on('submit(add)', function (form) {
+                    var type = $('input[name="IsParent"]:checked').val();
+                    var parentIsNull = $("#Pid").val() == null;
+                    form.field.Criterion = $("#CheckStations").val().join();
+                    $.formSubmit({
+                        url: "/param/route/form",
+                        data: form.field
+                    });
+                    return false;
+                });
             });
-
-        });
-
-
-    </script>
+        </script>
     </body>
 </html>
 

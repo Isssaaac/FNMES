@@ -30,8 +30,9 @@
     <div class="panel animated fadeIn">
         <div class="panel-body">
             <div class="layui-inline" style="margin-bottom: 10px;">
-                    <select lay-ignore name="lineId" class="select2" id="lineId"  style="width: 250px;height: 30px;" lay-verify="required"></select>
-             </div>
+                <select lay-ignore name="lineId" class="select2" id="lineId"  style="width: 250px;height: 30px;" lay-verify="required"></select>
+                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_data()">查看产品</button>
+            </div>
 
             <div id="toolbar" class="FNMES-table-toolbar">
                 <div class="layui-btn-group"> </div>
@@ -44,6 +45,7 @@
                 <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
                         <i class="layui-icon">&#xe615;</i>
                 </button>
+
                 <div class="toolbar-search-input">
                     <input type="text" id="keyWord" placeholder="工单或产品编码" autocomplete="off" class="layui-input" style="height:39px">
                 </div>
@@ -58,6 +60,7 @@
                         <th>产品</th>
                         <th>产品备注</th>
                         <th>数量</th>
+                        <th>档位</th>
                         <th>计划开始时间</th>
                         <th>计划完成时间</th>
                         <th>状态</th>
@@ -78,10 +81,11 @@
     <tr>
         <td>
             <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
-          <td>{{item.TaskOrderNumber}}</td>
+        <td>{{item.TaskOrderNumber}}</td>
         <td>{{item.ProductPartNo}}</td>
         <td>{{item.ProductDescription}}</td>
         <td>{{item.PlanQty}}</td>
+        <td>{{item.PackCellGear}}</td>
         <td>{{item.PlanStartTime}}</td>
         <td>{{item.PlanEndTime}}</td>
         <td>{{item.FlagString}}</td>
@@ -110,10 +114,11 @@
         $("#toolbar").authorizeButton();
         $('#btnSearch').click(initGrid);
         $('#keyWord').bindEnterEvent(initGrid);
+        $("#btn_Pro").click("btn_Pro");
        // initGrid();
 
     });
-    //$("#lineId").bindChangeEvent(initGrid);
+
     $("#lineId").on("select2:select", function (e) {
     // 处理选择事件
         if ($("#lineId").val() == "0") {
@@ -198,6 +203,7 @@
             }
         });
     }
+
     function btn_pause() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
@@ -220,6 +226,8 @@
             }
         });
     }
+
+
     function btn_cancel() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
@@ -242,6 +250,7 @@
             }
         });
     }
+
     function btn_detail() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
@@ -257,6 +266,23 @@
             btn: null
         });
     }
+
+    function btn_data() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录查看。", "warning");
+            return;
+        }
+        $.layerOpen({
+            id: "data",
+            title: "查看产品",
+            width: "1200px",
+            height: "800px",
+            content: "/param/order/data?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
+            btn: null
+        });
+    }
+
     function btn_getRecipe() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {

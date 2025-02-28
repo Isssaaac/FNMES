@@ -37,6 +37,7 @@ namespace FNMES.Entity.Param
         [SugarColumn(ColumnName = "reessNo", IsNullable = true)]
         public string ReessNo { get; set; }      //国标码
 
+        //分流器
         [SugarColumn(ColumnName = "diverter", IsNullable = true)]
         public string Diverter { get; set; }    //分流器条码
 

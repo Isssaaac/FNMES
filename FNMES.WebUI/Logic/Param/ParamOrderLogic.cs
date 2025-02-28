@@ -9,6 +9,9 @@ using System.Linq;
 using ServiceStack;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using FNMES.Entity.DTO.ApiData;
+using FNMES.Utility.ResponseModels;
+using FNMES.Utility.Network;
+using FNMES.WebUI.API;
 
 namespace FNMES.WebUI.Logic.Param
 {
@@ -19,7 +22,6 @@ namespace FNMES.WebUI.Logic.Param
         {
             try
             {
-
                 var db = GetInstance(configId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 return db.Insertable<ParamOrder>(model).ExecuteCommand();
@@ -52,7 +54,8 @@ namespace FNMES.WebUI.Logic.Param
                         ReceiveTime = DateTime.Now,
                         Flag = "0",
                         FinishFlag = "0",
-                        OperatorNo = ""
+                        OperatorNo = "",
+                        PackCellGear = model.packCellGear
                     });
                 }
                 Db.BeginTran();
@@ -88,10 +91,37 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception E)
             {
-                Logger.ErrorInfo(E.Message);
+                Logger.ErrorInfo($"GetWithQty主键:{primaryKey},查询失败:",E);
                 return null;
             }
+        }
 
+        //获取当前已上线的数据
+        public List<RecordOrderStart> GetProductInOrder(int pageIndex, int pageSize , long primaryKey, string configId ,ref int totalCount ,string keyWord)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                ParamOrder order = db.MasterQueryable<ParamOrder>().Where(it => it.Id == primaryKey).First();
+                
+
+                var start = order.StartTime;
+                var end = start.Value.AddDays(60);
+
+                //List<RecordOrderStart> recordOrderStartList = db.MasterQueryable<RecordOrderStart>().SplitTable(start.Value, end).Where(it => it.TaskOrderNumber == order.TaskOrderNumber).OrderBy(it => it.CreateTime).ToPageList(pageIndex , pageSize,ref totalCount);
+                var queryAble = db.MasterQueryable<RecordOrderStart>().SplitTable(start.Value, end).Where(it => it.TaskOrderNumber == order.TaskOrderNumber);
+                if (!keyWord.IsNullOrEmpty())
+                { 
+                    queryAble.Where(e=>e.ProductCode.Contains(keyWord));
+                }
+                List<RecordOrderStart> recordOrderStartList = queryAble.OrderBy(it => it.CreateTime).ToPageList(pageIndex, pageSize, ref totalCount);
+                return recordOrderStartList;
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo($"getProductInOrder失败,主键{primaryKey}",E);
+                return null;
+            }
         }
 
         public ParamOrder Get(long primaryKey, string configId)
@@ -239,6 +269,37 @@ namespace FNMES.WebUI.Logic.Param
             {
                 Logger.ErrorInfo(E.Message);
                 return null;
+            }
+        }
+
+        //电芯报废
+        public bool Scrapped(string configId, string primaryKey, SynScrapInfoParam param)
+        {
+            try {
+                var db = GetInstance(configId);
+                Db.BeginTran();
+                var row = db.MasterQueryable<RecordOrderStart>().SplitTable(tab =>tab.Take(3)).Where(it => it.Id == long.Parse(primaryKey)).First();
+                row.Flag = "2";
+                db.Updateable<RecordOrderStart>(row).SplitTable().ExecuteCommand();
+                //调厂级接口
+                RetMessage<object> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.SynScrapInfo, param, configId, true).ToObject<RetMessage<object>>();
+                Db.CommitTran();
+                Logger.RunningInfo($"设置电芯<{row.ProductCode}>报废状态为2,结果:<{retMessage.messageType}>");
+                if (retMessage.messageType == "S")
+                {
+                    Logger.ErrorInfo($"设置电芯报废状态成功，返回{retMessage.message}");
+                    return true;
+                }
+                else
+                {
+                    Logger.ErrorInfo($"设置电芯报废状态错误，返回{retMessage.message}");
+                    return false;
+                }
+            }
+            catch (Exception E) {
+                Logger.ErrorInfo($"设置电芯报废状态报错", E);
+                Db.RollbackTran();
+                return false;
             }
         }
     }

@@ -6,6 +6,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
+    
     <title>工单列表</title>
     <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
     <link href="~/Content/framework/css/console.css" rel="stylesheet" />
@@ -36,11 +37,34 @@
     <div class="panel animated fadeIn">
         <div class="panel-body">
             <div class="layui-inline" style="margin-bottom: 10px;">
-                    <select lay-ignore name="lineId" class="select2" id="lineId"  style="width: 250px;height: 30px;" lay-verify="required"></select>
-                        </div>
+                <select lay-ignore name="lineId" class="select2" id="lineId"  style="width: 250px;height: 30px;" lay-verify="required"></select>
+                <br></br>
+
+                <div class="layui-inline" id="ID-laydate-range">
+                    <div class="layui-input-inline">
+                        <input type="text" autocomplete="off" id="ID-laydate-start-date" style="width: 200px;height: 30px;" class="layui-input" placeholder="开始日期">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" autocomplete="off" id="ID-laydate-end-date" style="width: 200px;height: 30px;" class="layui-input" placeholder="结束日期">
+                    </div>
+                </div>
+
+                <div class="layui-input-inline" style="width: 200px;">
+                    <input type="text" id="productCode" autocomplete="off" class="layui-input" placeholder="内控码/工位">
+                </div>
+                <div class="layui-input-inline" style="width: 200px;">
+                    <input type="text" id="order" autocomplete="off" class="layui-input" placeholder="工单">
+                </div>
+
+                <div class="layui-btn-group"> 
+                    <button id="conditionSearch" class="layui-btn layui-btn-primary layui-btn-small">精准查询</button>
+                    <button onclick="export_condition_btn()" class="layui-btn layui-btn-primary layui-btn-small">精准导出</button>
+                    <button onclick="export_outstation_btn()" class="layui-btn layui-btn-primary layui-btn-small">仅导出过站</button>
+                </div>
+            </div>
+
 
             <div id="toolbar" class="FNMES-table-toolbar">
-                <div class="layui-btn-group"> </div>
                 <div class="layui-btn-group" id="queryDate">
                     <button value="1" class="layui-btn layui-btn-primary layui-btn-small">今天</button>
                     <button value="2" class="layui-btn layui-btn-primary layui-btn-small active">近7天</button>
@@ -89,8 +113,8 @@
     <tr>
         <td>
             <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
-         <td>{{item.ProductCode}}</td>
-         <td>{{item.StationCode}}</td>
+        <td>{{item.ProductCode}}</td>
+        <td>{{item.StationCode}}</td>
         <td>{{item.TaskOrderNumber}}</td>
         <td>{{item.ProductStatus}}</td>
         <td>{{item.DefectCode}}</td>
@@ -111,9 +135,17 @@
     var paging;
     layui.config({
         base: parent._baseUrl
-    }).use(['paging', 'form', 'layer'], function () {
+    }).use(['paging', 'form', 'layer', 'laydate'], function () {
         var layer = parent.layer || layui.layer;
         var form = layui.form;
+
+        var laydate = layui.laydate;
+        // 日期范围 - 左右面板独立选择模式
+        laydate.render({
+            elem: '#ID-laydate-range',
+            range: ['#ID-laydate-start-date', '#ID-laydate-end-date']
+        });
+
         paging = layui.paging();
         $("#lineId").bindSelect({
             type: "POST",
@@ -122,9 +154,9 @@
         });
         $("#toolbar").authorizeButton();
         $('#btnSearch').click(initGrid);
+        $('#conditionSearch').click(initGrid_condition);
         $('#keyWord').bindEnterEvent(initGrid);
        // initGrid();
-
     });
     //$("#lineId").bindChangeEvent(initGrid);
     $("#lineId").on("select2:select", function (e) {
@@ -152,6 +184,7 @@
         if ($("#lineId").val() == "0") {
             return
         };
+
         paging.init({
             url: '/record/outstation/index',
             elem: '#content',
@@ -160,7 +193,7 @@
             params: {
                 keyWord: $("#keyWord").val(),
                 configId: $("#lineId").val(),
-                index: $('#queryDate').find('button.active').val(),
+                index: $('#queryDate').find('button.active').val()
             },
             pageConfig: {
                 elem: 'paged',
@@ -171,9 +204,51 @@
             }
         });
     }
+
+    function initGrid_condition() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
+
+        var startDate = $('#ID-laydate-start-date').val();
+        var endDate = $('#ID-laydate-end-date').val();
+
+        var stime = Date.parse(new Date(startDate));
+        var etime = Date.parse(new Date(endDate));
+        var usedTime = etime - stime;
+        var days = Math.floor(usedTime / (24 * 3600 * 1000));
+
+        //var days = $.calDays(startDate, endDate);
+        if (days > 90) { 
+
+            $.layerMsg("日期间隔不能大于90天。", "warning");
+            return
+        }
+        
+        paging.init({
+            url: '/record/outstation/condition',
+            elem: '#content',
+            tempElem: '#contentTpl',
+            singleSelected: true, //单选
+            params: {
+                configId: $("#lineId").val(),
+                startDate: $('#ID-laydate-start-date').val(),
+                endDate: $('#ID-laydate-end-date').val(),
+                productCode:$('#productCode').val(),
+                order:$('#order').val()
+            },
+            pageConfig: {
+                elem: 'paged',
+                pageSize: 10,
+            },
+            success: function () {
+
+            }
+        });
+    }
+
     function btn_process() {
         var ids = $("#gridList").gridSelectedRowValue();
-
         if (ids.length != 1) {
             $.layerMsg("请勾选单条记录查看。", "warning");
             return;
@@ -208,6 +283,7 @@
             }
         });
     }
+
     function btn_part() {
         var ids = $("#gridList").gridSelectedRowValue();
 
@@ -251,19 +327,129 @@
             $.layerMsg("请先选择线体。", "warning");
             return;
         }
+        $.layerMsg("正在请求导出...请耐心等待", "warning");
+
         // 发送请求到后端以触发文件导出  + "&index=" + $('#queryDate').find('button.active').val()
         fetch("/record/outstation/export?configId=" + $("#lineId").val() + "&index=" + $('#queryDate').find('button.active').val() + "&keyword=" + $("#keyWord").val(), {
             method: "GET",
-        }).then(response => response.blob())
+        })
+        .then(response => {
+            // 检查响应状态是否成功
+            if (!response.ok) {
+                return response.text();
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            if (typeof blob == "string") {
+                $.layerMsg(blob, "warning");
+                return
+            }
+            
+            // 创建一个临时链接以下载文件
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = $("#lineId").val() + "-OutstationData" + ".xlsx"; // 文件名
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            });
+        // .catch(error => {
+        //     console.log("未捕获的错误：", error);
+        // })
+    }
+
+    function export_condition_btn() {
+        if ($("#lineId").val() == "0") {
+            $.layerMsg("请先选择线体。", "warning");
+            return;
+        }
+        var startDate = $('#ID-laydate-start-date').val();
+        var endDate = $('#ID-laydate-end-date').val();
+
+        var stime = Date.parse(new Date(startDate));
+        var etime = Date.parse(new Date(endDate));
+        var usedTime = etime - stime;
+        var days = Math.floor(usedTime / (24 * 3600 * 1000));
+
+        if (days > 90) {
+            $.layerMsg("日期间隔不能大于90天", "warning");
+            return
+        }
+        $.layerMsg("正在请求导出...请耐心等待", "warning");
+        //文件下载用fetch
+        fetch("/record/outstation/exportCon?configId=" + $("#lineId").val() + "&startDate=" + startDate + "&endDate=" + endDate + "&productCode=" + $('#productCode').val() + "&order=" + $('#order').val(), {
+            method: "GET",
+        })
+            .then(response => {
+                // 检查响应状态是否成功
+                if (!response.ok) {
+                    return response.text();
+                }
+                return response.blob();
+            })
             .then(blob => {
+                if (typeof blob == "string") {
+                    $.layerMsg(blob, "warning");
+                    return
+                }
+
                 // 创建一个临时链接以下载文件
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
-                a.download = $("#lineId").val() + "-OutstationData.xlsx"; // 文件名
+                a.download = $("#lineId").val() + "-OutstationData" + ".xlsx"; // 文件名
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
             });
     }
+
+    function export_outstation_btn() {
+        if ($("#lineId").val() == "0") {
+            $.layerMsg("请先选择线体。", "warning");
+            return;
+        }
+        var startDate = $('#ID-laydate-start-date').val();
+        var endDate = $('#ID-laydate-end-date').val();
+
+        var stime = Date.parse(new Date(startDate));
+        var etime = Date.parse(new Date(endDate));
+        var usedTime = etime - stime;
+        var days = Math.floor(usedTime / (24 * 3600 * 1000));
+
+        if (days > 90) {
+            $.layerMsg("日期间隔不能大于90天", "warning");
+            return
+        }
+        $.layerMsg("正在请求导出...请耐心等待", "warning");
+        //文件下载用fetch
+        fetch("/record/outstation/exportOutstation?configId=" + $("#lineId").val() + "&startDate=" + startDate + "&endDate=" + endDate + "&productCode=" + $('#productCode').val() + "&order=" + $('#order').val(), {
+            method: "GET",
+        })
+            .then(response => {
+                // 检查响应状态是否成功
+                if (!response.ok) {
+                    return response.text();
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                if (typeof blob == "string") {
+                    $.layerMsg(blob, "warning");
+                    return
+                }
+
+                // 创建一个临时链接以下载文件
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = $("#lineId").val() + "-OutstationData" + ".xlsx"; // 文件名
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            });
+    }
+
 </script>

@@ -117,10 +117,12 @@ namespace FNMES.WebUI.Logic.Param
 
         //M500打包工位不直接删除绑定纪录， 不然打包工位可能删除后无法重复作业。
         //通过时间来删除，在出站的时候，直接删除超过30天旧数据
+        //241217，由于包返修可能超过30天，现在改为60天
         public bool RemoveOldData(string configId)
         {
             var db = GetInstance(configId);
-            List<ProcessBind> oldprocessBind = db.MasterQueryable<ProcessBind>().Where(it => it.CreateTime < DateTime.Now.AddDays(-30)).ToList();
+            //List<ProcessBind> oldprocessBind = db.MasterQueryable<ProcessBind>().Where(it => it.CreateTime < DateTime.Now.AddDays(-30)).ToList();
+            List<ProcessBind> oldprocessBind = db.MasterQueryable<ProcessBind>().Where(it => it.CreateTime < DateTime.Now.AddDays(-60)).ToList();
             if (oldprocessBind != null && oldprocessBind.Count != 0)
             {
                 try
@@ -287,7 +289,7 @@ namespace FNMES.WebUI.Logic.Param
 
 
         /// <summary>
-        /// 更新用户基础信息
+        /// 更新绑定信息表
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
@@ -296,7 +298,6 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-
                 return db.Updateable<ProcessBind>(model).IgnoreColumns(it => new
                 {
                     it.CreateTime
@@ -304,10 +305,10 @@ namespace FNMES.WebUI.Logic.Param
             }
             catch (Exception)
             {
-
                 return 0;
             }
         }
+
         public int DeletePalletNo(string palletNo, string configId)
         {
             try

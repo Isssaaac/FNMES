@@ -18,7 +18,8 @@ using FNMES.Entity.Sys;
 using FNMES.Entity.DTO.ApiData;
 using System.Linq;
 using SqlSugar;
-
+using FNMES.Entity.Record;
+using FNMES.Utility.ResponseModels;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -29,6 +30,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         private readonly ParamOrderLogic orderLogic;
         private readonly SysLineLogic sysLineLogic;
         private readonly ParamProductLogic productLogic;
+
         public OrderController()
         {
             orderLogic = new ParamOrderLogic();
@@ -47,7 +49,7 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/order/index")]
         [HttpPost, AuthorizeChecked]
-        public ActionResult Index(int pageIndex, int pageSize, string keyWord,string configId,string index)
+        public ActionResult Index(int pageIndex, int pageSize, string keyWord, string configId, string index)
         {
             try
             {
@@ -69,8 +71,8 @@ namespace MES.WebUI.Areas.Param.Controllers
                     result = false,
                     msg = E.Message,
                     list = new List<ParamOrder>(),
-                    count =0
-                }.ToJson()) ;
+                    count = 0
+                }.ToJson());
             }
         }
 
@@ -87,8 +89,44 @@ namespace MES.WebUI.Areas.Param.Controllers
         [HttpPost, LoginChecked]
         public ActionResult GetForm(string primaryKey, string configId)
         {
-            ParamOrder entity = orderLogic.GetWithQty(long.Parse(primaryKey),configId);
+            ParamOrder entity = orderLogic.GetWithQty(long.Parse(primaryKey), configId);
             return Content(entity.ToJson());
+        }
+
+        [Route("param/order/data")]
+        [HttpGet]
+        public ActionResult Data()
+        {
+            return View();
+        }
+
+        [Route("param/order/getData")]
+        [HttpPost]
+        public ActionResult getData(int pageIndex, int pageSize,string primaryKey, string configId, string keyWord)
+        {
+            try {
+                int totalCount = 0;
+                List<RecordOrderStart> entity = orderLogic.GetProductInOrder(pageIndex, pageSize,long.Parse(primaryKey), configId,ref totalCount,keyWord);
+                
+                LayPadding<RecordOrderStart> result = new LayPadding<RecordOrderStart>()
+                {
+                    result = true,
+                    msg = "success",
+                    list = entity,
+                    count = totalCount//pageData.Count
+                };
+                return Content(result.ToJson());
+            }
+            catch (Exception E)
+            {
+                return Content(new LayPadding<RecordPartData>()
+                {
+                    result = false,
+                    msg = E.Message,
+                    list = new List<RecordPartData>(),
+                    count = 0
+                }.ToJson());
+            }
         }
 
         [Route("param/order/start")]
@@ -143,7 +181,6 @@ namespace MES.WebUI.Areas.Param.Controllers
             {
                 return Error("选中工单不满足开工条件");
             }
-            
         }
 
         [Route("param/order/pause")]
@@ -267,7 +304,6 @@ namespace MES.WebUI.Areas.Param.Controllers
                     foreach (var model in retMessage.data.workOrderList)
                     {
                         //241205同步工单岀档位数据
-                        //
                         paramOrders.Add(new ParamOrder()
                         {
                             Id = SnowFlakeSingle.instance.NextId(),
@@ -282,7 +318,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                             Flag = "0",
                             FinishFlag = "0",
                             OperatorNo = "",
-                            //广州和赣州的不确定是否能同步，如果不同步的话，这里会不会报错
+                            //广州和赣州的不确定是否能同步，如果不同步的话，这里会不会报错，241217证实有无都不会报错
                             PackCellGear = model.packCellGear
                         });
                     }
@@ -364,9 +400,38 @@ namespace MES.WebUI.Areas.Param.Controllers
             else
             {
                 return Error("工厂接口访问失败");
-
             }
+        }
 
+        [Route("param/order/scrap")]
+        [HttpGet]
+        public ActionResult Scrap()
+        {
+            return View();
+        }
+
+        //同步产品配方
+        [Route("param/order/scrap")]
+        [HttpPost]
+        public ActionResult Scrap(SynScrapInfoParamForm param)
+        {
+            SysLine sysLine = sysLineLogic.GetByConfigId(param.configId);
+            SynScrapInfoParam model = new SynScrapInfoParam();
+            model.CopyMatchingProperties(param);
+            model.defectList = new List<defectParam>();
+            model.defectList.Add(new defectParam() { defectCode = param.defectCode, defectDesc = param.defectDesc });
+            string currentStamp = ExtDateTime.GetTimeStamp(DateTime.Now);
+            param.callTime = currentStamp;
+
+            var ret = orderLogic.Scrapped(param.configId, param.primaryKey, model);
+            if (ret)
+            {
+                return Success($"报废成功");
+            }
+            else
+            {
+                return Error($"报废失败");
+            }
         }
     }
 }

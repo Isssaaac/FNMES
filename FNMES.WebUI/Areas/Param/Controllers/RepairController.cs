@@ -4,8 +4,10 @@ using FNMES.Utility.Core;
 using FNMES.Utility.ResponseModels;
 using FNMES.WebUI.Controllers;
 using FNMES.WebUI.Filters;
+using FNMES.WebUI.Logic;
 using FNMES.WebUI.Logic.Param;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using SqlSugar;
 using System;
 using System.Collections.Generic;
@@ -89,7 +91,7 @@ namespace FNMES.WebUI.Areas.Param.Controllers
             int v = bindLogic.Update(processBind, configId);
             return v != 0 ? Success() : Error();
         }
-
+        //取消登记
         [Route("param/repair/dismark")]
         [HttpPost]
         public ActionResult DisMark(string productCode, string configId, string stationCode)
@@ -101,10 +103,13 @@ namespace FNMES.WebUI.Areas.Param.Controllers
             }
             List<string> strArray = new List<string>(processBind.RepairStations.Split(","));
             strArray.Remove(stationCode);
-            if (strArray.Count == 0)
+            
+            Logger.RunningInfo($"内控码{productCode}取消登记工站{stationCode},目前待返修工为<{JsonConvert.SerializeObject(strArray)}>");
+            if (strArray.Count == 0 || processBind.RepairStations.IsNullOrEmpty())
             {
                 processBind.RepairFlag = "0";
                 processBind.RepairStations = "";
+                
             }
             else
             {
@@ -120,7 +125,6 @@ namespace FNMES.WebUI.Areas.Param.Controllers
                 processBind.RepairFlag = "1";
                 processBind.RepairStations = sb.ToString();
             }
-            
             int v = bindLogic.Update(processBind, configId);
             return v != 0 ? Success() : Error();
         }

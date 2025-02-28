@@ -153,6 +153,18 @@ $.checkDate = function (dateStr) {
     return true;
 }
 
+// 返回格式为xx天xx小时xx分钟
+$.calDays = function (startDate, endDate) {
+    var stime = Date.parse(new Date(startDate));
+    var etime = Date.parse(new Date(endDate));
+    // 两个时间戳相差的毫秒数
+    var usedTime = etime - stime;
+    // 计算相差的天数  
+    var days = Math.floor(usedTime / (24 * 3600 * 1000));
+    
+    return days;
+}
+
 
 /**
  * 绑定Select选项。

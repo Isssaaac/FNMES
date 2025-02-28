@@ -60,6 +60,7 @@ namespace FNMES.Entity.Param
         [SugarColumn(ColumnName = "uom", IsNullable = true)]
         public string Uom { get; set; }
 
+
         [Navigate(NavigateType.OneToMany, nameof(ParamAlternativePartItem.PartItemId))]//一对多
         public List<ParamAlternativePartItem> AlternativePartList { get; set; }
 

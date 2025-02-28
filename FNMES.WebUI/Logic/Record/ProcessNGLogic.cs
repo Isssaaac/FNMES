@@ -8,6 +8,7 @@ using FNMES.Entity.Record;
 using FNMES.Utility.Core;
 using FNMES.Utility.Network;
 using FNMES.WebUI.Logic.Base;
+using Newtonsoft.Json;
 using OfficeOpenXml.ConditionalFormatting;
 using SqlSugar;
 using System;
@@ -129,8 +130,11 @@ namespace FNMES.WebUI.Logic.Record
                     ISqlSugarClient db = GetInstance(item.ConfigId);
                     //根据内控码查询绑定信息表
                     ProcessBind processBind = db.Queryable<ProcessBind>().Where(e => e.ProductCode == productCode).First();
+                    Logger.RunningInfo($"GetFinishedStation数据:processBind数据<{JsonConvert.SerializeObject(processBind)}>");
+
                     if (processBind != null)
                     {
+                        //如果绑定信息存在，就查过往工站
                         FinishedStation finishedStation = new FinishedStation();
                         finishedStation.configId = item.ConfigId;
                         finishedStation.productPartNo = processBind.ProductPartNo;
@@ -150,14 +154,18 @@ namespace FNMES.WebUI.Logic.Record
                         //db.MasterQueryable<RecordOutStation>().Where(it => it.ProductCode == productCode).SplitTable(tabs => tabs.Take(2)).ToList();
                         //241129，查询过往工站改为从过站记录表中查
                         var stations = db.MasterQueryable<RecordOutStation>().Where(it => it.ProductCode == productCode).SplitTable(tabs => tabs.Take(3)).Select(u => u.StationCode).Distinct().ToList();
-                        finishedStation.stationCodes = stations;
 
+                        //var record = db.MasterQueryable<RecordOutStation>().Where(it => it.ProductCode == productCode).SplitTable(tabs => tabs.Take(3)).Select(u => u.StationCode).Distinct().ToList();
+
+                        finishedStation.stationCodes = stations;
+                        Logger.RunningInfo($"GetFinishedStation数据:processBind数据<{JsonConvert.SerializeObject(processBind)}>,stations数据:<{finishedStation.stationCodes}>");
                         return finishedStation;
                     }
+                    
                 }
                 catch(Exception ex)
                 {
-                    Logger.ErrorInfo(ex.Message);
+                    Logger.ErrorInfo($"GetFinishedStation:查询失败,内控码:<{productCode}>",ex);
                     return null;
                 }
             }

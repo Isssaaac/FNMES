@@ -43,7 +43,7 @@ namespace FNMES.WebUI.Logic.Record
             catch (Exception e)
             {
                 Db.RollbackTran();
-                Logger.ErrorInfo(e.Message);
+                Logger.ErrorInfo($"ProcessUpload本地插入出错",e);
                 return 0;
             }
         }

@@ -64,6 +64,7 @@ namespace CCS.WebUI
             FactoryUrl = (configuration["FactoryUrl"] ?? "");
             PlantCode = (configuration["PlantCode"] ?? "");//20240418 添加
             WorkId = Convert.ToInt32(configuration["WorkId"] ?? "http://221.230.79.84:9199");
+
             if (string.IsNullOrEmpty(_connection.DbConnectionString))
                 throw new Exception("未配置好数据库默认连接");
         }
@@ -78,7 +79,6 @@ namespace CCS.WebUI
             return Configuration.GetSection(key);
         }
     }
-
     public class FTPparam
     {
         public string Host { get; set; }

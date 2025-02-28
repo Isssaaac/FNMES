@@ -25,6 +25,7 @@ namespace FNMES.WebUI.Logic.Sys
                 //为修改后实时查询，走主库
                 var db = GetInstance();
                 ISugarQueryable<SysPreSelectProduct> queryable = db.MasterQueryable<SysPreSelectProduct>().Where(it => it.LineId == lineId);
+                //当index==1时，就是只看当前
                 if(index == "1")
                 {
                     queryable = queryable.Where(it => it.EnableFlag == "1");
@@ -72,7 +73,6 @@ namespace FNMES.WebUI.Logic.Sys
                 int v = db.Insertable<SysPreSelectProduct>(model).ExecuteCommand();
                 Db.CommitTran();
                 return v;
-                
             }
             catch (Exception e)
             {

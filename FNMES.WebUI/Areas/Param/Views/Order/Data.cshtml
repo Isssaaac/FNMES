@@ -33,12 +33,20 @@
 <body>
     <div class="container-fluid fadeIn animated">
         <div id="toolbar" class="FNMES-table-toolbar">
+            <button id="btnScrapped" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px" onclick="btn_Scrapped()">
+                报废
+            </button>
+
             <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
                 <i class="layui-icon">&#xe615;</i>
             </button>
             <div class="toolbar-search-input">
-                <input type="text" id="keyWord" placeholder="key" autocomplete="off" class="layui-input" style="height:39px">
+                <input type="text" id="keyWord" placeholder="工单或产品编码" autocomplete="off" class="layui-input" style="height:39px">
             </div>
+
+            @* <button id="btnCancelScrapped" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px" onclick="btn_CancelScrapped()">
+                取消报废
+            </button> *@
         </div>
         <table id="gridList" class="layui-form layui-table FNMES-table" lay-skin="line">
             <thead>
@@ -46,17 +54,13 @@
                     <th>
                         <input type="checkbox" lay-skin="primary">
                     </th>
-                    <th>参数编码</th>
-                    <th>参数名称</th>
-                    <th>参数值</th>
-                    <th>结果</th>
-                    <th>判断类型</th>
-                    <th>参数类型</th>
-                    <th>标准值</th>
-                    <th>最大值</th>
-                    <th>最小值</th>
-                    <th>设定值</th>
-                    <th>单位</th>
+                    <th>编号</th>
+                    <th>工单</th>
+                    <th>内控码</th>
+                    <th>Pack码</th>
+                    <th>时间</th>
+                    <th>标志</th>
+                    <th>序号</th>
                 </tr>
             </thead>
             <!--内容容器-->
@@ -74,66 +78,100 @@
         <td>
             <input type="checkbox" lay-skin="primary" value="{{item.Id}}">
         </td>
-        <td>{{item.ParamCode}}</td>
-        <td>{{item.ParamName}}</td>
-        <td>{{item.ParamValue}}</td>
-        <td>{{item.ItemFlag}}</td>
-        <td>{{item.DecisionType}}</td>
-        <td>{{item.ParamType}}</td>
-        <td>{{item.StandValue}}</td>
-        <td>{{item.MaxValue}}</td>
-        <td>{{item.MinValue}}</td>
-        <td>{{item.SetValue}}</td>
-        <td>{{item.UnitOfMeasure}}</td>
+        <td>{{item.Id}}</td>
+        <td>{{item.TaskOrderNumber}}</td>
+        <td>{{item.ProductCode}}</td>
+        <td>{{item.PackNo}}</td>
+        <td>{{item.CreateTime}}</td>
+        <td>{{item.Flag}}</td>
     </tr>
-     {{#  }); }}
-       {{# if(d.list.length<=0) { }}
-          <tr style="color: red">
-              <td colspan="8">查无数据。</td>
-          </tr>
-      {{# } }}
+    {{#  }); }}
+    {{# if(d.list.length<=0) { }}
+        <tr style="color: red">
+            <td colspan="8">查无数据。</td>
+        </tr>
+    {{# } }}
 </script>
-
 
 <script type="text/javascript">
     var paging;
     layui.config({ base: parent._baseUrl }).use(['paging', 'form'], function () {
         var form = layui.form;
         paging = layui.paging();
+
+        var primaryKey = $.getQueryString("primaryKey");
         var configId = $.getQueryString("configId");
-        var productCode = $.getQueryString("productCode");
-        var stationCode = $.getQueryString("stationCode");
-        // $('#keyWord').bindEnterEvent(initGrid(configId, productCode, stationCode));
-        $('#btnSearch').click(function () {
-            var configId = $.getQueryString("configId");
-            var productCode = $.getQueryString("productCode");
-            var stationCode = $.getQueryString("stationCode");
-            initGrid(configId, productCode, stationCode);
-        });
-        initGrid(configId, productCode, stationCode);
+
+        $('#btnSearch').click(initGrid);
+
+        initGrid(primaryKey,configId);
     });
-    function initGrid(configId, productCode, stationCode) {
+    
+    function initGrid(primaryKey, configId) {
         paging.init({
-            url: '/record/process/index',
+            url: '/param/order/getData',
             elem: '#content',
             tempElem: '#contentTpl',
             checkbox: true, //是否显示复选框
             singleSelected: true, //单选
             params: {
-                productCode: productCode,
+                primaryKey: primaryKey,
                 configId: configId,
-                stationCode: stationCode,
                 keyWord: $("#keyWord").val(),
             },
             pageConfig: {
                 elem: 'paged',
-                pageSize: 5,
+                pageSize: 10,
             },
             success: function () {
 
             },
             fail: function (msg) {
                 top.layer.msg(msg);
+            }
+        });
+    }
+
+    function btn_Scrapped() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选一条需要报废的产品。", "warning");
+            return;
+        }
+        var data = $("#gridList").gridSelectedRowData();
+        $.layerOpen({
+            id: "scrap",
+            title: "报废产品",
+            width: "600px",
+            height: "600px",
+            content: "/param/order/scrap?primaryKey=" + ids[0] + "&configId=" + $.getQueryString("configId") + "&productCode=" + data[3],
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
+
+    function btn_CancelScrapped() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选一条需要取消报废的产品。", "warning");
+            return;
+        }
+        $.layerConfirm({
+            content: "您已选中1个产品, 确定取消报废吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/param/order/scrapped',
+                    data: {
+                        primaryKey: ids[0],
+                        configId: $.getQueryString("configId"),
+                        isScrapped: false
+                    },
+                    success: function () {
+                        initGrid();
+                    }
+                });
             }
         });
     }

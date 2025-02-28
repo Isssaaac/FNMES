@@ -48,16 +48,23 @@ namespace FNMES.WebUI.Logic.Sys
 
         public List<SysPermission> GetList(long userId)
         {
-            var db = GetInstance();
-            Db.BeginTran();
-            List<long> permissionIdList = db.Queryable<SysUserRoleRelation, SysRoleAuthorize, SysPermission>((A, B, C) => new object[] {
-                      JoinType.Left,A.RoleId == B.RoleId,
-                      JoinType.Left,C.Id == B.ModuleId,
-                    })
-                .Where((A, B, C) => A.UserId == userId && C.EnableFlag == "1")
-                .Select((A, B, C) => C.Id).ToList();
-            Db.CommitTran();
-            return db.MasterQueryable<SysPermission>().Where(it => permissionIdList.Contains(it.Id)).OrderBy(it => it.SortCode).ToList();
+            try
+            {
+                var db = GetInstance();
+                Db.BeginTran();
+                List<long> permissionIdList = db.Queryable<SysUserRoleRelation, SysRoleAuthorize, SysPermission>((A, B, C) => new object[] {
+                          JoinType.Left,A.RoleId == B.RoleId,
+                          JoinType.Left,C.Id == B.ModuleId,
+                        })
+                    .Where((A, B, C) => A.UserId == userId && C.EnableFlag == "1")
+                    .Select((A, B, C) => C.Id).ToList();
+                Db.CommitTran();
+                return db.MasterQueryable<SysPermission>().Where(it => permissionIdList.Contains(it.Id)).OrderBy(it => it.SortCode).ToList();
+            }
+            catch (Exception ex) {
+                Logger.ErrorInfo("获取权限异常", ex);
+                return new List<SysPermission>();
+            }
         }
 
 
@@ -115,8 +122,16 @@ namespace FNMES.WebUI.Logic.Sys
 
         public List<SysPermission> GetList()
         {
-            var db = GetInstance();
-            return db.MasterQueryable<SysPermission>().OrderBy(it => it.SortCode).ToList();
+            try
+            {
+                var db = GetInstance();
+                return db.MasterQueryable<SysPermission>().OrderBy(it => it.SortCode).ToList();
+            }
+            catch (Exception ex)
+            {
+                Logger.ErrorInfo("获取权限异常", ex);
+                return new List<SysPermission>();
+            }
         }
 
         public SysPermission Get(long primaryKey = 0)

@@ -7,6 +7,7 @@ using Microsoft.Data.SqlClient;
 using OfficeOpenXml;
 using System;
 
+
 //string logDirectory = "D:/logs";
 //if (!Directory.Exists(logDirectory))
 //{
@@ -67,6 +68,14 @@ string callTime = DateTime.Now.ToString();
 string currentStamp = ExtDateTime.GetTimeStamp(DateTime.Now);
 DateTime n = ExtDateTime.TimeStampToDateTime("1702339200000");
 Console.WriteLine($"时间戳:{currentStamp},测试时间:{n.ToString()}");
+var t = new test();
+Console.WriteLine(t.nono!="2");
+class test
+{
+    public string? nono;
+}
+
+
 
 
 //var tab = db.Queryable<User>().Includes(it => it.Orders);

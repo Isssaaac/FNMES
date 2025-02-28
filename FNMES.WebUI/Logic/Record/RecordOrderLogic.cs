@@ -40,8 +40,8 @@ namespace FNMES.WebUI.Logic.Record
                 model.CreateTime = DateTime.Now;
                 //插入这个RecordOrderStart这份表，这份表用来统计完成个数
                 db.Insertable<RecordOrderStart>(model).SplitTable().ExecuteCommand();
-                //这里插入后查询找不到记录,测试用事务
-                var finishData = db.MasterQueryable<RecordOrderStart>().Where(it => it.TaskOrderNumber == model.TaskOrderNumber).SplitTable(tabs => tabs.Take(2)).Select(s => s.ProductCode).Distinct().ToList();
+                //这里插入后查询找不到记录,测试用事务,2025年2月19日 13:43:10修改统计逻辑,Flag为1或者Flag为null(默认)
+                var finishData = db.MasterQueryable<RecordOrderStart>().Where(it => it.TaskOrderNumber == model.TaskOrderNumber && (it.Flag == "1" || string.IsNullOrEmpty(it.Flag))).SplitTable(tabs => tabs.Take(2)).Select(s => s.ProductCode).Distinct().ToList();
                 Logger.RunningInfo($"[事务]已上线内控码:<{JsonConvert.SerializeObject(finishData)}>");
                 int finishCount = finishData.Count();
                 Db.CommitTran();

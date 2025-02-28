@@ -21,6 +21,7 @@ using FNMES.Entity.Param;
 using FNMES.Entity.Sys;
 using System.IO;
 using System.ServiceModel.Channels;
+using FNMES.Entity.Record;
 
 namespace FNMES.WebUI.Logic.Base
 {
@@ -234,6 +235,7 @@ namespace FNMES.WebUI.Logic.Base
                 ISqlSugarClient db = GetInstance(sysConnection.ConfigId);
                 Type[] types ={
                         typeof(SysPreSelectProduct),
+                        typeof(SysLog),
                      };
                 db.CodeFirst.SetStringDefaultLength(200).InitTables(types);
             }
@@ -265,6 +267,7 @@ namespace FNMES.WebUI.Logic.Base
                         typeof(ProcessBind),//绑定表
                         typeof(ParamLocalRoute),//工艺路线
                         typeof(ParamPlcRecipe),//PLC上传下载配方
+                        typeof(RecordOutStation),//新建过站记录表
                      };
                     //对未配置长度的字符串设置默认字符串长度
                     db.CodeFirst.SetStringDefaultLength(200).InitTables(types);

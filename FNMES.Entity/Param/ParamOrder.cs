@@ -36,6 +36,7 @@ namespace FNMES.Entity.Param
         ///</summary>
          [SugarColumn(ColumnName = "planQty", IsNullable = true)]
          public int PlanQty { get; set; }
+
         /// <summary>
         ///  
         ///</summary>

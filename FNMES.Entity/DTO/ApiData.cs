@@ -459,9 +459,61 @@ namespace FNMES.Entity.DTO.ApiData
         public string groupName { get; set; }
     }
 
+    [DataContract]
+    public class defectParam
+    {
+        [DataMember]
+        //不良代码
+        public string defectCode { get; set; }
+        [DataMember]
+        //不良描述
+        public string defectDesc { get; set; }
+    }
+
+    [DataContract]
+    public class SynScrapInfoParam
+    {
+        [DataMember]
+        public string productCode { get; set; }
+        [DataMember]
+        //不良列表
+        public List<defectParam> defectList { get; set; }
+        [DataMember]
+        //工位号
+        public string stationCode { get; set; }
+        [DataMember]
+        public string operatorNo { get; set; }
+        [DataMember]
+        public string callTime { get; set; }
+    }
+
+    [DataContract]
+    public class SynScrapInfoParamForm
+    {
+        [DataMember]
+        //主键
+        public string primaryKey { get; set; }
+        [DataMember]
+        //线体
+        public string configId { get; set; }
+
+        [DataMember]
+        public string productCode { get; set; }
+        [DataMember]
+        //不良代码
+        public string defectCode { get; set; }
+        //不良描述
+        public string defectDesc { get; set; }
+        [DataMember]
+        //工位号
+        public string stationCode { get; set; }
+        [DataMember]
+        public string operatorNo { get; set; }
+        [DataMember]
+        public string callTime { get; set; }
+    }
 
 
-    
     public class QualityStopData
     {
 
@@ -473,9 +525,6 @@ namespace FNMES.Entity.DTO.ApiData
     {
 
     }
-
-
-
     public class QualityStopItem
     {
         public string equipmentID;

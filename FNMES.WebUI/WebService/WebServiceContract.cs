@@ -15,6 +15,7 @@ using FNMES.WebUI.Logic.Param;
 using FNMES.WebUI.Logic.Record;
 using FNMES.WebUI.Logic.Sys;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.X509.Qualified;
 using Org.BouncyCastle.Ocsp;
 using ServiceStack;
@@ -54,8 +55,6 @@ namespace FNMES.Service.WebService
         private readonly SysPreProductLogic preProductLogic;
         private readonly RouteLogic routeLogic;
         private readonly PlcRecipeLogic plcRecipeLogic;
-
-
 
         public WebServiceContract()
         {
@@ -104,6 +103,13 @@ namespace FNMES.Service.WebService
         [OperationContract]
         public string CheckLink()
         {
+            TestData D = new TestData()
+            {
+                productCode = "t",
+                result = "ok",
+                data = "nono"
+            };
+            string j = JsonConvert.SerializeObject(D);
             return "success";
         }
 
@@ -120,6 +126,7 @@ namespace FNMES.Service.WebService
             }
             else
             {
+                //如果equipment.Line为空，会报Object reference not set to an instance of an object.
                 EquipmentInfo info = new EquipmentInfo()
                 {
                     StationCode = equipment.BigProcedure,
@@ -336,6 +343,8 @@ namespace FNMES.Service.WebService
                 
                 //目前默认使用01工厂，后续使用配置
                 param.plantCode = AppSetting.PlantCode;  //param.plantCode = "Z08"
+                //241216记录：向工厂申请内控码，如果工厂数据库已存在对应的箱体和内控码绑定记录，则改为发旧的内控码给线体mes，则orderstart表格可能会存在箱体码和内控码一对多的现象
+                //但不影响当前统计逻辑，因为统计的是不重复内控码的个数
                 string ret = APIMethod.Call(Url.GetLabelUrl, param, configId);
                 RetMessage<GetLabelData> apiRet = ret.ToObject<RetMessage<GetLabelData>>();
                 //判断一下生成内控码的长度，长度不为26则修改接口访问结果
@@ -367,7 +376,7 @@ namespace FNMES.Service.WebService
                     
                     //判断订单是否已完成，1126，计划10个，做了11个才报无激活工单
                     //if (selectedOrder.PlanQty <= v)
-                    bool orderIsDone = finishedQty + 1 >= selectedOrder.PlanQty;
+                    bool orderIsDone = finishedQty >= selectedOrder.PlanQty;
 
                     //看日志实际产量是从0开始的
                     Logger.RunningInfo($"当前工单:<{selectedOrder.TaskOrderNumber}>,计划产量:<{selectedOrder.PlanQty}>,实际产量:<{finishedQty}>,工单完成:<{orderIsDone}>");
@@ -1174,7 +1183,7 @@ namespace FNMES.Service.WebService
                     RequestBody = param.ToJson(),
                     ReUpload = 0
                 }, configId);
-                return retMessage;   //早就有返回了，只有离线才会在此返回
+                return retMessage;   
             }
             catch (Exception e )
             {
@@ -1210,6 +1219,7 @@ namespace FNMES.Service.WebService
             if (!diverter.IsNullOrEmpty())
             {
                 processBind.Diverter = diverter;
+                Logger.RunningInfo($"工站号:<{param.stationCode}>，调用OutStation，内控码<{param.productCode}>，绑定分流器条码:<{processBind.Diverter}>"); 
             }
             //这里有出站的返修逻辑
             if (processBind.RepairFlag == "1")
@@ -1266,10 +1276,12 @@ namespace FNMES.Service.WebService
                 RetMessage<OutStationData> result = new RetMessage<OutStationData>();
                 result = APIMethod.Call(Url.OutStationUrl, outStationParamA, configId).ToObject<RetMessage<OutStationData>>();
                 result.message = $"厂级mes返回:{result.message}";
+
                 //判读工厂MES上传OK后，再插入本地数据库20240413更新
                 if (result != null && result.messageType == "S")
                 {
                     //processBind.Status = param.productStatus;
+                    //出站会重新绑定一下到信息绑定表ProcessBind
                     processBindLogic.Update(processBind, configId);
                 }
                 return result;
@@ -1289,6 +1301,7 @@ namespace FNMES.Service.WebService
         }
 
         //物料绑定接口         通用
+        //会报错
         [OperationContract]
         public RetMessage<nullObject> PartUpload(PartUploadParam param, string configId)
         {
@@ -1304,7 +1317,6 @@ namespace FNMES.Service.WebService
             if (v == 0)
             {
                 return NewErrorMessage<nullObject>("插入本地数据记录出错");
-
             }
             SysLine sysLine = lineLogic.GetByConfigId(configId);
             param.productionLine = sysLine.EnCode;
@@ -1336,10 +1348,10 @@ namespace FNMES.Service.WebService
                 return NewErrorMessage<nullObject>("没有给productCode参数赋值");
             }
             int v = processUploadLogic.Insert(param, configId);
+
             if (v == 0)
             {
                 return NewErrorMessage<nullObject>("插入本地数据记录出错");
-
             }
             FactoryStatus factoryStatus = GetStatus(configId);
             //对上传参数中的空项进行填充
@@ -1729,6 +1741,7 @@ namespace FNMES.Service.WebService
         #endregion
 
         #region    //测试仪器相关接口     测试仪通过接口上传测试数据
+        //既没有失败也没返回成功
         //ACR测试仪
         [OperationContract]
         public RetMessage<TestUploadRes> UploadACRData(TestData data,string configId)
@@ -1761,6 +1774,7 @@ namespace FNMES.Service.WebService
                 }
             };
         }
+
         //EOL测试仪
         [OperationContract]
         public RetMessage<TestUploadRes> UploadEOLData(TestData data, string configId)
@@ -2002,10 +2016,6 @@ namespace FNMES.Service.WebService
             {
                 return NewErrorMessage<bool>("条码不允许为空");
             }
-            //if (partBarcode.Length != 31)
-            //{
-            //    return NewErrorMessage<bool>("条码长度不为31");
-            //}
             try
             {
                 //校验分流器
@@ -2523,7 +2533,7 @@ namespace FNMES.Service.WebService
                     data = result
                 };
             }
-            return NewErrorMessage<FinishedStation>("查询失败！");
+            return NewErrorMessage<FinishedStation>($"GetFinishStation查询失败,内控码:<{productCode}>!");
         }
 
         //这个接口就只允许一次登记返修多个站

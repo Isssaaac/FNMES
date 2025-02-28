@@ -35,5 +35,8 @@ namespace FNMES.Entity.Record
         [SugarColumn(ColumnName = "createTime")]
         public DateTime CreateTime { get; set; }
 
+        //标志位，用于标注内控码是否报废，报废后，统计数量时候会忽略
+        [SugarColumn(ColumnName = "flag", ColumnDataType = "varchar(100)", IsNullable = true)]
+        public string Flag { get; set; }
     }
 }

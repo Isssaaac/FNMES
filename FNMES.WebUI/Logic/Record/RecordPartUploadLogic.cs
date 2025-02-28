@@ -46,7 +46,7 @@ namespace FNMES.WebUI.Logic.Record
             catch (Exception e)
             {
                 Db.RollbackTran();
-                Logger.ErrorInfo(e.Message);
+                Logger.ErrorInfo($"物料绑定异常,线体:{configId},内控码:{model.productCode}",e);
                 return 0;
             }
         }

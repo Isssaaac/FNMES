@@ -14,6 +14,7 @@ namespace FNMES.Entity.Param
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
         [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]
          public long Id { get; set; }
+
         /// 配方ID 
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
         [SugarColumn(ColumnName = "recipeItemId")]

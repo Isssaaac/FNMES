@@ -230,7 +230,6 @@
 
     function btn_CancelMark() {
         var data = $("#gridList").gridSelectedRowData();
-
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
             $.layerMsg("请勾选需要取消登记的数据。", "warning");

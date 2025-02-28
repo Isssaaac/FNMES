@@ -3,7 +3,6 @@
 }
 
 <!DOCTYPE html>
-
 <html>
 <head>
     <title>Default</title>
@@ -39,13 +38,33 @@
                             <div class="layui-colla-item">
                                 <h2 class="layui-colla-title">
                                     <span class="label label-primary">v1.0.0</span>
-                                    <span class="right">更新于2024年12月14日 09:57:00</span>
+                                    <span class="right">更新于2025年1月11日 12:05:516</span>
                                 </h2>
                                 <div class="layui-colla-content">
                                     <p>FNMES</p>
                                     <p>2024年12月14日</p>
                                     <p>1、完善过站记录导出功能，先确保能导出5w行数据并统计实际数据量，需要排查Row out of Range错误</p>
                                     <p>2、过站记录导出功能，正常100w数据能导出，耗时需要5-6分钟，需要优化查询逻辑</p>
+                                    <p>2024年12月17日</p>
+                                    <p>1、将绑定表的有效期限从30改为60</p>
+                                    <p>2、过站记录精准导出功能，可以根据时间，查询内控码或者工单</p>
+                                    <p>3、工单管理页面增加了档位显示</p>
+                                    <p>4、优化了工单数量统计</p>
+                                    <p>2024年12月18日</p>
+                                    <p>1、过站记录在更新程序后，找不到global.js里的caldays，因此把caldays逻辑修改到cshtml文件中</p>
+                                    <p>2、在工单管理页面增加一个查看产品的按钮，可以看到已经从M300上线的内控码列表，便于工单数量确认</p>
+                                    <p>3、PartUpload接口添加日志，排查"Object reference not..."异常</p>
+                                    <p>2024年12月19日</p>
+                                    <p>1、无论是精准导出还是正常导出过站，都添加了1分钟的时间限制并且弹窗，避免无用户反馈导致多次点击</p>
+                                    <p>2024年12月19日</p>
+                                    <p>1、添加日志排查获取权限的异常</p>
+                                    <p>2024年12月30日</p>
+                                    <p>1、优化点击"取消登记"后，变成返修件的逻辑</p>
+                                    <p>2、增加RecordOrderStart的flag字段，增加报废按钮，修改flag为2，当flag为1或者为空，是正常品</p
+                                    <p>2025年1月11日</p>
+                                    <p>1、processupload报插入本地数据库失败，加入日志排查</p>
+                                    <p>2025年2月19日</p>
+                                    <p>1、报废增加调用厂级mes接口逻辑，并启用统计时，不统计flag为2的数量</p>
                                     <p>持续完善中...</p>
                                 </div>
                             </div>
@@ -57,10 +76,4 @@
     </div>
 </body>
 </html>
-@*<script async defer src="~/Scripts/buttons.js"></script>*@
 <script src="~/Content/layui/layui.js"></script>
-@*<script type="text/javascript">
-    layui.use(['element'], function () {
-        var element = layui.element;
-    });
-</script>*@

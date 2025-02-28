@@ -152,11 +152,8 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
 });
+
 app.UseHttpsRedirection();
-
-//为了IIS添加
-//app.UseDefaultFiles();
-
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();

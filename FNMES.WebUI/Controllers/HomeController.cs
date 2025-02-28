@@ -113,7 +113,8 @@ namespace FNMES.WebUI.Controllers
             var account = OperatorProvider.Instance.Current.Account;
             if (account == "admin")
             {
-                return Content(permissionLogic.GetList().ToJson());
+                var permission = permissionLogic.GetList().ToJson();
+                return Content(permission);
             }
             return Content(permissionLogic.GetList(long.Parse(OperatorProvider.Instance.Current.UserId)).ToJson());
         }

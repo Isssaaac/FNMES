@@ -98,12 +98,14 @@
                         <input type="text" name="StartQty" autocomplete="off" class="layui-input" disabled />
                 </div>
             </div>
+
             <div class="layui-inline">
                 <label class="layui-form-label">下线数量</label>
                 <div class="layui-input-inline">
                         <input type="text" name="PackQty" autocomplete="off" class="layui-input" disabled />
                 </div>
             </div>
+
         </div>
     </form>
 
@@ -116,6 +118,7 @@
                 
             });
 
+            //获取url参数
             var primaryKey = $.getQueryString("primaryKey");
             var configId = $.getQueryString("configId");
 
@@ -136,7 +139,6 @@
             }
 
             form.render();
-
         });
     </script>
 </body>
