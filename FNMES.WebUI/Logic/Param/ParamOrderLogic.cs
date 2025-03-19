@@ -57,6 +57,7 @@ namespace FNMES.WebUI.Logic.Param
                         OperatorNo = "",
                         PackCellGear = model.packCellGear
                     });
+                    Logger.RunningInfo($"插入数据库工单:{model.taskOrderNumber},档位:{model.packCellGear}");
                 }
                 Db.BeginTran();
                 //同步工单的时候不再删除旧工单
@@ -84,8 +85,11 @@ namespace FNMES.WebUI.Logic.Param
                         SplitTable(tabs => tabs.Take(2)).Select(s => SqlFunc.AggregateDistinctCount(s.ProductCode)).First();
                     int pack = db.Queryable<RecordOrderPack>().Where(it => it.TaskOrderNumber == order.TaskOrderNumber).
                         SplitTable(tabs => tabs.Take(2)).Select(s => SqlFunc.AggregateDistinctCount(s.ProductCode)).First();
+                    int scrapped = db.Queryable<RecordOrderStart>().Where(it => it.TaskOrderNumber == order.TaskOrderNumber && it.Flag == "2").
+                        SplitTable(tabs => tabs.Take(2)).Select(s => SqlFunc.AggregateDistinctCount(s.ProductCode)).First();
                     order.StartQty = start;
                     order.PackQty = pack;
+                    order.ScrappedQty = scrapped;
                 }
                 return order;
             }
@@ -96,7 +100,7 @@ namespace FNMES.WebUI.Logic.Param
             }
         }
 
-        //获取当前已上线的数据
+        //获取当前已上线的数据到表格显示
         public List<RecordOrderStart> GetProductInOrder(int pageIndex, int pageSize , long primaryKey, string configId ,ref int totalCount ,string keyWord)
         {
             try
@@ -104,22 +108,52 @@ namespace FNMES.WebUI.Logic.Param
                 var db = GetInstance(configId);
                 ParamOrder order = db.MasterQueryable<ParamOrder>().Where(it => it.Id == primaryKey).First();
                 
-
-                var start = order.StartTime;
+                var start = order.PlanStartTime;
                 var end = start.Value.AddDays(60);
 
                 //List<RecordOrderStart> recordOrderStartList = db.MasterQueryable<RecordOrderStart>().SplitTable(start.Value, end).Where(it => it.TaskOrderNumber == order.TaskOrderNumber).OrderBy(it => it.CreateTime).ToPageList(pageIndex , pageSize,ref totalCount);
                 var queryAble = db.MasterQueryable<RecordOrderStart>().SplitTable(start.Value, end).Where(it => it.TaskOrderNumber == order.TaskOrderNumber);
                 if (!keyWord.IsNullOrEmpty())
                 { 
-                    queryAble.Where(e=>e.ProductCode.Contains(keyWord));
+                    queryAble.Where(e=>e.ProductCode.Contains(keyWord) || e.PackNo.Contains(keyWord));
                 }
                 List<RecordOrderStart> recordOrderStartList = queryAble.OrderBy(it => it.CreateTime).ToPageList(pageIndex, pageSize, ref totalCount);
+                foreach (var e in recordOrderStartList)
+                {
+                    e.PackCellGear = order.PackCellGear;
+                }
                 return recordOrderStartList;
             }
             catch (Exception E)
             {
                 Logger.ErrorInfo($"getProductInOrder失败,主键{primaryKey}",E);
+                return null;
+            }
+        }
+
+        //获取当前已上线的数据
+        public List<RecordOrderStart> GetProductInOrder(long primaryKey, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                ParamOrder order = db.MasterQueryable<ParamOrder>().Where(it => it.Id == primaryKey).First();
+
+                var start = order.PlanStartTime;
+                var end = DateTime.Today;
+
+                var queryAble = db.MasterQueryable<RecordOrderStart>().SplitTable(start.Value, end).Where(it => it.TaskOrderNumber == order.TaskOrderNumber);
+
+                List<RecordOrderStart> recordOrderStartList = queryAble.OrderBy(it => it.CreateTime).ToList();
+                foreach (var e in recordOrderStartList)
+                {
+                    e.PackCellGear = order.PackCellGear;
+                }
+                return recordOrderStartList;
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo($"getProductInOrder失败,主键{primaryKey}", E);
                 return null;
             }
         }

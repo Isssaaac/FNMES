@@ -47,9 +47,13 @@ namespace FNMES.Entity.Param
         ///</summary>
         [SugarColumn(IsIgnore = true)]
         public int PackQty { get; set; }
-        /// <summary>
-        ///  
-        ///</summary>
+
+        [SugarColumn(IsIgnore = true)]
+        public int ScrappedQty
+        {
+            get; set;
+        }
+
         [SugarColumn(ColumnName = "uom", IsNullable = true)]
          public string Uom { get; set; }
         /// <summary>
@@ -72,6 +76,7 @@ namespace FNMES.Entity.Param
         ///</summary>
          [SugarColumn(ColumnName = "flag", IsNullable = true)]
          public string Flag { get; set; }
+
         [SugarColumn(IsIgnore = true)]
         public string FlagString {
             get{  
@@ -82,6 +87,7 @@ namespace FNMES.Entity.Param
                     case "2": return "暂停";
                     case "3": return "取消";
                     case "4": return "完成";
+                    case "5": return "人工干预完成";
                     default:return "未开工";
                 }
             }

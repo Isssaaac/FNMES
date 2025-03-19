@@ -45,7 +45,6 @@
                 <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
                         <i class="layui-icon">&#xe615;</i>
                 </button>
-
                 <div class="toolbar-search-input">
                     <input type="text" id="keyWord" placeholder="工单或产品编码" autocomplete="off" class="layui-input" style="height:39px">
                 </div>
@@ -261,7 +260,7 @@
             id: "detail",
             title: "查看工单",
             width: "730px",
-            height: "400px",
+            height: "450px",
             content: "/param/order/detail?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
             btn: null
         });
@@ -276,8 +275,8 @@
         $.layerOpen({
             id: "data",
             title: "查看产品",
-            width: "1200px",
-            height: "800px",
+            width: "1300px",
+            height: "850px",
             content: "/param/order/data?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
             btn: null
         });
@@ -298,6 +297,52 @@
                         primaryKey: ids[0],
                         configId: $("#lineId").val(),
                         force: false
+                    },
+                    success: function () {
+                        initGrid();
+                    }
+                });
+            }
+        });
+    }
+
+    function btn_manualCompleted() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选一条需要同步配方的产品。", "warning");
+            return;
+        }
+        $.layerConfirm({
+            content: "您已选中1个产品, 确定人工干预完成吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/param/order/manualCompleted',
+                    data: {
+                        primaryKey: ids[0],
+                        configId: $("#lineId").val(),
+                    },
+                    success: function () {
+                        initGrid();
+                    }
+                });
+            }
+        });
+    }
+
+    function btn_manualStart() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选一条需要同步配方的产品。", "warning");
+            return;
+        }
+        $.layerConfirm({
+            content: "您已选中1个产品, 确定人工干预开工吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/param/order/manualStart',
+                    data: {
+                        primaryKey: ids[0],
+                        configId: $("#lineId").val(),
                     },
                     success: function () {
                         initGrid();

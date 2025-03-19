@@ -547,4 +547,32 @@ namespace FNMES.Entity.DTO.ApiData
         public List<string> stationCodes;
     }
 
+    public class GetMarkingParamIn
+    { 
+        public string productionLine { get; set; }
+        public string stationCode { get; set; }
+        public string productCode { get; set; }
+        public string productCodeType { get; set; }
+        public string operatorNo { get; set; } 
+        public string callTime { get; set; }
+    }
+    public class GetMarkingResponse
+    {
+        List<MarkingData> markingList;
+    }
+
+    public class MarkingData
+    {
+        public string productCode { get; set; }
+        public List<MarkingCode> markingCodeList { get; set; }
+    }
+
+    public class MarkingCode
+    { 
+        public string markingCode { get; set; }
+        public string markingName { get; set; }
+        public string markingCirculationCode { get; set; }
+        public string markingCirculationName { get; set; }    
+        public string markingOprationStaion { get; set; }
+    }
 }

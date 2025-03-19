@@ -75,10 +75,6 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
         }
 
-
-
-
-
         [Route("record/part/index")]
         [HttpGet, AuthorizeChecked]
         public ActionResult Part()

@@ -73,8 +73,6 @@ builder.Services.Configure<StaticFileOptions>(options =>
     };
 });
 
-
-
 //加了缓存？
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -116,7 +114,7 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1",
         Title = "My API"
     });
-    //在接口类、方法标记属性 [HiddenApi]，可以阻止【Swagger文档】生成 
+    //在接口类、方法标记属性 [HiddenApi]，可以阻止【Swagger文档】生成
     c.DocumentFilter<HiddenApiFilter>();
     c.OrderActionsBy(o => o.RelativePath);
     //var basePath = System.AppDomain.CurrentDomain.BaseDirectory;//获取应用程序所在目录（绝对，不受工作目录影响，建议采用此方法获取路径）

@@ -299,6 +299,8 @@ namespace FNMES.WebUI.Logic.Record
             }
         }
 
+        
+
         //精准导出
         public List<OutRecord> GetAllRecord(string configId, string startDate, string endDate, string productCode, string order,
             ref List<RecordOutStation> outStationData, ref List<ProcRecord> procRecordData, ref List<ParRecord> partRecordData)
@@ -309,7 +311,7 @@ namespace FNMES.WebUI.Logic.Record
                 ISugarQueryable<RecordOutStation> queryable = db.Queryable<RecordOutStation>();
                 if (!productCode.IsNullOrEmpty())
                 {
-                    queryable = queryable.Where(it => it.ProductCode.Contains(productCode) || it.StationCode.Contains(productCode));
+                    queryable = queryable.Where(it => it.ProductCode.Contains(productCode));
                 }
                 if (!order.IsNullOrEmpty())
                 {
@@ -320,6 +322,7 @@ namespace FNMES.WebUI.Logic.Record
                 DateTime end = Convert.ToDateTime(endDate);
                 queryable = queryable.Where(it => it.CreateTime >= start && it.CreateTime < end);
 
+                //查的是过站表
                 var lst_outstation = queryable
                     .Where(it => it.CreateTime >= start && it.CreateTime < end)
                     .SplitTable(start, end)
@@ -360,11 +363,14 @@ namespace FNMES.WebUI.Logic.Record
                        })
                        .ToList();
 
+                var productCodes = lst_outstation.Select(it => it.ProductCode).Distinct().ToList(); ;
+
                 outStationData = lst_outstation;
                 Logger.RunningInfo($"过站记录导出,outStationData数据量:{outStationData.Count}");
-                //上传表ProcessUpload
+                /**********************工艺参数**********************/
                 var lst_processup = db.Queryable<RecordProcessUpload>()
-                     .Where(it => it.CreateTime >= start && it.CreateTime < end)
+                     
+                     .Where(it => productCodes.Contains(it.ProductCode))
                      .SplitTable(start,end)
                      .Select(it => new
                      {
@@ -430,7 +436,7 @@ namespace FNMES.WebUI.Logic.Record
                 Logger.RunningInfo($"过站记录导出,procRecordData:{procRecordData.Count}");
                 /*******************物料******************/
                 var lst_partup = db.Queryable<RecordPartUpload>()
-                    .Where(it => it.CreateTime >= start && it.CreateTime < end)
+                    .Where(it => productCodes.Contains(it.ProductCode))
                     .SplitTable(start,end)
                     .Select(it => new
                     {

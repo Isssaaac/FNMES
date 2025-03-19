@@ -71,16 +71,14 @@
 
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label label-required">不良代码</label>
-                <div class="layui-input-block">
-                    <input type="text" name="defectCode" label-required="required" id="defectCode" autocomplete="off" class="layui-input" />
-                </div>
-            </div>
-
-            <div class="layui-inline">
                 <label class="layui-form-label label-required">不良描述</label>
                 <div class="layui-input-block">
-                    <textarea type="text" name="defectDesc" label-required="required" id="defectDesc" value="" autocomplete="off" class="layui-textarea auto-wrap"></textarea>
+                    <input type="hidden" name="defectCode" id="defectCode" />
+                    <input type="hidden" name="defectDesc" label-required="required" id="defectDesc" autocomplete="off" class="layui-input" / disabled>
+                    <button class="layui-btn layui-btn-primary demo-dropdown-base">
+                        <span>不良描述</span>
+                        <i class="layui-icon layui-icon-down layui-font-12"></i>
+                    </button>
                 </div>
             </div>
 
@@ -99,16 +97,49 @@
         </div>
     </form>
 
+    @* 1、SXMS-027：气密不良
+    2、SXMS-021：尺寸不良
+    3、SXMS-001：破损/变形/压划伤 *@
+
     <script>
-        layui.use(['element', 'form', 'laydate'], function () {
+        layui.use(['element', 'form', 'laydate','dropdown'], function () {
             var form = layui.form;
             var element = layui.element;
             var laydate = layui.laydate;
+            var dropdown = layui.dropdown;
+
+            dropdown.render({
+                elem: '.demo-dropdown-base', // 绑定元素选择器，此处指向 class 可同时绑定多个元素
+                data: [{
+                    title: '气密不良',
+                    id: 100
+                }, {
+                    title: '尺寸不良',
+                    id: 101
+                }, {
+                    title: '破损/变形/压划伤',
+                    id: 102
+                }],
+                click: function (obj) {
+                    this.elem.find('span').text(obj.title);
+                    $("#defectCode").val(obj.title);
+                    if (obj.title == '气密不良') {
+                        $("#defectDesc").val("SXMS-027")
+                    }
+                    if (obj.title == '尺寸不良') {
+                        $("#defectDesc").val("SXMS-021")
+                    }
+                    if (obj.title == '破损/变形/压划伤') {
+                        $("#defectDesc").val("SXMS-001")
+                    }
+                }
+            });
 
             //获取url参数
             var primaryKey = $.getQueryString("primaryKey");
             var configId = $.getQueryString("configId");
             var productCode = $.getQueryString("productCode");
+
             $("#primaryKey").val(primaryKey);
             $("#configId").val(configId);
             $("#productCode").val(productCode);
@@ -123,7 +154,6 @@
                 return false;
             });
         });
-
     </script>
 </body>
 </html>

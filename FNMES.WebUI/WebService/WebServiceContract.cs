@@ -2642,6 +2642,34 @@ namespace FNMES.Service.WebService
                 messageType = RetCode.Error
             };
         }
+
+        /// <summary>
+        /// GetMarking
+        /// </summary>
+        /// <param name="param">请求数据</param>
+        /// <param name="configId">线别</param>
+        /// <returns></returns>
+        [OperationContract]
+        public RetMessage<GetMarkingResponse> GetMarking(GetMarkingParamIn param, string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<GetMarkingResponse>("没有给configId参数赋值");
+            }
+            if (param.stationCode.IsNullOrEmpty())
+            {
+                return NewErrorMessage<GetMarkingResponse>("没有给stationCode参数赋值");
+            }
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
+
+            FactoryStatus factoryStatus = GetStatus(configId);
+            if (factoryStatus.isOnline)
+            {
+                return APIMethod.Call(Url.GetMarking, param, configId).ToObject<RetMessage<GetMarkingResponse>>();
+            }
+            return NewErrorMessage<GetMarkingResponse>("查询mark信息失败");
+        }
         #endregion
     }
 }

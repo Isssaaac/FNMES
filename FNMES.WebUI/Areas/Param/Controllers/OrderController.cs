@@ -20,6 +20,11 @@ using System.Linq;
 using SqlSugar;
 using FNMES.Entity.Record;
 using FNMES.Utility.ResponseModels;
+using System.Data;
+using System.Diagnostics;
+using System.IO;
+using FNMES.Utility.Files;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -106,7 +111,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         {
             try {
                 int totalCount = 0;
-                List<RecordOrderStart> entity = orderLogic.GetProductInOrder(pageIndex, pageSize,long.Parse(primaryKey), configId,ref totalCount,keyWord);
+                List<RecordOrderStart> entity = orderLogic.GetProductInOrder(pageIndex, pageSize,long.Parse(primaryKey), configId,ref totalCount, keyWord);
                 
                 LayPadding<RecordOrderStart> result = new LayPadding<RecordOrderStart>()
                 {
@@ -145,6 +150,11 @@ namespace MES.WebUI.Areas.Param.Controllers
             {
                 return Error("选中工单不存在");
             }
+            //case "0": return "未开工";
+            //case "1": return "生产中";
+            //case "2": return "暂停";
+            //case "3": return "取消";
+            //case "4": return "完成";
             if (order.Flag == "0" || order.Flag == "2")
             {
                 order.Flag = "1";
@@ -321,6 +331,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                             //广州和赣州的不确定是否能同步，如果不同步的话，这里会不会报错，241217证实有无都不会报错
                             PackCellGear = model.packCellGear
                         });
+                        Logger.RunningInfo($"工单:{model.taskOrderNumber},档位:{model.packCellGear}");
                     }
                     //这里插入工单信息到线体mes数据库，后面插入
                     int v = orderLogic.Insert(retMessage.data.workOrderList, configId);
@@ -421,7 +432,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             model.defectList = new List<defectParam>();
             model.defectList.Add(new defectParam() { defectCode = param.defectCode, defectDesc = param.defectDesc });
             string currentStamp = ExtDateTime.GetTimeStamp(DateTime.Now);
-            param.callTime = currentStamp;
+            model.callTime = currentStamp;
 
             var ret = orderLogic.Scrapped(param.configId, param.primaryKey, model);
             if (ret)
@@ -431,6 +442,143 @@ namespace MES.WebUI.Areas.Param.Controllers
             else
             {
                 return Error($"报废失败");
+            }
+        }
+        
+        //人工干预开工
+        [Route("param/order/manualStart")]
+        [HttpPost, LoginChecked]
+        public ActionResult ManualStart(string primaryKey, string configId)
+        {
+            SysLine sysLine = sysLineLogic.GetByConfigId(configId);
+            //没有激活订单才可以激活，且当前订单状态为0-未开工或2- 暂停
+            ParamOrder entity = orderLogic.GetSelected(configId);
+            if (entity != null)
+            {
+                return Error("已存在开工工单，操作不允许");
+            }
+            ParamOrder order = orderLogic.Get(long.Parse(primaryKey), configId);
+            if (order == null)
+            {
+                return Error("选中工单不存在");
+            }
+            if (order.Flag == "5")
+            {
+                Logger.RunningInfo($"工单:{order.TaskOrderNumber},人工干预开工");
+                order.Flag = "1";
+                order.StartTime = DateTime.Now;
+                SelectOrderParam orderParam = new SelectOrderParam()
+                {
+                    taskOrderNumbers = new List<SelectOrder>() { new SelectOrder() {
+                        taskOrderNumber = order.TaskOrderNumber ,
+                        actionCode = ActionCode.Start, } },
+                    stationCode = "M300",    //此处填充内容根据工厂确定
+                    equipmentID = "FN-GZ-XTSX-03-M300-A",          //20240409更新设备编码FN-GZXNY-PACK-024 
+                    productionLine = sysLine.EnCode,
+                    operatorNo = OperatorProvider.Instance.Current.UserId,
+                    actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+                };
+
+                //人工干预开工的，不发厂级mes
+                //RetMessage<object> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, orderParam, configId).ToObject<RetMessage<object>>();
+                int v = orderLogic.Update(order, configId);
+                if (v == 0)
+                {
+                    return Error("选中工单开工失败");
+                }
+                else
+                {
+                    Logger.RunningInfo($"工单:{order.TaskOrderNumber},人工干预开工成功");
+                    return Success("开工成功");
+                }
+            }
+            else
+            {
+                return Error("选中工单状态不为[人工干预完成]");
+            }
+        }
+
+        [Route("param/order/manualCompleted")]
+        [HttpPost, LoginChecked]
+        public ActionResult ManualCompleted(string primaryKey, string configId)
+        {
+            //激活才能暂停
+            SysLine sysLine = sysLineLogic.GetByConfigId(configId);
+            ParamOrder order = orderLogic.Get(long.Parse(primaryKey), configId);
+            if (order == null)
+            {
+                return Error("选中工单不存在");
+            }
+            if (order.Flag == "1")
+            {
+                Logger.RunningInfo($"工单:{order.TaskOrderNumber},人工干预完成");
+                order.Flag = "5";
+                int v = orderLogic.Update(order, configId);
+                if (v == 0)
+                {
+                    return Error("选中工单人工干预完成失败");
+                }
+                Logger.RunningInfo($"工单:{order.TaskOrderNumber},人工干预完成成功");
+                return Success("人工干预完成成功");
+            }
+            else
+            {
+                return Error("选中工单状态非[生产中]");
+            }
+        }
+
+        [Route("param/order/export")]
+        [HttpGet]
+        public ActionResult Export(string primaryKey, string configId)
+        {
+            try
+            {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                List<RecordOrderStart> entity = orderLogic.GetProductInOrder(long.Parse(primaryKey), configId);
+
+                // 出站字段
+                Dictionary<string, string> outkeyValuePairs = new Dictionary<string, string>() {
+                    {"TaskOrderNumber", "工单号"},
+                    {"ProductCode", "内控码"},
+                    {"PackNo","Pack码" },
+                    {"CreateTime","创建时间" },
+                    {"PackCellGear","档位" },
+                };
+
+                // 填充数据到工作表
+                List<Dictionary<string, string>> keyValues = new List<Dictionary<string, string>>();
+                keyValues.Add(outkeyValuePairs);
+
+                List<string> sheetNames = new List<string> { "ProductInOrder"};
+                List<DataTable> tables = new List<DataTable>();
+
+                int count = entity.Count;
+                int start = Math.Max(0, count - 1000000);
+                var entity100w = entity.GetRange(start, count - start);
+
+                DataTable dt = entity100w.ToDataTable();
+
+                tables.Add(dt);
+
+                var bytes = ExcelUtils.DtExportExcel(tables, keyValues, sheetNames);
+
+
+                // 创建文件流
+                var stream = new MemoryStream(bytes);
+
+                stopwatch.Stop();
+                Logger.RunningInfo($"工单产品记录导出,工单数据量:{entity.Count}耗时:{stopwatch.Elapsed.TotalSeconds}秒");
+
+                // 设置响应头，指定响应的内容类型和文件名
+                Response.Headers.Add("Content-Disposition", "attachment; filename=exported-order-file.xlsx");
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            }
+            catch (Exception ex)
+            {
+                Logger.ErrorInfo($"工单记录导出失败", ex);
+                return Error();
             }
         }
     }

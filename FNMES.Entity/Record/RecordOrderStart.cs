@@ -38,5 +38,13 @@ namespace FNMES.Entity.Record
         //标志位，用于标注内控码是否报废，报废后，统计数量时候会忽略
         [SugarColumn(ColumnName = "flag", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string Flag { get; set; }
+
+
+        //分库的数据库标识   只用来映射实体传递数据
+        [SugarColumn(IsIgnore = true)]
+        public string PackCellGear
+        {
+            get; set;
+        }
     }
 }

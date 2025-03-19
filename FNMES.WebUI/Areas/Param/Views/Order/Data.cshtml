@@ -36,12 +36,15 @@
             <button id="btnScrapped" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px" onclick="btn_Scrapped()">
                 报废
             </button>
+            <button id="btnExport" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px" onclick="btn_Export()">
+                导出
+            </button>
 
             <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
                 <i class="layui-icon">&#xe615;</i>
             </button>
             <div class="toolbar-search-input">
-                <input type="text" id="keyWord" placeholder="工单或产品编码" autocomplete="off" class="layui-input" style="height:39px">
+                <input type="text" id="keyWord" placeholder="内控码或Pack码" autocomplete="off" class="layui-input" style="width:300px;height:39px">
             </div>
 
             @* <button id="btnCancelScrapped" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px" onclick="btn_CancelScrapped()">
@@ -60,7 +63,7 @@
                     <th>Pack码</th>
                     <th>时间</th>
                     <th>标志</th>
-                    <th>序号</th>
+                    <th>档位</th>
                 </tr>
             </thead>
             <!--内容容器-->
@@ -84,6 +87,7 @@
         <td>{{item.PackNo}}</td>
         <td>{{item.CreateTime}}</td>
         <td>{{item.Flag}}</td>
+        <td>{{item.PackCellGear}}</td>
     </tr>
     {{#  }); }}
     {{# if(d.list.length<=0) { }}
@@ -101,7 +105,6 @@
 
         var primaryKey = $.getQueryString("primaryKey");
         var configId = $.getQueryString("configId");
-
         $('#btnSearch').click(initGrid);
 
         initGrid(primaryKey,configId);
@@ -115,13 +118,13 @@
             checkbox: true, //是否显示复选框
             singleSelected: true, //单选
             params: {
-                primaryKey: primaryKey,
-                configId: configId,
+                primaryKey: $.getQueryString("primaryKey"),
+                configId: $.getQueryString("configId"),
                 keyWord: $("#keyWord").val(),
             },
             pageConfig: {
                 elem: 'paged',
-                pageSize: 10,
+                pageSize: 15,
             },
             success: function () {
 
@@ -150,6 +153,34 @@
                 initGrid();
             }
         });
+    }
+
+    function btn_Export() {
+        $.layerMsg("正在请求导出...请耐心等待", "warning");
+        //文件下载用fetch
+        fetch("/param/order/export?configId=" + $.getQueryString("configId") + "&primaryKey=" + $.getQueryString("primaryKey"), {
+            method: "GET",
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text();
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                if (typeof blob == "string") {
+                    $.layerMsg(blob, "warning");
+                    return
+                }
+                // 创建一个临时链接以下载文件
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = $("#lineId").val() + "-orderdata" + ".xlsx"; // 文件名
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            });
     }
 
     function btn_CancelScrapped() {

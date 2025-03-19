@@ -118,11 +118,12 @@ namespace FNMES.WebUI.Logic.Param
         //M500打包工位不直接删除绑定纪录， 不然打包工位可能删除后无法重复作业。
         //通过时间来删除，在出站的时候，直接删除超过30天旧数据
         //241217，由于包返修可能超过30天，现在改为60天
+        //250228，由于包返修可能超过60天，现在改为120天
         public bool RemoveOldData(string configId)
         {
             var db = GetInstance(configId);
             //List<ProcessBind> oldprocessBind = db.MasterQueryable<ProcessBind>().Where(it => it.CreateTime < DateTime.Now.AddDays(-30)).ToList();
-            List<ProcessBind> oldprocessBind = db.MasterQueryable<ProcessBind>().Where(it => it.CreateTime < DateTime.Now.AddDays(-60)).ToList();
+            List<ProcessBind> oldprocessBind = db.MasterQueryable<ProcessBind>().Where(it => it.CreateTime < DateTime.Now.AddDays(-120)).ToList();
             if (oldprocessBind != null && oldprocessBind.Count != 0)
             {
                 try

@@ -35,6 +35,9 @@ namespace FNMES.WebUI.API
         public const string BindPackUrl = "/api/pa/bindPack";                              //PACK重组接口
         public const string UnbindMaterial = "/api/pa/uploadUnbindMaterial";               //返修房PACK拆解接口
         public const string SynScrapInfo = "/api/pa/synScrapInfo";                          //电芯报废接口
+
+        //202503018新增marking接口功能
+        public const string GetMarking = "/api/psw/getMarking";
     }
     public class APIMethod
     {
