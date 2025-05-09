@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -547,6 +548,7 @@ namespace FNMES.Entity.DTO.ApiData
         public List<string> stationCodes;
     }
 
+    //marking
     public class GetMarkingParamIn
     { 
         public string productionLine { get; set; }
@@ -558,7 +560,7 @@ namespace FNMES.Entity.DTO.ApiData
     }
     public class GetMarkingResponse
     {
-        List<MarkingData> markingList;
+        public List<MarkingData> markingList;
     }
 
     public class MarkingData
@@ -574,5 +576,100 @@ namespace FNMES.Entity.DTO.ApiData
         public string markingCirculationCode { get; set; }
         public string markingCirculationName { get; set; }    
         public string markingOprationStaion { get; set; }
+    }
+
+    //获取A020ocv
+    public class GetCellVoltageParamIn
+    {
+        public string productionLine { get; set; }
+        public string stationCode { get; set; }
+        public string smallStationCode { get; set; }
+        public string equipmentID { get; set; }
+        public string productCode { get; set; }
+        public string callTime { get; set; }
+    }
+
+
+    public class GetCellVoltageData
+    {
+        public List<moduleData> moduleList { get; set; } 
+    }
+
+
+    public class moduleData
+    { 
+        public string moduleCode { get; set; }
+        public string moduleType { get; set; }
+        public List<cellData> cellList { get; set; }
+    }
+
+    public class cellData
+    { 
+        public string cellCode { get; set; }
+        public string cellTestSequence { get; set; }
+        public List<cellParam> paramList { get; set; }
+    }
+
+    public class cellParam
+    { 
+        public string paramCode { get; set; }
+        public string paramValue { get; set; }
+    }
+
+    public class selfDischargeParamIn
+    {
+        //内控码
+        public string productCode { get; set; }
+        //模组数据
+        public List<moduleSelfDischargeData> moduleSelfDischarges { get; set; }
+    }
+
+    public class moduleSelfDischargeData
+    {
+        //压降K值最大值
+        public string maxVoltageDrop { get; set; }
+        //压降K值最小值
+        public string minVoltageDrop { get; set; }
+        //压降K值平均值
+        public string averageVoltageDrop { get; set; }
+        //压降K值标准差
+        public string stdDeviationVoltageDrop { get; set; }
+        //判定1上限
+        public string judgment1Up { get; set; }
+        //判定1下限
+        public string judgment1Lo { get; set; }
+        //判定1上限判定
+        public string judgment1UpResult { get; set; }
+        //判定1下限判定
+        public string judgment1LoResult { get; set; }
+        //判定1判定
+        public string judgment1Result { get; set; }
+        //判定2判定
+        public string judgment2Result { get; set; }
+        //总判定
+        public string result { get; set; }
+        //ocv测试时间
+        public DateTime createTime { get; set; }
+        public List<cellSelfDischargeData> cellSelfDischarges { get; set; }
+    }
+
+    public class cellSelfDischargeData
+    { 
+        //电芯条码
+        public string cellCode { get; set; }
+        //A020测试时间
+        public DateTime a020TestTime { get; set; }
+        //A020测试电压
+        public string a020TestVoltage { get; set; }
+        //M350测试时间
+        public DateTime m350TestTime { get; set; }
+        //M350测试电压
+        public string m350TestVoltage { get; set; }
+        //间隔时间
+        public string timeInterval { get; set; }
+        //间隔压降
+        public string intervalVoltageDrop { get; set; }
+        //压降
+        public string voltageDrop { get; set; }
     }
 }

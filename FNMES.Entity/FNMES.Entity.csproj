@@ -3,6 +3,10 @@
 		<TargetFrameworks>net6.0;net472</TargetFrameworks>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="Record\RecordCellSelfDischarge.cs" />
+	  <Compile Remove="Record\RecordModuleSelfDischarge.cs" />
+	</ItemGroup>
+	<ItemGroup>
 	  <ProjectReference Include="..\FNMES.Utility\FNMES.Utility.csproj" />
 	</ItemGroup> 
 

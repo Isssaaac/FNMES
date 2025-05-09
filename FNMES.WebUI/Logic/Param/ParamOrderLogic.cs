@@ -12,6 +12,7 @@ using FNMES.Entity.DTO.ApiData;
 using FNMES.Utility.ResponseModels;
 using FNMES.Utility.Network;
 using FNMES.WebUI.API;
+using System.Threading.Tasks;
 
 namespace FNMES.WebUI.Logic.Param
 {
@@ -165,6 +166,7 @@ namespace FNMES.WebUI.Logic.Param
                 var db = GetInstance(configId);
                // db.CodeFirst.InitTables(typeof(ParamAlternativePartItem));
                 ParamOrder order = db.MasterQueryable<ParamOrder>().Where(it => it.Id == primaryKey).First();
+                
                 return order;
             }
             catch (Exception E)
@@ -172,7 +174,6 @@ namespace FNMES.WebUI.Logic.Param
                 Logger.ErrorInfo(E.Message);
                 return null;
             }
-
         }
 
         public ParamOrder GetSelected(string configId)
@@ -307,14 +308,14 @@ namespace FNMES.WebUI.Logic.Param
         }
 
         //电芯报废
-        public bool Scrapped(string configId, string primaryKey, SynScrapInfoParam param)
+        public async Task<bool> Scrapped(string configId, string primaryKey, SynScrapInfoParam param)
         {
             try {
                 var db = GetInstance(configId);
                 Db.BeginTran();
                 var row = db.MasterQueryable<RecordOrderStart>().SplitTable(tab =>tab.Take(3)).Where(it => it.Id == long.Parse(primaryKey)).First();
                 row.Flag = "2";
-                db.Updateable<RecordOrderStart>(row).SplitTable().ExecuteCommand();
+                await db.Updateable<RecordOrderStart>(row).SplitTable().ExecuteCommandAsync();
                 //调厂级接口
                 RetMessage<object> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.SynScrapInfo, param, configId, true).ToObject<RetMessage<object>>();
                 Db.CommitTran();

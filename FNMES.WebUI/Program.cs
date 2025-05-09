@@ -34,6 +34,10 @@ using SoapCore.Extensibility;
 using Microsoft.AspNetCore.StaticFiles;
 using System.Threading.Tasks;
 
+
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddCommandLine(args);
 

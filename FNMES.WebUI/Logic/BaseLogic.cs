@@ -268,6 +268,7 @@ namespace FNMES.WebUI.Logic.Base
                         typeof(ParamLocalRoute),//工艺路线
                         typeof(ParamPlcRecipe),//PLC上传下载配方
                         typeof(RecordOutStation),//新建过站记录表
+                        typeof(RecordSelfDischarge),
                      };
                     //对未配置长度的字符串设置默认字符串长度
                     db.CodeFirst.SetStringDefaultLength(200).InitTables(types);

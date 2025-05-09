@@ -24,7 +24,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using FNMES.Utility.Files;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
+using System.Threading.Tasks;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -35,6 +35,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         private readonly ParamOrderLogic orderLogic;
         private readonly SysLineLogic sysLineLogic;
         private readonly ParamProductLogic productLogic;
+        private string orderIsSelected; //缓存已选中工单
 
         public OrderController()
         {
@@ -112,7 +113,19 @@ namespace MES.WebUI.Areas.Param.Controllers
             try {
                 int totalCount = 0;
                 List<RecordOrderStart> entity = orderLogic.GetProductInOrder(pageIndex, pageSize,long.Parse(primaryKey), configId,ref totalCount, keyWord);
-                
+                if (entity.IsNullOrEmpty())
+                {
+                    return Content(new LayPadding<RecordPartData>()
+                    {
+                        result = true,
+                        msg = "无数据",
+                        list = new List<RecordPartData>(),
+                        count = 0
+                    }.ToJson());
+                }
+                //这里获取工单
+                orderIsSelected = entity[0].TaskOrderNumber;
+
                 LayPadding<RecordOrderStart> result = new LayPadding<RecordOrderStart>()
                 {
                     result = true,
@@ -424,19 +437,20 @@ namespace MES.WebUI.Areas.Param.Controllers
         //同步产品配方
         [Route("param/order/scrap")]
         [HttpPost]
-        public ActionResult Scrap(SynScrapInfoParamForm param)
+        public async Task<ActionResult> Scrap(SynScrapInfoParamForm param)
         {
             SysLine sysLine = sysLineLogic.GetByConfigId(param.configId);
             SynScrapInfoParam model = new SynScrapInfoParam();
             model.CopyMatchingProperties(param);
             model.defectList = new List<defectParam>();
             model.defectList.Add(new defectParam() { defectCode = param.defectCode, defectDesc = param.defectDesc });
-            string currentStamp = ExtDateTime.GetTimeStamp(DateTime.Now);
-            model.callTime = currentStamp;
+            model.callTime = ExtDateTime.GetTimeStamp(DateTime.Now);
 
-            var ret = orderLogic.Scrapped(param.configId, param.primaryKey, model);
+            var ret = await orderLogic.Scrapped(param.configId, param.primaryKey, model);
             if (ret)
             {
+                //ParamOrder order = orderLogic.Get(long.Parse(primaryKey), configId);
+
                 return Success($"报废成功");
             }
             else
@@ -498,6 +512,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
         }
 
+        //
         [Route("param/order/manualCompleted")]
         [HttpPost, LoginChecked]
         public ActionResult ManualCompleted(string primaryKey, string configId)

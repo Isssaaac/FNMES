@@ -1147,6 +1147,7 @@ namespace FNMES.Service.WebService
                             operatorNo = param.operatorNo,
                             productionLine = param.productionLine,
                         };
+                        //内控码 & REESS码申请
                         RetMessage<GetLabelData> retMessage1 = APIMethod.Call(Url.GetLabelUrl, getLabelParam, configId).ToObject<RetMessage<GetLabelData>>();
 
                         //判断一下生成的REESSNO 长度是否为24位,不为24位则需要将结果写为E
@@ -1170,6 +1171,25 @@ namespace FNMES.Service.WebService
                     //写入内部过站结果进行工厂过站
                     //param.productStatus = retMessage.data.result;
                     var callresult = APIMethod.Call(Url.InStationUrl, param, configId).ToObject<RetMessage<InStationData>>();
+
+
+                    //20250320添加
+                    GetMarkingParamIn getMarkingParamIn = new GetMarkingParamIn();
+                    getMarkingParamIn.productCode = param.productCode;
+                    getMarkingParamIn.productCodeType = "";
+                    getMarkingParamIn.productionLine = configId;
+                    getMarkingParamIn.stationCode = param.stationCode;
+                    getMarkingParamIn.operatorNo = param.operatorNo;
+                    getMarkingParamIn.callTime = ExtDateTime.GetTimeStamp(DateTime.Now);
+                    Logger.RunningInfo($"1{getMarkingParamIn.productionLine},2<{configId}>,3{JsonConvert.SerializeObject(getMarkingParamIn)}");
+                    //调用mark接口
+                    RetMessage<GetMarkingResponse> markingResult = APIMethod.Call(Url.GetMarking, getMarkingParamIn, configId).ToObject<RetMessage<GetMarkingResponse>>();
+                    if (markingResult.messageType == "E" && markingResult.data?.markingList.Count > 0)
+                    {
+                        Logger.RunningInfo($"内控码:<{param.productCode}>,工站:<{param.stationCode}>marking拦截");
+                        return NewNgMessage<InStationData>("Marking拦截");
+                    }
+
                     if (processBind.RepairFlag == "1")
                     {
                         retMessage.message += ","+callresult.message;
@@ -2669,6 +2689,64 @@ namespace FNMES.Service.WebService
                 return APIMethod.Call(Url.GetMarking, param, configId).ToObject<RetMessage<GetMarkingResponse>>();
             }
             return NewErrorMessage<GetMarkingResponse>("查询mark信息失败");
+        }
+
+        /// <summary>
+        /// GetCellVoltage
+        /// </summary>
+        /// <param name="param">请求数据</param>
+        /// <param name="configId">线别</param>
+        /// <returns></returns>
+        [OperationContract]
+        public RetMessage<GetCellVoltageData> GetCellVoltage(GetCellVoltageParamIn param, string configId)
+        {
+            if (configId.IsNullOrEmpty())
+            {
+                return NewErrorMessage<GetCellVoltageData>("没有给configId参数赋值");
+            }
+            if (param.stationCode.IsNullOrEmpty())
+            {
+                return NewErrorMessage<GetCellVoltageData>("没有给stationCode参数赋值");
+            }
+            SysLine sysLine = lineLogic.GetByConfigId(configId);
+            param.productionLine = sysLine.EnCode;
+            param.callTime = ExtDateTime.GetTimeStamp(DateTime.Now);
+            FactoryStatus factoryStatus = GetStatus(configId);
+            if (factoryStatus.isOnline)
+            {
+                return APIMethod.Call(Url.GetCellVoltage, param, configId).ToObject<RetMessage<GetCellVoltageData>>();
+            }
+            return NewErrorMessage<GetCellVoltageData>("查询ocv信息失败");
+        }
+
+        /// <summary>
+        /// 上传自放电数据
+        /// </summary>
+        /// <param name="param">请求数据</param>
+        /// <param name="configId">线别</param>
+        /// <returns></returns>
+        /// 
+        [OperationContract]
+        public RetMessage<nullObject> UploadCellVoltage(selfDischargeParamIn param, string configId)
+        {
+            try
+            {
+                if (configId.IsNullOrEmpty())
+                {
+                    return NewErrorMessage<nullObject>("没有给configId参数赋值");
+                }
+
+                RecordSelfDischargeLogic logic = new RecordSelfDischargeLogic();
+                var ret = logic.Insert(param, configId);
+                if(ret)
+                    return NewSuccessMessage<nullObject>("插入自放电成功");
+                else
+                    return  NewErrorMessage<nullObject>("插入自放电失败");
+            }
+            catch (Exception e)
+            {
+                return NewErrorMessage<nullObject>("插入自放电失败");
+            }
         }
         #endregion
     }

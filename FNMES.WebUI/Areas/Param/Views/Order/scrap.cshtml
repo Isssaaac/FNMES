@@ -71,14 +71,20 @@
 
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label label-required">不良描述</label>
+                <label class="layui-form-label label-required">不良代码</label>
                 <div class="layui-input-block">
-                    <input type="hidden" name="defectCode" id="defectCode" />
-                    <input type="hidden" name="defectDesc" label-required="required" id="defectDesc" autocomplete="off" class="layui-input" / disabled>
+                    <input type="hidden" name="defectCode" id="defectCode" / >
                     <button class="layui-btn layui-btn-primary demo-dropdown-base">
-                        <span>不良描述</span>
+                        <span>不良代码</span>
                         <i class="layui-icon layui-icon-down layui-font-12"></i>
                     </button>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">不良描述</label>
+                <div class="layui-input-block">
+                    <input type="text" name="defectDesc" label-required="required" id="defectDesc" autocomplete="off" class="layui-input" / disabled>
                 </div>
             </div>
 
@@ -111,26 +117,26 @@
             dropdown.render({
                 elem: '.demo-dropdown-base', // 绑定元素选择器，此处指向 class 可同时绑定多个元素
                 data: [{
-                    title: '气密不良',
+                    title: 'SXMS-027',
                     id: 100
                 }, {
-                    title: '尺寸不良',
+                    title: 'SXMS-021',
                     id: 101
                 }, {
-                    title: '破损/变形/压划伤',
+                    title: 'SXMS-001',
                     id: 102
                 }],
                 click: function (obj) {
                     this.elem.find('span').text(obj.title);
                     $("#defectCode").val(obj.title);
-                    if (obj.title == '气密不良') {
-                        $("#defectDesc").val("SXMS-027")
+                    if (obj.title == 'SXMS-027') {
+                        $("#defectDesc").val("气密不良")
                     }
-                    if (obj.title == '尺寸不良') {
-                        $("#defectDesc").val("SXMS-021")
+                    if (obj.title == 'SXMS-021') {
+                        $("#defectDesc").val("尺寸不良")
                     }
-                    if (obj.title == '破损/变形/压划伤') {
-                        $("#defectDesc").val("SXMS-001")
+                    if (obj.title == 'SXMS-001') {
+                        $("#defectDesc").val("破损/变形/压划伤")
                     }
                 }
             });

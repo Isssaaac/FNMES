@@ -15,6 +15,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
+using FNMES.Entity.DTO.ApiData;
+
 namespace FNMES.WebUI
 {
     //后台服务
@@ -40,7 +42,7 @@ namespace FNMES.WebUI
 
             BaseLogic baseLogic = new BaseLogic();
             baseLogic.InitAllTable();
-            
+
             if (AppSetting.WorkId == 1)
             {
                 _timer = new Timer(DoHeartbeat, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));

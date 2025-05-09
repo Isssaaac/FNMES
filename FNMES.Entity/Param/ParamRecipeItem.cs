@@ -50,8 +50,6 @@ namespace FNMES.Entity.Param
         [SugarColumn(ColumnName = "passStationRestriction", IsNullable = true)]
         public string PassStationRestriction { get; set; }
 
-       
-
         // 工艺参数，可以到小工位下的工步
         // 要使用includes，就需要增加这个导航
         [Navigate(NavigateType.OneToMany, nameof(ParamItem.RecipeItemId))]//一对多
@@ -68,7 +66,5 @@ namespace FNMES.Entity.Param
         // 工步列表，仅PACK后段(组装段)需要，PACK前段和中段不需要
         [Navigate(NavigateType.OneToMany, nameof(ParamStepItem.RecipeItemId))]//一对多
         public List<ParamStepItem> StepList { get; set; }
-
-        
     }
 }

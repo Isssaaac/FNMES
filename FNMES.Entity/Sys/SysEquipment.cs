@@ -35,9 +35,6 @@ namespace FNMES.Entity.Sys
 
         [Navigate(NavigateType.OneToOne, nameof(LineId), nameof(SysLine.Id))]//一对一
         public SysLine Line { get; set; } //不能赋值只能是null
-
-       
-
     }
 
 }
