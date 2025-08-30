@@ -35,7 +35,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         private readonly ParamOrderLogic orderLogic;
         private readonly SysLineLogic sysLineLogic;
         private readonly ParamProductLogic productLogic;
-        private string orderIsSelected; //缓存已选中工单
+        private static string orderIsSelected; //缓存已选中工单
 
         public OrderController()
         {
@@ -105,7 +105,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         {
             return View();
         }
-
+        //获取已经上线的工单产品
         [Route("param/order/getData")]
         [HttpPost]
         public ActionResult getData(int pageIndex, int pageSize,string primaryKey, string configId, string keyWord)
@@ -426,7 +426,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                 return Error("工厂接口访问失败");
             }
         }
-
+        
         [Route("param/order/scrap")]
         [HttpGet]
         public ActionResult Scrap()
@@ -450,7 +450,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             if (ret)
             {
                 //ParamOrder order = orderLogic.Get(long.Parse(primaryKey), configId);
-
+                orderLogic.UpdateScrappedOrderStatus(orderIsSelected, param.configId);
                 return Success($"报废成功");
             }
             else
@@ -595,6 +595,54 @@ namespace MES.WebUI.Areas.Param.Controllers
                 Logger.ErrorInfo($"工单记录导出失败", ex);
                 return Error();
             }
+        }
+
+        [Route("param/order/add")]
+        [HttpGet]
+        public ActionResult Add()
+        {
+            return View();
+        }
+
+
+        [Route("/param/order/add")]
+        [HttpPost]
+        public ActionResult Add(ParamOrder order, string ConfigId)
+        {
+            var ret = orderLogic.InsertTableRow(order, ConfigId);
+            return ret == 1 ? Success() : Error();
+        }
+
+        [Route("param/order/modify")]
+        [HttpGet]
+        public ActionResult Modify()
+        {
+            return View();
+        }
+
+        [Route("/param/order/getFormModify")]
+        [HttpPost]
+        public ActionResult GetFormModify(string primaryKey, string configId)
+        {
+            var ret = orderLogic.GetTableRowByID<ParamOrder>(primaryKey, configId);
+            return Content(ret.ToJson());
+        }
+
+
+        [Route("/param/order/modify")]
+        [HttpPost]
+        public ActionResult Modify(ParamOrder order, string configId)
+        {
+            var ret = orderLogic.UpdateTable(order, configId);
+            return ret == 1 ? Success() : Error();
+        }
+
+        [Route("/param/order/delete")]
+        [HttpPost]
+        public ActionResult Delete(string primaryKey, string configId)
+        {
+            var ret = orderLogic.DeleteTableRowByID<ParamOrder>(primaryKey, configId);
+            return ret == 1 ? Success() : Error();
         }
     }
 }

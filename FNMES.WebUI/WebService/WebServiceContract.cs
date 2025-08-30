@@ -6,6 +6,7 @@ using FNMES.Entity.DTO.AppData;
 using FNMES.Entity.Param;
 using FNMES.Entity.Record;
 using FNMES.Entity.Sys;
+using FNMES.Utility;
 using FNMES.Utility.Core;
 using FNMES.Utility.Network;
 using FNMES.Utility.Security;
@@ -1591,6 +1592,8 @@ namespace FNMES.Service.WebService
             }
             SysLine sysLine = lineLogic.GetByConfigId(configId);
             param.productionLine = sysLine.EnCode;
+            
+
             string ret = APIMethod.Call(Url.ReworkUrl, param, configId);
             RetMessage<nullObject> retMessage = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();
             return retMessage;
@@ -2232,29 +2235,37 @@ namespace FNMES.Service.WebService
         //热铆机数据上传      自动工位上传后，人工工位再根据条码进行查询拿出数据
         [OperationContract]
         public RetMessage<nullObject> Pre_UploadRivetData(HotRivetRecord param, string configId)
-        {
-            Logger.RunningInfo($"接收到线体<{configId}>条码为{param.productCode}的自动热铆临时上传数据");
-            if (configId.IsNullOrEmpty())
+        {   try
             {
-                return NewErrorMessage<nullObject>("没有给configId参数赋值");
+                Logger.RunningInfo($"接收到线体<{configId}>条码为{param.productCode}的自动热铆临时上传数据");
+                if (configId.IsNullOrEmpty())
+                {
+                    return NewErrorMessage<nullObject>("没有给configId参数赋值");
+                }
+                string jsonData = param.data.ToJson();
+                RecordHotRivetData model = new()
+                {
+                    Id = SnowFlakeSingle.instance.NextId(),
+                    ProductCode = param.productCode,
+                    BatchCode = param.batchCode,
+                    Station = param.station,
+                    Data = jsonData,
+                    Result = param.result,
+                    CreateTime = DateTime.Now
+                };
+                long v = preProductLogic.InsertRivet(model, configId);
+                if (v == 0L)
+                {
+                    Logger.ErrorInfo($"接收到线体<{configId}>条码为{param.productCode}的自动热铆临时上传数据,上传失败");
+                    return NewErrorMessage<nullObject>("上传数据失败");
+                }
+                return NewSuccessMessage<nullObject>("上传成功");
             }
-            string jsonData = param.data.ToJson();
-            RecordHotRivetData model = new()
+            catch (Exception e)
             {
-                Id = SnowFlakeSingle.instance.NextId(),
-                ProductCode = param.productCode,
-                BatchCode = param.batchCode,
-                Station = param.station,
-                Data = jsonData,
-                Result = param.result,
-                CreateTime = DateTime.Now
-            };
-            long v = preProductLogic.InsertRivet(model, configId);
-            if (v == 0L)
-            {
+                Logger.ErrorInfo($"接收到线体<{configId}>条码为{param.productCode}的自动热铆临时上传数据,上传异常",e);
                 return NewErrorMessage<nullObject>("上传数据失败");
             }
-            return NewSuccessMessage<nullObject>("上传成功");
         }
 
         [OperationContract]

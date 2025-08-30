@@ -84,11 +84,5 @@ namespace FNMES.Entity.Param
         // 单位
         [SugarColumn(ColumnName = "uom", IsNullable = true)]
         public string UnitOfMeasure { get; set; }
-
-
-
-
-
-
     }
 }

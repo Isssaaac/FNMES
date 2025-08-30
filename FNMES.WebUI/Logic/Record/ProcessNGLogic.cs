@@ -78,12 +78,15 @@ namespace FNMES.WebUI.Logic.Record
             try
             {
                 var db = GetInstance(configId);
-                RecordPartUpload recordPartUpload = db.Queryable<RecordPartUpload>().Where(it => it.ProductCode == productCode && it.StationCode == stationCode)
-                    .SplitTable(tabs => tabs.Take(4)).OrderByDescending(it => it.Id).First();
+                RecordPartUpload recordPartUpload = db.Queryable<RecordPartUpload>().Where(it => it.ProductCode == productCode && it.StationCode == stationCode).SplitTable(tabs => tabs.Take(4)).OrderByDescending(it => it.Id).First();
+                //250514修改，原本查不到4个月之前的物料数据
+                DateTime start = recordPartUpload.CreateTime.AddMonths(-1);
+                DateTime end = recordPartUpload.CreateTime.AddMonths(6);
+
                 if (recordPartUpload != null)
                 {
                     return db.Queryable<RecordPartData>().Where(it => it.PartUploadId == recordPartUpload.Id)
-                        .SplitTable(tabs => tabs.Take(4)).ToList();
+                        .SplitTable(start, end).ToList();
                 }
                 else
                 {
@@ -104,10 +107,16 @@ namespace FNMES.WebUI.Logic.Record
                 var db = GetInstance(configId);
                 RecordProcessUpload record = db.Queryable<RecordProcessUpload>().Where(it => it.ProductCode == productCode && it.StationCode == stationCode)
                     .SplitTable(tabs => tabs.Take(4)).OrderByDescending(it => it.Id).First();
+
+                //250514修改，原本查不到4个月之前的物料数据
+                DateTime start = record.CreateTime.AddMonths(-1);
+                DateTime end = record.CreateTime.AddMonths(6);
+
+
                 if (record != null)
                 {
                     return db.Queryable<RecordProcessData>().Where(it => it.ProcessUploadId == record.Id)
-                        .SplitTable(tabs => tabs.Take(4)).ToList();
+                        .SplitTable(start, end).ToList();
                 }
                 else
                 {

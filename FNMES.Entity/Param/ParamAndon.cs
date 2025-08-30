@@ -8,7 +8,7 @@ namespace FNMES.Entity.Param
     /// 
     ///</summary>
     [SugarTable("Param_Andon")]
-    public class ParamAndon
+    public class ParamAndon: ParamBase
     {
         /// <summary>
         ///  

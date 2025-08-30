@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SqlSugar;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -33,6 +35,7 @@ namespace FNMES.Utility.Core
             }
             return dataTable;
         }
+
 
         public static List<T> ToList<T>(this DataTable table)
         {

@@ -31,7 +31,12 @@
         <div class="panel-body">
             <div class="layui-inline" style="margin-bottom: 10px;">
                 <select lay-ignore name="lineId" class="select2" id="lineId"  style="width: 250px;height: 30px;" lay-verify="required"></select>
-                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_data()">查看产品</button>
+                <div class="layui-btn-group">
+                    <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_data()">查看产品</button>
+                    <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_add()">增加</button>
+                    <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_delete()">删除</button>
+                    <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_modify()">修改</button>
+                </div>
             </div>
 
             <div id="toolbar" class="FNMES-table-toolbar">
@@ -156,7 +161,7 @@
             },
             pageConfig: {
                 elem: 'paged',
-                pageSize: 10,
+                pageSize: 15,
             },
             success: function () {
 
@@ -343,6 +348,69 @@
                     data: {
                         primaryKey: ids[0],
                         configId: $("#lineId").val(),
+                    },
+                    success: function () {
+                        initGrid();
+                    }
+                });
+            }
+        });
+    }
+
+
+    function btn_add() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
+        $.layerOpen({
+            id: "add",
+            title: "添加配方",
+            width: "730px",
+            height: "400px",
+            content: "/param/order/add?ConfigId=" + $("#lineId").val(),
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
+
+    function btn_modify() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录查看。", "warning");
+            return;
+        }
+        $.layerOpen({
+            id: "modify",
+            title: "修改配方",
+            width: "730px",
+            height: "400px",
+            content: "/param/order/modify?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
+
+    function btn_delete() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录。", "warning");
+            return;
+        }
+        if ($("#lineId").val() == "0") {
+            return
+        };
+        $.layerConfirm({
+            content: "您已选中1条数据, 确定删除吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/param/order/delete',
+                    data: {
+                        primaryKey: ids[0],
+                        ConfigId: $("#lineId").val()
                     },
                     success: function () {
                         initGrid();

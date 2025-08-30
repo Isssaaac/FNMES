@@ -129,6 +129,9 @@ namespace FNMES.Utility.Core
             }
         }
 
-      
+        public static string ToJson(this object obj, string dateFormat = "yyyy/MM/dd HH:mm:ss")
+        {
+            return obj == null ? string.Empty : JsonConvert.SerializeObject(obj, new IsoDateTimeConverter { DateTimeFormat = dateFormat });
+        }
     }
 }

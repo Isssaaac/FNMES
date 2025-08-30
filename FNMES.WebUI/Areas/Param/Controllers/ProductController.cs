@@ -41,6 +41,54 @@ namespace MES.WebUI.Areas.Param.Controllers
             return View();
         }
 
+        [Route("param/product/add")]
+        [HttpGet]
+        public ActionResult Add()
+        {
+            return View();
+        }
+
+
+        [Route("/param/product/add")]
+        [HttpPost]
+        public ActionResult Add(ParamRecipe recipe,string ConfigId)
+        {
+            var ret = productLogic.InsertTableRow(recipe, ConfigId);
+            return ret == 1 ? Success() : Error();
+        }
+
+        [Route("param/product/modify")]
+        [HttpGet]
+        public ActionResult Modify()
+        {
+            return View();
+        }
+
+        [Route("/param/product/getForm")]
+        [HttpPost]
+        public ActionResult GetForm(string primaryKey,string configId)
+        {
+            var ret = productLogic.GetTableRowByID<ParamRecipe>(primaryKey, configId);
+            return Content(ret.ToJson());
+        }
+        
+
+        [Route("/param/product/modify")]
+        [HttpPost]
+        public ActionResult Modify(ParamRecipe recipe,string configId)
+        {
+            var ret = productLogic.UpdateTable(recipe, configId);
+            return ret == 1 ? Success() : Error();
+        }
+
+        [Route("/param/product/delete")]
+        [HttpPost]
+        public ActionResult Delete(string primaryKey, string configId)
+        {
+            var ret = productLogic.DeleteTableRowByID <ParamRecipe>(primaryKey, configId);
+            return ret == 1 ? Success() : Error();
+        }
+
 
         [Route("param/product/index")]
         [HttpPost, AuthorizeChecked]
@@ -93,6 +141,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                 actualStartTime = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString()
             };
             RetMessage<GetRecipeData> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.GetRecipeUrl, param, configId).ToObject<RetMessage<GetRecipeData>>();
+
             if (retMessage.messageType == "S")
             {
                 int v = productLogic.insert(retMessage.data, configId, force);

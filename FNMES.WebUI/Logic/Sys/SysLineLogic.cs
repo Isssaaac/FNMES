@@ -24,8 +24,8 @@ namespace FNMES.WebUI.Logic.Sys
                 //为了修改后实时显示，直接走主库
                 var db = GetInstance();
                 return db.MasterQueryable<SysLine>()
-                    .Includes(it => it.CreateUser)
-                    .Includes(it => it.ModifyUser)
+                    //.Includes(it => it.CreateUser)
+                    //.Includes(it => it.ModifyUser)
                     .OrderBy(it => it.SortCode)
                     .ToList();
             }

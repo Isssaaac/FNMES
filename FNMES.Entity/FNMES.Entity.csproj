@@ -7,6 +7,9 @@
 	  <Compile Remove="Record\RecordModuleSelfDischarge.cs" />
 	</ItemGroup>
 	<ItemGroup>
+	  <PackageReference Include="CsvHelper" Version="33.1.0" />
+	</ItemGroup>
+	<ItemGroup>
 	  <ProjectReference Include="..\FNMES.Utility\FNMES.Utility.csproj" />
 	</ItemGroup> 
 

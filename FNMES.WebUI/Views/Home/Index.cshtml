@@ -35,18 +35,17 @@
     <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
     <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="~/Content/pace/dataurl.css" rel="stylesheet" />
+    
 </head>
 <body class="animated fadeIn">
     <div class="layui-layout layui-layout-admin">
         <!-- 头部区域 start -->
         <div class="layui-header">
-            <div class="layui-header-title" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;">
-                <img class="layui-header-logo" src="/th.jpg" />
-                <span>
-                    <a class="layui-header-name">@ViewBag.SoftwareName</a>
-                    
-                    <a class="layui-header-sidebar" title="收缩菜单"><i class="fa fa-dedent" aria-hidden="true"></i></a>
-                </span>
+            <div class="layui-header-title" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;display:flex;align-items: center;width: 100%;">
+                <img src="/th.jpg" style="width: 200px;height: auto;object-fit: contain;margin-right:10px;"/>
+                    @* <a class="layui-header-name" style="margin-left: 10px;">@ViewBag.SoftwareName</a> *@
+                    <a class="layui-header-sidebar" title="收缩菜单" style="margin-left: 10px;"><i class="fa fa-dedent" aria-hidden="true"></i></a>
+               
             </div>
             <ul class="layui-nav">
                 @*<li class="layui-nav-item btn-donate">

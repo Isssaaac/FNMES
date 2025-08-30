@@ -9,7 +9,7 @@ namespace FNMES.Entity.Param
     ///</summary>
     [SugarTable("Param_EquipmentError")]
     [SugarIndex("index_ParamEquipmentError_stationCode", nameof(ParamEquipmentError.StationCode), OrderByType.Asc)]    //索引
-    public class ParamEquipmentError
+    public class ParamEquipmentError : ParamBase
     {
         /// <summary>
         ///  

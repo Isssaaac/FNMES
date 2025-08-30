@@ -1,5 +1,6 @@
 ﻿using CCS.WebUI;
 using FNMES.Entity.Record;
+using FNMES.Utility;
 using FNMES.Utility.Core;
 using FNMES.Utility.Network;
 using FNMES.WebUI.Logic.Record;
@@ -23,7 +24,9 @@ namespace FNMES.WebUI.API
         public const string EquipmentStateUrl = "/api/pa/syncEquipStatus";                 //工位/设备状态变更接口
         public const string EquipmentErrorUrl = "/api/pa/syncEquipAlarms";                 //工位/设备报警变更接口
         public const string EquipmentStopUrl = "/api/pa/shutdownEquip";                    //工位/设备停机接口
+
         public const string ReworkUrl = "/api/pa/uploadRepairInfo";                        //返修信息上传接口
+
         public const string ToolRemainUrl = "/api/pa/uploadWearPartLife";                  //夹治具寿命上传接口
         public const string QualityStop = "/api/pa/qualityStopTag";                        //质量停机牌下发接口
         public const string GetPackInfoUrl = "/api/pa/getPackInfo";                        //PACK信息获取接口  
@@ -37,10 +40,10 @@ namespace FNMES.WebUI.API
         public const string SynScrapInfo = "/api/pa/synScrapInfo";                         //电芯报废接口
 
         //202503018新增marking接口功能
-        public const string GetMarking = "/api/psw/getMarking";
+        public const string GetMarking = "/api/pa/getMarking";
 
         //20250319新增获取前段ocv结果
-        public const string GetCellVoltage = "/api/psw/getCellVoltage";
+        public const string GetCellVoltage = "/api/pa/getCellVoltage";
     }
     public class APIMethod
     {
@@ -56,53 +59,62 @@ namespace FNMES.WebUI.API
         //不能在这里修改返回的厂级mes信息，因为厂级mes会返回条码
         public static string Call(string method, object param,string configId,bool disableLog = false)
         {
-            method =  url + method;
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            string response = WebApiRequest.DoPostJson(method, param);
-            
-            if(response.IsNullOrEmpty()) {
-                //此处用F表示，访问接口失败。。用于区分访问接口失败和调用结果的E
-                response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
-            }
-            stopwatch.Stop();
-            if(!disableLog)
+            if (!GlobalContext.SystemConfig.IsDemo)
             {
-                logic.Insert(new RecordApi()
+                method = url + method;
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                string response = WebApiRequest.DoPostJson(method, param);
+
+                if (response.IsNullOrEmpty())
                 {
-                    Url = method,
-                    RequestBody = param.ToJson(),
-                    ResponseBody = response,
-                    Elapsed = (int)stopwatch.Elapsed.TotalMilliseconds
-                }, configId);
+                    //此处用F表示，访问接口失败。。用于区分访问接口失败和调用结果的E
+                    response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+                }
+                stopwatch.Stop();
+                if (!disableLog)
+                {
+                    logic.Insert(new RecordApi()
+                    {
+                        Url = method,
+                        RequestBody = param.ToJson(),
+                        ResponseBody = response,
+                        Elapsed = (int)stopwatch.Elapsed.TotalMilliseconds
+                    }, configId);
+                }
+                return response;
             }
-            return response;
+            return "";
         }
 
         public static string Call(string method,string jsonData,string configId,bool disableLog=false)
         {
-            method = url + method;
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            string response = WebApiRequest.DoPostJsonData(method, jsonData);
+            if (!GlobalContext.SystemConfig.IsDemo)
+            {
+                method = url + method;
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                string response = WebApiRequest.DoPostJsonData(method, jsonData);
 
-            if (response.IsNullOrEmpty())
-            {
-                //此处用F表示，访问接口失败。。用于区分访问接口失败和调用结果的E
-                response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
-            }
-            stopwatch.Stop();
-            if (!disableLog)
-            {
-                logic.Insert(new RecordApi()
+                if (response.IsNullOrEmpty())
                 {
-                    Url = method,
-                    RequestBody = jsonData,
-                    ResponseBody = response,
-                    Elapsed = (int)stopwatch.Elapsed.TotalMilliseconds
-                }, configId);
+                    //此处用F表示，访问接口失败。。用于区分访问接口失败和调用结果的E
+                    response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+                }
+                stopwatch.Stop();
+                if (!disableLog)
+                {
+                    logic.Insert(new RecordApi()
+                    {
+                        Url = method,
+                        RequestBody = jsonData,
+                        ResponseBody = response,
+                        Elapsed = (int)stopwatch.Elapsed.TotalMilliseconds
+                    }, configId);
+                }
+                return response;
             }
-            return response;
+            return "";
         }
     }
 }

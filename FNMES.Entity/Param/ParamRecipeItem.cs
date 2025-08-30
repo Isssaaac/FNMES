@@ -6,7 +6,7 @@ using SqlSugar;
 namespace FNMES.Entity.Param
 {
     /// <summary>
-    /// 
+    /// ParamRecipe是配方，一个配方对应多个工站ParamRecipeItem，一个工站对应多个配方参数，多个工步，多个物料参数
     ///</summary>
     [SugarTable("Param_RecipeItem")]
     [SugarIndex("index_ParamRecipeItem_pid", nameof(ParamRecipeItem.RecipeId), OrderByType.Asc)]    //索引
@@ -21,7 +21,7 @@ namespace FNMES.Entity.Param
         public long RecipeId { get; set; }
 
 
-        // 工序编码
+        // 工序编码,针对工站的
         [SugarColumn(ColumnName = "stationCode",IsNullable = true)]
         public string StationCode { get; set; }
 

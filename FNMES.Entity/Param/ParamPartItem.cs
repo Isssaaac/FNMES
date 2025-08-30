@@ -64,9 +64,5 @@ namespace FNMES.Entity.Param
         [Navigate(NavigateType.OneToMany, nameof(ParamAlternativePartItem.PartItemId))]//一对多
         public List<ParamAlternativePartItem> AlternativePartList { get; set; }
 
-
-
-
-
     }
 }

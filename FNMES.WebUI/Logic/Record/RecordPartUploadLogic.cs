@@ -214,7 +214,7 @@ namespace FNMES.WebUI.Logic.Record
                 {
                     var db = GetInstance(i.ToString());
                     //所有线体的对应条码数据全部删除
-                    var count = db.Deleteable<RecordPartData>().Where(it => it.PartBarcode == partBarcode).SplitTable(tables => tables.Take(2)).ExecuteCommand();
+                    var count = db.Deleteable<RecordPartData>().Where(it => it.PartBarcode == partBarcode).SplitTable(tables => tables.Take(7)).ExecuteCommand();
                 }
                 Logger.RunningInfo($"解绑物料条码{partBarcode}完成");
                 return true;

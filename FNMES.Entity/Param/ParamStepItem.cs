@@ -9,7 +9,7 @@ namespace FNMES.Entity.Param
     ///</summary>
     [SugarTable("Param_StepItem")]
     [SugarIndex("index_ParamStepItem_pid", nameof(ParamStepItem.RecipeItemId), OrderByType.Asc)]    //索引
-    public class ParamStepItem : CopyAble
+    public class ParamStepItem : ParamBase
     {
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
         [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]

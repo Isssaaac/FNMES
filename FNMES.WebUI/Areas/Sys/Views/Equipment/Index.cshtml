@@ -122,9 +122,6 @@
                 simpleData: {
                     enable: true
 
-
-
-
                 }
             },
             check: {
@@ -159,7 +156,6 @@
     });
 
     function initGrid() {
-
         var treeObj = $.fn.zTree.getZTreeObj("treeItem");
         var selectedNode = treeObj.getSelectedNodes()[0];
         if (selectedNode.level == 0) {
@@ -176,7 +172,7 @@
             },
             pageConfig: {
                 elem: 'paged',
-                pageSize: 10,
+                pageSize: 17,
             },
             success: function () {
 

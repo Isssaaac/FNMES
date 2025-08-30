@@ -9,6 +9,7 @@ using System.Linq;
 using FNMES.Entity.DTO.ApiParam;
 using Org.BouncyCastle.Asn1.Ess;
 using FNMES.Entity.DTO.ApiData;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace FNMES.WebUI.Logic.Record
 {
@@ -59,6 +60,123 @@ namespace FNMES.WebUI.Logic.Record
             {
                 Logger.ErrorInfo("插入自放电数据失败",e);
                 return false;
+            }
+        }
+
+
+        public List<RecordSelfDischarge> GetList(int pageIndex, int pageSize, string keyWord, ref int totalCount, string configId, string index)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                ISugarQueryable<RecordSelfDischarge> queryable = db.Queryable<RecordSelfDischarge>();
+
+                if (!keyWord.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => it.productCode.Contains(keyWord) || it.cellCode.Contains(keyWord));
+                }
+                //查询当日
+                if (index == "1")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today;
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.createTime >= startTime && it.createTime < endTime);
+                }
+                //近7天
+                else if (index == "2")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-6);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.createTime >= startTime && it.createTime < endTime);
+                }
+                //近1月
+                else if (index == "3")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-29);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.createTime >= startTime && it.createTime < endTime);
+                }
+                //近3月
+                else if (index == "4")
+                {
+                    DateTime today = DateTime.Today;
+                    DateTime startTime = today.AddDays(-91);
+                    DateTime endTime = today.AddDays(1);
+                    queryable = queryable.Where(it => it.createTime >= startTime && it.createTime < endTime);
+                }
+                return queryable.SplitTable(tabs => tabs.Take(3)).OrderByDescending(it => it.Id)
+                   .ToPageList(pageIndex, pageSize, ref totalCount); ;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<RecordSelfDischarge>();
+            }
+        }
+
+        public List<RecordSelfDischarge> GetList(int pageIndex, int pageSize, string configId, string startDate, string endDate, string keyword, ref int totalCount)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                ISugarQueryable<RecordSelfDischarge> queryable = db.Queryable<RecordSelfDischarge>();
+                //如果工单存在，那就查工单，如果内控码存在，就查内控码，全部要基于时间内，时间间隔最多三个月
+                if (!keyword.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => it.productCode.Contains(keyword) || it.cellCode.Contains(keyword));
+                }
+
+                DateTime start = Convert.ToDateTime(startDate);
+                DateTime end = Convert.ToDateTime(endDate);
+                queryable = queryable.Where(it => it.createTime >= start && it.createTime < end);
+
+                TimeSpan daysSpan = new TimeSpan(end.Ticks - start.Ticks);
+                if (daysSpan.TotalDays > 90)
+                    return new List<RecordSelfDischarge>();
+
+                return queryable.SplitTable(start, end)
+                   .OrderByDescending(it => it.Id)
+                   .ToPageList(pageIndex, pageSize, ref totalCount);
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<RecordSelfDischarge>();
+            }
+        }
+
+
+        public List<RecordSelfDischarge> GetAllRecord(string configId, string startDate, string endDate, string keyword)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                ISugarQueryable<RecordSelfDischarge> queryable = db.Queryable<RecordSelfDischarge>();
+                //如果工单存在，那就查工单，如果内控码存在，就查内控码，全部要基于时间内，时间间隔最多三个月
+                if (!keyword.IsNullOrEmpty())
+                {
+                    queryable = queryable.Where(it => it.productCode.Contains(keyword) || it.cellCode.Contains(keyword));
+                }
+
+                DateTime start = Convert.ToDateTime(startDate);
+                DateTime end = Convert.ToDateTime(endDate);
+                queryable = queryable.Where(it => it.createTime >= start && it.createTime < end);
+
+                TimeSpan daysSpan = new TimeSpan(end.Ticks - start.Ticks);
+                if (daysSpan.TotalDays > 90)
+                    return new List<RecordSelfDischarge>();
+
+                return queryable.SplitTable(start, end)
+                   .OrderByDescending(it => it.Id)
+                   .ToList();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<RecordSelfDischarge>();
             }
         }
     }

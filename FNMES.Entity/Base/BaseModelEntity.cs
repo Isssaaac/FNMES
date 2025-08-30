@@ -58,12 +58,12 @@ namespace FNMES.Entity
         /// <summary>
         /// 创建人
         /// </summary>
-        [Navigate(NavigateType.OneToOne, nameof(CreateUserId), nameof(SysUser.Id))]//一对一 SchoolId是StudentA类里面的
+        [Navigate(NavigateType.OneToOne, nameof(CreateUserId), nameof(SysUser.Id)), SugarColumn(IsIgnore = true)]
         public SysUser CreateUser { get; set; } //不能赋值只能是null
         /// <summary>
         /// 更新人
         /// </summary>
-        [Navigate(NavigateType.OneToOne, nameof(ModifyUserId), nameof(SysUser.Id))]//一对一 SchoolId是StudentA类里面的
+        [Navigate(NavigateType.OneToOne, nameof(ModifyUserId), nameof(SysUser.Id)), SugarColumn(IsIgnore = true)]
         public SysUser ModifyUser { get; set; } //不能赋值只能是null
 
 
@@ -83,9 +83,5 @@ namespace FNMES.Entity
                 return ModifyUser == null ? "" : ModifyUser.Name;
             }
         }
-
-       
-
-       
     }
 }

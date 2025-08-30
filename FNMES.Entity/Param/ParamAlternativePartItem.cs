@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FNMES.Entity.Record;
 using SqlSugar;
 namespace FNMES.Entity.Param
 {
@@ -10,7 +11,7 @@ namespace FNMES.Entity.Param
     ///
     [SugarTable("Param_AlternativePartItem")]
     [SugarIndex("index_ParamAlternativePartItem_pid", nameof(ParamAlternativePartItem.PartItemId), OrderByType.Asc)]    //索引
-    public class ParamAlternativePartItem : CopyAble
+    public class ParamAlternativePartItem : RecordBase
     {
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
         [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]

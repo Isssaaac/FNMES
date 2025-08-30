@@ -24,11 +24,6 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                //用来建表的语句，只在没有表时候建表用
-                //db.CodeFirst.InitTables(typeof(ParamRecipe),typeof(ParamRecipeItem),typeof(ParamEsopItem),typeof(ParamStepItem),typeof(ParamItem),typeof(ParamPartItem));
-               
-
-
                 ParamRecipe paramRecipe = db.MasterQueryable<ParamRecipe>().Where(it => it.Id == primaryKey).First();
                 return paramRecipe;
             }
@@ -37,11 +32,7 @@ namespace FNMES.WebUI.Logic.Param
                 Logger.ErrorInfo(E.Message);
                 return null;
             }
-
         }
-
-
-
 
         /// <summary>
         /// 获得列表分页
@@ -71,10 +62,6 @@ namespace FNMES.WebUI.Logic.Param
                 return null;
             }
         }
-
-
-
-
 
         public List<ParamRecipe> GetList(string configId)
         {

@@ -10,6 +10,8 @@ using System.Collections;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using FNMES.WebUI.Logic.Sys;
 using FNMES.WebUI.Logic;
+using System.Linq;
+using System.Text.Json;
 
 namespace MES.WebUI.Areas.Sys.Controllers
 {
@@ -140,13 +142,14 @@ namespace MES.WebUI.Areas.Sys.Controllers
         [HttpPost, Route("system/permission/delete"), AuthorizeChecked]
         public ActionResult Delete(string primaryKey)
         {
-            long count = logic.GetChildCount(long.Parse(primaryKey));
-            if (count == 0)
+            var child_list = logic.GetPermisionChild(long.Parse(primaryKey));
+            var jsevent_list = child_list.Select(u=>u.JsEvent);
+            if (child_list.Count == 0)
             {
                 int row = logic.Delete(primaryKey.SplitToList().ToArray());
                 return row > 0 ? Success() : Error();
             }
-            return Error(string.Format("操作失败，请先删除该项的{0}个子级权限。", count));
+            return Error(string.Format("操作失败，请先删除该项的{0}个子级权限:{1}", child_list.Count,JsonSerializer.Serialize(jsevent_list)));
         }
 
 

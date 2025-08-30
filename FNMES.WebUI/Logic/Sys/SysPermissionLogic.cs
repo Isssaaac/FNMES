@@ -76,8 +76,9 @@ namespace FNMES.WebUI.Logic.Sys
             {
                 return db.MasterQueryable<SysPermission>().OrderBy(it => it.SortCode).ToPageList(pageIndex, pageSize, ref totalCount);
             }
-            
-            return db.MasterQueryable<SysPermission>().Where(it => it.Name.Contains(keyWord) || it.EnCode.Contains(keyWord)).OrderBy(it => it.SortCode).ToPageList(pageIndex, pageSize, ref totalCount);
+            long Id = db.MasterQueryable<SysPermission>().Where(it => it.Name.Contains(keyWord)).Select(it => it.Id).First();
+
+            return db.MasterQueryable<SysPermission>().Where(it => it.Name.Contains(keyWord) || it.ParentId == Id).OrderBy(it => it.SortCode).ToPageList(pageIndex, pageSize, ref totalCount);
         }
 
         public int Delete(params string[] primaryKeys)
@@ -118,6 +119,12 @@ namespace FNMES.WebUI.Logic.Sys
         {
             var db = GetInstance();
             return db.MasterQueryable<SysPermission>().Where(it => it.ParentId == parentId).ToList().Count;
+        }
+
+        public List<SysPermission> GetPermisionChild(long parentId)
+        {
+            var db = GetInstance();
+            return db.MasterQueryable<SysPermission>().Where(it => it.ParentId == parentId).ToList();
         }
 
         public List<SysPermission> GetList()

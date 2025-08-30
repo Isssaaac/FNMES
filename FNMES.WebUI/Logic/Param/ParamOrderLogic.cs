@@ -18,6 +18,28 @@ namespace FNMES.WebUI.Logic.Param
 {
     public class ParamOrderLogic : BaseLogic
     {
+
+        /// <summary>
+        /// 如果报废电芯，要把已经完成的工单更新为未开工
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public int UpdateScrappedOrderStatus(string task, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                bool isExisted = db.Queryable<ParamOrder>().Where(it => it.TaskOrderNumber == task && it.Flag == "4").Any();
+                if (isExisted)
+                    db.Updateable<ParamOrder>().SetColumns(it => it.Flag == "0").Where(it => it.TaskOrderNumber == task && it.Flag == "4").ExecuteCommand();
+                return 1;
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return 0;
+            }
+        }
         //工单相关全部走主库
         public int Insert(ParamOrder model, string configId)
         {

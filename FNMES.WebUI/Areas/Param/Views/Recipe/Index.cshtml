@@ -29,6 +29,13 @@
     <script src="~/Content/ztree/js/jquery.ztree.all.min.js"></script>
     <script src="~/Content/select2/js/select2.min.js"></script>
     <script src="~/Content/framework/js/global.js"></script>
+
+    <style>
+        .layui-btn-group button {
+            display: inline-block;
+            margin-right: 0;
+        }
+    </style>
 </head>
 <body>
     <div class="container-fluid fadeIn animated">
@@ -47,6 +54,16 @@
                     <div class="panel-body">
                         <div id="toolbar" class="FNMES-table-toolbar">
                             <div class="layui-btn-group"></div>
+                            <div class="layui-btn-group">
+                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_import_step()">导入工步</button>
+                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_export_step()">导出工步</button>
+
+                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_import_param()">导入参数</button>
+                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_export_param()">导出参数</button>
+
+                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_import_part()">导入物料</button>
+                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_export_part()">导出物料</button>
+                            </div>
                             <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
                                 <i class="layui-icon">&#xe615;</i>
                             </button>
@@ -125,7 +142,6 @@
             initTree();
         });
         
-
         $("#toolbar").authorizeButton();
         $('#btnSearch').click(initGrid);
         $('#keyWord').bindEnterEvent(initGrid);
@@ -161,15 +177,12 @@
                 }
             }
         };
-
         var zTreeObj = $.fn.zTree.init($("#treeItem"), setting);
     }
 
-
-
     function initGrid() {
         if ($("#lineId").val() == "0") {
-            return
+            return;
         };
         var treeObj = $.fn.zTree.getZTreeObj("treeItem");
         var selectedNode = treeObj.getSelectedNodes()[0];
@@ -188,7 +201,7 @@
             },
             pageConfig: {
                 elem: 'paged',
-                pageSize: 10,
+                pageSize: 15,
             },
             success: function () {
 
@@ -205,6 +218,7 @@
             $.layerMsg("请勾选单条记录查看。", "warning");
             return;
         }
+        
         $.layerOpen({
             id: "detail",
             title: "工艺参数",
@@ -241,7 +255,7 @@
             id: "detail",
             title: "工步详情",
             width: "1000px",
-            height: "600px",
+            height: "800px",
             content: "/param/recipe/step?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
             btn: null
         });
@@ -263,4 +277,120 @@
         });
     }
 
+    function btn_import_step() {
+        if ($("#lineId").val() == "0") {
+            return;
+        };
+
+        var selectedNode = treeObj.getSelectedNodes()[0];
+        if (selectedNode.level == 0) {
+            return;
+        }
+        $.layerOpen({
+            id: "detail",
+            title: "导入参数",
+            width: "450px",
+            height: "250px",
+            content: "/param/recipe/importstep?configId=" + $("#lineId").val() + "&productPartNo=" + selectedNode.id,
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
+
+    function btn_import_part() {
+        $.layerOpen({
+            id: "detail",
+            title: "导入参数",
+            width: "450px",
+            height: "250px",
+            content: "/param/recipe/importpart",
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
+
+    function btn_import_param() {
+        $.layerOpen({
+            id: "detail",
+            title: "导入参数",
+            width: "450px",
+            height: "250px",
+            content: "/param/recipe/importparam",
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
+
+    function btn_export_param() {
+        var treeObj = $.fn.zTree.getZTreeObj("treeItem");
+        var selectedNode = treeObj.getSelectedNodes()[0];
+        if (selectedNode.level == 0) {
+            return;
+        }
+        // 发送请求到后端以触发文件导出
+        fetch("/param/recipe/exportparam?productId=" + selectedNode.id + "&configId=" + $("#lineId").val(), {
+            method: "GET",
+        }).then(response => response.blob())
+            .then(blob => {
+                // 创建一个临时链接以下载文件
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = selectedNode.name + "-param.xlsx"; // 文件名
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            });
+    }
+
+    function btn_export_step() {
+        var treeObj = $.fn.zTree.getZTreeObj("treeItem");
+        var selectedNode = treeObj.getSelectedNodes()[0];
+        if (selectedNode.level == 0) {
+            return;
+        }
+
+        // 发送请求到后端以触发文件导出
+        fetch("/param/recipe/exportstep?productId=" + selectedNode.id + "&configId=" + $("#lineId").val(), {
+            method: "GET",
+        }).then(response => response.blob())
+            .then(blob => {
+                // 创建一个临时链接以下载文件
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = selectedNode.name + "-step.xlsx"; // 文件名
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            });
+    }
+
+    function btn_export_part() {
+        var treeObj = $.fn.zTree.getZTreeObj("treeItem");
+        var selectedNode = treeObj.getSelectedNodes()[0];
+        if (selectedNode.level == 0) {
+            return;
+        }
+        // 发送请求到后端以触发文件导出
+        fetch("/param/recipe/exportpart?productId=" + selectedNode.id + "&configId=" + $("#lineId").val(), {
+            method: "GET",
+        }).then(response => response.blob())
+            .then(blob => {
+                // 创建一个临时链接以下载文件
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = selectedNode.name + "-part.xlsx"; // 文件名
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            });
+    }
 </script>

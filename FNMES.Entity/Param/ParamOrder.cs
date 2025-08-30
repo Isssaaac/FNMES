@@ -8,7 +8,7 @@ namespace FNMES.Entity.Param
     /// 工单表：同步工单
     ///</summary>
     [SugarTable("Order")]
-    public class ParamOrder
+    public class ParamOrder : ParamBase
     {
         /// <summary>
         ///  

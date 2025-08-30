@@ -64,9 +64,7 @@ namespace FNMES.Entity.Record
         [SugarColumn(ColumnName = "intervalVoltageDrop", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string intervalVoltageDrop { get; set; }
 
-        [SugarColumn(ColumnName = "result", ColumnDataType = "varchar(100)", IsNullable = true)]
-        //结果
-        public string result { get; set; }
+        
 
 
         //判定1上限判定
@@ -83,7 +81,11 @@ namespace FNMES.Entity.Record
         //判定2判定
         public string judgment2Result { get; set; }
 
+        [SugarColumn(ColumnName = "result", ColumnDataType = "varchar(100)", IsNullable = true)]
+        //结果
+        public string result { get; set; }
 
+        [SplitField]
         [SugarColumn(ColumnName = "createTime", IsNullable = true)]
         //ocv测试时间
         public DateTime createTime { get; set; }

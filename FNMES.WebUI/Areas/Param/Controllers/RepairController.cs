@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using SqlSugar;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace FNMES.WebUI.Areas.Param.Controllers
@@ -74,6 +75,7 @@ namespace FNMES.WebUI.Areas.Param.Controllers
         [HttpPost]
         public ActionResult Mark(string productCode,string configId, string stationCode)
         {
+            Logger.RunningInfo($"登记返修:productCode:{productCode},configId:{configId},stationCode:{stationCode}");
             ProcessBind processBind = bindLogic.GetByProductCode(productCode, configId);
             if (processBind == null)
             {
@@ -88,6 +90,12 @@ namespace FNMES.WebUI.Areas.Param.Controllers
             {
                 processBind.RepairStations += ","+ stationCode;
             }
+
+            var result = processBind.RepairStations.Split(',').ToList()
+                .Distinct() // 去重
+                .OrderBy(s => int.Parse(s.Substring(1)));
+            processBind.RepairStations = string.Join(",", result);
+            
             int v = bindLogic.Update(processBind, configId);
             return v != 0 ? Success() : Error();
         }

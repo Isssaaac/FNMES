@@ -32,24 +32,27 @@
 </head>
 <body>
     <div class="container-fluid fadeIn animated">
-        @* <div class="panel container-panel">
-            <div class="panel-body"> *@
-                <table id="gridList" class="layui-form layui-table FNMES-table" lay-skin="line">
-                    <thead>
-                        <tr>
-                            <th>小工位</th>
-                            <th>工步编码</th>
-                            <th>工步名称</th>
-                            <th>顺序号</th>
-                            <th>工步描述</th>
-                            <th>操作</th>
-                            <th>标识</th>
-                        </tr>
-                    </thead>
-                    <!--内容容器-->
-                    <tbody id="content"></tbody>
-                </table>
-                <div id="paged"></div>
+        <div class="layui-inline" style="margin-bottom: 10px;">
+            <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_add()">增加</button>
+            <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_delete()">删除</button>
+            <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_modify()">修改</button>
+        </div>
+        <table id="gridList" class="layui-form layui-table FNMES-table" lay-skin="line">
+            <thead>
+                <tr>
+                    <th>小工位</th>
+                    <th>工步编码</th>
+                    <th>工步名称</th>
+                    <th>顺序号</th>
+                    <th>工步描述</th>
+                    <th>操作</th>
+                    <th>标识</th>
+                </tr>
+            </thead>
+            <!--内容容器-->
+            <tbody id="content"></tbody>
+        </table>
+        <div id="paged"></div>
            @*  </div>
         </div> *@
            
@@ -89,9 +92,8 @@
         initGrid(configId, primaryKey);
         
     });
-    function initGrid(configId, primaryKey) {
-       
 
+    function initGrid(configId, primaryKey) {
         paging.init({
             url: '/param/recipe/step',
             elem: '#content',

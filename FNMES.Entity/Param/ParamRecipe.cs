@@ -9,7 +9,7 @@ namespace FNMES.Entity.Param
     /// 
     ///</summary>
     [SugarTable("Param_Recipe")]
-    public class ParamRecipe:CopyAble
+    public class ParamRecipe:ParamBase
     {
         /// <summary>
         ///  

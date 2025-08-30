@@ -21,9 +21,6 @@ namespace FNMES.WebUI.Logic.Param
 {
     public class RecipeLogic : BaseLogic
     {
-
-
-
         public List<ParamRecipeItem> GetList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount, long productId)
         {
             try
@@ -176,18 +173,6 @@ namespace FNMES.WebUI.Logic.Param
                 {
                     return null;
                 }
-
-                //小工位参数不做筛选
-                /*return db.Queryable<ParamRecipeItem>()
-                   .Includes(it => it.ParamList.Where( p => p.SmallStationCode == smallStationCode).ToList())
-                   .Includes(it => it.EsopList.Where(p => p.SmallStationCode == smallStationCode).ToList())
-                   .Includes(it => it.StepList.Where(p => p.SmallStationCode == smallStationCode).ToList())
-                   .Includes(it => it.PartList.Where(p => p.SmallStationCode == smallStationCode).ToList(), p => p.AlternativePartList)
-                   .First(it => it.RecipeId == paramRecipe.Id && it.StationCode == stationCode);*/
-
-                //Includes(it => it.PartList, p => p.AlternativePartList)
-                //AlternativePartList在Param_PartItem中，Param_PartItem在Param_RecipeItem中
-                //Param_RecipeItem的PartList
                 return db.Queryable<ParamRecipeItem>()
                    .Includes(it => it.ParamList)
                    .Includes(it => it.EsopList)
@@ -200,7 +185,50 @@ namespace FNMES.WebUI.Logic.Param
                 Logger.ErrorInfo(E.Message);
                 return null;
             }
+        }
+        //导入导出用
+        public List<ParamRecipeItem> QueryAllItem(string productId, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                //通过productPartNo查
+                ParamRecipe paramRecipe = db.MasterQueryable<ParamRecipe>().First(it => it.Id == long.Parse(productId));
+                if (paramRecipe == null)
+                {
+                    return null;
+                }
+                return db.Queryable<ParamRecipeItem>()
+                   .Includes(it => it.ParamList)
+                   .Includes(it => it.EsopList)
+                   .Includes(it => it.StepList)
+                   .Includes(it => it.PartList, p => p.AlternativePartList)
+                   .Where(it => it.RecipeId == paramRecipe.Id).ToList();
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return null;
+            }
+        }
 
+        //导入step
+        public int ImportRecipeSteps(string productId, string configId,List<ParamStepItem> data)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                //通过productPartNo查
+                ParamRecipe paramRecipe = db.MasterQueryable<ParamRecipe>().First(it => it.Id == long.Parse(productId));
+                db.Deleteable<ParamStepItem>().Where(it=> it.RecipeItemId == paramRecipe.Id);
+                var ret = InsertTableList(data, configId);
+                return ret;
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return 2;
+            }
         }
     }
 }

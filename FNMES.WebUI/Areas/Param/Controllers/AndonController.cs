@@ -64,11 +64,13 @@ namespace FNMES.WebUI.Areas.Param.Controllers
         public ActionResult Get(string configId)
         {
             SysLine sysLine = sysLineLogic.GetByConfigId(configId);
+            
             AndonTypeParam andonParam = new() { 
                 productionLine = sysLine.EnCode,
                 callTime = ExtDateTime.GetTimeStamp(DateTime.Now),
                 operatorNo = OperatorProvider.Instance.Current.Name,
             };
+            Logger.RunningInfo($"获取线体<{configId}>andon参数，productLint为:{sysLine.EnCode}");
             //241212:andon接口同步失败
             RetMessage<AndonTypeData> retMessage = APIMethod.Call(API.Url.AndonParamUrl, andonParam, configId).ToObject<RetMessage<AndonTypeData>>();
             if (retMessage.messageType == "S" && !retMessage.data.dataList.IsNullOrEmpty())
@@ -76,17 +78,20 @@ namespace FNMES.WebUI.Areas.Param.Controllers
                 List<ParamAndon> list = new List<ParamAndon>();
                 foreach (var item in retMessage.data.dataList)
                 {
-                    ParamAndon paramAndon = new ParamAndon()
+                    if (item.andonName.StartsWith(configId.ToString()))
                     {
-                        Id = SnowFlakeSingle.Instance.NextId(),
-                        AndonCode = item.andonCode,
-                        AndonType = item.andonType,
-                        AndonDesc = item.andonDesc,
-                        AndonName = item.andonName,
-                        //暂时不写groupName进数据库，这个需要改表结构
-                        CreateTime = DateTime.Now.ToString()
-                    };
-                    list.Add(paramAndon);
+                        ParamAndon paramAndon = new ParamAndon()
+                        {
+                            Id = SnowFlakeSingle.Instance.NextId(),
+                            AndonCode = item.andonCode,
+                            AndonType = item.andonType,
+                            AndonDesc = item.andonDesc,
+                            AndonName = item.andonName,
+                            //暂时不写groupName进数据库，这个需要改表结构
+                            CreateTime = DateTime.Now.ToString()
+                        };
+                        list.Add(paramAndon);
+                    }
                 }
                 int v = sysAndonLogic.Update(list, configId);
                 if (v > 0)
