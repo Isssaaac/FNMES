@@ -1,0 +1,103 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>添加PLC</title>
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery-3.6.0.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+
+
+
+
+<body>
+    <form id="form" class="layui-form" style="margin-top: 25px">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <input type="hidden" name="Id" id="Id" />
+                <input type="hidden" name="ConfigId" id="ConfigId" />
+                <input type="hidden" name="RecipeItemId" id="RecipeItemId" />
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label ">小工位</label>
+                <div class="layui-input-inline">
+                    <select class="select2 layui-input-inline" lay-ignore name="SmallStationCode" id="SmallStationCode"></select>
+                </div>
+                <label class="layui-form-label label-required">顺序号</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="No" id="No" lay-verify="required" placeholder="顺序号" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">文件路径</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="FilePath" id="FilePath" lay-verify="required" placeholder="文件路径" autocomplete="off" class="layui-input" style="width:500px">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">开始页</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="StartPageNo" id="StartPageNo" placeholder="开始页" autocomplete="off" class="layui-input">
+                </div>
+                <label class="layui-form-label">结束页</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="EndPageNo" id="EndPageNo" placeholder="结束页" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="display: none">
+            <div class="layui-input-block">
+                <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="add">提交</button>
+            </div>
+        </div>
+    </form>
+
+    <script src="~/Content/jquery/jquery.md5.js"></script>
+    <script>
+        layui.use(['element', 'form', 'laydate', 'layer'], function () {
+            var form = layui.form;
+            var element = layui.element;
+            $("#ConfigId").val($.getQueryString("configId"));
+            $("#SmallStationCode").bindSelect({
+                type: "POST",
+                url: "/param/unitProcedure/getListTreeUnSelect?configId=" + $.getQueryString("configId")
+            });
+
+            form.render();
+            $("#RecipeItemId").val($.getQueryString("primaryKey"));
+            $("#ConfigId").val($.getQueryString("configId"));
+            form.on('submit(add)', function (form) {
+                $.formSubmit({
+                    url: "/param/recipe/esopadd",
+                    data: form.field
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+

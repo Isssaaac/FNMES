@@ -1,10 +1,13 @@
 ﻿using FNMES.Utility.Core;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using FNMES.Entity.DTO.ApiParam;
+using SoapCore.Meta;
 
 namespace FNMES.Utility.Network
 {
@@ -114,11 +117,29 @@ namespace FNMES.Utility.Network
             this.message = message;
             this.data = data;
         }
+
+        public RetMessage(MesRet mesRet)
+        {
+            if (mesRet != null)
+            {
+                messageType = mesRet.code == "0" ? RetCode.Success : RetCode.Ng;
+                message = mesRet.msg;
+                if (mesRet.data != null)
+                    data = JsonConvert.DeserializeObject<T>(mesRet.data);
+                else
+                    data = new T();
+            }
+            else
+            {
+                messageType = RetCode.Ng;
+                message = $"厂级mes返回信息为空";
+                data = new T();
+            }
+        }
+
         public RetMessage() { 
             this.data = new T();
         }
-
-        
     }
 
 

@@ -9,7 +9,7 @@ namespace FNMES.Entity.Param
     /// 替代料表
     ///</summary>
     ///
-    [SugarTable("Param_AlternativePartItem")]
+    [SugarTable("Param_AlternativePartItem"),LineTableInit]
     [SugarIndex("index_ParamAlternativePartItem_pid", nameof(ParamAlternativePartItem.PartItemId), OrderByType.Asc)]    //索引
     public class ParamAlternativePartItem : RecordBase
     {

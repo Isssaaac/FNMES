@@ -66,11 +66,5 @@ namespace FNMES.WebUI.Logic.Record
                 return new List<RecordProcessUpload>();
             }
         }
-
-
-
-
-
-
     }
 }

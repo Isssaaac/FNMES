@@ -37,6 +37,9 @@
                 <div id="toolbar" class="FNMES-table-toolbar">
                     <div class="layui-btn-group">
                         <button onclick="btn_show()" class="layui-btn layui-btn-primary layui-btn-small">预览Esop</button>
+                        <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_add()">增加</button>
+                        <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_modify()">修改</button>
+                        <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_delete()">删除</button>
                     </div>
                 </div>
                 <table id="gridList" class="layui-form layui-table FNMES-table" lay-skin="line">
@@ -143,14 +146,11 @@
                 response.blob();
                  })
             .then(blob => {
-
                 var blobUrl = URL.createObjectURL(blob);
                 // 创建查询参数
                 var queryParams = "file=" + blobUrl + "#page=" + pageStr; // 添加多个参数以 & 分隔
-
                 // 构建完整的 URL
                 var viewerUrl = "/Content/PDFjs/web/viewer.html?" + queryParams;
-
                 $.layerOpen({
                     id: "detail",
                     title: "PDF预览",
@@ -167,11 +167,61 @@
 
     }
 
-  
 
-  
+    function btn_add() {
+        $.layerOpen({
+            id: "add",
+            title: "添加参数",
+            width: "730px",
+            height: "600px",
+            content: "/param/recipe/esopadd?ConfigId=" + $.getQueryString("configId") + "&primaryKey=" + $.getQueryString("primaryKey"),
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
 
-   
+    function btn_modify() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录查看。", "warning");
+            return;
+        }
+        $.layerOpen({
+            id: "modify",
+            title: "修改参数",
+            width: "730px",
+            height: "600px",
+            content: "/param/recipe/esopmodify?primaryKey=" + ids[0] + "&configId=" + $.getQueryString("configId"),
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
 
+    function btn_delete() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录查看。", "warning");
+            return;
+        }
+        $.layerConfirm({
+            content: "您已选中1条数据, 确定删除吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/param/recipe/esopdelete',
+                    data: {
+                        primaryKey: ids[0],
+                        ConfigId: $.getQueryString("configId")
+                    },
+                    success: function () {
+                        initGrid();
+                    }
+                });
+            }
+        });
+    }
 </script>
 

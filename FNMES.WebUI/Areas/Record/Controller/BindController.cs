@@ -67,7 +67,6 @@ namespace MES.WebUI.Areas.Param.Controllers
         //    }
         //}
 
-
         [Route("record/bind/index")]
         [HttpPost]
         public ActionResult Index(int pageIndex, int pageSize, string keyWord,string configId,string index)

@@ -65,8 +65,9 @@ namespace FNMES.WebUI
                         ipAddress = "10.11.13.4",
                         sourceSys = "GD-111"
                     };
-                    string ret = APIMethod.Call(Url.HeartbeatUrl, param, item.ConfigId,true);
-                    RetMessage<object> retMessage = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<object>>();
+                    //string ret = APIMethod.Call(Url.HeartbeatUrl, param, item.ConfigId,true);
+                    RetMessage<object> retMessage = new RetMessage<object>();//ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<object>>();
+                    retMessage.messageType = RetCode.Success;
                     //没有响应，根据状态当前状态处理，
                     if (retMessage == null || retMessage.messageType != "S")
                     {

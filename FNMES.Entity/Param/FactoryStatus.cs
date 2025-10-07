@@ -14,27 +14,27 @@ namespace FNMES.Entity.Param
         ///  
         ///</summary>
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]
+        [SugarColumn(ColumnName= "Id", IsPrimaryKey = true   )]
          public long Id { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName= "status", IsNullable = true )]
+         [SugarColumn(ColumnName= "Status", IsNullable = true )]
          public int Status { get; set; }
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName = "retry" , IsNullable = true)]
+        [SugarColumn(ColumnName = "Retry", IsNullable = true)]
         public int Retry { get; set; }
        
         [SugarColumn(IsIgnore = true)]
-        public bool isOnline {
+        public bool IsOnline {
             get{ return Status == 1; }
                 }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName= "createTime", IsNullable = true)]
+         [SugarColumn(ColumnName= "CreateTime", IsNullable = true)]
          public DateTime? CreateTime { get; set; }
 
         //分库的数据库标识   只用来映射实体传递数据

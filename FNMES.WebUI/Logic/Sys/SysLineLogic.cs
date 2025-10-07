@@ -50,8 +50,8 @@ namespace FNMES.WebUI.Logic.Sys
                     queryable = queryable.Where(it => (it.Name.Contains(keyWord) || it.EnCode.Contains(keyWord)));
                 }
                 return queryable
-                    .Includes(it => it.CreateUser)
-                    .Includes(it => it.ModifyUser)
+                    //.Includes(it => it.CreateUser)
+                    //.Includes(it => it.ModifyUser)
                     .OrderBy(it => it.SortCode)
                     .ToPageList(pageIndex, pageSize, ref totalCount);
             }
@@ -73,8 +73,8 @@ namespace FNMES.WebUI.Logic.Sys
                 var db = GetInstance();
                 return db.MasterQueryable<SysLine>()
                     .Where(it => it.Id == primaryKey)
-                    .Includes(it => it.CreateUser)
-                    .Includes(it => it.ModifyUser)
+                    //.Includes(it => it.CreateUser)
+                    //.Includes(it => it.ModifyUser)
                     .First();
             }
             catch (Exception e)

@@ -46,7 +46,49 @@ $.layerOpen = function (options) {
             return true;
         }
     });
+}
 
+$.layerConditionOpen = function (options) {
+    var defaults = {
+        id: "default",
+        title: '系统窗口',
+        type: 2,
+        //skin: 'layui-layer-molv',
+        width: "auto",
+        height: "auto",
+        maxmin: false,
+        content: '',
+        shade: 0.3,
+        btn: ['确认', '取消'],
+        btnclass: ['btn btn-primary', 'btn btn-danger'],
+        yes: null
+    };
+    var options = $.extend(defaults, options);
+    top.layer.open({
+        id: options.id,
+        type: options.type,
+        scrollbar: false,
+        //skin: options.skin,
+        shade: options.shade,
+        shadeClose: true,
+        maxmin: options.maxmin,
+        title: options.title,
+        fix: false,
+        area: [options.width, options.height],
+        content: options.content,
+        btn: options.btn,
+        btnclass: options.btnclass,
+        yes: function (index, layero) {
+            if (options.yes && $.isFunction(options.yes)) {
+                var iframebody = top.layer.getChildFrame('body', index);
+                var iframeWin = layero.find('iframe')[0].contentWindow;
+                options.yes(iframebody, iframeWin, index);
+            }
+        },
+        cancel: function () {
+            return true;
+        }
+    });
 }
 
 /**
@@ -627,3 +669,193 @@ $.download = function (options) {
     $form[0].submit();
     $iframe.remove();
 }
+
+/**********************动态查询*************************/
+/**
+ * Layui动态查询条件组件
+ * 使用方法: 
+ * 1. 引入layui和该组件
+ * 2. 调用DYNAMIC_QUERY.init(config)初始化
+ * 3. 调用DYNAMIC_QUERY.getConditions()获取条件数据
+ */
+
+var DYNAMIC_QUERY = (function () {
+    var _config = {
+        container: '#conditionsContainer', // 容器选择器
+        fields: [ // 可选择的字段
+            { name: 'name', title: '姓名' },
+            { name: 'age', title: '年龄' },
+            { name: 'gender', title: '性别' },
+            { name: 'city', title: '城市' }
+        ],
+        operators: [ // 可选择的运算符
+            { name: 'equals', title: '等于' },
+            { name: 'contains', title: '包含' },
+            { name: 'greater', title: '大于' },
+            { name: 'less', title: '小于' },
+            //{ name: 'between', title: '介于之间' }
+        ]
+    };
+
+    var _conditionCount = 0;
+
+    // 初始化组件
+    function init(config) {
+        if (config) {
+            $.extend(_config, config);
+        }
+
+        _renderConditionTemplate();
+        _bindEvents();
+
+        return this;
+    }
+
+    // 渲染条件模板
+    function _renderConditionTemplate() {
+        var fieldOptions = '';
+        _config.fields.forEach(function (field) {
+            fieldOptions += '<option value="' + field.name + '">' + field.title + '</option>';
+        });
+
+        var operatorOptions = '';
+        _config.operators.forEach(function (operator) {
+            operatorOptions += '<option value="' + operator.name + '">' + operator.title + '</option>';
+        });
+
+        var template =
+            '<script type="text/html" id="conditionTpl">' +
+            '<div class="condition-group" data-id="{{d.id}}">' +
+                '<div class="condition-header">' +
+                    '<span>条件 #{{d.index}}</span>' +
+                    '<span class="remove-condition" onclick="DYNAMIC_QUERY.removeCondition(\'{{d.id}}\')">' +
+                        '<i class="layui-icon">&#x1006;</i> 删除' +
+                    '</span>' +
+                '</div>' +
+            
+                '<form class="layui-form" lay-filter="conditionForm-{{d.id}}">' +
+                    '<div class="layui-form-item">' +
+                        '<div class="layui-inline">' +
+                            '<label class="layui-form-label">字段</label>' +
+                            '<div class="layui-input-inline">' +
+                                '<select name="field">' + fieldOptions + '</select>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="layui-inline">' +
+                        '<label class="layui-form-label">条件</label>' +
+                            '<div class="layui-input-inline">' +
+                                '<select name="operator">' + operatorOptions + '</select>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="layui-inline">' +
+                        '<label class="layui-form-label">值</label>' +
+                            '<div class="layui-input-inline">' +
+                            '<input type="text" name="value" class="layui-input" placeholder="输入值">' +
+                        '</div>' +
+                '</form>' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+            '</script>';
+
+        $('body').append(template);
+    }
+
+    // 绑定事件
+    function _bindEvents() {
+        // 事件委托处理运算符变化
+        $(document).on('change', 'select[name="operator"]', function () {
+            var operator = $(this).val();
+            var value2Container = $(this).closest('.condition-group').find('.value2-container');
+
+            if (operator === 'between') {
+                if (value2Container.length === 0) {
+                    var value2Html =
+                        '<div class="layui-inline value2-container">' +
+                        '<label class="layui-form-label">和</label>' +
+                        '<div class="layui-input-inline">' +
+                        '<input type="text" name="value2" class="layui-input" placeholder="输入第二个值">' +
+                        '</div>' +
+                        '</div>';
+
+                    $(this).closest('.layui-form-item').append(value2Html);
+                    layui.form.render();
+                }
+            } else {
+                value2Container.remove();
+            }
+        });
+    }
+
+    // 添加条件
+    function addCondition() {
+        var conditionId = _generateId();
+        _conditionCount++;
+
+        var conditionHtml = layui.laytpl($('#conditionTpl').html()).render({
+            id: conditionId,
+            index: _conditionCount
+        });
+
+        // 移除空状态提示
+        if (_conditionCount === 1) {
+            $(_config.container).empty();
+        }
+
+        $(_config.container).append(conditionHtml);
+        layui.form.render();
+
+        return conditionId;
+    }
+
+    // 移除条件
+    function removeCondition(id) {
+        $('.condition-group[data-id="' + id + '"]').remove();
+        _updateEmptyState();
+    }
+
+    // 获取所有条件
+    function getConditions() {
+        var conditions = [];
+        var groups = $('.condition-group');
+
+        $('.condition-group').each(function () {
+            var conditionForm = $(this).find('form');
+            var formFilter = conditionForm.attr('lay-filter');
+            var formData = layui.form.val(formFilter);
+            conditions.push(formData);
+        });
+
+        return conditions;
+    }
+
+    // 清空所有条件
+    function clearConditions() {
+        $(_config.container).empty();
+        _conditionCount = 0;
+        _updateEmptyState();
+    }
+
+    // 更新空状态
+    function _updateEmptyState() {
+        var conditions = $(_config.container).find('.condition-group');
+
+        if (conditions.length === 0) {
+            $(_config.container).html('<div style="text-align: center; padding: 10px; color: #999;">暂无查询条件，请点击添加条件按钮</div>');
+        }
+    }
+
+    // 生成唯一ID
+    function _generateId() {
+        return 'cond_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // 公共API
+    return {
+        init: init,
+        addCondition: addCondition,
+        removeCondition: removeCondition,
+        getConditions: getConditions,
+        clearConditions: clearConditions
+    };
+})();

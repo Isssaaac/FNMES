@@ -40,6 +40,9 @@
                     <div class="panel-body">
                         <div id="toolbar" class="FNMES-table-toolbar">
                             <div class="layui-btn-group"></div>
+                            <div class="layui-btn-group">
+                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_refresh()">同步现有工序</button>
+                            </div>
                             <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
                                 <i class="layui-icon">&#xe615;</i>
                             </button>
@@ -188,7 +191,7 @@
             id: "manage",
             title: "线体管理",
             width: "950px",
-            height: "550px",
+            height: "600px",
             content: "/system/line/index",
             btn: null
         });
@@ -200,7 +203,7 @@
             id: "add",
             title: "新增设备",
             width: "670px",
-            height: "450px",
+            height: "600px",
             content: "/system/equipment/form?lineId=" + node.id,
             yes: function (iBody) {
                 iBody.find('#btnSubmit').click();
@@ -220,7 +223,7 @@
             id: "edit",
             title: "修改设备",
             width: "670px",
-            height: "450px",
+            height: "600px",
             content: "/system/equipment/form?primaryKey=" + ids[0],
             yes: function (iBody) {
                 iBody.find('#btnSubmit').click();
@@ -257,11 +260,27 @@
             id: "detail",
             title: "设备详情",
             width: "670px",
-            height: "510px",
+            height: "600px",
             content: "/system/equipment/detail?primaryKey=" + ids[0],
             btn: null
         });
     }
 
+    function btn_refresh() {
+        var node = $.fn.zTree.getZTreeObj("treeItem").getSelectedNodes()[0];
+
+        $.ajax({
+            url: "/system/equipment/getExistSmallStation",
+            data: {
+                lineId: node.id,
+            },
+            type: "post",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                initGrid();
+            }
+        });
+    }
 </script>
 

@@ -45,12 +45,13 @@
                 </div>
             </div>
         </div>
+
         <div class="layui-form-item">
              <div class="layui-inline">
                     <label class="layui-form-label label-required">校验工站</label>
                     <div class="layui-input-inline">
-                    <select lay-ignore name="CheckStations" class="select2" id="CheckStations" multiple="multiple" style="width: 514px;" ></select>
-                     </div>
+                        <select lay-ignore name="CheckStations" class="select2" id="CheckStations" multiple="multiple" style="width: 514px;" ></select>
+                    </div>
              </div>
         </div>
 
@@ -66,7 +67,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="layui-form-item" style="display: none">
             <div class="layui-input-block">
                 <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="add">提交</button>
@@ -75,12 +76,13 @@
     </form>
 
         <script type="text/javascript">
-            layui.use(['element', 'form', 'laydate', 'layer'], function () {
-                var form = layui.form;
-                var element = layui.element;
-                var laydate = layui.laydate;
-                laydate.render({
-                });
+        layui.use(['element', 'form', 'laydate', 'layer', 'dropdown'], function () {
+            var form = layui.form;
+            var element = layui.element;
+            var laydate = layui.laydate;
+            var dropdown = layui.dropdown;
+
+            
 
                 var configId = $.getQueryString("configId");
                 $("#ConfigId").val(configId);
@@ -89,6 +91,8 @@
                     type: "POST",
                     url: "/param/unitProcedure/getParentCode?configId=" + configId
                 });
+
+
                 $("#CheckStations").bindSelect({
                     type: "POST",
                     url: "/param/unitProcedure/getParentCode?configId=" + configId,

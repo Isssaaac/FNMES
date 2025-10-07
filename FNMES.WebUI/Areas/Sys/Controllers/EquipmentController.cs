@@ -7,6 +7,11 @@ using FNMES.Utility.Operator;
 using FNMES.WebUI.Controllers;
 using FNMES.WebUI.Logic.Sys;
 using FNMES.WebUI.Logic;
+using FNMES.WebUI.Logic.Param;
+using CCS.WebUI;
+using System.Linq;
+using System.Collections.Generic;
+using SqlSugar;
 
 namespace MES.WebUI.Areas.Sys.Controllers
 {
@@ -15,10 +20,14 @@ namespace MES.WebUI.Areas.Sys.Controllers
     public class EquipmentController : BaseController
     {
         private readonly SysEquipmentLogic equipmentlogic;
+        private readonly SysLineLogic lineLogic;
+        private readonly UnitProcedureLogic unitProcedureLogic;
 
         public EquipmentController()
         {
             equipmentlogic = new SysEquipmentLogic();
+            unitProcedureLogic = new UnitProcedureLogic();
+            lineLogic = new SysLineLogic();
         }
 
 
@@ -92,6 +101,29 @@ namespace MES.WebUI.Areas.Sys.Controllers
             return Content(entity.ToJson());
         }
 
-     
+        [Route("system/equipment/getExistSmallStation")]
+        [HttpPost]
+        public ActionResult GetExistSmallStation(string lineId)
+        {
+            var line = lineLogic.Get(long.Parse(lineId));
+            var smallStations = unitProcedureLogic.GetSonList(line.ConfigId);
+            var stations = unitProcedureLogic.GetParentList(line.ConfigId);
+
+            List<SysEquipment> equipments = new List<SysEquipment>();
+            foreach (var smallStation in smallStations)
+            {
+                SysEquipment equipment = new SysEquipment();
+                equipment.Id = SnowFlakeSingle.instance.NextId();
+                equipment.LineId = long.Parse(lineId);
+                equipment.EnCode = smallStation.Encode;
+                equipment.Name = smallStation.Name;
+                equipment.UnitProcedure = smallStation.Encode;
+                equipment.BigProcedure = stations.Where(it => it.Id == smallStation.Pid).Select(it => it.Encode).First();
+                equipments.Add(equipment);
+            }
+
+            bool ret = equipmentlogic.Align(equipments);
+            return ret ? Success() : Error();
+        }
     }
 }

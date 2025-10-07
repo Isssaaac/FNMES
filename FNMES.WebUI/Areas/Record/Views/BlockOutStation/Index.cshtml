@@ -1,0 +1,279 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>电芯过站</title>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+    <link href="~/Content/ztree/css/metroStyle/metroStyle.css" rel="stylesheet" />
+    <script src="~/Content/ztree/js/jquery.ztree.all.min.js"></script>
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+<body>
+    <div class="panel animated fadeIn">
+        <div class="panel-body">
+            <div class="layui-inline" style="margin-bottom: 10px;">
+                <select lay-ignore name="lineId" class="select2" id="lineId" style="width: 250px;height: 30px;" lay-verify="required"></select>
+
+                <div class="layui-inline" id="ID-laydate-range">
+                    <div class="layui-input-inline">
+                        <input type="text" autocomplete="off" id="ID-laydate-start-date" style="width: 200px;height: 30px;" class="layui-input" placeholder="开始日期">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" autocomplete="off" id="ID-laydate-end-date" style="width: 200px;height: 30px;" class="layui-input" placeholder="结束日期">
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="toolbar" class="FNMES-table-toolbar">
+
+                <div class="layui-btn-group">
+                    <button onclick="btn_process()" class="layui-btn layui-btn-primary layui-btn-small">过程数据</button>
+                    <button onclick="btn_part()" class="layui-btn layui-btn-primary layui-btn-small">物料数据</button>
+                    <button id="btnfilter" class="layui-btn layui-btn-primary layui-btn-small" lay-on="test-iframe-handle">查询数据</button>
+                </div>
+
+                <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
+                    <i class="layui-icon">&#xe615;</i>
+                </button>
+                <div class="toolbar-search-input">
+                    <input type="text" id="keyWord" placeholder="key" autocomplete="off" class="layui-input" style="height:39px">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table id="gridList" class="layui-form layui-table FNMES-table" lay-skin="line">
+        <thead>
+            <tr>
+                <th>
+                    <input type="checkbox" lay-skin="primary">
+                </th>
+                <th>条码</th>
+                <th>工位</th>
+                <th>工单号</th>
+                <th>状态</th>
+                <th>进站时间</th>
+            </tr>
+        </thead>
+        <!--内容容器-->
+        <tbody id="content"></tbody>
+    </table>
+    <div id="paged"></div>
+</body>
+</html>
+
+<!--内容模板-->
+<script id="contentTpl" type="text/html">
+      {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}">
+        </td>
+        <td>{{item.ProductCode}}</td>
+        <td>{{item.StationCode}}</td>
+        <td>{{item.TaskOrderNumber}}</td>
+        <td>{{item.ProductStatus}}</td>
+        <td>{{item.InstationTime}}</td>
+    </tr>
+      {{#  }); }}
+       {{# if(d.list.length<=0) { }}
+          <tr style="color: red">
+              <td colspan="6">查无数据。</td>
+          </tr>
+      {{# } }}
+</script>
+
+<script type="text/javascript">
+    var paging;
+    layui.config({
+        base: parent._baseUrl
+    }).use(['paging', 'form', 'layer', 'laydate', 'util'], function () {
+        var layer = layui.layer;
+        var form = layui.form;
+
+        var laydate = layui.laydate;
+
+        $('#btnfilter').on('click', function () {
+            var index = layer.open({
+                type: 2,
+                title: '子页面 - 方法三',
+                area: ['1200px', '600px'],
+                content: '/record/blockoutstation/queryfilter',
+                success: function (layero, index) {
+                    // 获取iframe的window对象
+                    var iframeWin = window[layero.find('iframe')[0]['name']];
+                    // 向子页面暴露父页面方法
+                    iframeWin.sendToParent = function (data) {
+                        var conditions = JSON.stringify(data, null, 2)
+                        initGrid(conditions);
+                        layer.msg('执行查询');
+                        layer.close(index);
+                    };
+                }
+            });
+        });
+
+        // 日期范围 - 左右面板独立选择模式
+        laydate.render({
+            elem: '#ID-laydate-range',
+            range: ['#ID-laydate-start-date', '#ID-laydate-end-date']
+        });
+
+        paging = layui.paging();
+        $("#lineId").bindSelect({
+            type: "POST",
+            url: "/system/line/getListTreeSelect",
+            title: '请选择线体'
+        });
+        $("#toolbar").authorizeButton();
+        $('#btnSearch').click(initGrid);
+    });
+
+        $("#lineId").on("select2:select", function (e) {
+            if ($("#lineId").val() == "0") {
+                return
+            };
+            initGrid();
+        });
+
+        function flush() {
+            if ($("#lineId").val() == "0") {
+                return
+            };
+            initGrid();
+        }
+
+        $('#queryDate').find('button').click(function (i, v) {
+            $(this).addClass('active');
+            $(this).siblings('button').removeClass('active');
+            initGrid();
+        });
+
+        function initGrid(conditions) {
+            if ($("#lineId").val() == "0") {
+                return
+            };
+
+            paging.init({
+                url: '/record/blockoutstation/index',
+                elem: '#content',
+                tempElem: '#contentTpl',
+                singleSelected: true, //单选
+                params: {
+                    configId: $("#lineId").val(),
+                    startDate: $('#ID-laydate-start-date').val(),
+                    endDate: $('#ID-laydate-end-date').val(),
+                    conditions:conditions,
+                    keyword: $("#keyWord").val(),
+                },
+                pageConfig: {
+                    elem: 'paged',
+                    pageSize: 15,
+                },
+                success: function () {
+
+                }
+            });
+        }
+
+        function btn_process() {
+            var ids = $("#gridList").gridSelectedRowValue();
+            if (ids.length != 1) {
+                $.layerMsg("请勾选单条记录查看。", "warning");
+                return;
+            }
+            var data = $("#gridList").gridSelectedRowData();
+            $.ajax({
+                url: '/record/blockoutstation/processexist',
+                method: 'GET',
+                data: {
+                    productCode: data[1],
+                    stationCode: data[2],
+                    configId: $("#lineId").val()
+                },
+                success: function (res) {
+                    var response = JSON.parse(res);
+                    if (response.state == 1) {
+                        // 打开子页面
+                        $.layerOpen({
+                            id: "detail",
+                            title: "查看数据",
+                            width: "1200px",
+                            height: "800px",
+                            content: "/record/blockoutstation/process?productCode=" + data[1] + "&stationCode=" + data[2] + "&configId=" + $("#lineId").val(),
+                            btn: null
+                        });
+                    } else {
+                        $.layerMsg("没有找到相关数据。", "warning");
+                    }
+                },
+                error: function (error) {
+                    // 处理查询错误
+                    $.layerMsg("查询出错。", "error");
+                }
+            });
+        }
+
+        function btn_part() {
+            var ids = $("#gridList").gridSelectedRowValue();
+
+            if (ids.length != 1) {
+                $.layerMsg("请勾选单条记录查看。", "warning");
+                return;
+            }
+            var data = $("#gridList").gridSelectedRowData();
+            $.ajax({
+                url: '/record/blockoutstation/partexist',
+                method: 'GET',
+                data: {
+                    productCode: data[1],
+                    stationCode: data[2],
+                    configId: $("#lineId").val()
+                },
+                success: function (res) {
+                    var response = JSON.parse(res);
+                    if (response.state == 1) {
+                        // 打开子页面
+                        $.layerOpen({
+                            id: "detail",
+                            title: "查看物料",
+                            width: "1200px",
+                            height: "800px",
+                            content: "/record/blockoutstation/part?productCode=" + data[1] + "&stationCode=" + data[2] + "&configId=" + $("#lineId").val(),
+                            btn: null
+                        });
+                    } else { $.layerMsg("没有找到相关数据。", "warning"); }
+
+                },
+                error: function (error) {
+                    // 处理查询错误
+                    $.layerMsg("查询出错。", "error");
+                }
+            });
+        }
+
+</script>
+

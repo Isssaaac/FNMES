@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLOCK过站</title>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+    <link href="~/Content/ztree/css/metroStyle/metroStyle.css" rel="stylesheet" />
+    <script src="~/Content/ztree/js/jquery.ztree.all.min.js"></script>
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+    <style>
+        body {
+            background-color: #f2f3f5;
+            padding: 20px;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .search-panel {
+            background-color: #fff;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 2px rgba(0,0,0,.1);
+        }
+
+        .table-container {
+            background-color: #fff;
+            border-radius: 4px;
+            padding: 15px;
+            box-shadow: 0 1px 2px rgba(0,0,0,.1);
+        }
+
+        .condition-group {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 3px;
+            border-left: 3px solid #1E9FFF;
+        }
+
+        .condition-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .remove-condition {
+            color: #ff5722;
+            cursor: pointer;
+        }
+
+        .buttons {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .add-condition-btn {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="search-panel">
+            <h2>查询条件</h2>
+            <div class="add-condition-btn">
+                <button type="button" class="layui-btn layui-btn-normal" id="addConditionBtn">
+                    <i class="layui-icon">&#xe654;</i> 添加条件
+                </button>
+            </div>
+            <form class="layui-form">
+                <div class="layui-form-item">
+                    <div id="conditionsContainer">
+                        <div style="text-align: center; padding: 10px; color: #999;">
+                            暂无查询条件，请点击上方按钮添加
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit lay-filter="formDemo">提交</button>
+                        <button type="button" class="layui-btn layui-btn-primary" id="resetBtn">
+                            <i class="layui-icon">&#xe669;</i>重置
+                        </button>
+                        <button id="cancel" class="layui-btn">取消</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        layui.use(['form', 'table'], function () {
+            var form = layui.form;
+            var table = layui.table;
+
+            // 初始化动态查询组件
+            DYNAMIC_QUERY.init({
+                container: '#conditionsContainer',
+                fields: [
+                    { name: 'ProductCode', title: '条码' },
+                    { name: 'TaskOrderNumber', title: '工单' },
+                    { name: 'StationCode', title: '大工站' },
+                ],
+                operators: [
+                    { name: 'equals', title: '等于' },
+                    { name: 'contains', title: '包含' },
+                    // { name: 'greater', title: '大于' },
+                    // { name: 'less', title: '小于' },
+                    // { name: 'between', title: '介于之间' },
+                    // { name: 'notnull', title: '不为空' }
+                ]
+            });
+
+            form.on('submit(formDemo)', function (data) {
+                var conditions = DYNAMIC_QUERY.getConditions();
+                // 调用父页面传递过来的方法
+                if (window.sendToParent) {
+                    window.sendToParent(conditions);
+                } else {
+                    alert('父页面方法未找到！');
+                }
+                return false;
+            });
+
+            // 添加条件按钮点击事件
+            $('#addConditionBtn').on('click', function () {
+                DYNAMIC_QUERY.addCondition();
+            });
+
+            // 添加条件按钮点击事件
+            $('#read').on('click', function () {
+                var conditions = DYNAMIC_QUERY.getConditions();
+                var c = conditions[0];
+            });
+
+            function getConditions() {
+                return DYNAMIC_QUERY.getConditions();
+            }
+
+            // 重置按钮点击事件
+            $('#resetBtn').on('click', function () {
+                DYNAMIC_QUERY.clearConditions();
+                layer.msg('已重置所有条件');
+            });
+
+            // 重置按钮点击事件
+            $('#cancel').on('click', function () {
+                var index = parent.layer.getFrameIndex(window.name);
+                // 关闭当前子页面
+                parent.layer.close(index);
+            });
+        });
+    </script>
+</body>
+</html>

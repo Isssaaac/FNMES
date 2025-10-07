@@ -35,6 +35,10 @@
 
             <div id="toolbar" class="FNMES-table-toolbar">
                 <div class="layui-btn-group"></div>
+                <div class="layui-btn-group">
+                    <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_import()">导入</button>
+                    <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_export()">导出</button>
+                </div>
                 <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
                     <i class="layui-icon">&#xe615;</i>
                 </button>
@@ -52,6 +56,8 @@
                         <th>名称</th>
                         <th>类型</th>
                         <th>备注</th>
+                        <th>进站产品类型</th>
+                        <th>出站产品类型</th>
                     </tr>
                 </thead>
                 <!--内容容器-->
@@ -69,7 +75,7 @@
     <tr>
         <td>
             <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
-          <td>{{item.Encode}}</td>
+        <td>{{item.Encode}}</td>
         <td>{{item.Name}}</td>
         <td>
             {{# if(item.IsParent=="1"){ }} 大工站
@@ -77,7 +83,8 @@
             {{# } }}
         </td>
         <td>{{item.Description}}</td>
-       
+        <td>{{item.InStationProductType}}</td>
+        <td>{{item.OutStationProductType}}</td>
     </tr>
       {{#  }); }}
        {{# if(d.list.length<=0) { }}
@@ -103,10 +110,54 @@
         $("#toolbar").authorizeButton();
         $('#btnSearch').click(initGrid);
         $('#keyWord').bindEnterEvent(initGrid);
-       // initGrid();
 
+        $("#lineId").on("select2:select", function (e) {
+            // 处理选择事件
+            if ($("#lineId").val() == "0") {
+                return
+            };
+            initGrid();
+        });
     });
-    //$("#lineId").bindChangeEvent(initGrid);
+
+    function btn_export() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
+        // 发送请求到后端以触发文件导出
+        fetch("/param/unitProcedure/export?configId=" + $("#lineId").val(), {
+            method: "GET",
+        }).then(response => response.blob())
+            .then(blob => {
+                // 创建一个临时链接以下载文件
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = $("#lineId").val() + "-设备管理.xlsx"; // 文件名
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            });
+    }
+
+    function btn_import() {
+        if ($("#lineId").val() == "0") {
+            return;
+        };
+        $.layerOpen({
+            id: "detail",
+            title: "导入参数",
+            width: "450px",
+            height: "250px",
+            content: "/param/unitProcedure/import?configId=" + $("#lineId").val(),
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
+
+
     $("#lineId").on("select2:select", function (e) {
     // 处理选择事件
         if ($("#lineId").val() == "0") {
@@ -146,7 +197,7 @@
             id: "add",
             title: "新增工站",
             width: "750px",
-            height: "400px",
+            height: "600px",
             content: "/param/unitProcedure/form?configId=" + $("#lineId").val(),
             yes: function (iBody) {
                 iBody.find('#btnSubmit').click();
@@ -165,7 +216,7 @@
             id: "edit",
             title: "修改工站",
             width: "750px",
-            height: "400px",
+            height: "600px",
             content: "/param/unitProcedure/form?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
             yes: function (iBody) {
                 iBody.find('#btnSubmit').click();

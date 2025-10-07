@@ -28,9 +28,9 @@ namespace FNMES.WebUI.Logic.Sys
         {
             var db = GetInstance();
             return db.MasterQueryable<SysUser>().Where(it => it.UserNo == account)
-                   //  .Includes(it => it.Organize) && it.DeleteFlag == "0"
-                   .Includes(it => it.CreateUser)
-                   .Includes(it => it.ModifyUser)
+                   //.Includes(it => it.Organize) && it.DeleteFlag == "0"
+                   //.Includes(it => it.CreateUser)
+                   //.Includes(it => it.ModifyUser)
                  .First();
         }
 
@@ -231,8 +231,9 @@ namespace FNMES.WebUI.Logic.Sys
         {
             var db = GetInstance();
             return db.MasterQueryable<SysUser>().Where(it => it.Id == primaryKey)
-                 .Includes(it => it.CreateUser)
-                 .Includes(it => it.ModifyUser).First();
+                 //.Includes(it => it.CreateUser)
+                 //.Includes(it => it.ModifyUser)
+                 .First();
         }
 
         /// <summary>
@@ -252,8 +253,9 @@ namespace FNMES.WebUI.Logic.Sys
                 queryable = queryable.Where(it => it.UserNo.Contains(keyWord) || it.Name.Contains(keyWord));
             }
             return queryable.OrderBy(it => it.SortCode)
-                 .Includes(it => it.CreateUser)
-                 .Includes(it => it.ModifyUser).ToPageList(pageIndex, pageSize, ref totalCount);
+                 //.Includes(it => it.CreateUser)
+                 //.Includes(it => it.ModifyUser)
+                 .ToPageList(pageIndex, pageSize, ref totalCount);
         }
 
      

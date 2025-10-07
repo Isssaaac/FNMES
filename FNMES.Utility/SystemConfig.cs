@@ -10,5 +10,6 @@ namespace FNMES.Utility
     {
         public bool IsDemo { get; set; }
         public bool IsSeedData { get; set; }
+        public bool EnableFactoryMes { get; set; }
     }
 }

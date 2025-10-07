@@ -73,6 +73,30 @@
 
         <div class="layui-form-item">
             <div class="layui-inline">
+                <label class="layui-form-label label-required">进站类型</label>
+                <div class="layui-input-inline">
+                    <select name="InStationProductType" class="select" id="InStationProductType" multiple="multiple" style="width: 514px;">
+                        <option value="Cell">电芯</option>
+                        <option value="Block">模组</option>
+                        <option value="Pack">PACK</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">出站类型</label>
+                <div class="layui-input-inline">
+                    <select name="OutStationProductType" class="select" id="OutStationProductType" multiple="multiple" style="width: 514px;">
+                        <option value="Cell">电芯</option>
+                        <option value="Block">模组</option>
+                        <option value="Pack">PACK</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
                 <label class="layui-form-label">备注</label>
                 <div class="layui-input-inline" style="width: 514px;">
                     <textarea name="Description" placeholder="请输入备注" class="layui-textarea"></textarea>

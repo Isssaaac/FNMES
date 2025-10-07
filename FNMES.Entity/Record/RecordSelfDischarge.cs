@@ -10,7 +10,7 @@ namespace FNMES.Entity.Record
 {
     [SplitTable(SplitType.Season)]
     [SugarTable("Record_SelfDischarge_{year}{month}{day}")]
-    [SugarIndex("index_SelfDischarge", nameof(productCode), OrderByType.Asc)]
+    [SugarIndex("index_SelfDischarge", nameof(productCode), OrderByType.Asc), LineTableInit]
     public class RecordSelfDischarge
     {
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]

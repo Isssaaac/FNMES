@@ -24,8 +24,8 @@ namespace FNMES.WebUI.Logic.Sys
                 if (null == equipment)
                     return null;
                 return db.Queryable<SysEquipment>().Where(it => it.LineId == equipment.Id)
-                    .Includes(it => it.CreateUser)
-                    .Includes(it => it.ModifyUser)
+                    //.Includes(it => it.CreateUser)
+                    //.Includes(it => it.ModifyUser)
                     .OrderBy(it => it.SortCode)
                     .ToList();
             }
@@ -48,8 +48,8 @@ namespace FNMES.WebUI.Logic.Sys
                     queryable = queryable.Where(it => (it.Name.Contains(keyWord) || it.EnCode.Contains(keyWord)));
                 }
                 return queryable
-                    .Includes(it => it.CreateUser)
-                    .Includes(it => it.ModifyUser)
+                    //.Includes(it => it.CreateUser)
+                    //.Includes(it => it.ModifyUser)
                     .Includes(it => it.Line)
                     .OrderBy(it => it.SortCode)
                     .ToPageList(pageIndex, pageSize, ref totalCount);
@@ -68,8 +68,8 @@ namespace FNMES.WebUI.Logic.Sys
                 var db = GetInstance();
                 return db.Queryable<SysEquipment>()
                     .Where(it => it.LineId == lineId)
-                    .Includes(it => it.CreateUser)
-                    .Includes(it => it.ModifyUser)
+                    //.Includes(it => it.CreateUser)
+                    //.Includes(it => it.ModifyUser)
                     .ToList();
             }
             catch (Exception e)
@@ -89,8 +89,8 @@ namespace FNMES.WebUI.Logic.Sys
                 return db.MasterQueryable<SysEquipment>()
                     .Where(it => it.IP == IP)
                     .Includes(it => it.Line)
-                    .Includes(it => it.CreateUser)
-                    .Includes(it => it.ModifyUser)
+                    //.Includes(it => it.CreateUser)
+                    //.Includes(it => it.ModifyUser)
                     .First();
             }
             catch (Exception e)
@@ -130,8 +130,8 @@ namespace FNMES.WebUI.Logic.Sys
                 var db = GetInstance();
                 return db.MasterQueryable<SysEquipment>()
                     .Where(it => it.Id == primaryKey)
-                    .Includes(it => it.CreateUser)
-                    .Includes(it => it.ModifyUser)
+                    //.Includes(it => it.CreateUser)
+                    //.Includes(it => it.ModifyUser)
                     .First();
             }
             catch (Exception e)
@@ -151,7 +151,7 @@ namespace FNMES.WebUI.Logic.Sys
                 model.CreateTime = DateTime.Now;
                 model.ModifyUserId = model.CreateUserId;
                 model.ModifyTime = model.CreateTime;
-                return db.Insertable<SysEquipment>(model).ExecuteCommand();
+                return db.Insertable(model).ExecuteCommand();
             }
             catch (Exception e)
             {
@@ -217,6 +217,37 @@ namespace FNMES.WebUI.Logic.Sys
             {
                 Logger.ErrorInfo(e.Message);
                 return new SysEquipment();
+            }
+        }
+
+        public bool Align(List<SysEquipment> equipments)
+        {
+            try
+            {
+                var db = GetInstance();
+                foreach (var equipment in equipments)
+                {
+                    var existingItem = db.Queryable<SysEquipment>().First(x => x.EnCode == equipment.EnCode);
+
+                    if (existingItem != null)
+                    {
+                        // 更新现有记录，忽略某些字段
+                        db.Updateable(equipment)
+                          .WhereColumns(w => w.EnCode)
+                          .UpdateColumns(e => new { e.Name, e.BigProcedure})
+                          .ExecuteCommand();
+                    }
+                    else
+                    {
+                        db.Insertable(equipment).ExecuteCommand();
+                    }
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return false;
             }
         }
     }

@@ -1,0 +1,171 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>添加PLC</title>
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery-3.6.0.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+
+
+
+
+<body>
+    <form id="form" class="layui-form" style="margin-top: 25px">
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <input type="hidden" name="Id" id="Id" />
+                <input type="hidden" name="ConfigId" id="ConfigId" />
+                <input type="hidden" name="RecipeItemId" id="RecipeItemId" />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+
+                @* <div class="layui-inline">
+                    <label class="layui-form-label ">小工位</label>
+                    <div class="layui-input-inline">
+                        <select class="select2 layui-input-inline" lay-ignore name="SmallStationCode" id="SmallStationCode"></select>
+                    </div>
+                </div> *@
+                <label class="layui-form-label label-required">物料编码</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="PartNumber" id="PartNumber" placeholder="物料编码" autocomplete="off" class="layui-input">
+                </div>
+
+                <label class="layui-form-label label-required">数量</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="PartQty" id="PartQty" placeholder="数量" autocomplete="off" class="layui-input" value="1">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">工步编码</label>
+                <div class="layui-input-inline">
+                    <input type="text" lay-filter="StepNo" name="StepNo" id="StepNo" lay-verify="required" placeholder="工步编码" autocomplete="off" class="layui-input">
+                </div>
+                <label class="layui-form-label">工步名</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="StepName" id="StepName" placeholder="工步名" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">顺序号</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="OrderNo" id="OrderNo" placeholder="序号" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">版本</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="PartVersion" id="PartVersion" placeholder="版本" autocomplete="off" class="layui-input">
+                </div>
+                <label class="layui-form-label">单位</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="Uom" id="Uom" placeholder="单位" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">描述</label>
+                    <div class="layui-input-inline" style="width: 514px">
+                        <textarea type="text" name="PartDescription" id="PartDescription" placeholder="描述" autocomplete="off" class="layui-textarea"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="display: none">
+            <div class="layui-input-block">
+                <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="add">提交</button>
+            </div>
+        </div>
+    </form>
+
+    <script src="~/Content/jquery/jquery.md5.js"></script>
+    <script>
+        layui.use(['element', 'form', 'laydate', 'layer'], function () {
+            var form = layui.form;
+            var element = layui.element;
+            $("#ConfigId").val($.getQueryString("configId"));
+            form.render();
+
+            configId = $.getQueryString("configId");
+            $("#SmallStationCode").bindSelect({
+                type: "POST",
+                url: "/param/unitProcedure/getListTreeUnSelect?configId=" + configId
+            });
+
+            $('#StepNo').on('change', function (othis) {
+                $.ajax({
+                    url: "/param/recipe/getStepName",
+                    data: {
+                        configId: $.getQueryString("configId"),
+                        recipeItemId: $.getQueryString("primaryKey"),
+                        StepNo: this.value
+                    },
+                    type: "post",
+                    dataType: "text",
+                    async: false,
+                    success: function (data) {
+                        $("#StepName").val(data);
+                    }
+                });
+            });
+
+            // form.on('input(StepNo)', function (data) {
+            //     $.ajax({
+            //         url: "/param/recipe/getStepName",
+            //         data: {
+            //             configId: $.getQueryString("configId"),
+            //             recipeItemId: $.getQueryString("primaryKey"),
+            //             StepNo: data.value
+            //         },
+            //         type: "post",
+            //         dataType: "text",
+            //         async: false,
+            //         success: function (data) {
+            //             $("#StepName").val(data);
+            //         }
+            //     });
+            // });
+
+            $("#RecipeItemId").val($.getQueryString("primaryKey"));
+            $("#ConfigId").val($.getQueryString("configId"));
+            form.on('submit(add)', function (form) {
+                $.formSubmit({
+                    url: "/param/recipe/partadd",
+                    data: form.field
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+

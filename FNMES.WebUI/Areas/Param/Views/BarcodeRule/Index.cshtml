@@ -1,0 +1,169 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>条码规则</title>
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+<body>
+    <div style="margin: 15px">
+        <div id="toolbar" class="FNMES-table-toolbar">
+            <div class="layui-inline" style="margin-bottom: 10px;">
+                <select lay-ignore name="lineId" class="select2" id="lineId" style="width: 250px;height: 30px;" lay-verify="required"></select>
+                <div class="layui-btn-group">
+                    <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_modify()">修改</button>
+                    <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_gen()">生成</button>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="barcode" id="barcode" placeholder="条码" autocomplete="off" class="layui-input" style="width:300px">
+                </div>
+            </div>
+                
+        </div>
+        <table id="gridList" class="layui-form layui-table FNMES-table" lay-skin="line">
+            <thead>
+                <tr>
+                    <th>
+                        <input type="checkbox" lay-skin="primary">
+                    </th>
+                    <th>规格代码</th>
+                    <th>追溯信息码</th>
+                    <th>厂商地址</th>
+                    <th>流水码</th>
+                </tr>
+            </thead>
+            <!--内容容器-->
+            <tbody id="content"></tbody>
+        </table>
+        <div id="paged"></div>
+    </div>
+</body>
+</html>
+
+<!--内容模板-->
+<script id="contentTpl" type="text/html">
+      {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}">
+        </td>
+        <td>{{item.StandardCode}}</td>
+        <td>{{item.TraceInfoCode}}</td>
+        <td>{{item.VendorAddress}}</td>
+        <td>{{item.SerialNumber}}</td>
+    </tr>
+      {{#  }); }}
+       {{# if(d.list.length<=0) { }}
+          <tr style="color: red">
+              <td colspan="6">查无数据。</td>
+          </tr>
+      {{# } }}
+</script>
+
+<script type="text/javascript">
+    var paging;
+    layui.config({
+        base: parent._baseUrl
+    }).use(['paging', 'form'], function () {
+        var form = layui.form;
+        paging = layui.paging();
+
+        $("#lineId").bindSelect({
+            type: "POST",
+            url: "/system/line/getListTreeSelect",
+            title: '请选择线体'
+        });
+        initGrid();
+    });
+
+    $("#lineId").on("select2:select", function (e) {
+        // 处理选择事件
+        if ($("#lineId").val() == "0") {
+            return
+        };
+        initGrid();
+    });
+
+    function initGrid() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
+        paging.init({
+            url: '/param/barcoderule/index',
+            elem: '#content',
+            tempElem: '#contentTpl',
+            params: {
+                configId: $("#lineId").val()
+            },
+            pageConfig: {
+                elem: 'paged',
+                pageSize: 10,
+            },
+            success: function () {
+
+            },
+            fail: function (msg) {
+                top.layer.msg(msg);
+            }
+        });
+    }
+
+    function btn_modify() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录查看。", "warning");
+            return;
+        }
+        $.layerOpen({
+            id: "modify",
+            title: "修改规则",
+            width: "730px",
+            height: "400px",
+            content: "/param/barcoderule/modify?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
+
+    function btn_gen() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
+        $.ajax({
+            url: "/param/barcoderule/genbarcode",
+            data: {
+                ConfigId: $("#lineId").val()
+            },
+            type: "post",
+            dataType: "text",
+            async: false,
+            success: function (data) {
+                $("#barcode").val(data);
+            }
+        });
+    }
+</script>
+

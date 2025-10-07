@@ -13,7 +13,7 @@ namespace FNMES.Entity.Param
         ///  唯一ID
         ///</summary>
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName = "id", IsPrimaryKey = true, IsIdentity = true)]
+        [SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
         public long Id { get; set; }
 
 

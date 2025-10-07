@@ -26,7 +26,7 @@ namespace FNMES.WebUI.Logic.Param
             try
             {
                 var db = GetInstance(configId);
-                ISugarQueryable<ParamRecipeItem> queryable = db.MasterQueryable<ParamRecipeItem>().Where(it => it.RecipeId == productId);
+                ISugarQueryable<ParamRecipeItem> queryable = db.MasterQueryable<ParamRecipeItem>().Where(it => it.RecipeId == productId).OrderBy(it => it.Step);
                 if (!keyWord.IsNullOrEmpty())
                 {
                     queryable = queryable.Where(it => it.StationCode.Contains(keyWord) || it.StationName.Contains(keyWord));
@@ -40,11 +40,10 @@ namespace FNMES.WebUI.Logic.Param
             }
         }
 
-        
+
         //只查询路线，不查询子参数
         public ParamRecipeItem QueryRoute(string productPartNo, string stationCode, string configId)
         {
-            
             try
             {
                 var db = GetInstance(configId);
@@ -60,7 +59,6 @@ namespace FNMES.WebUI.Logic.Param
                 Logger.ErrorInfo(E.Message);
                 return null;
             }
-
         }
         public List<ParamItem> GetParamList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount, long pid)
         {
@@ -73,7 +71,7 @@ namespace FNMES.WebUI.Logic.Param
                     queryable = queryable.Where(it => it.StepName.Contains(keyWord) || it.ParamName.Contains(keyWord));
                 }
                 //return queryable.OrderBy(it => it.StepNo).ToPageList(pageIndex, pageSize, ref totalCount);
-                return queryable.OrderBy("TRY_CAST(stepNo AS INT)").ToPageList(pageIndex, pageSize, ref totalCount);
+                return queryable.OrderBy("TRY_CAST(StepNo AS INT)").ToPageList(pageIndex, pageSize, ref totalCount);
             }
             catch (Exception E)
             {
@@ -112,7 +110,8 @@ namespace FNMES.WebUI.Logic.Param
                     queryable = queryable.Where(it => it.PartNumber.Contains(keyWord) || it.PartDescription.Contains(keyWord));
                 }
                 //return queryable.OrderBy(it => it.StepNo).ToPageList(pageIndex, pageSize, ref totalCount);
-                return queryable.OrderBy("TRY_CAST(stepNo AS INT),TRY_CAST(No AS INT)").ToPageList(pageIndex, pageSize, ref totalCount);
+                var data = queryable.OrderBy("TRY_CAST(StepNo AS INT),TRY_CAST(OrderNo AS INT)").ToPageList(pageIndex, pageSize, ref totalCount);
+                return data;
             }
             catch (Exception E)
             {
@@ -161,7 +160,7 @@ namespace FNMES.WebUI.Logic.Param
                 return new List<ParamStepItem>();
             }
         }
-        //查询全部子参数      
+        //查询全部子参数,实际没有用小工站
         public ParamRecipeItem Query(string productPartNo, string stationCode, string smallStationCode, string configId)
         {
             try

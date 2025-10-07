@@ -47,6 +47,9 @@
                     <div class="panel-body">
                         <div id="toolbar" class="FNMES-table-toolbar">
                             <div class="layui-btn-group"></div>
+                            <div class="layui-btn-group">
+                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_refresh()">同步现有工序</button>
+                            </div>
                             <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
                                 <i class="layui-icon">&#xe615;</i>
                             </button>
@@ -62,6 +65,7 @@
                                     </th>
                                     <th>顺序号</th>
                                     <th>工序</th>
+                                    <th>工序名称</th>
                                     <th>校验工站</th>
                                     <th>允许跳站</th>
                                     <th>允许重复作业</th>
@@ -91,6 +95,7 @@
         </td>
         <td>{{item.Step}}</td>
         <td>{{item.StationCode}}</td>
+        <td>{{item.StationName}}</td>
         <td>{{item.Criterion}}</td>
         <td>
             {{# if(item.IsAllowJump==true){ }}  <span class="label label-success label-sm">是</span>
@@ -255,7 +260,7 @@
     function btn_delete() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
-            $.layerMsg("请勾选需要一条删除的用户。", "warning");
+            $.layerMsg("请勾选需要一条删除的工序。", "warning");
             return;
         }
         $.layerConfirm({
@@ -288,6 +293,28 @@
             height: "530px",
             content: "/param/unitProcedure/detail?primaryKey=" + ids[0] + "&configId=" + $("#lineId").val(),
             btn: null
+        });
+    }
+
+    function btn_refresh() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
+        var treeObj = $.fn.zTree.getZTreeObj("treeItem");
+        var selectedNode = treeObj.getSelectedNodes()[0];
+
+        $.ajax({
+            url: "/param/route/getExistStation",
+            data: {
+                productPartNo: selectedNode.name,
+                configId: $("#lineId").val()
+            },
+            type: "post",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                initGrid();
+            }
         });
     }
 </script>

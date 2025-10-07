@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.Sys
 {
-    [SugarTable("Sys_Line")]
+    [SugarTable("Sys_Line"), SystemTableInit]
     public class SysLine : BaseModelEntity
     {
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName = "id", IsPrimaryKey = true)]
+        [SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
         public long Id { get; set; }
 
-        [SugarColumn(ColumnName = "enCode")]
+        [SugarColumn(ColumnName = "EnCode")]
         public string EnCode { get; set; }
 
-        [SugarColumn(ColumnName = "name")]
+        [SugarColumn(ColumnName = "Name")]
         public string Name { get; set; }
 
-        [SugarColumn(ColumnName = "configId")]
+        [SugarColumn(ColumnName = "ConfigId")]
         public string ConfigId { get; set; }
 
         

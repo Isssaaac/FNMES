@@ -54,7 +54,7 @@ namespace FNMES.WebUI.Logic.Sys
                 Db.BeginTran();
                 List<long> permissionIdList = db.Queryable<SysUserRoleRelation, SysRoleAuthorize, SysPermission>((A, B, C) => new object[] {
                           JoinType.Left,A.RoleId == B.RoleId,
-                          JoinType.Left,C.Id == B.ModuleId,
+                          JoinType.Left,C.Id == B.PermissionId,
                         })
                     .Where((A, B, C) => A.UserId == userId && C.EnableFlag == "1")
                     .Select((A, B, C) => C.Id).ToList();
@@ -90,7 +90,7 @@ namespace FNMES.WebUI.Logic.Sys
                 Db.BeginTran();
                 //删除权限与角色的对应关系。
                 db.Deleteable<SysPermission>().Where((it) => primaryKeys.Contains(it.Id.ToString())).ExecuteCommand();
-                db.Deleteable<SysRoleAuthorize>().Where((it) => primaryKeys.Contains(it.ModuleId.ToString())).ExecuteCommand();
+                db.Deleteable<SysRoleAuthorize>().Where((it) => primaryKeys.Contains(it.PermissionId.ToString())).ExecuteCommand();
                 Db.CommitTran();
                 return 1;
             }
@@ -144,7 +144,10 @@ namespace FNMES.WebUI.Logic.Sys
         public SysPermission Get(long primaryKey = 0)
         {
             var db = GetInstance();
-            return db.MasterQueryable<SysPermission>().Where(it => it.Id == primaryKey).Includes(it => it.CreateUser).Includes(it => it.ModifyUser).First();
+            return db.MasterQueryable<SysPermission>().Where(it => it.Id == primaryKey)
+                //.Includes(it => it.CreateUser)
+                //.Includes(it => it.ModifyUser)
+                .First();
         }
 
 
@@ -244,7 +247,7 @@ namespace FNMES.WebUI.Logic.Sys
             List<SysPermission> sysPermissions = new List<SysPermission>();
             if (roleIds.Count > 0)
             {
-                List<long> permissionIds = db.MasterQueryable< SysRoleAuthorize>().Where(it => roleIds.Contains((long)it.RoleId)).Select(it => (long)it.ModuleId).ToList();
+                List<long> permissionIds = db.MasterQueryable< SysRoleAuthorize>().Where(it => roleIds.Contains((long)it.RoleId)).Select(it => (long)it.PermissionId).ToList();
                 sysPermissions = db.MasterQueryable<SysPermission>().Where(it => permissionIds.Contains(it.Id) && it.Type>=3).ToList();
             }
             return sysPermissions;

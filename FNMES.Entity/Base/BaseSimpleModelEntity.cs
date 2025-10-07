@@ -9,23 +9,23 @@ namespace FNMES.Entity
         
         ///</summary>
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName = "createUser")]
+        [SugarColumn(ColumnName = "CreateUserId", IsNullable = true)]
         public long CreateUserId { get; set; }
         /// <summary>
         /// 创建时间 
         ///</summary>
-        [SugarColumn(ColumnName = "createTime")]
+        [SugarColumn(ColumnName = "CreateTime", IsNullable = true)]
         public DateTime? CreateTime { get; set; }
         /// <summary>
         /// 修改人 
         ///</summary>
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName = "modifyUser")]
+        [SugarColumn(ColumnName = "ModifyUserId", IsNullable = true)]
         public long ModifyUserId { get; set; }
         /// <summary>
         /// 修改时间 
         ///</summary>
-        [SugarColumn(ColumnName = "modifyTime")]
+        [SugarColumn(ColumnName = "ModifyTime", IsNullable = true)]
         public DateTime? ModifyTime { get; set; }
 
         /// <summary>

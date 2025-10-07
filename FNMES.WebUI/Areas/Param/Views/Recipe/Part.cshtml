@@ -32,15 +32,20 @@
 </head>
 <body>
     <div class="container-fluid fadeIn animated">
+        <div class="layui-btn-group">
+            <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_add()">增加</button>
+            <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_modify()">修改</button>
+            <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_delete()">删除</button>
+        </div>
         @* <div class="panel container-panel"> *@
             @* <div class="panel-body"> *@
-                <table id="gridList1" class="layui-form layui-table FNMES-table" lay-skin="line">
+                <table id="gridList" class="layui-form layui-table FNMES-table" lay-skin="line">
                     <thead>
                         <tr>
                             <th>
                                 <input type="checkbox" lay-skin="primary">
                             </th>
-                            <th>小工位</th>
+                    @*<th>小工位</th>*@
                             <th>工步编码</th>
                             <th>工步名</th>
                             <th>序号</th>
@@ -55,13 +60,12 @@
                     <tbody id="content1"></tbody>
                 </table>
                 <div id="paged1"></div>
-            @* </div> *@
-            <div id="toolbar" class="FNMES-table-toolbar">
-                <div class="layui-btn-group">
-                    <button onclick="btn_show()" class="layui-btn layui-btn-primary layui-btn-small">查询替代料</button>
+
+                @*<div id="toolbar" class="FNMES-table-toolbar">
+                    <div class="layui-btn-group">
+                        <button onclick="btn_show()" class="layui-btn layui-btn-primary layui-btn-small">查询替代料</button>
+                    </div>
                 </div>
-            </div>
-            @* <div class="panel-body"> *@
                 <table id="gridList2" class="layui-form layui-table FNMES-table" lay-skin="line">
                     <thead>
                         <tr>
@@ -76,9 +80,7 @@
                     <!--内容容器-->
                     <tbody id="content2"></tbody>
                 </table>
-                <div id="paged2"></div>
-            @* </div> *@
-        @* </div> *@
+        <div id="paged2"></div>*@
            
        
     </div>
@@ -92,7 +94,7 @@
         <td>
             <input type="checkbox" lay-skin="primary" value="{{item.Id}}">
         </td>
-        <td>{{item.SmallStationCode}}</td>
+        @*<td>{{item.SmallStationCode}}</td>*@
         <td>{{item.StepNo}}</td>
         <td>{{item.StepName}}</td>
         <td>{{item.OrderNo}}</td>
@@ -152,7 +154,7 @@
             },
             pageConfig: {
                 elem: 'paged1',
-                pageSize: 5,
+                pageSize: 10,
             },
             success: function () {
 
@@ -186,11 +188,6 @@
         });
     }
 
-
-
-
-
-
     function btn_show() {
         var ids = $("#gridList1").gridSelectedRowValue();
 
@@ -200,8 +197,62 @@
         }
         var configId = $.getQueryString("configId");
         initGrid2(configId, ids[0]);
-        
     }
 
+    function btn_add() {
+        $.layerOpen({
+            id: "add",
+            title: "添加参数",
+            width: "730px",
+            height: "600px",
+            content: "/param/recipe/partadd?ConfigId=" + $.getQueryString("configId") + "&primaryKey=" + $.getQueryString("primaryKey"),
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
+
+    function btn_modify() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录查看。", "warning");
+            return;
+        }
+        $.layerOpen({
+            id: "modify",
+            title: "修改参数",
+            width: "730px",
+            height: "600px",
+            content: "/param/recipe/partmodify?primaryKey=" + ids[0] + "&configId=" + $.getQueryString("configId"),
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
+
+    function btn_delete() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录查看。", "warning");
+            return;
+        }
+        $.layerConfirm({
+            content: "您已选中1条数据, 确定删除吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/param/recipe/partdelete',
+                    data: {
+                        primaryKey: ids[0],
+                        ConfigId: $.getQueryString("configId")
+                    },
+                    success: function () {
+                        initGrid();
+                    }
+                });
+            }
+        });
+    }
 </script>
 

@@ -27,50 +27,45 @@ namespace FNMES.WebUI.Logic.Param
 {
     public class ProcessBindLogic : BaseLogic
     {
-        public long Insert(ProcessBind model,string configId)
+        //删除后再插入
+        public long Insert(List<ProcessBind> models,string configId)
         {
             try
             {
                 var db = GetInstance(configId);
-                model.Id = SnowFlakeSingle.Instance.NextId();
+                if (models == null || models.Count == 0)
+                {
+                    return 0L;
+                }
                 int res = 0;
                 //旧的托盘绑定
-                List<ProcessBind> oldagvbind = db.MasterQueryable<ProcessBind>().Where(it => it.PalletNo == model.PalletNo).ToList();
-                //旧的产品条码绑定
-                List<ProcessBind> oldprocessBind = db.MasterQueryable<ProcessBind>().Where(it => it.ProductCode == model.ProductCode).ToList();
-                //假如旧的agv绑定存在，则更新
+                List<ProcessBind> oldagvbind = db.MasterQueryable<ProcessBind>().Where(it => it.PalletNo == models[0].PalletNo).ToList();
+                
+                //假如旧的agv绑定存在，则把对应的托盘码更新为空
                 if (oldagvbind != null && oldagvbind.Count != 0)
                 {
-                    try
+                    if (string.IsNullOrWhiteSpace(models[0].PalletNo))
                     {
-                        Db.BeginTran();
-                        if (string.IsNullOrWhiteSpace(model.PalletNo))
-                        {
-                            res = Update(model, configId);
-                        }
-                        else
-                        {
-                            foreach (var item in oldagvbind)
-                            {
-                                item.PalletNo = "";
-                                res = Update(item, configId);
-                            }
-                        }
-                        Db.CommitTran();
+                        //如果托盘码为空，为什么绑定的方法，会有机台传入空的agv
+                        res = Update(models[0], configId);
                     }
-                    catch (Exception)
+                    else
                     {
-                        Db.RollbackTran();
-                        return 0L;
-                        throw;
+                        foreach (var item in oldagvbind)
+                        {
+                            item.PalletNo = "";
+                            res = Update(item, configId);
+                        }
                     }
-                    
                 }
-                //假如旧的产品条码存在
-                if (oldprocessBind!= null && oldprocessBind.Count!=0)
+                foreach (var model in models)
                 {
-                    try
+                    //旧的产品条码绑定，说明产品重新上线
+                    List<ProcessBind> oldprocessBind = db.MasterQueryable<ProcessBind>().Where(it => it.ProductCode == model.ProductCode).ToList();
+                    //假如旧的产品条码存在
+                    if (oldprocessBind != null && oldprocessBind.Count != 0)
                     {
+
                         Db.BeginTran();
                         List<RecordBindHistory> histories = new List<RecordBindHistory>();
                         oldprocessBind.ForEach(it =>
@@ -86,27 +81,13 @@ namespace FNMES.WebUI.Logic.Param
 
                         res = db.Insertable<ProcessBind>(model).ExecuteCommand();
                         Db.CommitTran();
-                        if (res != 0)
-                        {
-                            return model.Id;
-                        }
-                        return 0L;
                     }
-                    catch (Exception)
+                    else
                     {
-                        Db.RollbackTran();
-                        throw ;
+                        res = db.Insertable<ProcessBind>(model).ExecuteCommand();
                     }
                 }
-                else
-                {
-                    res = db.Insertable<ProcessBind>(model).ExecuteCommand();
-                    if(res != 0)
-                    {
-                        return model.Id;
-                    }
-                    return 0L;
-                }
+                return 1L; //两个都绑定成功
             }
             catch (Exception e)
             {
@@ -154,13 +135,13 @@ namespace FNMES.WebUI.Logic.Param
 
 
       
-        public ProcessBind GetByPalletNo(string palletNo, string configId)
+        public List<ProcessBind> GetByPalletNo(string palletNo, string configId)
         {
             try
             {
                 //业务逻辑，必须走主库
                 var db = GetInstance(configId);
-                return db.MasterQueryable<ProcessBind>().Where(it => it.PalletNo == palletNo).First();
+                return db.MasterQueryable<ProcessBind>().Where(it => it.PalletNo == palletNo).ToList();
             }
             catch (Exception e)
             {

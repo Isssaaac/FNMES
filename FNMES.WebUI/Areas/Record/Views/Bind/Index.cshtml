@@ -134,6 +134,7 @@
                         </th>
                         <th>托盘</th>
                         <th>内控码</th>
+                        <th>位置</th>
                         <th>工单</th>
                         <th>产品名称</th>
                         <th>所属线体</th>
@@ -161,8 +162,9 @@
     <tr>
         <td>
             <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
-          <td>{{item.PalletNo}}</td>
+        <td>{{item.PalletNo}}</td>
         <td>{{item.ProductCode}}</td>
+        <td>{{item.Position}}</td>
         <td>{{item.TaskOrderNumber}}</td>
         <td>{{item.ProductPartNo}}</td>
         <td>{{item.ConfigId}}</td>

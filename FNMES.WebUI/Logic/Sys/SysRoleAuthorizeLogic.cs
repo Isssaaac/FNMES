@@ -76,7 +76,7 @@ namespace FNMES.WebUI.Logic.Sys
                     {
                         Id = SnowFlakeSingle.instance.NextId(),
                         RoleId = roleId,
-                        ModuleId = it,
+                        PermissionId = it,
                         CreateUser = operateId,
                         CreateTime = DateTime.Now,
 
@@ -127,7 +127,7 @@ namespace FNMES.WebUI.Logic.Sys
                     {   
                         Id = SnowFlakeSingle.instance.NextId(),
                         RoleId = roleId,
-                        ModuleId = it,
+                        PermissionId = it,
                         CreateUser = operateId,
                         CreateTime = DateTime.Now,
                     }).ToList();
@@ -150,7 +150,7 @@ namespace FNMES.WebUI.Logic.Sys
         {
             using (var db = GetInstance())
             {
-                return db.Deleteable<SysRoleAuthorize>().Where(it => moduleIds.Contains(it.ModuleId.ToString())).ExecuteCommand();
+                return db.Deleteable<SysRoleAuthorize>().Where(it => moduleIds.Contains(it.PermissionId.ToString())).ExecuteCommand();
             }
         }
 

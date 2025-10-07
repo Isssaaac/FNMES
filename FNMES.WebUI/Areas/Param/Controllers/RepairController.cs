@@ -226,16 +226,6 @@ namespace FNMES.WebUI.Areas.Param.Controllers
         public string DefectCode { get; set; }
 
         public string DefectDesc { get; set; }
-
-
-        public string RepairFlag { get; set; }
-
-        //<th>内控码</th>
-        //<th>所属线体</th>                          
-        //<th>工序</th>                          
-        //<th>状态</th>                          
-        //<th>不良代码</th>                          
-        //<th>不良描述</th>                          
-        //<th>登记为返修</th>                          
+        public string RepairFlag { get; set; }           
     }
 }

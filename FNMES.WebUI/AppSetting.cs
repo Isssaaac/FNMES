@@ -44,6 +44,8 @@ namespace CCS.WebUI
         public static int LogOutDateDays { get; set; }
         public static int SessionTimeout { get; set; }
         public static FTPparam FTPparam { get; set; }
+
+        
         public static void Init(this IServiceCollection services, IConfiguration configuration)
         {
             Configuration = configuration;

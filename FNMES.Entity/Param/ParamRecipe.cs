@@ -8,65 +8,58 @@ namespace FNMES.Entity.Param
     /// <summary>
     /// 
     ///</summary>
-    [SugarTable("Param_Recipe")]
-    public class ParamRecipe:ParamBase
+    [SugarTable("Param_Recipe"), LineTableInit]
+    public class ParamRecipe: ParamBase
     {
-        /// <summary>
-        ///  
-        ///</summary>
-        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]
-         public long Id { get; set; }
 
-        [SugarColumn(ColumnName = "productPartNo")]
+        [SugarColumn(ColumnName = "ProductPartNo")]
         public string ProductPartNo { get; set; }
 
         /// <summary>
         /// 名称 
         ///</summary>
-        [SugarColumn(ColumnName = "productDescription", IsNullable = true)]
+        [SugarColumn(ColumnName = "ProductDescription", IsNullable = true)]
         public string ProductDescription { get; set; }
 
         /// <summary>
         /// sap客户项目号 
         ///</summary>
-        [SugarColumn(ColumnName = "sapCustomerProjNo", IsNullable = true)]
+        [SugarColumn(ColumnName = "SapCustomerProjNo", IsNullable = true)]
         public string SapCustomerProjNo { get; set; }
 
         /// <summary>
         /// 编码 
         ///</summary>s
-        [SugarColumn(ColumnName = "bomNo", IsNullable = true)]
+        [SugarColumn(ColumnName = "BomNo", IsNullable = true)]
          public string BomNo { get; set; }
 
         /// <summary>
         /// 名称 
         ///</summary>
-         [SugarColumn(ColumnName = "bomDescription", IsNullable = true)]
+         [SugarColumn(ColumnName = "BomDescription", IsNullable = true)]
          public string BomDescription { get; set; }
 
         /// <summary>
         /// BOM版本
         /// </summary>
-        [SugarColumn(ColumnName = "bomVersion", IsNullable = true)]
+        [SugarColumn(ColumnName = "BomVersion", IsNullable = true)]
         public string BomVersion { get; set; }
 
-        [SugarColumn(ColumnName = "processConfigName", IsNullable = true)]
+        [SugarColumn(ColumnName = "ProcessConfigName", IsNullable = true)]
         public string ProcessConfigName { get; set; }
 
-        [SugarColumn(ColumnName = "routeNo", IsNullable = true)]
+        [SugarColumn(ColumnName = "RouteNo", IsNullable = true)]
         public string RouteNo { get; set; }
 
-        [SugarColumn(ColumnName = "routeName", IsNullable = true)]
+        [SugarColumn(ColumnName = "RouteName", IsNullable = true)]
         public string RouteName { get; set; }
 
-        [SugarColumn(ColumnName = "routeVersion", IsNullable = true)]
+        [SugarColumn(ColumnName = "RouteVersion", IsNullable = true)]
         public string RouteVersion { get; set; }
 
-        [SugarColumn(ColumnName = "createTime", IsNullable = true)]
-        public DateTime? CreateTime { get; set; }
 
-        [Navigate(NavigateType.OneToMany, nameof(ParamRecipeItem.RecipeId))]//一对多
+        [Navigate(NavigateType.OneToMany, nameof(ParamRecipeItem.RecipeId)), SugarColumn(IsIgnore = true)]//一对多
+
         public List<ParamRecipeItem> processParamItems { get; set; }
 
         //分库的数据库标识

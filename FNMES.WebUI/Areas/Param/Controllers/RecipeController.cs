@@ -12,6 +12,9 @@ using CCS.WebUI;
 using FNMES.Utility.Files;
 using System.IO;
 using System.Linq;
+using FNMES.WebUI.Logic.Base;
+using Microsoft.AspNetCore.Http;
+using FNMES.Entity.DTO;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -19,10 +22,19 @@ namespace MES.WebUI.Areas.Param.Controllers
     [HiddenApi]
     public class RecipeController : BaseController
     {
+        private readonly BaseLogic baseLogic;
         private readonly RecipeLogic  recipeLogic;
+        private readonly ParamItemLogic paramItemLogic;
+        private readonly ParamPartItemLogic paramPartItemLogic;
+        private readonly ParamStepItemLogic paramStepItemLogic;
+
         public RecipeController()
         {
             recipeLogic = new RecipeLogic();
+            paramItemLogic = new ParamItemLogic();
+            paramPartItemLogic = new ParamPartItemLogic();
+            baseLogic = new BaseLogic();
+            paramStepItemLogic = new ParamStepItemLogic();
         }
 
         [Route("param/recipe/index")]
@@ -164,8 +176,6 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
         }
 
-
-
         [Route("param/recipe/esop")]
         [HttpGet, AuthorizeChecked]
         public ActionResult Esop()
@@ -206,6 +216,188 @@ namespace MES.WebUI.Areas.Param.Controllers
         public ActionResult Step()
         {
             return View();
+        }
+
+        [Route("param/recipe/stepadd")]
+        [HttpGet]
+        public ActionResult StepAdd()
+        {
+            return View();
+        }
+
+        [Route("param/recipe/stepadd")]
+        [HttpPost]
+        public ActionResult StepAdd(ParamStepItem data, string configId)
+        {
+            int ret = baseLogic.InsertTableRow(data, configId);
+            return ret > 0 ? Success() : Error();
+        }
+
+        [Route("param/recipe/getstepForm")]
+        [HttpPost]
+        public ActionResult GetStepForm(string primaryKey, string configId)
+        {
+            var entity = baseLogic.GetTableRowByID<ParamStepItem>(primaryKey, configId);
+            return Content(entity.ToJson());
+        }
+
+        [Route("param/recipe/paramadd")]
+        [HttpGet]
+        public ActionResult ParamAdd()
+        {
+            return View();
+        }
+
+        [Route("param/recipe/paramadd")]
+        [HttpPost]
+        public ActionResult ParamAdd(ParamItem data,string configId)
+        {
+            int ret = paramItemLogic.InsertTableRow(data,configId);
+            return ret > 0 ? Success() : Error();
+        }
+
+        [Route("param/recipe/partadd")]
+        [HttpGet]
+        public ActionResult PartAdd()
+        {
+            return View();
+        }
+
+        [Route("param/recipe/partadd")]
+        [HttpPost]
+        public ActionResult PartAdd(ParamPartItem data, string configId)
+        {
+            int ret = paramPartItemLogic.InsertTableRow(data, configId);
+            return ret > 0 ? Success() : Error();
+        }
+
+        [Route("param/recipe/getpartForm")]
+        [HttpPost]
+        public ActionResult GetPartForm(string primaryKey, string configId)
+        {
+            var entity = paramPartItemLogic.GetTableRowByID<ParamPartItem>(primaryKey, configId);
+            return Content(entity.ToJson());
+        }
+
+        [Route("param/recipe/getStepName")]
+        [HttpPost]
+        public ActionResult GetStepName(string configId, string recipeItemId,string StepNo)
+        {
+            var entity = paramStepItemLogic.GetStepName(configId, recipeItemId, StepNo);
+            return Content(entity);
+        }
+
+        [Route("param/recipe/partdelete")]
+        [HttpPost]
+        public ActionResult PartDelete(string primaryKey, string configId)
+        {
+            return paramPartItemLogic.DeleteTableRowByID<ParamPartItem>(primaryKey, configId) > 0 ? Success() : Error();
+        }
+        [Route("param/recipe/esopadd")]
+        [HttpGet]
+        public ActionResult ESOPAdd()
+        {
+            return View();
+        }
+
+        [Route("param/recipe/esopadd")]
+        [HttpPost]
+        public ActionResult ESOPAdd(ParamEsopItem data, string configId)
+        {
+            int ret = baseLogic.InsertTableRow(data, configId);
+            return ret > 0 ? Success() : Error();
+        }
+
+        [Route("param/recipe/partmodify")]
+        [HttpGet]
+        public ActionResult PartModify()
+        {
+            return View();
+        }
+
+        [Route("param/recipe/parammodify")]
+        [HttpGet]
+        public ActionResult ParamModify()
+        {
+            return View();
+        }
+
+        [Route("param/recipe/partmodify")]
+        [HttpPost]
+        public ActionResult PartModify(ParamPartItem data, string configId)
+        {
+            int ret = baseLogic.UpdateTable(data, configId);
+            return ret > 0 ? Success() : Error();
+        }
+
+        [Route("param/recipe/parammodify")]
+        [HttpPost]
+        public ActionResult ParamModify(ParamItem data, string configId)
+        {
+            int ret = paramItemLogic.UpdateTable(data, configId);
+            return ret > 0 ? Success() : Error();
+        }
+
+
+
+        [Route("param/recipe/getparamForm")]
+        [HttpPost]
+        public ActionResult GetParamForm(string primaryKey, string configId)
+        {
+            var entity = paramItemLogic.GetTableRowByID<ParamItem>(primaryKey,configId);
+            return Content(entity.ToJson());
+        }
+
+        [Route("param/recipe/getesopForm")]
+        [HttpPost]
+        public ActionResult GetESOPForm(string primaryKey, string configId)
+        {
+            var entity = paramItemLogic.GetTableRowByID<ParamEsopItem>(primaryKey, configId);
+            return Content(entity.ToJson());
+        }
+
+        [Route("param/recipe/paramdelete")]
+        [HttpPost]
+        public ActionResult ParamDelete(string primaryKey, string configId)
+        {
+            return paramItemLogic.DeleteTableRowByID<ParamItem>(primaryKey, configId) > 0 ? Success() : Error();
+        }
+
+        [Route("param/recipe/stepmodify")]
+        [HttpGet]
+        public ActionResult StepModify()
+        {
+            return View();
+        }
+
+        [Route("param/recipe/stepmodify")]
+        [HttpPost]
+        public ActionResult StepModify(ParamStepItem data, string configId)
+        {
+            int ret = baseLogic.UpdateTable(data, configId);
+            return ret > 0 ? Success() : Error();
+        }
+
+        [Route("param/recipe/stepdelete")]
+        [HttpPost]
+        public ActionResult StepDelete(string primaryKey, string configId)
+        {
+            return paramPartItemLogic.DeleteTableRowByID<ParamStepItem>(primaryKey, configId) > 0 ? Success() : Error();
+        }
+
+        [Route("param/recipe/esopmodify")]
+        [HttpGet]
+        public ActionResult EsopModify()
+        {
+            return View();
+        }
+
+        [Route("param/recipe/esopmodify")]
+        [HttpPost]
+        public ActionResult EsopModify(ParamEsopItem data, string configId)
+        {
+            int ret = baseLogic.UpdateTable(data, configId);
+            return ret > 0 ? Success() : Error();
         }
 
         [Route("param/recipe/step")]
@@ -258,60 +450,6 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
         }
 
-        //[Route("param/recipe/importstep")]
-        //[HttpPost]
-        //public ActionResult ImportStep(IFormFile file, string productId, string configId)
-        //{
-        //    if (file != null && file.Length > 0)
-        //    {
-        //        using var stream = file.OpenReadStream();
-        //        Dictionary<string, string> keyValuePairs = new Dictionary<string, string>() {
-        //            {"StationName","工站名称" },
-        //            {"StationCode","工站编码" },
-        //            {"SmallStationCode","小工站编码" },
-        //            {"StepNo","工步编号" },
-        //            {"StepName","工步名称" },
-        //            {"No","顺序号" },
-        //            {"StepDesc","工步描述" },
-        //            {"Operation","操作" },
-        //            {"Identity","标识" },
-        //        };
-        //        List<RecipeStep> recipeStepList = ExcelUtils.ImportExcel<RecipeStep>(stream, keyValuePairs);
-
-        //        List<ParamStepItem> stepList = new List<ParamStepItem>();
-
-        //        foreach (var step in recipeStepList) 
-        //        {
-        //            ParamStepItem step = new ParamStepItem();
-        //            step.CopyMatchingProperties()
-        //        };
-
-        //        bool v = recipeLogic.ImportRecipeSteps(productId, configId, routeList);
-        //        if (v)
-        //        {
-        //            return Success("初始化数据成功");
-        //        }
-        //        return Error("初始化数据失败");
-        //    }
-
-        //    // 文件为空或上传失败的处理文件
-        //    return Error();
-        //}
-
-        //要先导入工位数据，才能到入小项数据
-        public class RecipeStep
-        {
-            public string StationName { get; set; }
-            public string StationCode { get; set; }
-            public string SmallStationCode { get; set; }
-            public string StepNo { get; set; }
-            public string StepName { get; set; }
-            public string StepDesc { get; set; }
-            public string No { get; set; }
-            public string Operation { get; set; }
-            public string Identity { get; set; }
-        }
-
         [Route("param/recipe/exportstep")]
         [HttpGet]
         public ActionResult ExportStep(string productId,string configId)
@@ -332,6 +470,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                     step.StepDesc = item.StepDesc;
                     step.No = item.No;
                     step.Operation = item.Operation;
+                    step.Group = item.Group;
                     steps.Add(step);
                 }
             }
@@ -339,13 +478,14 @@ namespace MES.WebUI.Areas.Param.Controllers
             Dictionary<string, string> keyValuePairs = new Dictionary<string, string>() {
                     {"StationName","工站名称" },
                     {"StationCode","工站编码" },
-                    {"SmallStationCode","小工站编码" },
+                    //{"SmallStationCode","小工站编码" },
                     {"StepNo","工步编号" },
                     {"StepName","工步名称" },
                     {"No","顺序号" },
                     {"StepDesc","工步描述" },
                     {"Operation","操作" },
                     {"Identity","标识" },
+                    {"Group","合并" },
                 };
 
             // 将 ExcelPackage 转换为字节数组
@@ -357,27 +497,46 @@ namespace MES.WebUI.Areas.Param.Controllers
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
 
-        public class RecipeProcessParam
+        [Route("param/recipe/stepimport")]
+        [HttpGet]
+        public ActionResult StepImport()
         {
-            public string StationName { get; set; }
-            public string StationCode { get; set; }
-            public string SmallStationCode { get; set; }
-            public string StepNo { get; set; }
-            public string StepName { get; set; }
-            public string OrderNo { get; set; }
-            public string ParamCode { get; set; }
-            public string ParamName { get; set; }
-            public string ProcessDescription { get; set; }
-            public string ParamClassification { get; set; }
-            public string DecisionType { get; set; }
-            public string ParamType { get; set; }
-            public string StandValue { get; set; }
-            public string MaxValue { get; set; }
-            public string MinValue { get; set; }
-            public string SetValue { get; set; }
-            public string IsDoubleCheck { get; set; }
-            public string UnitOfMeasure { get; set; }
+            return View();
         }
+
+        [Route("param/recipe/uploadStepFile")]
+        [HttpPost]
+        public ActionResult UploadStepFile(IFormFile file,string recipeId, string configId)
+        {
+            if (file != null && file.Length > 0)
+            {
+                using var stream = file.OpenReadStream();
+                Dictionary<string, string> keyValuePairs = new Dictionary<string, string>() {
+                    {"工站名称","StationName" },
+                    {"工站编码","StationCode" },
+                    //{"小工站编码","SmallStationCode" },
+                    {"工步编号","StepNo" },
+                    {"工步名称","StepName" },
+                    {"顺序号","No" },
+                    {"工步描述","StepDesc" },
+                    {"操作","Operation" },
+                    {"标识","Identity" },
+                    {"合并","Group" },
+                };
+                List<RecipeStep> models = ExcelUtils.ImportExcel<RecipeStep>(stream, keyValuePairs);
+
+                bool v = paramStepItemLogic.import(models, recipeId, configId);
+                if (v)
+                {
+                    return Success("初始化数据成功");
+                }
+                return Error("初始化数据失败");
+            }
+
+            // 文件为空或上传失败的处理文件
+            return Error();
+        }
+
 
         [Route("param/recipe/exportparam")]
         [HttpGet]
@@ -393,7 +552,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                     RecipeProcessParam processParam = new RecipeProcessParam();
                     processParam.StationName = recipe.StationName;
                     processParam.StationCode = recipe.StationCode;
-                    processParam.SmallStationCode = item.SmallStationCode;
+                    //processParam.SmallStationCode = item.SmallStationCode;
                     processParam.StepNo = item.StepNo;
                     processParam.StepName = item.StepName;
                     processParam.OrderNo = item.OrderNo;
@@ -416,7 +575,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             Dictionary<string, string> keyValuePairs = new Dictionary<string, string>() {
                     {"StationName","工站名称" },
                     {"StationCode","工站编码" },
-                    {"SmallStationCode","小工站编码" },
+                    //{"SmallStationCode","小工站编码" },
                     {"StepNo","工步编号" },
                     {"StepName","工步名称" },
                     {"OrderNo","顺序号" },
@@ -445,22 +604,52 @@ namespace MES.WebUI.Areas.Param.Controllers
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
 
-
-
-        public class RecipePart
+        [Route("param/recipe/paramimport")]
+        [HttpGet]
+        public ActionResult ParamImport()
         {
-            public string StationName { get; set; }
-            public string StationCode { get; set; }
-            public string SmallStationCode { get; set; }
-            public string StepNo { get; set; }
-            public string StepName { get; set; }
-            public string OrderNo { get; set; }
-            public string PartNumber { get; set; }
-            public string PartDescription { get; set; }
-            public string PartType { get; set; }
-            public string PartVersion { get; set; }
-            public string PartQty { get; set; }
-            public string Uom { get; set; }
+            return View();
+        }
+
+        [Route("param/recipe/uploadParamFile")]
+        [HttpPost]
+        public ActionResult UploaParamFile(IFormFile file, string recipeId, string configId)
+        {
+            if (file != null && file.Length > 0)
+            {
+                using var stream = file.OpenReadStream();
+                Dictionary<string, string> keyValuePairs = new Dictionary<string, string>() {
+                    {"工站名称","StationName" },
+                    {"工站编码","StationCode" },
+                    //{"小工站编码","SmallStationCode" },
+                    {"工步编号","StepNo" },
+                    {"工步名称","StepName" },
+                    {"顺序号","OrderNo" },
+                    {"工艺参数编码","ParamCode" },
+                    {"工艺参数名称","ParamName" },
+                    {"工艺描述","ProcessDescription" },
+                    {"参数分类","ParamClassification" },
+                    {"判定类型","DecisionType" },
+                    {"参数类型","ParamType" },
+                    {"工艺参数标准值","StandValue" },
+                    {"工艺参数最大值","MaxValue" },
+                    {"工艺参数最小值","MinValue" },
+                    {"定性的设定值","SetValue" },
+                    {"二次校验","IsDoubleCheck" },
+                    {"单位","UnitOfMeasure" },
+                };
+                List<RecipeProcessParam> models = ExcelUtils.ImportExcel<RecipeProcessParam>(stream, keyValuePairs);
+
+                bool v = paramItemLogic.import(models, recipeId, configId);
+                if (v)
+                {
+                    return Success("导入过程数据成功");
+                }
+                return Error("导入过程数据失败");
+            }
+
+            // 文件为空或上传失败的处理文件
+            return Error();
         }
 
         [Route("param/recipe/exportpart")]
@@ -477,7 +666,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                     RecipePart part = new RecipePart();
                     part.StationName = recipe.StationName;
                     part.StationCode = recipe.StationCode;
-                    part.SmallStationCode = item.SmallStationCode;
+                    //part.SmallStationCode = item.SmallStationCode;
                     part.StepNo = item.StepNo;
                     part.StepName = item.StepName;
                     part.OrderNo = item.OrderNo;
@@ -494,7 +683,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             Dictionary<string, string> keyValuePairs = new Dictionary<string, string>() {
                     {"StationName","工站名称" },
                     {"StationCode","工站编码" },
-                    {"SmallStationCode","小工站编码" },
+                    //{"SmallStationCode","小工站编码" },
                     {"StepNo","工步编号" },
                     {"StepName","工步名称" },
                     {"OrderNo","顺序号" },
@@ -515,6 +704,49 @@ namespace MES.WebUI.Areas.Param.Controllers
             // 设置响应头，指定响应的内容类型和文件名
             Response.Headers.Add("Content-Disposition", "attachment; filename=exported-file.xlsx");
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        }
+
+
+        [Route("param/recipe/partimport")]
+        [HttpGet]
+        public ActionResult PartImport()
+        {
+            return View();
+        }
+
+        [Route("param/recipe/uploadPartFile")]
+        [HttpPost]
+        public ActionResult UploaPartFile(IFormFile file, string recipeId, string configId)
+        {
+            if (file != null && file.Length > 0)
+            {
+                using var stream = file.OpenReadStream();
+                Dictionary<string, string> keyValuePairs = new Dictionary<string, string>() {
+                    {"工站名称","StationName" },
+                    {"工站编码","StationCode" },
+                    //{"小工站编码","SmallStationCode" },
+                    {"工步编号","StepNo" },
+                    {"工步名称","StepName" },
+                    {"顺序号","OrderNo" },
+                    {"物料编码","PartNumber" },
+                    {"物料描述","PartDescription" },
+                    {"物料类型","PartType" },
+                    {"物料版本","PartVersion" },
+                    {"数量","PartQty" },
+                    {"单位","Uom" }
+                };
+                List<RecipePart> models = ExcelUtils.ImportExcel<RecipePart>(stream, keyValuePairs);
+
+                bool v = paramPartItemLogic.import(models, recipeId, configId);
+                if (v)
+                {
+                    return Success("导入过程数据成功");
+                }
+                return Error("导入过程数据失败");
+            }
+
+            // 文件为空或上传失败的处理文件
+            return Error();
         }
     }
 }

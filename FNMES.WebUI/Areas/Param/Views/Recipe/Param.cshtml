@@ -33,13 +33,22 @@
 <body>
     
     <div class="container-fluid fadeIn animated" >
+        <div class="layui-btn-group">
+            <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_add()">增加</button>
+            <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_modify()">修改</button>
+            <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_delete()">删除</button>
+        </div>
         @* <div class="panel container-panel" margin-top:5px> *@
             @* <div class="panel-body" margin-top:5px> *@
                 <table id="gridList" class="layui-form layui-table FNMES-table " lay-skin="line"  margin-top:5px>
                     <thead>
                         <tr>
-                            <th>小工位</th>
+                            <th>
+                                <input type="checkbox" lay-skin="primary">
+                            </th>
+                    @*<th>小工位</th>*@
                             <th>工步编码</th>
+                            <th>工步名称</th>
                             <th>参数编码</th>
                             <th>参数名称</th>
                             <th>描述</th>
@@ -50,8 +59,9 @@
                             <th>上限</th>
                             <th>下限</th>
                             <th>设定值</th>
-                            <th>工厂校验</th>
+                    @*<th>工厂校验</th>*@
                             <th>单位</th>
+                            <th>NG代码</th>
                         </tr>
                     </thead>
                     <!--内容容器-->
@@ -70,8 +80,12 @@
 <script id="contentTpl" type="text/html">
     {{#  layui.each(d.list, function(index, item){ }}
     <tr>
-        <td>{{item.SmallStationCode}}</td>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}">
+        </td>
+        @*<td>{{item.SmallStationCode}}</td>*@
         <td>{{item.StepNo}}</td>
+        <td>{{item.StepName}}</td>
         <td>{{item.ParamCode}}</td>
         <td>{{item.ParamName}}</td>
         <td>{{item.ProcessDescription}}</td>
@@ -82,11 +96,12 @@
         <td>{{item.MaxValue}}</td>
         <td>{{item.MinValue}}</td>
         <td>{{item.SetValue}}</td>
-        <td>
+        <td>{{item.NgCode}}</td>
+        @*<td>
             {{# if(item.IsDoubleCheck=="true"){ }}  <span class="label label-success label-sm">是</span>
             {{# }else{ }}  <span class="label label-dark label-sm">否</span>
             {{# } }}
-        </td>
+        </td>*@
         <td>{{item.UnitOfMeasure}}</td>
     </tr>
      {{#  }); }}
@@ -130,14 +145,61 @@
             }
         });
     }
- 
-   
 
-  
+    function btn_add() {
+        $.layerOpen({
+            id: "add",
+            title: "添加参数",
+            width: "800px",
+            height: "600px",
+            content: "/param/recipe/paramadd?ConfigId=" + $.getQueryString("configId") + "&primaryKey=" + $.getQueryString("primaryKey"),
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
 
-  
+    function btn_modify() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录查看。", "warning");
+            return;
+        }
+        $.layerOpen({
+            id: "modify",
+            title: "修改参数",
+            width: "800px",
+            height: "600px",
+            content: "/param/recipe/parammodify?primaryKey=" + ids[0] + "&configId=" + $.getQueryString("configId"),
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
 
-   
-
+    function btn_delete() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录查看。", "warning");
+            return;
+        }
+        $.layerConfirm({
+            content: "您已选中1条数据, 确定删除吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/param/recipe/paramdelete',
+                    data: {
+                        primaryKey: ids[0],
+                        ConfigId: $.getQueryString("configId")
+                    },
+                    success: function () {
+                        initGrid();
+                    }
+                });
+            }
+        });
+    }
 </script>
 

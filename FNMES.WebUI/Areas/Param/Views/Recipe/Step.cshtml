@@ -32,21 +32,26 @@
 </head>
 <body>
     <div class="container-fluid fadeIn animated">
-        <div class="layui-inline" style="margin-bottom: 10px;">
+        <div class="layui-btn-group">
             <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_add()">增加</button>
-            <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_delete()">删除</button>
             <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_modify()">修改</button>
+            <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_delete()">删除</button>
         </div>
+
         <table id="gridList" class="layui-form layui-table FNMES-table" lay-skin="line">
             <thead>
                 <tr>
-                    <th>小工位</th>
+                    <th>
+                        <input type="checkbox" lay-skin="primary">
+                    </th>
+                    @*<th>小工位</th>*@
                     <th>工步编码</th>
                     <th>工步名称</th>
                     <th>顺序号</th>
                     <th>工步描述</th>
                     <th>操作</th>
                     <th>标识</th>
+                    <th>合并</th>
                 </tr>
             </thead>
             <!--内容容器-->
@@ -65,13 +70,21 @@
 <script id="contentTpl" type="text/html">
     {{#  layui.each(d.list, function(index, item){ }}
     <tr>
-        <td>{{item.SmallStationCode}}</td>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}">
+        </td>
+        @*<td>{{item.SmallStationCode}}</td>*@
         <td>{{item.StepNo}}</td>
         <td>{{item.StepName}}</td>
         <td>{{item.No}}</td>
         <td>{{item.StepDesc}}</td>
         <td>{{item.Operation}}</td>
         <td>{{item.Identity}}</td>
+        <td>
+            {{# if(item.IsGroup==true){ }}  <span class="label label-success label-sm">是</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">否</span>
+            {{# } }}
+        </td>
     </tr>
      {{#  }); }}
        {{# if(d.list.length<=0) { }}
@@ -114,8 +127,62 @@
             }
         });
     }
- 
-   
+
+    function btn_add() {
+        $.layerOpen({
+            id: "add",
+            title: "添加参数",
+            width: "730px",
+            height: "600px",
+            content: "/param/recipe/stepadd?ConfigId=" + $.getQueryString("configId") + "&primaryKey=" + $.getQueryString("primaryKey"),
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
+
+    function btn_modify() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录查看。", "warning");
+            return;
+        }
+        $.layerOpen({
+            id: "modify",
+            title: "修改参数",
+            width: "730px",
+            height: "600px",
+            content: "/param/recipe/stepmodify?primaryKey=" + ids[0] + "&configId=" + $.getQueryString("configId"),
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
+
+    function btn_delete() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录查看。", "warning");
+            return;
+        }
+        $.layerConfirm({
+            content: "您已选中1条数据, 确定删除吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/param/recipe/stepdelete',
+                    data: {
+                        primaryKey: ids[0],
+                        ConfigId: $.getQueryString("configId")
+                    },
+                    success: function () {
+                        initGrid();
+                    }
+                });
+            }
+        });
+    }
 
   
 

@@ -7,34 +7,28 @@ namespace FNMES.Entity.Param
     /// <summary>
     /// 工单表：同步工单
     ///</summary>
-    [SugarTable("Order")]
+    [SugarTable("Order"), LineTableInit]
     public class ParamOrder : ParamBase
     {
         /// <summary>
-        ///  
-        ///</summary>
-        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]
-         public long Id { get; set; }
-        /// <summary>
         ///  派工单号
         ///</summary>
-         [SugarColumn(ColumnName="taskOrderNumber"  )]
+         [SugarColumn(ColumnName= "TaskOrderNumber")]
          public string TaskOrderNumber { get; set; }
         /// <summary>
         ///  物料编号
         ///</summary>
-         [SugarColumn(ColumnName="productPartNo"    )]
+         [SugarColumn(ColumnName= "ProductPartNo")]
          public string ProductPartNo { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="productDescription", IsNullable = true)]
+         [SugarColumn(ColumnName= "ProductDescription", IsNullable = true)]
          public string ProductDescription { get; set; }
         /// <summary>
         ///  计划产量
         ///</summary>
-         [SugarColumn(ColumnName = "planQty", IsNullable = true)]
+         [SugarColumn(ColumnName = "PlanQty", IsNullable = true)]
          public int PlanQty { get; set; }
 
         /// <summary>
@@ -54,27 +48,27 @@ namespace FNMES.Entity.Param
             get; set;
         }
 
-        [SugarColumn(ColumnName = "uom", IsNullable = true)]
+        [SugarColumn(ColumnName = "Uom", IsNullable = true)]
          public string Uom { get; set; }
         /// <summary>
         ///  计划开始时间
         ///</summary>
-         [SugarColumn(ColumnName = "planStartTime", IsNullable = true)]
+         [SugarColumn(ColumnName = "PlanStartTime", IsNullable = true)]
          public DateTime? PlanStartTime { get; set; }
         /// <summary>
         ///  计划结束时间
         ///</summary>
-         [SugarColumn(ColumnName = "planEndTime", IsNullable = true)]
+         [SugarColumn(ColumnName = "PlanEndTime", IsNullable = true)]
          public DateTime? PlanEndTime { get; set; }
         /// <summary>
         ///  获取时间
         ///</summary>
-         [SugarColumn(ColumnName = "receiveTime", IsNullable = true)]
+         [SugarColumn(ColumnName = "ReceiveTime", IsNullable = true)]
          public DateTime? ReceiveTime { get; set; }
         /// <summary>
         ///  工单状态
         ///</summary>
-         [SugarColumn(ColumnName = "flag", IsNullable = true)]
+         [SugarColumn(ColumnName = "Flag", IsNullable = true)]
          public string Flag { get; set; }
 
         [SugarColumn(IsIgnore = true)]
@@ -95,28 +89,27 @@ namespace FNMES.Entity.Param
         /// <summary>
         ///  完成标志
         ///</summary>
-        [SugarColumn(ColumnName="finishFlag", IsNullable = true)]
+        [SugarColumn(ColumnName= "FinishFlag", IsNullable = true)]
          public string FinishFlag { get; set; }
         /// <summary>
         ///  开始时间
         ///</summary>
-         [SugarColumn(ColumnName = "startTime", IsNullable = true)]
+         [SugarColumn(ColumnName = "StartTime", IsNullable = true)]
          public DateTime? StartTime { get; set; }
         /// <summary>
         ///  结束时间
         ///</summary>
-         [SugarColumn(ColumnName = "endTime", IsNullable = true)]
+         [SugarColumn(ColumnName = "EndTime", IsNullable = true)]
          public DateTime? EndTime { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName = "operatorNo", IsNullable = true)]
+         [SugarColumn(ColumnName = "OperatorNo", IsNullable = true)]
          public string OperatorNo { get; set; }
-
         /// <summary>
         ///  241206新增字段
         ///</summary>
-        [SugarColumn(ColumnName = "packCellGear", IsNullable = true)]
+        [SugarColumn(ColumnName = "PackCellGear", IsNullable = true)]
         public string PackCellGear { get; set; }
     }
 }

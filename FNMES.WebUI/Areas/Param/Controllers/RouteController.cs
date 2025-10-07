@@ -15,6 +15,7 @@ using FNMES.WebUI.Logic.Sys;
 using System.Drawing.Drawing2D;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using System.Drawing.Printing;
+using SqlSugar;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -25,13 +26,18 @@ namespace MES.WebUI.Areas.Param.Controllers
         private readonly SysLineLogic sysLineLogic;
         private readonly RouteLogic routeLogic;
         private readonly ParamProductLogic productLogic;
-
+        private readonly UnitProcedureLogic unitProcedureLogic;  
+        private readonly RecipeLogic recipeLogic;
+        private readonly ParamRecipeItemLogic recipeItemLogic;
 
         public RouteController()
         {
             sysLineLogic = new SysLineLogic();
             routeLogic = new RouteLogic();
             productLogic = new ParamProductLogic();
+            unitProcedureLogic = new UnitProcedureLogic();
+            recipeLogic = new RecipeLogic();
+            recipeItemLogic = new ParamRecipeItemLogic();
         }
 
         [Route("param/route/index")]
@@ -49,7 +55,19 @@ namespace MES.WebUI.Areas.Param.Controllers
             try
             {
                 int totalCount = 0;
-                List<ParamLocalRoute> pageData = routeLogic.GetList(pageIndex, pageSize, keyWord, configId, ref totalCount,productPartNo);
+                var equipList = unitProcedureLogic.GetTableList<ParamUnitProcedure>(configId);
+                List<ParamLocalRoute> pageData = routeLogic.GetList(pageIndex, pageSize, keyWord, configId, ref totalCount, productPartNo);
+                foreach (var item in pageData)
+                {
+                    try
+                    {
+                        var stationName = equipList.Where(it => it.Encode == item.StationCode).Select(it => it.Name).FirstOrDefault();
+                        item.StationName = stationName;
+                    }
+                    catch {
+                        continue;
+                    }
+                }
                 LayPadding<ParamLocalRoute> result = new()
                 {
                     result = true,
@@ -71,9 +89,6 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
         }
 
-
-
-
         [Route("param/route/form")]
         [HttpGet, AuthorizeChecked]
         public ActionResult Form()
@@ -85,18 +100,31 @@ namespace MES.WebUI.Areas.Param.Controllers
         [HttpPost, AuthorizeChecked]
         public ActionResult Form(ParamLocalRoute model)
         {
+           
+            var equipList = unitProcedureLogic.GetTableList<ParamUnitProcedure>(model.ConfigId);
+            var stationName = equipList.Where(it => it.Encode == model.StationCode).Select(it => it.Name).First();
+            var recipId = recipeLogic.GetTableList<ParamRecipe>(model.ConfigId).Where(it => it.ProductPartNo == model.ProductPartNo).Select(e => e.Id).First();
 
-            //Logger.RunningInfo(model.ToJson()+"数据库"+model.ConfigId);
-            
+            ParamRecipeItem paramRecipeItem = new ParamRecipeItem();
+            paramRecipeItem.StationName = stationName;
+            paramRecipeItem.StationCode = model.StationCode;
+            paramRecipeItem.RecipeId = recipId;
+            paramRecipeItem.Step = model.Step;
+            paramRecipeItem.PassStationRestriction = model.Criterion;
             if (model.Id==0)
             {
+                model.Id = SnowFlakeSingle.Instance.NextId();
+                paramRecipeItem.Id = model.Id;
+                recipeItemLogic.InsertTableRow(paramRecipeItem, model.ConfigId);
                 int row = routeLogic.Insert(model,long.Parse(OperatorProvider.Instance.Current.UserId));
                 return row > 0 ? Success() : Error();
             }
             else
             {
-                int row = routeLogic.Update(model, long.Parse(OperatorProvider.Instance.Current.UserId));
-                return row > 0 ? Success() : Error();
+                paramRecipeItem.Id = model.Id;
+                int row1 = recipeItemLogic.UpdateTable<ParamRecipeItem>(paramRecipeItem, model.ConfigId);
+                int row2 = routeLogic.Update(model, long.Parse(OperatorProvider.Instance.Current.UserId));
+                return row1 > 0 && row2 > 0 ? Success() : Error();
             }
         }
 
@@ -121,6 +149,31 @@ namespace MES.WebUI.Areas.Param.Controllers
         }
 
 
+        [Route("param/route/getExistStation")]
+        [HttpPost]
+        public ActionResult GetExistStation(string productPartNo, string configId)
+        {
+            var entitys = unitProcedureLogic.GetParentList(configId);
+            List<ParamLocalRoute> routes = new  List<ParamLocalRoute>();
+
+            foreach (var e in entitys)
+            {
+                ParamLocalRoute route = new ParamLocalRoute();
+                route.StationCode = e.Encode;
+                route.StationName = e.Name;
+                route.ProductPartNo = productPartNo;
+                route.ConfigId = configId;
+                route.Id = SnowFlakeSingle.Instance.NextId();
+                route.CreateTime = DateTime.Now;
+                
+                routes.Add(route);
+            }
+            bool ret = routeLogic.Align(routes, productPartNo, configId);
+            //ParamLocalRoute entity = routeLogic.Get(long.Parse(primaryKey), configId);
+            return ret ? Success():Error() ;
+        }
+
+
 
 
 
@@ -128,18 +181,17 @@ namespace MES.WebUI.Areas.Param.Controllers
         [HttpPost, AuthorizeChecked]
         public ActionResult Delete(string primaryId, string configId)
         {
-            
+
             /*//过滤系统管理员
             if (productStepLogic.ContainsUser("admin", userIdList.ToArray()))
             {
                 return Error("产品有已设置的配方，不允许删除");
             }*/
-            return routeLogic.Delete(long.Parse(primaryId), configId) > 0 ? Success() : Error();
+
+            var v1 =  routeLogic.Delete(long.Parse(primaryId), configId);
+            var v2 = recipeItemLogic.DeleteTableRowByID<ParamRecipeItem>(primaryId, configId);
+
+            return (v1 > 0 && v2 > 0) ? Success() : Error();
         }
-
-
-        
-
-
     }
 }

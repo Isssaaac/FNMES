@@ -37,7 +37,7 @@ namespace MES.WebUI.Areas.Sys.Controllers
         [HttpPost, AuthorizeChecked]
         public ActionResult Index(string roleId)
         {
-            var listPerIds = roleAuthorizeLogic.GetList(long.Parse(roleId)).Select(c => c.ModuleId).ToList();
+            var listPerIds = roleAuthorizeLogic.GetList(long.Parse(roleId)).Select(c => c.PermissionId).ToList();
             List<SysPermission> listAllPers;
             if (OperatorProvider.Instance.Current.Account == "admin")
             {

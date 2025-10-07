@@ -7,33 +7,33 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.Sys
 {
-    [SugarTable("Sys_Equipment")]
+    [SugarTable("Sys_Equipment"), SystemTableInit]
     public class SysEquipment : BaseModelEntity
     {
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName = "id", IsPrimaryKey = true)]
+        [SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
         public long Id { get; set; }
 
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName = "lineId")]
+        [SugarColumn(ColumnName = "LineId", IsNullable = true)]
         public long LineId { get; set; }
 
-        [SugarColumn(ColumnName = "ip")]
+        [SugarColumn(ColumnName = "IP", IsNullable = true)]
         public string IP { get; set; }
 
-        [SugarColumn(ColumnName = "EnCode")]
+        [SugarColumn(ColumnName = "EnCode",IsNullable= true)]
         public string EnCode { get; set; }
 
-        [SugarColumn(ColumnName = "Name")]
+        [SugarColumn(ColumnName = "Name", IsNullable = true)]
         public string Name { get; set; }
 
-        [SugarColumn(ColumnName = "unitProcedure")]
+        [SugarColumn(ColumnName = "UnitProcedure", IsNullable = true)]
         public string UnitProcedure { get; set; }
 
-        [SugarColumn(ColumnName = "bigProcedure")]
+        [SugarColumn(ColumnName = "BigProcedure", IsNullable = true)]
         public string BigProcedure { get; set; }
 
-        [Navigate(NavigateType.OneToOne, nameof(LineId), nameof(SysLine.Id))]//一对一
+        [Navigate(NavigateType.OneToOne, nameof(LineId), nameof(SysLine.Id)), SugarColumn(IsIgnore = true)]//一对一
         public SysLine Line { get; set; } //不能赋值只能是null
     }
 

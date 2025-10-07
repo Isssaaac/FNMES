@@ -120,7 +120,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         }
 
 
-        //强制同步产品配方
+        //强制同步产品配方,这个是配方页面的同步按钮功能
         [Route("param/product/getRecipe")]
         [HttpPost, AuthorizeChecked]
         public ActionResult GetRecipe(string configId, string primaryKey, bool force)
@@ -154,9 +154,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             else
             {
                 return Error("工厂接口访问失败");
-
             }
-
         }
 
         [Route("param/product/getListTree")]

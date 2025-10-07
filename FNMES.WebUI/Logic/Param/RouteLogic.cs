@@ -16,11 +16,14 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.Engineering;
 using FNMES.WebUI.Logic.Base;
 using FNMES.Entity.Param;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
+using Microsoft.AspNetCore.Routing;
+using static System.Collections.Specialized.BitVector32;
 
 namespace FNMES.WebUI.Logic.Param
 {
     public class RouteLogic : BaseLogic
     {
+
         public List<ParamLocalRoute> GetList(int pageIndex, int pageSize, string keyWord, string configId, ref int totalCount, string productPartNo)
         {
             try
@@ -39,13 +42,29 @@ namespace FNMES.WebUI.Logic.Param
                 return new List<ParamLocalRoute>();
             }
         }
+        public ParamLocalRoute GetRouteByStation(string stationCode, string productPartNo, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                ISugarQueryable<ParamLocalRoute> queryable = db.MasterQueryable<ParamLocalRoute>().Where(it => it.ProductPartNo == productPartNo && it.StationCode == stationCode);
+                var route = queryable.First();
+                return route;
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return null;
+            }
+        }
 
         public int Insert(ParamLocalRoute model, long operateId)
         {
             try
             {
                 var db = GetInstance(model.ConfigId);
-                model.Id = SnowFlakeSingle.instance.NextId();
+                if(model.Id.IsNullOrEmpty())
+                    model.Id = SnowFlakeSingle.instance.NextId();
                 model.CreateUserId = operateId;
                 model.CreateTime = DateTime.Now;
                 model.ModifyUserId = model.CreateUserId;
@@ -152,7 +171,79 @@ namespace FNMES.WebUI.Logic.Param
             }
         }
 
+        public bool Align(List<ParamLocalRoute> list,string productPartNo, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                List<ParamRecipeItem> recipeItems = new List<ParamRecipeItem>();
+                var recipId = GetTableList<ParamRecipe>(configId).Where(it => it.ProductPartNo == productPartNo).Select(e => e.Id).First();
 
+                for (int i=0;i<list.Count;i++)
+                {
+                    ParamRecipeItem item = new ParamRecipeItem();
+                    item.Id = list[i].Id;
+                    item.StationCode = list[i].StationCode;
+                    item.StationName = list[i].StationName;
+                    item.CreateTime = DateTime.Now;
+                    item.RecipeId = recipId;
+                    recipeItems.Add(item);
+                }
+
+                foreach (var item in recipeItems)
+                {
+                    var existingItem = db.Queryable<ParamRecipeItem>()
+                                          .First(x => x.StationCode == item.StationCode);
+
+                    if (existingItem != null)
+                    {
+                        // 更新现有记录，忽略某些字段
+                        db.Updateable(item)
+                          .WhereColumns(w => w.StationCode)
+                          .UpdateColumns(e => new { e.StationCode, e.StationName,e.RecipeId,e.CreateTime })
+                          .ExecuteCommand();
+                    }
+                    else
+                    {
+                        db.Insertable(item).ExecuteCommand();
+                    }
+                }
+
+                foreach (var item in list)
+                {
+                    var existingItem = db.Queryable<ParamLocalRoute>()
+                                          .First(x => x.StationCode == item.StationCode);
+
+                    if (existingItem != null)
+                    {
+                        // 更新现有记录，忽略某些字段
+                        db.Updateable(item)
+                          .WhereColumns(w => w.StationCode)
+                          .UpdateColumns(e => new { e.StationCode, e.StationName, e.ProductPartNo, e.CreateTime })
+                          .ExecuteCommand();
+                    }
+                    else
+                    {
+                        db.Insertable(item).ExecuteCommand();
+                    }
+                }
+
+                ////要更新两份表
+                //var result1 = db.Storageable(recipeItems)
+                //        .WhereColumns(w => w.StationCode) // 根据 Id 判断是否存在
+                //            .ExecuteCommand(); // 不存在则插入，存在则更新
+
+                //var result = db.Storageable(list)
+                //        .WhereColumns(w => w.StationCode) // 根据 Id 判断是否存在
+                //            .ExecuteCommand(); // 不存在则插入，存在则更新
+                return true;
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return false;
+            }
+        }
 
 
     }

@@ -25,6 +25,7 @@ using System.Diagnostics;
 using System.IO;
 using FNMES.Utility.Files;
 using System.Threading.Tasks;
+using FNMES.Utility;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -183,10 +184,10 @@ namespace MES.WebUI.Areas.Param.Controllers
                     actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
                 };
 
-                //准备开工，先请求工厂接口，再更新本地数据
-                RetMessage<object> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, orderParam, configId).ToObject<RetMessage<object>>();
-
-                if(retMessage.messageType == "S")
+                //RetMessage<object> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, orderParam, configId).ToObject<RetMessage<object>>();
+                RetMessage<object> retMessage = new RetMessage<object>();
+                retMessage.messageType = "S";
+                if (retMessage.messageType == "S")
                 {
                     int v = orderLogic.Update(order, configId);
                     if (v == 0)
@@ -605,7 +606,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         }
 
 
-        [Route("/param/order/add")]
+        [Route("param/order/add")]
         [HttpPost]
         public ActionResult Add(ParamOrder order, string ConfigId)
         {
@@ -620,7 +621,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             return View();
         }
 
-        [Route("/param/order/getFormModify")]
+        [Route("param/order/getFormModify")]
         [HttpPost]
         public ActionResult GetFormModify(string primaryKey, string configId)
         {
@@ -629,7 +630,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         }
 
 
-        [Route("/param/order/modify")]
+        [Route("param/order/modify")]
         [HttpPost]
         public ActionResult Modify(ParamOrder order, string configId)
         {
@@ -637,7 +638,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             return ret == 1 ? Success() : Error();
         }
 
-        [Route("/param/order/delete")]
+        [Route("param/order/delete")]
         [HttpPost]
         public ActionResult Delete(string primaryKey, string configId)
         {

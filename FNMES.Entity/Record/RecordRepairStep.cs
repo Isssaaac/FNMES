@@ -11,28 +11,28 @@ namespace FNMES.Entity.Record
     [SplitTable(SplitType.Season)]
     [SugarTable("Record_RepairStep_{year}{month}{day}")]
     [SugarIndex("index_repairStep_productCode", nameof(RecordRepairStep.ProductCode), OrderByType.Asc)]    //索引
-    [SugarIndex("index_repairStep_stationCode", nameof(RecordRepairStep.StationCode), OrderByType.Asc)]    //索引
+    [SugarIndex("index_repairStep_stationCode", nameof(RecordRepairStep.StationCode), OrderByType.Asc), LineTableInit]    //索引
     public class RecordRepairStep : BaseRecord
     {
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName = "id", IsPrimaryKey = true)]
+        [SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
         public long Id { get; set; }
         // 内控码
-        [SugarColumn(ColumnName = "productCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        [SugarColumn(ColumnName = "ProductCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string ProductCode { get; set; }
         // 大工站
-        [SugarColumn(ColumnName = "stationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        [SugarColumn(ColumnName = "StationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string StationCode { get; set; }
         //小工站
-        [SugarColumn(ColumnName = "smallStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        [SugarColumn(ColumnName = "SmallStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string SmallStationCode { get; set; }
 
         // 工步编号
-        [SugarColumn(ColumnName = "stepNo", IsNullable = true)]
+        [SugarColumn(ColumnName = "StepNo", IsNullable = true)]
         public string StepNo { get; set; }
 
         // 工步名称
-        [SugarColumn(ColumnName = "stepName", IsNullable = true)]
+        [SugarColumn(ColumnName = "StepName", IsNullable = true)]
         public string StepName { get; set; }
 
         // 顺序号
@@ -40,15 +40,15 @@ namespace FNMES.Entity.Record
         public string No { get; set; }
 
         // 工步描述
-        [SugarColumn(ColumnName = "stepDesc", IsNullable = true)]
+        [SugarColumn(ColumnName = "StepDesc", IsNullable = true)]
         public string StepDesc { get; set; }
 
         // 操作
-        [SugarColumn(ColumnName = "operation", IsNullable = true)]
+        [SugarColumn(ColumnName = "Operation", IsNullable = true)]
         public string Operation { get; set; }
 
 
-        [SugarColumn(ColumnName = "createTime", IsNullable = true)]
+        [SugarColumn(ColumnName = "CreateTime", IsNullable = true)]
         public DateTime? CreateTime { get; set; }
     }
 }

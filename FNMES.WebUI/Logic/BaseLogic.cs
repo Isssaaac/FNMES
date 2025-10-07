@@ -16,6 +16,9 @@ using ServiceStack;
 using System.Collections;
 using System.Reflection;
 using System.Data.Entity.Core.Metadata.Edm;
+using FNMES.Utility.Logs;
+using System.ComponentModel;
+using Newtonsoft.Json;
 
 namespace FNMES.WebUI.Logic.Base
 {
@@ -156,43 +159,80 @@ namespace FNMES.WebUI.Logic.Base
 
         
 
-        public static void InitSeedData(ISqlSugarClient db)
+        public static void InitSeedData(ISqlSugarClient db,bool IsSystemTable)
         {
-            var entityTypes = GlobalContext.EffectiveTypes.Where(u => !u.IsInterface && !u.IsAbstract && u.IsClass && u.IsDefined(typeof(SugarTable), false));
-            if (!entityTypes.Any()) return;
-            var seedDataTypes = GlobalContext.EffectiveTypes.Where(u => !u.IsInterface && !u.IsAbstract && u.IsClass && u.GetInterfaces().Any(i => i.HasImplementedRawGeneric(typeof(ISqlSugarEntitySeedData<>))));
+            try
+            {
 
-            if(!seedDataTypes.Any()) return;
-            foreach (var seedType in seedDataTypes)
-            { 
-                var instance = Activator.CreateInstance(seedType);
-                var hasDataMethod = seedType.GetMethod("SeedData");
-                var seedData = ((IEnumerable)hasDataMethod?.Invoke(instance, null))?.Cast<object>();
-
-                if (seedData == null) continue;
-
-                var entityType = seedType.GetInterfaces().First().GetGenericArguments().First();
-                var seedDataTable = seedData.ToList().ToDataTable_();//获取种子数据
-                seedDataTable.TableName = db.EntityMaintenance.GetEntityInfo(entityType).DbTableName;//获取表名
-
-                if (seedDataTable.Columns.Contains("id"))//判断种子数据是否有主键
+                IEnumerable<Type> entityTypes;
+                if (IsSystemTable)
                 {
-                    var storage = db.Storageable(seedDataTable).WhereColumns("id").ToStorage();
-
-                    //codefirst暂时全部新增,根据主键更新,用户表暂不更新
-
-                    storage.AsInsertable.ExecuteCommand();
-
-                    var ignoreUpdate = hasDataMethod.GetCustomAttribute<IgnoreSeedDataUpdateAttribute>();//读取忽略更新特性
-                    if (ignoreUpdate == null)
-                        storage.AsUpdateable.ExecuteCommand();//只有没有忽略更新的特性才执行更新
+                    entityTypes = GlobalContext.EffectiveTypes.Where(u => !u.IsInterface && !u.IsAbstract && u.IsClass && u.IsDefined(typeof(SugarTable), false) && u.IsDefined(typeof(SystemTableInitAttribute), false));
                 }
-                else // 没有主键或者不是预定义的主键(有重复的可能)
+                else
+                    entityTypes = GlobalContext.EffectiveTypes.Where(u => !u.IsInterface && !u.IsAbstract && u.IsClass && u.IsDefined(typeof(SugarTable), false) && u.IsDefined(typeof(LineTableInitAttribute), false));
+
+                if (!entityTypes.Any()) return;
+
+                var seedDataTypes = GlobalContext.EffectiveTypes.Where(u => !u.IsInterface && !u.IsAbstract && u.IsClass && u.GetInterfaces().Any(i => i.HasImplementedRawGeneric(typeof(ISqlSugarEntitySeedData<>))));
+
+                if (!seedDataTypes.Any()) return;
+                foreach (var seedType in seedDataTypes)
                 {
-                    //全量插入
-                    var storage = db.Storageable(seedDataTable).ToStorage();
-                    storage.AsInsertable.ExecuteCommand();
+                    var entityType = seedType.GetInterfaces().First().GetGenericArguments().First();
+                    string tableName = db.EntityMaintenance.GetEntityInfo(entityType).DbTableName;
+
+                    bool tableExist = db.DbMaintenance.IsAnyTable(tableName, false);
+
+                    LogHelper.Info($"实体表{tableName},是否存在:{tableExist}");
+                    if (!tableExist)
+                        continue;
+
+                    var instance = Activator.CreateInstance(seedType);
+                    var hasDataMethod = seedType.GetMethod("SeedData");
+                    var seedData = ((IEnumerable)hasDataMethod?.Invoke(instance, null))?.Cast<object>();
+
+                    if (seedData == null) continue;
+
+
+                    var seedDataTable = seedData.ToList().ToDataTable_();//获取种子数据
+                    seedDataTable.TableName = tableName;//获取表名
+
+
+                    if (seedDataTable.Columns.Contains("Id"))//判断种子数据是否有主键
+                    {
+                        var ids = new HashSet<object>();
+                        foreach (DataRow row in seedDataTable.Rows)
+                        {
+                            var id = row["Id"];
+                            if (!ids.Add(id))
+                            {
+                                LogHelper.Info($"发现重复的 Id: {id}");
+                                continue;
+                            }
+                        }
+                        DataTableResult storage = db.Storageable(seedDataTable).WhereColumns("Id").ToStorage();
+                        storage.AsInsertable.ExecuteCommand();
+
+                        //codefirst暂时全部新增,根据主键更新,用户表暂不更新,只插入，即永远保留着种子数据
+
+
+                        var ignoreUpdate = hasDataMethod.GetCustomAttribute<IgnoreSeedDataUpdateAttribute>();//读取忽略更新特性
+                        if (ignoreUpdate == null)
+                            storage.AsUpdateable.ExecuteCommand();//只有没有忽略更新的特性才执行更新
+                    }
+                    else // 没有主键或者不是预定义的主键(有重复的可能)
+                    {
+                        //全量插入
+                        var storage = db.Storageable(seedDataTable).ToStorage();
+                        storage.AsInsertable.ExecuteCommand();
+                    }
                 }
+
+            }
+            catch(Exception e)
+            {
+                LogHelper.Error($"初始化种子数据，是否是系统表：{IsSystemTable}", e);
             }
         }
 
@@ -260,21 +300,37 @@ namespace FNMES.WebUI.Logic.Base
             }
         }
 
-        private static void InitDb(ISqlSugarClient db)
+        private static void InitDb(ISqlSugarClient db,bool IsSystemTable)
         {
-            var entityTypes = GlobalContext.EffectiveTypes.Where(u => !u.IsInterface && !u.IsAbstract && u.IsClass && u.IsDefined(typeof(SugarTable), false));
+
+            IEnumerable<Type> entityTypes;
+            if (IsSystemTable)
+            {
+                entityTypes = GlobalContext.EffectiveTypes.Where(u => !u.IsInterface && !u.IsAbstract && u.IsClass && u.IsDefined(typeof(SugarTable), false) && u.IsDefined(typeof(SystemTableInitAttribute), false));
+            }
+            else
+                entityTypes = GlobalContext.EffectiveTypes.Where(u => !u.IsInterface && !u.IsAbstract && u.IsClass && u.IsDefined(typeof(SugarTable), false) && u.IsDefined(typeof(LineTableInitAttribute), false));
+
             if(!entityTypes.Any()) return;
 
             foreach (var entityType in entityTypes)
             {
-                var splitTable = entityType.GetCustomAttribute<SplitTableAttribute>();
-                if (splitTable == null)//如果特性是空
+                try
                 {
-                    db.CodeFirst.SetStringDefaultLength(200).InitTables(entityType);//普通创建
+                    var splitTable = entityType.GetCustomAttribute<SplitTableAttribute>();
+                    if (splitTable == null)//如果特性是空
+                    {
+                        db.CodeFirst.SetStringDefaultLength(200).InitTables(entityType);//普通创建
 
+                    }
+                    else
+                        db.CodeFirst.SetStringDefaultLength(200).SplitTables().InitTables(entityType);//自动分表创建
                 }
-                else
-                    db.CodeFirst.SetStringDefaultLength(200).SplitTables().InitTables(entityType);//自动分表创建
+                catch (Exception ex)
+                {
+                    Logger.ErrorInfo($"初始化{entityType}数据库表{ex.Message}");
+                    continue;
+                }
             }
         }
 
@@ -287,13 +343,10 @@ namespace FNMES.WebUI.Logic.Base
             MyConnectionConFig sysConnection = AppSetting.sysConnection;
             try
             {
-                ISqlSugarClient db = GetInstance(sysConnection.ConfigId);
-                InitDb(db);
-                //Type[] types ={
-                //        typeof(SysPreSelectProduct),
-                //        typeof(SysLog),
-                //     };
-                //db.CodeFirst.SetStringDefaultLength(200).InitTables(types);
+                ISqlSugarClient db = GetInstance("default");
+                InitDb(db,true);
+                if(GlobalContext.SystemConfig.IsSeedData)
+                    InitSeedData(db,true);
             }
             catch (Exception e)
             {
@@ -305,32 +358,9 @@ namespace FNMES.WebUI.Logic.Base
                 try
                 {
                     ISqlSugarClient db = GetInstance(item.ConfigId);
-                    InitDb(db);
-                    //Type[] types ={
-                    //    typeof(FactoryStatus),//工厂MES状态
-                    //    typeof(ParamAlternativePartItem),//替换物料
-                    //    typeof(ParamAndon),//呼叫
-                    //    typeof(ParamEquipmentError),//设备异常
-                    //    typeof(ParamEquipmentStatus),//设备状态
-                    //    typeof(ParamEquipmentStopCode),//设备停机代码
-                    //    typeof(ParamEsopItem),//ESOP
-                    //    typeof(ParamItem),//工艺参数
-                    //    typeof(ParamOrder),//派工参数
-                    //    typeof(ParamPartItem),//物料清单
-                    //    typeof(ParamRecipe),//产品列表
-                    //    typeof(ParamRecipeItem),//各工位配方
-                    //    typeof(ParamStepItem),//各工步参数
-                    //    typeof(ParamUnitProcedure),
-                    //    typeof(ProcessBind),//绑定表
-                    //    typeof(ParamLocalRoute),//工艺路线
-                    //    typeof(ParamPlcRecipe),//PLC上传下载配方
-                    //    typeof(RecordOutStation),//新建过站记录表
-                    //    typeof(RecordSelfDischarge),
-                    // };
-                    ////对未配置长度的字符串设置默认字符串长度
-                    //db.CodeFirst.SetStringDefaultLength(200).InitTables(types);
-
-                    InitSeedData(db);
+                    InitDb(db,false);
+                    if (GlobalContext.SystemConfig.IsSeedData)
+                        InitSeedData(db,false);
                 }
                 
                 catch (Exception e)
@@ -352,7 +382,7 @@ namespace FNMES.WebUI.Logic.Base
         /// <param name="index"></param>
         /// <param name="epress"></param>
         /// <returns></returns>
-        public List<TTable> GetSplitTableList<TTable>(int pageIndex, int pageSize, ref int totalCount, string index, Expression<Func<TTable, bool>>? express = null) where TTable : RecordBase
+        public List<TTable> GetSplitTableList<TTable>(int pageIndex, int pageSize, ref int totalCount, string index,string configId, Expression<Func<TTable, bool>>? express = null) where TTable : RecordBase
         {
             try
             {
@@ -433,11 +463,11 @@ namespace FNMES.WebUI.Logic.Base
         /// <typeparam name="TTable"></typeparam>
         /// <param name="models"></param>
         /// <returns></returns>
-        public int InsertSplitTableList<TTable>(List<TTable> models) where TTable : RecordBase
+        public int InsertSplitTableList<TTable>(List<TTable> models ,string configId="default") where TTable : RecordBase
         {
             try
             {
-                var db = GetInstance();
+                var db = GetInstance(configId);
                 //是否能生效
                 foreach (var model in models)
                 {
@@ -557,6 +587,7 @@ namespace FNMES.WebUI.Logic.Base
                 //是否能生效
                 foreach (var model in models)
                 {
+                    model.Id = SnowFlakeSingle.Instance.NextId();
                     model.CreateTime = DateTime.Now;
                 }
                 var ret = db.Insertable(models).ExecuteCommand();
@@ -580,7 +611,8 @@ namespace FNMES.WebUI.Logic.Base
             try
             {
                 var db = GetInstance(configId);
-                //model.Id = SnowFlakeSingle.Instance.NextId();
+                if(model.Id.IsNullOrEmpty() || model.Id==0)
+                    model.Id = SnowFlakeSingle.Instance.NextId();
                 model.CreateTime = DateTime.Now;
                 var ret = db.Insertable(model).ExecuteCommand();
                 return ret;
@@ -747,6 +779,134 @@ namespace FNMES.WebUI.Logic.Base
                 Logger.ErrorInfo("查询P出错", e);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// 获取表格数据
+        /// </summary>
+        /// <param name="configId"></param>
+        /// <returns></returns>
+        public List<T> GetTableList<T>(string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                //业务逻辑强制走主库
+                var paramlist = db.MasterQueryable<T>().ToList();
+                return paramlist;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo("查询出错", e);
+                return null;
+            }
+        }
+
+        public List<T> GetSplitPageList<T>(int pageIndex, int pageSize, string configId, string startDate, string endDate,string conditions, ref int totalCount) where T:RecordBase
+        {
+            try
+            {
+                
+                var db = GetInstance(configId);
+                ISugarQueryable<T> queryable = db.Queryable<T>();
+
+                if (startDate.IsNullOrEmpty())
+                {
+                    DateTime nowTime = DateTime.Now;
+                    startDate = nowTime.AddDays(-30).ToString();
+                }
+                    
+                if (endDate.IsNullOrEmpty())
+                {
+                    endDate = DateTime.Now.ToString();
+                }
+                    
+                DateTime start = Convert.ToDateTime(startDate);
+                DateTime end = Convert.ToDateTime(endDate);
+                TimeSpan daysSpan = new TimeSpan(end.Ticks - start.Ticks);
+                if (daysSpan.TotalDays > 90)
+                    end = start.AddDays(-90);
+                queryable = queryable.SplitTable(start, end);
+                if (!conditions.IsNullOrEmpty())
+                {
+                    List<Condition> conditionList = JsonConvert.DeserializeObject<List<Condition>>(conditions);
+                    queryable = BuildQuery(queryable, conditionList);
+                }
+                var ret = queryable.ToPageList(pageIndex, pageSize, ref totalCount);
+                return ret;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<T>();
+            }
+        }
+
+        public ISugarQueryable<T> BuildQuery<T>(ISugarQueryable<T> query, List<Condition> conditions)
+        {
+            if (conditions == null || !conditions.Any())
+                return query;
+
+            foreach (var condition in conditions)
+            {
+                query = ApplyCondition(query, condition);
+            }
+
+            return query;
+        }
+
+        public class Condition
+        {
+            public string Field { get; set; }    // 字段名
+            public string Operator { get; set; } // 操作符：equals, contains, greater, less, like等
+            public string Value { get; set; }    // 值
+        }
+
+        private ISugarQueryable<T> ApplyCondition<T>(ISugarQueryable<T> query, Condition condition)
+        {
+            if (string.IsNullOrEmpty(condition.Field) || condition.Value == null)
+                return query;
+
+            switch (condition.Operator?.ToLower())
+            {
+                case "equals": // 等于
+                    query = query.Where($"{condition.Field} = @value", new { value = condition.Value });
+                    break;
+
+                case "greater": // 大于
+                    query = query.Where($"{condition.Field} > @0", condition.Value);
+                    break;
+
+                case "less": // 小于
+                    query = query.Where($"{condition.Field} < @0", condition.Value);
+                    break;
+
+                case "contains": // 模糊查询
+                    query = query.Where($"{condition.Field} like @value", new { value = $"%{condition.Value}%" });
+                    break;
+
+                case "isnull": // 为空
+                    query = query.Where($"{condition.Field} IS NULL");
+                    break;
+
+                case "isnotnull": // 不为空
+                    query = query.Where($"{condition.Field} IS NOT NULL");
+                    break;
+
+                default:
+                    // 默认使用等于
+                    query = query.Where($"{condition.Field} = @0", condition.Value);
+                    break;
+            }
+
+            //// 构建查询
+            //var query = db.Queryable<User>()
+            //    .Where(it => it.IsDeleted == false);
+            //query = BuildQuery(query, conditions);
+            //// 执行查询
+            //var result = query.ToList();
+
+            return query;
         }
     }
 }

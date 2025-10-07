@@ -1,0 +1,80 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>添加PLC</title>
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery-3.6.0.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+
+
+
+
+<body>
+    <form id="form" class="layui-form" style="margin-top: 25px">
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <input type="hidden" name="Id" id="Id" />
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="Name" id="Name" lay-verify="required" placeholder="名称" autocomplete="off" class="layui-input">
+                </div>
+
+                <label class="layui-form-label">描述</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="Desc" id="name" placeholder="描述" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="display: none">
+            <div class="layui-input-block">
+                <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="add">提交</button>
+            </div>
+        </div>
+    </form>
+
+    <script src="~/Content/jquery/jquery.md5.js"></script>
+    <script>
+        layui.use(['element', 'form', 'laydate', 'layer'], function () {
+            var form = layui.form;
+            var element = layui.element;;
+            form.render();
+            form.on('submit(add)', function (form) {
+                $.formSubmit({
+                    url: "/system/operation/add",
+                    data: form.field
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+

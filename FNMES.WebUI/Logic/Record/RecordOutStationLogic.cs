@@ -91,8 +91,8 @@ namespace FNMES.WebUI.Logic.Record
                        it.DefectCode,
                        it.DefectDesc,
                        it.CreateTime,
-                       it.instationTime,
-                       it.palletNo
+                       it.InstationTime,
+                       it.PalletNo
                    })
                    .MergeTable()
                    .Where(it => it.index == 1)
@@ -109,8 +109,8 @@ namespace FNMES.WebUI.Logic.Record
                        DefectCode = it.DefectCode,
                        DefectDesc = it.DefectDesc,
                        CreateTime = it.CreateTime,
-                       instationTime = it.instationTime,
-                       palletNo = it.palletNo
+                       InstationTime = it.InstationTime,
+                       PalletNo = it.PalletNo
                    })
                    .OrderByDescending(it=>it.Id)
                    .ToPageList(pageIndex, pageSize, ref totalCount);
@@ -170,8 +170,8 @@ namespace FNMES.WebUI.Logic.Record
                        it.DefectCode,
                        it.DefectDesc,
                        it.CreateTime,
-                       it.instationTime,
-                       it.palletNo
+                       it.InstationTime,
+                       it.PalletNo
                    })
                    .MergeTable()
                    .Where(it => it.index == 1)
@@ -188,8 +188,8 @@ namespace FNMES.WebUI.Logic.Record
                        DefectCode = it.DefectCode,
                        DefectDesc = it.DefectDesc,
                        CreateTime = it.CreateTime,
-                       instationTime = it.instationTime,
-                       palletNo = it.palletNo
+                       InstationTime = it.InstationTime,
+                       PalletNo = it.PalletNo
                    })
                    .OrderByDescending(it => it.Id)
                    .ToPageList(pageIndex, pageSize, ref totalCount);
@@ -348,8 +348,8 @@ namespace FNMES.WebUI.Logic.Record
                         it.DefectCode,
                         it.DefectDesc,
                         it.CreateTime,
-                        it.instationTime,
-                        it.palletNo
+                        it.InstationTime,
+                        it.PalletNo
                     })
                        .MergeTable()
                        .Where(it => it.index == 1)
@@ -366,8 +366,8 @@ namespace FNMES.WebUI.Logic.Record
                            DefectCode = it.DefectCode,
                            DefectDesc = it.DefectDesc,
                            CreateTime = it.CreateTime,
-                           instationTime = it.instationTime,
-                           palletNo = it.palletNo
+                           InstationTime = it.InstationTime,
+                           PalletNo = it.PalletNo
                        })
                        .ToList();
 
@@ -560,8 +560,8 @@ namespace FNMES.WebUI.Logic.Record
                         it.DefectCode,
                         it.DefectDesc,
                         it.CreateTime,
-                        it.instationTime,
-                        it.palletNo
+                        it.InstationTime,
+                        it.PalletNo
                     })
                        .MergeTable()
                        .Where(it => it.index == 1)
@@ -578,8 +578,8 @@ namespace FNMES.WebUI.Logic.Record
                            DefectCode = it.DefectCode,
                            DefectDesc = it.DefectDesc,
                            CreateTime = it.CreateTime,
-                           instationTime = it.instationTime,
-                           palletNo = it.palletNo
+                           InstationTime = it.InstationTime,
+                           PalletNo = it.PalletNo
                        })
                        .ToList();
 

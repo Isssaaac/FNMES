@@ -7,24 +7,21 @@ namespace FNMES.Entity.Param
     /// <summary>
     /// 
     ///</summary>
-    [SugarTable("Param_EsopItem")]
+    [SugarTable("Param_EsopItem"), LineTableInit]
     [SugarIndex("index_ParamEsopItem_pid", nameof(ParamEsopItem.RecipeItemId), OrderByType.Asc)]    //索引
-    public class ParamEsopItem : CopyAble
+    public class ParamEsopItem : ParamBase
     {
-        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]
-         public long Id { get; set; }
         /// 配方ID 
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName = "recipeItemId")]
+        [SugarColumn(ColumnName = "RecipeItemId")]
         public long RecipeItemId { get; set; }
         // 小工位
-        [SugarColumn(ColumnName = "smallStationCode",IsNullable = true)]
+        [SugarColumn(ColumnName = "SmallStationCode", IsNullable = true)]
         public string SmallStationCode { get; set; }
 
 
         // SOP文件存储在文件服务器URL路径
-        [SugarColumn(ColumnName = "filePath", ColumnDataType = "varchar(MAX)", IsNullable = true)]
+        [SugarColumn(ColumnName = "FilePath", ColumnDataType = "varchar(MAX)", IsNullable = true)]
         public string FilePath { get; set; }
 
         // 顺序号（有多本时）
@@ -32,16 +29,12 @@ namespace FNMES.Entity.Param
         public string No { get; set; }
 
         // 开始页码
-        [SugarColumn(ColumnName = "startPageNo", IsNullable = true)]
+        [SugarColumn(ColumnName = "StartPageNo", IsNullable = true)]
         public string StartPageNo { get; set; }
 
         // 结束页码
-        [SugarColumn(ColumnName = "endPageNo", IsNullable = true)]
+        [SugarColumn(ColumnName = "EndPageNo", IsNullable = true)]
         public string EndPageNo { get; set; }
-
-
-
-
 
     }
 }

@@ -146,13 +146,14 @@ namespace FNMES.Entity.DTO.AppData
         [DataMember]
         public string CurrentStation { get; set; }  //当前工站
     }
-
-    //这个里面没分流器条码
     [DataContract]
     public class BindProcessParam :BaseParam
     {
+        //由单机来排序
         [DataMember]
         public string productCode { get; set; } // 内控码
+        [DataMember]
+        public string position { get; set; } //内控码的位置1-8
         [DataMember]
         public string palletNo { get; set; } // AGV工装码 
         [DataMember]
@@ -185,8 +186,14 @@ namespace FNMES.Entity.DTO.AppData
         // Pack内控码/Reess码
         [DataMember]
         public string CodeContent { get; set; }
+        /// <summary>
+        /// 工单
+        /// </summary>
         [DataMember]
         public string TaskOrderNumber { get; set; }
+        /// <summary>
+        /// 配方
+        /// </summary>
         [DataMember]
         public string ProductPartNo { get; set; }
         [DataMember]
@@ -327,7 +334,9 @@ namespace FNMES.Entity.DTO.AppData
 
         public RecipeData(ParamRecipeItem paramRecipeItem)
         {
-            this.nextBigStationCode = paramRecipeItem.NextStationCode;
+            //2025年9月25日 09:19:08
+            //nextBigStationCode,isFirstStation,productionBeat,passStationRestriction已作废
+            this.nextBigStationCode = paramRecipeItem.NextStationCode; 
             this.isFirstStation = paramRecipeItem.IsFirstStation;
             this.productionBeat = paramRecipeItem.ProductionBeat;
             this.passStationRestriction = paramRecipeItem.PassStationRestriction;
@@ -600,9 +609,5 @@ namespace FNMES.Entity.DTO.AppData
         public Product SelectedProduct;
     }
 
-    
-
-
-
-
+ 
 }

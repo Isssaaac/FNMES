@@ -7,40 +7,40 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.Record
 {
-    [SplitTable(SplitType.Season)]
+    [SplitTable(SplitType.Season), LineTableInit]
     [SugarTable("Record_EquipmentStop_{year}{month}{day}")]
     public class RecordEquipmentStop : BaseRecord
     {
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName = "id", IsPrimaryKey = true)]
+        [SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
         public long Id { get; set; }
 
-        [SugarColumn(ColumnName = "equipmentID", ColumnDataType = "varchar(100)", IsNullable = true)]
+        [SugarColumn(ColumnName = "EquipmentID", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string EquipmentID { get; set; }
 
-        [SugarColumn(ColumnName = "stationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        [SugarColumn(ColumnName = "StationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string StationCode { get; set; }
-        [SugarColumn(ColumnName = "smallStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        [SugarColumn(ColumnName = "SmallStationCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string SmallStationCode { get; set; }
 
-        [SugarColumn(ColumnName = "operatorNo", ColumnDataType = "varchar(100)", IsNullable = true)]
+        [SugarColumn(ColumnName = "OperatorNo", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string OperatorNo { get; set; }
 
-        [SugarColumn(ColumnName = "stopCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        [SugarColumn(ColumnName = "StopCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string StopCode { get; set; }
 
-        [SugarColumn(ColumnName = "stopDesc", ColumnDataType = "varchar(10)", IsNullable = true)]
+        [SugarColumn(ColumnName = "StopDesc", ColumnDataType = "varchar(10)", IsNullable = true)]
         public string StopDesc { get; set; }
 
-        [SugarColumn(ColumnName = "stopTime", ColumnDataType = "varchar(100)", IsNullable = true)]
+        [SugarColumn(ColumnName = "StopTime", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string StopTime { get; set; }
 
-        [SugarColumn(ColumnName = "stopDurationTime", ColumnDataType = "varchar(100)", IsNullable = true)]
+        [SugarColumn(ColumnName = "StopDurationTime", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string StopDurationTime { get; set; }
 
 
         [SplitField]
-        [SugarColumn(ColumnName = "createTime", IsNullable = true)]
+        [SugarColumn(ColumnName = "CreateTime", IsNullable = true)]
         public DateTime CreateTime { get; set; }
     }
 }

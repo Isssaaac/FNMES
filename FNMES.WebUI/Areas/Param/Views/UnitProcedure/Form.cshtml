@@ -44,11 +44,12 @@
                 </div>
             </div>
         </div>
+
         <div class="layui-form-item">
             <div class="layui-inline">
                 <label class="layui-form-label label-required">工站类型</label>
                 <div class="layui-input-inline">
-                    <div class="layui-input-inline">
+                    <div class="layui-input-inline" id="stationCode">
                         <input type="radio" name="IsParent" value="1" title="大工站" checked />
                         <input type="radio" name="IsParent" value="0" title="小工站" />
                     </div>
@@ -56,11 +57,18 @@
             </div>
         </div>
         
-        <div class="layui-form-item">
+        <div class="layui-form-item" id="parentStationItem">
             <div class="layui-inline">
                 <label class="layui-form-label ">所属工站</label>
                 <div class="layui-input-inline">
                     <select class="select2 layui-input-inline" lay-ignore name="Pid" lay-verify="required" id="Pid" style="width: 130px"></select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label ">站点名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="stationName" id="stationName" style="width: 130px" readonly>
                 </div>
             </div>
         </div>
@@ -73,6 +81,31 @@
                 </div>
             </div>
         </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">进站类型</label>
+                <div class="layui-input-inline">
+                    <select name="InStationProductType" class="select" id="InStationProductType" multiple="multiple" style="width: 514px;">
+                        <option value="Cell">电芯</option>
+                        <option value="Block">模组</option>
+                        <option value="Pack">PACK</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">出站类型</label>
+                <div class="layui-input-inline">
+                    <select name="OutStationProductType" class="select" id="OutStationProductType" multiple="multiple" style="width: 514px;">
+                        <option value="Cell">电芯</option>
+                        <option value="Block">模组</option>
+                        <option value="Pack">PACK</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <div class="layui-form-item" style="display: none">
             <div class="layui-input-block">
                 <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="add">提交</button>
@@ -85,28 +118,39 @@
         layui.use(['element', 'form', 'laydate', 'layer'], function () {
             var form = layui.form;
             var element = layui.element;
-            var laydate = layui.laydate;
-            laydate.render({
-            });
 
+            $('#parentStationItem').hide(300);
             var configId = $.getQueryString("configId");
             $("#ConfigId").val(configId);
-        
-            $("#pidContainer").show();
-            $("#pidContainer").prop("disabled", true);
-
+            
             $("#Pid").bindSelect({
                 type: "POST",
                 url: "/param/unitProcedure/getParent?configId=" + configId
             });
 
-
+            $("#Pid").on('change', function () {
+                var selectedValue = $(this).val();
+                if (selectedValue == null)
+                    return;
+                $.ajax({
+                    url: "/param/unitProcedure/getStationName",
+                    data: {
+                        id: selectedValue,
+                        configId: configId
+                    },
+                    type: "post",
+                    dataType: "text",
+                    async: false,
+                    success: function (data) {
+                        $("#stationName").val(data);
+                    }
+                });
+            });
 
             var configId = $.getQueryString("configId");
             $("#ConfigId").val(configId);
             var primaryKey = $.getQueryString("primaryKey");
             if (primaryKey) {
-                
                 $.ajax({
                     url: "/param/unitProcedure/getForm",
                     data: { primaryKey: primaryKey,
@@ -119,16 +163,22 @@
                         $("#ConfigId").val(configId);
                     }
                 });
-               
             }
 
             form.render();
 
+            form.on('radio', function (data) {
+                if (data.value == 1) { // 大工站
+                    $('#parentStationItem').hide(300);
+                } else { // 小工站
+                    $('#parentStationItem').show(300);
+                }
+            });
+
             form.on('submit(add)', function (form) {
-               
                 var type = $('input[name="IsParent"]:checked').val();
                 var parentIsNull = $("#Pid").val() == null;
-                //小工站必须要有
+                //小工站必须要有,大工站可以没有
                 if (type == "0" && parentIsNull) {
                     $.layerMsg("请选择所属大工站。", "warning");
                 } else {
@@ -139,7 +189,6 @@
                     return false;
                 }
             });
-
         });
 
 

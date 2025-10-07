@@ -196,4 +196,69 @@ namespace FNMES.Entity.DTO
         [DataMember]
         public  List<RepairProcessData> LstRepairProcessData { get; set; } //返修工艺信息，扭矩，电压等
     }
+
+    /***********************************************导入数据********************************************/
+    //要先导入工位数据，才能到入小项数据
+    public class RecipeStep
+    {
+        public string StationName { get; set; }
+        public string StationCode { get; set; }
+        public string SmallStationCode { get; set; }
+        public string StepNo { get; set; }
+        public string StepName { get; set; }
+        public string StepDesc { get; set; }
+        public string No { get; set; }
+        public string Operation { get; set; }
+        public string Identity { get; set; }
+        public string Group { get; set; }
+    }
+
+    public class RecipePart
+    {
+        public string StationName { get; set; }
+        public string StationCode { get; set; }
+        public string SmallStationCode { get; set; }
+        public string StepNo { get; set; }
+        public string StepName { get; set; }
+        public string OrderNo { get; set; }
+        public string PartNumber { get; set; }
+        public string PartDescription { get; set; }
+        public string PartType { get; set; }
+        public string PartVersion { get; set; }
+        public string PartQty { get; set; }
+        public string Uom { get; set; }
+    }
+
+
+    public class RecipeProcessParam
+    {
+        public string StationName { get; set; }
+        public string StationCode { get; set; }
+        public string SmallStationCode { get; set; }
+        public string StepNo { get; set; }
+        public string StepName { get; set; }
+        public string OrderNo { get; set; }
+        public string ParamCode { get; set; }
+        public string ParamName { get; set; }
+        public string ProcessDescription { get; set; }
+        public string ParamClassification { get; set; }
+        public string DecisionType { get; set; }
+        public string ParamType { get; set; }
+        public string StandValue { get; set; }
+        public string MaxValue { get; set; }
+        public string MinValue { get; set; }
+        public string SetValue { get; set; }
+        public string IsDoubleCheck { get; set; }
+        public string UnitOfMeasure { get; set; }
+    }
+
+    public class UnitProcedure
+    {
+        public string Parent { get; set; }
+        public string Encode { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string InStationProductType { get; set; }
+        public string OutStationProductType { get; set; }
+    }
 }

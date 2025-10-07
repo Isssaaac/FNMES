@@ -7,35 +7,35 @@ namespace FNMES.Entity.Sys
     /// <summary>
     /// 
     ///</summary>
-    [SugarTable("Sys_Log")]
+    [SugarTable("Sys_Log"), SystemTableInit]
     public class SysLog
     {
         /// <summary>
         ///  
         ///</summary>
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]
+        [SugarColumn(ColumnName= "Id", IsPrimaryKey = true   )]
          public long Id { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="type"    )]
+         [SugarColumn(ColumnName= "Type", IsNullable = true)]
          public string Type { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="threadId"    )]
+         [SugarColumn(ColumnName= "ThreadId", IsNullable = true)]
          public int? ThreadId { get; set; }
 
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName = "message", ColumnDataType = StaticConfig.CodeFirst_BigString, IsNullable = true)]
+        [SugarColumn(ColumnName = "Message", ColumnDataType = StaticConfig.CodeFirst_BigString, IsNullable = true)]
          public string Message { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="createTime"    )]
+         [SugarColumn(ColumnName= "CreateTime", IsNullable = true)]
          public DateTime? CreateTime { get; set; }
     }
 }

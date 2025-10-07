@@ -7,7 +7,7 @@ namespace FNMES.Entity.Param
     /// <summary>
     /// 
     ///</summary>
-    [SugarTable("Param_EquipmentStatus")]
+    [SugarTable("Param_EquipmentStatus"), LineTableInit]
     [SugarIndex("index_ParamEquipmentStatus_stationCode", nameof(ParamEquipmentStatus.StationCode), OrderByType.Asc)]    //索引
     public class ParamEquipmentStatus
     {
@@ -15,26 +15,26 @@ namespace FNMES.Entity.Param
         ///  
         ///</summary>
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]
+        [SugarColumn(ColumnName= "Id", IsPrimaryKey = true   )]
          public long Id { get; set; }
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName = "stationCode",IsNullable = true)]
+        [SugarColumn(ColumnName = "StationCode", IsNullable = true)]
         public string StationCode { get; set; }
-        [SugarColumn(ColumnName = "smallStationCode", IsNullable = true)]
+        [SugarColumn(ColumnName = "SmallStationCode", IsNullable = true)]
         public string SmallStationCode { get; set; }
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName = "equipmentID", IsNullable = true)]
+        [SugarColumn(ColumnName = "EquipmentID", IsNullable = true)]
         public string EquipmentID { get; set; }
 
-        [SugarColumn(ColumnName = "offset", IsNullable = true)]
+        [SugarColumn(ColumnName = "Offset", IsNullable = true)]
         public int Offset { get; set; }
-        [SugarColumn(ColumnName = "stopCodeOffset", IsNullable = true)]
+        [SugarColumn(ColumnName = "StopCodeOffset", IsNullable = true)]
         public int StopCodeOffset { get; set; }
-        [SugarColumn(ColumnName = "plcNo", IsNullable = true)]
+        [SugarColumn(ColumnName = "PlcNo", IsNullable = true)]
         public int PlcNo { get; set; }
 
         //分库的数据库标识   只用来映射实体传递数据

@@ -1,0 +1,137 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>工步列表</title>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+<body>
+    <div style="margin: 15px">
+        <div id="toolbar" class="FNMES-table-toolbar">
+            <div class="layui-btn-group">
+                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_add()">增加</button>
+                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_delete()">删除</button>
+            </div>
+        </div>
+        <table id="gridList" class="layui-form layui-table FNMES-table" lay-skin="line">
+            <thead>
+                <tr>
+                    <th>
+                        <input type="checkbox" lay-skin="primary">
+                    </th>
+                    <th>名称</th>
+                    <th>描述</th>
+                </tr>
+            </thead>
+            <!--内容容器-->
+            <tbody id="content"></tbody>
+        </table>
+        <div id="paged"></div>
+    </div>
+</body>
+</html>
+
+<!--内容模板-->
+<script id="contentTpl" type="text/html">
+      {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}">
+        </td>
+        <td>{{item.Name}}</td>
+        <td>{{item.Desc}}</td>
+    </tr>
+      {{#  }); }}
+       {{# if(d.list.length<=0) { }}
+          <tr style="color: red">
+              <td colspan="6">查无数据。</td>
+          </tr>
+      {{# } }}
+</script>
+
+<script type="text/javascript">
+    var paging;
+    layui.config({
+        base: parent._baseUrl
+    }).use(['paging', 'form'], function () {
+        var form = layui.form;
+        paging = layui.paging();
+        initGrid();
+    });
+
+    function initGrid() {
+        paging.init({
+            url: '/system/operation/index',
+            elem: '#content',
+            tempElem: '#contentTpl',
+            params: {
+                keyWord: $("#keyWord").val()
+            },
+            pageConfig: {
+                elem: 'paged',
+                pageSize: 10,
+            },
+            success: function () {
+
+            },
+            fail: function (msg) {
+                top.layer.msg(msg);
+            }
+        });
+    }
+
+    function btn_add() {
+        $.layerOpen({
+            id: "add",
+            title: "新增字典",
+            width: "670px",
+            height: "410px",
+            content: "/system/operation/add",
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
+            }
+        });
+    }
+
+    function btn_delete() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length < 1) {
+            $.layerMsg("请勾选需要删除的字典。", "warning");
+            return;
+        }
+        $.layerConfirm({
+            content: "您已选中" + ids.length + "条数据, 确定删除吗？",
+            callback: function () {
+                $.formSubmit({
+                    url: '/system/operation/delete',
+                    data: { primaryKey: ids.join() },
+                    success: function () {
+                        initGrid();
+                    }
+                });
+            }
+        });
+    }
+</script>
+

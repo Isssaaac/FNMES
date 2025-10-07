@@ -7,40 +7,40 @@ namespace FNMES.Entity.Param
     /// <summary>
     /// 
     ///</summary>
-    [SugarTable("Param_Andon")]
+    [SugarTable("Param_Andon"), LineTableInit]
     public class ParamAndon: ParamBase
     {
         /// <summary>
         ///  
         ///</summary>
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName = "id", IsPrimaryKey = true)]
+        [SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
         public long Id { get; set; }
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName = "andonType", IsNullable = true)]
+        [SugarColumn(ColumnName = "AndonType", IsNullable = true)]
         public string AndonType { get; set; }
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName = "andonCode", IsNullable = true)]
+        [SugarColumn(ColumnName = "AndonCode", IsNullable = true)]
         public string AndonCode { get; set; }
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName = "andonName", IsNullable = true)]
+        [SugarColumn(ColumnName = "AndonName", IsNullable = true)]
         public string AndonName { get; set; }
         /// <summary>
         ///  
         ///</summary>
-        [SugarColumn(ColumnName = "andonDesc", IsNullable = true)]
+        [SugarColumn(ColumnName = "AndonDesc", IsNullable = true)]
         public string AndonDesc { get; set; }
-        [SugarColumn(ColumnName = "createTime", IsNullable = true)]
-        public string CreateTime { get; set; }
 
         /// <summary>
-        ///  
-        ///</summary>
+        /// 创建时间
+        /// </summary>
+        [SugarColumn(ColumnName = "CreateTime", IsNullable = true)]
+        public DateTime CreateTime { get; set; }
     }
 }

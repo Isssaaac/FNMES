@@ -7,37 +7,37 @@ namespace FNMES.Entity.Sys
     /// <summary>
     /// 
     ///</summary>
-    [SugarTable("Sys_UserRoleRelation")]
+    [SugarTable("Sys_UserRoleRelation"), SystemTableInit]
     public class SysUserRoleRelation
     {
         /// <summary>
         ///  
         ///</summary>
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]
+        [SugarColumn(ColumnName= "Id", IsPrimaryKey = true   )]
          public long Id { get; set; }
         /// <summary>
         ///  
         ///</summary>
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName="userId"    )]
+        [SugarColumn(ColumnName= "UserId")]
          public long UserId { get; set; }
         /// <summary>
         ///  
         ///</summary>
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName="roleId"    )]
+        [SugarColumn(ColumnName= "RoleId")]
          public long RoleId { get; set; }
         /// <summary>
         ///  
         ///</summary>
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName="createUser"    )]
+        [SugarColumn(ColumnName= "CreateUser")]
          public long CreateUser { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName="createTime"    )]
+         [SugarColumn(ColumnName= "CreateTime")]
          public DateTime? CreateTime { get; set; }
     }
 }

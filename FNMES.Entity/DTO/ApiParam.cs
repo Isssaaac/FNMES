@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+using ServiceStack;
+using Newtonsoft.Json;
 
 namespace FNMES.Entity.DTO.ApiParam
 {
@@ -163,7 +163,7 @@ namespace FNMES.Entity.DTO.ApiParam
     public class GetRecipeParam : SimpleParam
     {
         [DataMember]
-        // 产品物料号
+        // 产品型号
         public string productPartNo { get; set; }
         [DataMember]
         // 工位
@@ -197,8 +197,6 @@ namespace FNMES.Entity.DTO.ApiParam
         //工单号
         [DataMember]
         public string taskOrderNumber { get; set; }
-
-        
 
         // 请求码类型，用于区分内控码，REESS码等
         [DataMember]
@@ -243,7 +241,9 @@ namespace FNMES.Entity.DTO.ApiParam
         [DataMember]
         public string operatorNo { get; set; }
 
-       
+        //型号
+        [DataMember]
+        public string ProductPartNo { get; set; }
     }
     [DataContract]
     public class PartUploadParam:BaseParam
@@ -288,6 +288,7 @@ namespace FNMES.Entity.DTO.ApiParam
         [DataMember]
         public List<Part> partList { get; set; }
     }
+
     [DataContract]
     public class Part
     {
@@ -1090,6 +1091,139 @@ namespace FNMES.Entity.DTO.ApiParam
         public const string END = "reessNo";
     }
 
+    /**************************************瑞浦****************************************/
+    public class MesRet
+    {
+        public string code;
+        public string msg;
+        public string data;
+    }
+    public class GetItemDataParam
+    {
+        public string resource_no;
+        public string sfc;
+        public string operation_no;
+        public GetItemDataParam(InStationParam param)
+        {
+            operation_no = param.operatorNo;
+            sfc = param.productCode;
+            resource_no = param.smallStationCode;
+        }
+    }
 
-    
+    public class GetItemDataRet
+    {
+        public string result;
+        public string message;
+        public string sfc;
+        public string shoporder;
+        public string tech;
+        public string qty;
+    }
+
+    public class UploadData_FParam
+    {
+        public string resource_no;
+        public string operation_no;
+        public string sfc;
+        public string cz_date;
+        public string cz_user;
+        public string flag;
+        public string ng_code;
+        public string json_data;
+        public UploadData_FParam(OutStationParam param, List<Process> process, List<string> ngCodes)
+        {
+            sfc = param.productCode;
+            resource_no = param.smallStationCode;
+            operation_no = param.stationCode;
+            cz_date = DateTime.Now.ToString();
+            cz_user = param.operatorNo;
+            flag = ngCodes.Count > 0 ? "NG" : "OK";
+            ng_code = ngCodes.Join(",");
+
+            var dictionary = new Dictionary<string, string>();
+            foreach (var item in process)
+                dictionary[item.paramCode] = item.paramValue;
+            json_data = JsonConvert.SerializeObject(dictionary);
+        }
+    }
+
+    public class UploadData_FRet
+    {
+        public string result;
+        public string message;
+        public string SFC;
+    }
+
+    public class UploadData_MZParam
+    {
+        public string sfc;
+        public string resource_no;
+        public string operation_no;
+        public string cz_date;
+        public string cz_user;
+        public string flag;
+        public string ng_code;
+        public string item_no; //电芯或模组条码（多个，请用”,”隔开）首站为空
+        public string shop_order;
+        public string json_data;
+        public UploadData_MZParam(OutStationParam param, List<Process> process, List<string> ngCodes, List<BindProduct> bindProducts)
+        {
+            sfc = param.productCode;
+            resource_no = param.smallStationCode;
+            operation_no = param.stationCode;
+            cz_date = DateTime.Now.ToString();
+            cz_user = param.operatorNo;
+            flag = ngCodes.Count > 0 ? "NG" : "OK";
+            ng_code = ngCodes.Join(",");
+            item_no = bindProducts.Select(it => it.productCode).ToList().ToString();
+            shop_order = param.taskOrderNumber;
+
+            var dictionary = new Dictionary<string, string>();
+            foreach (var item in process)
+                dictionary[item.paramCode] = item.paramValue;
+            json_data = JsonConvert.SerializeObject(dictionary);
+        }
+    }
+
+    public class UploadData_MZRet
+    {
+        public string result;
+        public string message;
+    }
+
+    public class UpAssembleDataParam
+    {
+        public string sfc;
+        public string barcode;
+        public string resource_no;
+        public string operation_no;
+        public string cz_date;
+        public string cz_user;
+        public string shop_order;
+        public string qty;
+        public UpAssembleDataParam(OutStationParam param, Part part)
+        {
+            sfc = param.productCode;
+            barcode = part.partBarcode;
+            resource_no = param.smallStationCode;
+            operation_no = param.stationCode;
+            cz_date = DateTime.Now.ToString();
+            cz_user = param.operatorNo;
+            shop_order = param.taskOrderNumber;
+            qty = part.usageQty;
+        }
+    }
+
+    public class UpAssembleDataRet
+    {
+        public string result;
+        public string message;
+    }
+
+    public class BindProduct
+    {
+        public string productCode;
+        public string position;
+    }
 }

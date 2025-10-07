@@ -1,0 +1,122 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>工步</title>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+    <link href="~/Content/ztree/css/metroStyle/metroStyle.css" rel="stylesheet" />
+    <script src="~/Content/ztree/js/jquery.ztree.all.min.js"></script>
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+<body>
+    <div class="container-fluid fadeIn animated">
+        @* <div class="panel container-panel"> *@
+        @* <div class="panel-body"> *@
+
+        <table id="gridList" class="layui-form layui-table FNMES-table" lay-skin="line">
+            <thead>
+                <tr>
+                    <th>
+                        <input type="checkbox" lay-skin="primary">
+                    </th>
+                    <th>物料编码</th>
+                    <th>物料描述</th>
+                    <th>条码</th>
+                    <th>类型</th>
+                    <th>用量</th>
+                    <th>单位</th>
+                </tr>
+            </thead>
+            <!--内容容器-->
+            <tbody id="content"></tbody>
+        </table>
+        <div id="paged"></div>
+        @* </div> *@
+    </div>
+</body>
+</html>
+
+<!--内容模板-->
+<script id="contentTpl" type="text/html">
+    {{#  layui.each(d.list, function(index, item){ }}
+    <tr>
+        <td>
+            <input type="checkbox" lay-skin="primary" value="{{item.Id}}">
+        </td>
+        <td>{{item.PartNumber}}</td>
+        <td>{{item.PartDescription}}</td>
+        <td>{{item.PartBarcode}}</td>
+        <td>{{item.TraceType}}</td>
+        <td>{{item.UsageQty}}</td>
+        <td>{{item.Uom}}</td>
+    </tr>
+     {{#  }); }}
+       {{# if(d.list.length<=0) { }}
+          <tr style="color: red">
+              <td colspan="8">查无数据。</td>
+          </tr>
+      {{# } }}
+
+</script>
+
+
+<script type="text/javascript">
+    var paging;
+    layui.config({ base: parent._baseUrl }).use(['paging', 'form'], function () {
+        var form = layui.form;
+        paging = layui.paging();
+        var configId = $.getQueryString("configId");
+        var productCode = $.getQueryString("productCode");
+        var stationCode = $.getQueryString("stationCode");
+        initGrid(configId, productCode, stationCode);
+
+    });
+    function initGrid(configId, productCode, stationCode) {
+        paging.init({
+            url: '/record/blockoutstation/part',
+            elem: '#content',
+            tempElem: '#contentTpl',
+            checkbox: true, //是否显示复选框
+            singleSelected: true, //单选
+            params: {
+                productCode: productCode,
+                configId: configId,
+                stationCode: stationCode
+            },
+            pageConfig: {
+                elem: 'paged',
+                pageSize: 5,
+            },
+            success: function () {
+
+            },
+            fail: function (msg) {
+                top.layer.msg(msg);
+            }
+        });
+    }
+
+</script>
+

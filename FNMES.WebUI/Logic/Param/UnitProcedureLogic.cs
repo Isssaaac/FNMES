@@ -12,13 +12,28 @@ using FNMES.Utility.Core;
 using FNMES.Utility.Other;
 using FNMES.WebUI.Logic.Base;
 using FNMES.Entity.Param;
+using System.Drawing.Printing;
+using FNMES.Entity.DTO;
 
 namespace FNMES.WebUI.Logic.Param
 {
     public class UnitProcedureLogic : BaseLogic
     {
-      
-
+        public ParamUnitProcedure GetByStation(string stationCode, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                ISugarQueryable<ParamUnitProcedure> queryable = db.MasterQueryable<ParamUnitProcedure>().Where(it =>  it.Encode == stationCode);
+                var unitProcedure = queryable.First();
+                return unitProcedure;
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return null;
+            }
+        }
         public List<ParamUnitProcedure> GetList(int pageIndex, int pageSize, string keyWord,string configId, ref int totalCount)
         {
             try
@@ -38,13 +53,28 @@ namespace FNMES.WebUI.Logic.Param
             }
         }
 
+        public List<ParamUnitProcedure> GetList(string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                var entities = db.MasterQueryable<ParamUnitProcedure>().ToList();
+                return entities;
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return null;
+            }
+        }
+
         public int Delete(long primaryKey,string configId)
         {
             var db = GetInstance(configId);
             try
             {
                 Db.BeginTran();
-                //删除权限与角色的对应关系。
+                //这里删除大工站会把对应的小工站也给删除掉
                 db.Deleteable<ParamUnitProcedure>().Where((it) => primaryKey == it.Id).ExecuteCommand();
                 db.Deleteable<ParamUnitProcedure>().Where((it) => primaryKey == it.Pid).ExecuteCommand();
                 Db.CommitTran();
@@ -88,7 +118,7 @@ namespace FNMES.WebUI.Logic.Param
                 model.CreateTime = DateTime.Now;
                 model.ModifyUserId = model.CreateUserId;
                 model.ModifyTime = model.CreateTime;
-                return db.Insertable<ParamUnitProcedure>(model).ExecuteCommand();
+                return db.Insertable(model).ExecuteCommand();
             }
             catch (Exception e)
             {
@@ -131,6 +161,7 @@ namespace FNMES.WebUI.Logic.Param
                 return new List<ParamUnitProcedure>();
             }
         }
+
         public List<ParamUnitProcedure> GetSonList(string configId)
         {
 
@@ -174,6 +205,57 @@ namespace FNMES.WebUI.Logic.Param
             {
 
                 return new List<ParamUnitProcedure>();
+            }
+        }
+
+        public bool import(List<UnitProcedure> list, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+
+                List<ParamUnitProcedure> paramUnitProcedures = new List<ParamUnitProcedure>();
+
+                foreach (var e in list.Where(it => it.Parent==""))
+                {
+                    ParamUnitProcedure item = new ParamUnitProcedure();
+                    item.IsParent = "1";
+                    item.Pid = 0;
+                    item.Id = SnowFlakeSingle.Instance.NextId();
+                    item.Encode = e.Encode;
+                    item.Name = e.Name;
+                    item.Description = e.Description;
+                    item.CreateTime = DateTime.Now;
+
+                    item.InStationProductType = e.InStationProductType;
+                    item.OutStationProductType = e.OutStationProductType;
+                    paramUnitProcedures.Add(item);
+                }
+                //先添加大工站
+                foreach (var e in list.Where(it => it.Parent != ""))
+                {
+                    ParamUnitProcedure item = new ParamUnitProcedure();
+                    item.IsParent = "0";
+                    item.Pid = paramUnitProcedures.Where(it => it.Encode == e.Parent).Select(it => it.Id).First();
+                    item.Id = SnowFlakeSingle.Instance.NextId();
+                    item.Encode = e.Encode;
+                    item.Name = e.Name;
+                    item.Description = e.Description;
+                    item.CreateTime = DateTime.Now;
+                    item.InStationProductType = e.InStationProductType;
+                    item.OutStationProductType = e.OutStationProductType;
+                    paramUnitProcedures.Add(item);
+                }
+
+                var result = db.Storageable(paramUnitProcedures)
+                        .WhereColumns(w => w.Encode) // 根据 Id 判断是否存在
+                            .ExecuteCommand(); // 不存在则插入，存在则更新
+                return true;
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return false;
             }
         }
     }

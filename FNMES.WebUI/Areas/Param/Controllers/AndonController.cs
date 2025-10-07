@@ -88,7 +88,7 @@ namespace FNMES.WebUI.Areas.Param.Controllers
                             AndonDesc = item.andonDesc,
                             AndonName = item.andonName,
                             //暂时不写groupName进数据库，这个需要改表结构
-                            CreateTime = DateTime.Now.ToString()
+                            CreateTime = DateTime.Now
                         };
                         list.Add(paramAndon);
                     }

@@ -31,6 +31,7 @@
 		<Compile Remove="Areas\Record\Views\OutStation\Index1.cshtml.cs" />
 		<Content Remove="Areas\Param\Views\Order\add.cshtml" />
 		<Content Remove="Areas\Param\Views\Product\add.cshtml" />
+		<Content Remove="Areas\Record\Views\CellOutStation\part.cshtml" />
 		<Content Remove="Areas\Record\Views\OutStation\Index1.cshtml" />
 		<Content Remove="wwwroot\Content\jquery\jquery-3.6.0.min.js" />
 		<Content Remove="wwwroot\Content\PDFjs\htmlpage.html" />
@@ -73,17 +74,24 @@
 	<ItemGroup>
 	  <_ContentIncludedByDefault Remove="Areas\Param\Views\Order\add.cshtml" />
 	  <_ContentIncludedByDefault Remove="Areas\Param\Views\Product\add.cshtml" />
+	  <_ContentIncludedByDefault Remove="Areas\Param\Views\UnitProcedure\import.cshtml" />
 	</ItemGroup>
 
 
 	<ItemGroup>
 	  <None Include="Areas\Param\Views\Order\add.cshtml" />
 	  <None Include="Areas\Param\Views\Product\add.cshtml" />
+	  <None Include="Areas\Record\Views\CellOutStation\part.cshtml" />
 	</ItemGroup>
 
 
 	<ItemGroup>
 	  <UpToDateCheckInput Remove="Areas\Param\Views\Order\add.cshtml" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <UpToDateCheckInput Remove="Areas\Param\Views\UnitProcedure\import.cshtml" />
 	</ItemGroup>
 
 </Project>

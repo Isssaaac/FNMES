@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace FNMES.Entity.Record
 {
     [SplitTable(SplitType.Season)]
-    [SugarTable("Record_Test_OCV_{year}{month}{day}")]
+    [SugarTable("Record_Test_OCV_{year}{month}{day}"), LineTableInit]
     //[SugarIndex("index_OCV_productCode", nameof(ProductCode), OrderByType.Asc)]    //索引
     public class RecordTestOCV
     {

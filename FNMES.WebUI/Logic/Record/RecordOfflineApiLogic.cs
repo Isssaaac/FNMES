@@ -141,7 +141,7 @@ namespace FNMES.WebUI.Logic.Record
         public int Upload(RecordOfflineApi model, string configId)
         {
             FactoryStatus factoryStatus = GetStatus(configId);
-            if (factoryStatus.isOnline)
+            if (factoryStatus.IsOnline)
             {
                 var result = APIMethod.Call(model.Url, model.RequestBody, configId).ToObject<RetMessage<object>>();
                 if (result != null && result.messageType == "S")
@@ -181,7 +181,7 @@ namespace FNMES.WebUI.Logic.Record
             int v = 0;
             foreach (var model in noUploads)
             {
-                if (factoryStatus.isOnline)
+                if (factoryStatus.IsOnline)
                 {
                     var result = APIMethod.Call(model.Url, model.RequestBody, configId).ToObject<RetMessage<object>>();
                     if (result != null && result.messageType == "S")

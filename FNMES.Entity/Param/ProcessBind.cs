@@ -7,64 +7,60 @@ namespace FNMES.Entity.Param
     /// <summary>
     /// 
     ///</summary>
-    [SugarTable("Process_Bind")]
-    public class ProcessBind
+    [SugarTable("Process_Bind"), LineTableInit]
+    public class ProcessBind:ParamBase
     {
-        /// <summary>
         ///  
         ///</summary>
-        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName="id" ,IsPrimaryKey = true   )]
-         public long Id { get; set; }
-        /// <summary>
-        ///  
-        ///</summary>
-         [SugarColumn(ColumnName="palletNo"  ,IsNullable = true  )]
+         [SugarColumn(ColumnName= "PalletNo", IsNullable = true  )]
          public string PalletNo { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName = "productCode", IsNullable = true)]
+         [SugarColumn(ColumnName = "ProductCode", IsNullable = true)]
          public string ProductCode { get; set; }
-       
-         [SugarColumn(ColumnName = "taskOrderNumber", IsNullable = true)]
+
+
+        /// <summary>
+        /// 内控码在托盘上的位置，用1-8数字来表达
+        ///</summary>
+        [SugarColumn(ColumnName = "Position", IsNullable = true)]
+        public string Position { get; set; }
+
+
+        [SugarColumn(ColumnName = "TaskOrderNumber", IsNullable = true)]
          public string TaskOrderNumber { get; set; }
       
-         [SugarColumn(ColumnName = "productPartNo", IsNullable = true)]
+         [SugarColumn(ColumnName = "ProductPartNo", IsNullable = true)]
          public string ProductPartNo { get; set; }
 
 
-        [SugarColumn(ColumnName = "reessNo", IsNullable = true)]
+        [SugarColumn(ColumnName = "ReessNo", IsNullable = true)]
         public string ReessNo { get; set; }      //国标码
 
         //分流器
-        [SugarColumn(ColumnName = "diverter", IsNullable = true)]
+        [SugarColumn(ColumnName = "Diverter", IsNullable = true)]
         public string Diverter { get; set; }    //分流器条码
 
-        [SugarColumn(ColumnName = "glueTime", IsNullable = true)]
+        [SugarColumn(ColumnName = "GlueTime", IsNullable = true)]
         public string GlueTime { get; set; }    //中段涂胶时间
 
-        [SugarColumn(ColumnName = "configId", IsNullable = true)]
+        [SugarColumn(ColumnName = "ConfigId", IsNullable = true)]
         public string ConfigId { get; set; }
 
-        [SugarColumn(ColumnName = "currentStation", IsNullable = true)]
+        [SugarColumn(ColumnName = "CurrentStation", IsNullable = true)]
         public string CurrentStation { get; set; }
 
-        [SugarColumn(ColumnName = "status", IsNullable = true)]
+        [SugarColumn(ColumnName = "Status", IsNullable = true)]
          public string Status { get; set; }
         /// <summary>`
         ///</summary>
-         [SugarColumn(ColumnName = "repairFlag", IsNullable = true)]
+         [SugarColumn(ColumnName = "RepairFlag", IsNullable = true)]
          public string RepairFlag { get; set; }
         /// <summary>
         ///  
         ///</summary>
-         [SugarColumn(ColumnName = "repairStations", IsNullable = true)]
+         [SugarColumn(ColumnName = "RepairStations", IsNullable = true)]
          public string RepairStations { get; set; }
-        /// <summary>
-        ///  
-        ///</summary>
-         [SugarColumn(ColumnName = "createTime", IsNullable = true)]
-         public DateTime? CreateTime { get; set; }
     }
 }

@@ -2,20 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace FNMES.Entity.DTO.ApiData
 {
-
-   //与工厂MES交互时获取的数据
+    //与工厂MES交互时获取的数据
     public class LoginData
     {
         public string operatorName { get; set; }
-        public string operatorNo {  get; set; }
-        public List<string> operatorRoleCode {  get; set; }
+        public string operatorNo { get; set; }
+        public List<string> operatorRoleCode { get; set; }
     }
 
     public class GetOrderData
@@ -50,7 +45,7 @@ namespace FNMES.Entity.DTO.ApiData
 
         public string packCellGear { get; set; }
     }
-        
+
 
     public class GetRecipeData
     {
@@ -87,7 +82,7 @@ namespace FNMES.Entity.DTO.ApiData
         // 工艺配置
         public List<ProcessParamItem> processParamItems { get; set; }
 
-        
+
 
         // 配方，工序有配方的情况只有5中情况：电芯匀浆配方、电芯分档配方、电芯抽检分容配方、pack模块配方、PACK堆叠焊接配方
         //public List<RecipeItem> recipeItems { get; set; }
@@ -116,7 +111,7 @@ namespace FNMES.Entity.DTO.ApiData
         // 过站限制：进站校验、出站校验、进出站都校验、都不校验
         public string passStationRestriction { get; set; }
 
-        
+
 
         // 工艺参数，可以到小工位下的工步
         public List<ParamItem> paramList { get; set; }
@@ -130,6 +125,7 @@ namespace FNMES.Entity.DTO.ApiData
         // 工步列表，仅PACK后段(组装段)需要，PACK前段和中段不需要
         public List<StepItem> stepList { get; set; }
     }
+
     public class ParamItem
     {
         // 工步编码（可选）
@@ -289,9 +285,9 @@ namespace FNMES.Entity.DTO.ApiData
         public string identity { get; set; }
     }
 
-    
 
-   
+
+
     //配方相关
     public class RecipeItem
     {
@@ -414,10 +410,23 @@ namespace FNMES.Entity.DTO.ApiData
         public string errorReason { get; set; }
     }
 
+    public class GetPackInfoList
+    {
+        public List<GetPackInfoData> packInfoList { get; set; }
+        public GetPackInfoList()
+        {
+            packInfoList = new List<GetPackInfoData>();
+        }
+    }
+
+
     public class GetPackInfoData
     {
-        public string productCode { get; set;}
-        public string coatingTime { get; set;}
+        public string productCode { get; set; }
+
+        public string coatingTime { get; set; }
+
+        public string position { get; set; }
         public List<Module> moduleList { get; set; }
     }
 
@@ -550,12 +559,12 @@ namespace FNMES.Entity.DTO.ApiData
 
     //marking
     public class GetMarkingParamIn
-    { 
+    {
         public string productionLine { get; set; }
         public string stationCode { get; set; }
         public string productCode { get; set; }
         public string productCodeType { get; set; }
-        public string operatorNo { get; set; } 
+        public string operatorNo { get; set; }
         public string callTime { get; set; }
     }
     public class GetMarkingResponse
@@ -570,11 +579,11 @@ namespace FNMES.Entity.DTO.ApiData
     }
 
     public class MarkingCode
-    { 
+    {
         public string markingCode { get; set; }
         public string markingName { get; set; }
         public string markingCirculationCode { get; set; }
-        public string markingCirculationName { get; set; }    
+        public string markingCirculationName { get; set; }
         public string markingOprationStaion { get; set; }
     }
 
@@ -592,26 +601,26 @@ namespace FNMES.Entity.DTO.ApiData
 
     public class GetCellVoltageData
     {
-        public List<moduleData> moduleList { get; set; } 
+        public List<moduleData> moduleList { get; set; }
     }
 
 
     public class moduleData
-    { 
+    {
         public string moduleCode { get; set; }
         public string moduleType { get; set; }
         public List<cellData> cellList { get; set; }
     }
 
     public class cellData
-    { 
+    {
         public string cellCode { get; set; }
         public string cellTestSequence { get; set; }
         public List<cellParam> paramList { get; set; }
     }
 
     public class cellParam
-    { 
+    {
         public string paramCode { get; set; }
         public string paramValue { get; set; }
     }
@@ -654,7 +663,7 @@ namespace FNMES.Entity.DTO.ApiData
     }
 
     public class cellSelfDischargeData
-    { 
+    {
         //电芯条码
         public string cellCode { get; set; }
         //A020测试时间
