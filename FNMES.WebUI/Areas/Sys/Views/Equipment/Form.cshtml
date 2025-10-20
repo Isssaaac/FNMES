@@ -77,9 +77,35 @@
         var form = layui.form;
         var primaryKey = $.getQueryString("primaryKey");
         var lineId = $.getQueryString("lineId");
-        if (lineId) {
-            $('#LineId').val(lineId);
-        }
+        $('#LineId').val();
+
+        $("#BigProcedure").bindSelect({
+            type: "POST",
+            url: "/param/unitProcedure/getParentByLine?lineId=" + lineId,
+            // change: function (selectedData) {
+
+            //     if (selectedData.id) {
+            //         // 通过选择器选择你要清空的<select>元素
+            //         var selectElement = $("#UnitProcedure");
+
+            //         // 使用.empty()方法来清空选项
+            //         selectElement.empty();
+            //         $("#UnitProcedure").bindSelect({
+            //             type: "POST",
+            //             url: "/param/unitProcedure/getProcedureByline?lineId=" + lineId + "&parent=" + selectedData.id
+            //         });
+            //         form.render('select');
+            //     }
+            // }
+        });
+
+        $("#UnitProcedure").bindSelect({
+            type: "POST",
+            url: "/param/unitProcedure/getProcedureByline?lineId=" + lineId + "&parent=" + $('#BigProcedure').val()
+        });
+        
+        
+
         if (primaryKey) {
             $.ajax({
                 url: "/system/equipment/getForm",
@@ -92,33 +118,14 @@
                 }
             });
         }
-        lineId = $('#LineId').val();
-        $("#BigProcedure").bindSelect({
-            type: "POST",
-            url: "/param/unitProcedure/getParentByLine?lineId=" + lineId,
-            change: function (selectedData) {
-                
-                if (selectedData.id) {
-                    // 通过选择器选择你要清空的<select>元素
-                    var selectElement = $("#UnitProcedure");
 
-                    // 使用.empty()方法来清空选项
-                    selectElement.empty();
-                    $("#UnitProcedure").bindSelect({
-                        type: "POST",
-                        url: "/param/unitProcedure/getProcedureByline?lineId=" + lineId + "&parent=" + selectedData.id
-                    });
-                    form.render('select');
-                }
-            }
-        } );
-
-        $("#UnitProcedure").bindSelect({
-            type: "POST",
-            url: "/param/unitProcedure/getProcedureByline?lineId=" + lineId + "&parent=" + $('#BigProcedure').val()
+        $("#BigProcedure").on('change', function () {
+            var selectedValue = $(this).val();
+            $("#UnitProcedure").empty().bindSelect({
+                type: "POST",
+                url: "/param/unitProcedure/getProcedureByline?lineId=" + lineId + "&parent=" + $(this).val()
+            });
         });
-
-        form.render();
 
         $("#UnitProcedure").on('change', function () {
             var selectedValue = $(this).val();
@@ -136,6 +143,11 @@
                 }
             });
         });
+
+        
+        form.render();
+
+        
 
         form.on('submit(add)', function (data) {
             $.formSubmit({

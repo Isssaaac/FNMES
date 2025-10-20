@@ -40,20 +40,20 @@
             </div>
         </div>
         <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label ">小工位</label>
+            <div class="layui-form-item">
+                @* <label class="layui-form-label ">小工位</label>
                 <div class="layui-input-inline">
                     <select class="select2 layui-input-inline" lay-ignore name="SmallStationCode" id="SmallStationCode"></select>
-                </div>
+                </div> *@
                 <label class="layui-form-label label-required">顺序号</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="No" id="No" lay-verify="required" placeholder="顺序号" autocomplete="off" class="layui-input">
+                    <input type="number" name="No" id="No" lay-verify="required" placeholder="顺序号" autocomplete="off" class="layui-input">
                 </div>
             </div>
-            <div class="layui-inline">
+            <div class="layui-form-item">
                 <label class="layui-form-label label-required">文件路径</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="FilePath" id="FilePath" lay-verify="required" placeholder="文件路径" autocomplete="off" class="layui-input" style="width:500px">
+                    <textarea type="text" name="FilePath" id="FilePath" lay-verify="required" placeholder="文件路径" autocomplete="off" class="layui-input" style="width:500px"></textarea>
                 </div>
             </div>
             <div class="layui-inline">

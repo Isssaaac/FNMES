@@ -88,6 +88,7 @@ namespace FNMES.Utility.Operator
                 }
                 return operatorModel;
 #else
+                var tmep = MyHttpContext.httpContext.Session.GetString(LOGIN_USER_KEY).DESDecrypt();
                 operatorModel = MyHttpContext.httpContext.Session.GetString(LOGIN_USER_KEY).DESDecrypt().ToObject<Operator>();
                 return operatorModel;
 #endif

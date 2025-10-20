@@ -239,10 +239,12 @@
             return;
         }
         $.layerConfirm({
+            closed:false,
             content: "您已选中1条数据, 确定删除吗？",
             callback: function () {
                 $.formSubmit({
                     url: '/param/recipe/partdelete',
+                    close: false,
                     data: {
                         primaryKey: ids[0],
                         ConfigId: $.getQueryString("configId")

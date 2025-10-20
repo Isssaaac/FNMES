@@ -26,6 +26,7 @@ using FNMES.Utility;
 using JinianNet.JNTemplate.Resources;
 using static ICSharpCode.SharpZipLib.Zip.ExtendedUnixData;
 using System.Reflection.Emit;
+using System.Diagnostics;
 
 
 
@@ -59,7 +60,6 @@ namespace FNMES.Service.WebService
         private readonly UnitProcedureLogic unitProcedureLogic;
         private readonly RecordCellStartLogic cellStartLogic;
 
-        
         private readonly RecordCellBindBlockLogic cellBindBlockLogic;
         private readonly RecordCellOutStationLogic cellOutStationLogic;
         private readonly RecordCellPartUploadLogic cellPartUploadLogic;
@@ -515,7 +515,8 @@ namespace FNMES.Service.WebService
                         CodeContent = "",
                         ConfigId = configId,
                         ProductPartNo = selectedOrder.ProductPartNo,
-                        TaskOrderNumber = selectedOrder.TaskOrderNumber
+                        TaskOrderNumber = selectedOrder.TaskOrderNumber,
+                        Grade = selectedOrder.PackCellGear
                     },
                 };
             }
@@ -573,7 +574,8 @@ namespace FNMES.Service.WebService
                     CodeContent = "",
                     ConfigId = configId,
                     ProductPartNo = selectedOrder.ProductPartNo,
-                    TaskOrderNumber = selectedOrder.TaskOrderNumber
+                    TaskOrderNumber = selectedOrder.TaskOrderNumber,
+                    Grade = selectedOrder.PackCellGear
                 },
             };
         }
@@ -702,7 +704,7 @@ namespace FNMES.Service.WebService
             return NewSuccessMessage<nullObject>("工厂离线中，已离线绑定完成");
         }
 
-        //上线绑定AGV工装与箱体     M300工位使用    绑定信息上传
+        //上线绑定AGV工装与箱体 入口工位使用 绑定信息上传
         //瑞普项目要绑定多个箱体码,因此productCode是列表
         [OperationContract]
         public RetMessage<nullObject> BindPallet(List<BindProcessParam> param,  string configId)
@@ -733,6 +735,7 @@ namespace FNMES.Service.WebService
                     CreateTime = DateTime.Now
                 });
             }
+            //Pack第一次绑定托盘
             var result = processBindLogic.Insert(processBinds, configId);
 
             if(result == 0)
@@ -796,24 +799,22 @@ namespace FNMES.Service.WebService
                 }
             }
             
-            
-            
             if (GlobalContext.SystemConfig.EnableFactoryMes)
             {
-                //API接口上传
-                SysLine sysLine = lineLogic.GetByConfigId(configId);
-                param.productionLine = sysLine.EnCode;
-                FactoryStatus factoryStatus = GetStatus(configId);
-                if (factoryStatus.IsOnline)
-                {
-                    return APIMethod.Call(Url.UnBindPalletUrl, param, configId).ToObject<RetMessage<nullObject>>();
-                }
-                offlineApiLogic.Insert(new RecordOfflineApi()
-                {
-                    Url = Url.UnBindPalletUrl,
-                    RequestBody = param.ToJson(),
-                    ReUpload = 0
-                }, configId);
+                ////API接口上传
+                //SysLine sysLine = lineLogic.GetByConfigId(configId);
+                //param.productionLine = sysLine.EnCode;
+                //FactoryStatus factoryStatus = GetStatus(configId);
+                //if (factoryStatus.IsOnline)
+                //{
+                //    return APIMethod.Call(Url.UnBindPalletUrl, param, configId).ToObject<RetMessage<nullObject>>();
+                //}
+                //offlineApiLogic.Insert(new RecordOfflineApi()
+                //{
+                //    Url = Url.UnBindPalletUrl,
+                //    RequestBody = param.ToJson(),
+                //    ReUpload = 0
+                //}, configId);
             }
             return  NewSuccessMessage<nullObject>("工厂离线中，已离线解绑完成");
         }
@@ -979,7 +980,7 @@ namespace FNMES.Service.WebService
             }
         }
 
-        //设备状态    检测到设备状态恢复时需要上传一条停机统计信息
+        //设备状态：设备状态没变化，5分钟一次调用一次，有变化，马上上传。出现任何报警都要发故障，包括测试NG等等。中途报警信息减少了，未为0条的时候不用调接口。
         [OperationContract]
         public RetMessage<nullObject> EquipmentState(EquipmentState param, string configId)
         {
@@ -991,52 +992,38 @@ namespace FNMES.Service.WebService
             {
                 return NewErrorMessage<nullObject>("没有给stationCode参数赋值");
             }
+
             SysLine sysLine = lineLogic.GetByConfigId(configId);
             param.productionLine = sysLine.EnCode;
+
             RecordEquipmentStatus status = new();
             status.CopyField(param);
-            RecordEquipmentStop stopParam = null;
-            int v = recordEquipmentLogic.InsertStatus(status, configId, ref stopParam);
+
+            
+
+            int v = recordEquipmentLogic.InsertStatus(status, configId);
             FactoryStatus factoryStatus = GetStatus(configId);
             if (v == 0)
             {
                 return NewErrorMessage<nullObject>("插入本地数据记录出错");
             }
-            EquipmentStateParam apiStatusParam = new();
-            apiStatusParam.CopyField(param);
-            EquipmentStopParam apiStopParam = new();
-            if (stopParam != null)
-            {
-                apiStopParam.CopyField(stopParam);
-            }
 
-            if (factoryStatus.IsOnline)
+            UploadData_SParam uploadData = new UploadData_SParam(param);
+            if (factoryStatus.IsOnline && GlobalContext.SystemConfig.EnableFactoryMes)
             {
-                if (stopParam != null)
-                {
-                    APIMethod.Call(Url.EquipmentStopUrl, apiStopParam, configId).ToObject<RetMessage<nullObject>>();
-                }
-                return APIMethod.Call(Url.EquipmentStateUrl, apiStatusParam, configId).ToObject<RetMessage<nullObject>>();
+                var ret = APIMethod.Call(Url.UploadData_S, uploadData, configId).ToObject<RetMessage<nullObject>>();
+                return ret;
             }
             _ = offlineApiLogic.Insert(new RecordOfflineApi()
             {
-                Url = Url.EquipmentStateUrl,
-                RequestBody = apiStatusParam.ToJson(),
+                Url = Url.UploadData_S,
+                RequestBody = uploadData.ToJson(),
                 ReUpload = 0
             }, configId);
-            if (stopParam != null)
-            {
-                _ = offlineApiLogic.Insert(new RecordOfflineApi()
-                {
-                    Url = Url.EquipmentStopUrl,
-                    RequestBody = apiStopParam.ToJson(),
-                    ReUpload = 0
-                }, configId);
-            }
             return NewSuccessMessage<nullObject>("工厂离线中，已离线上传完成");
         }
 
-        //设备报警
+        //设备报警：故障要传故障代码和原因，后续厂级mes给岀字典，出现一次报警上传一次。
         [OperationContract]
         public RetMessage<nullObject> EquipmentError(EquipmentErrorParam param, string configId)
         {
@@ -1054,19 +1041,20 @@ namespace FNMES.Service.WebService
             if (v == 0)
             {
                 return NewErrorMessage<nullObject>("插入本地数据记录出错");
-
             }
-            SysLine sysLine = lineLogic.GetByConfigId(configId);
-            param.productionLine = sysLine.EnCode;
+
             FactoryStatus factoryStatus = GetStatus(configId);
-            if (factoryStatus.IsOnline)
+
+            UploadData_WParam uploadData = new UploadData_WParam(param);
+
+            if (factoryStatus.IsOnline && GlobalContext.SystemConfig.EnableFactoryMes)
             {
-                return APIMethod.Call(Url.EquipmentErrorUrl, param, configId).ToObject<RetMessage<nullObject>>();
+                return APIMethod.Call(Url.UploadData_W, uploadData, configId).ToObject<RetMessage<nullObject>>();
             }
             offlineApiLogic.Insert(new RecordOfflineApi()
             {
-                Url = Url.EquipmentErrorUrl,
-                RequestBody = param.ToJson(),
+                Url = Url.UploadData_W,
+                RequestBody = uploadData.ToJson(),
                 ReUpload = 0
             }, configId);
             return NewSuccessMessage<nullObject>("工厂离线中，已离线上传完成");
@@ -1821,18 +1809,18 @@ namespace FNMES.Service.WebService
         /// <param name="configId"></param>
         /// <returns></returns>
         [OperationContract]
-        public RetMessage<List<Process>> RepairGetProcessData(string productCode, string currentStation, string configId)
+        public RetMessage<List<FNMES.Entity.DTO.ApiParam.Process>> RepairGetProcessData(string productCode, string currentStation, string configId)
         {
             if (configId.IsNullOrEmpty() || productCode.IsNullOrEmpty())
             {
-                return NewErrorMessage<List<Process>>("没有给configId或条码参数赋值");
+                return NewErrorMessage<List<FNMES.Entity.DTO.ApiParam.Process>>("没有给configId或条码参数赋值");
             }
             ProcessNGLogic processNGLogic = new ProcessNGLogic();
             var lst_process = processNGLogic.GetProcessData(productCode, currentStation, configId);
-            List<Process> result = new List<Process>();
+            List<FNMES.Entity.DTO.ApiParam.Process> result = new List<FNMES.Entity.DTO.ApiParam.Process>();
             foreach (var item in lst_process)
             {
-                Process process = new Process
+                FNMES.Entity.DTO.ApiParam.Process process = new FNMES.Entity.DTO.ApiParam.Process
                 {
                     DecisionType = item.DecisionType,
                     itemFlag = item.ItemFlag,
@@ -1848,7 +1836,7 @@ namespace FNMES.Service.WebService
                 };
                 result.Add(process);
             }
-            return new RetMessage<List<Process>> { data = result, message = "查询成功", messageType = RetCode.Success };
+            return new RetMessage<List<FNMES.Entity.DTO.ApiParam.Process>> { data = result, message = "查询成功", messageType = RetCode.Success };
         }
 
         /// <summary>
@@ -2130,69 +2118,19 @@ namespace FNMES.Service.WebService
             return NewErrorMessage<GetMarkingResponse>("查询mark信息失败");
         }
 
-        /// <summary>
-        /// GetCellVoltage
-        /// </summary>
-        /// <param name="param">请求数据</param>
-        /// <param name="configId">线别</param>
-        /// <returns></returns>
-        [OperationContract]
-        public RetMessage<GetCellVoltageData> GetCellVoltage(GetCellVoltageParamIn param, string configId)
-        {
-            if (configId.IsNullOrEmpty())
-            {
-                return NewErrorMessage<GetCellVoltageData>("没有给configId参数赋值");
-            }
-            if (param.stationCode.IsNullOrEmpty())
-            {
-                return NewErrorMessage<GetCellVoltageData>("没有给stationCode参数赋值");
-            }
-            SysLine sysLine = lineLogic.GetByConfigId(configId);
-            param.productionLine = sysLine.EnCode;
-            param.callTime = ExtDateTime.GetTimeStamp(DateTime.Now);
-            FactoryStatus factoryStatus = GetStatus(configId);
-            if (factoryStatus.IsOnline)
-            {
-                return APIMethod.Call(Url.GetCellVoltage, param, configId).ToObject<RetMessage<GetCellVoltageData>>();
-            }
-            return NewErrorMessage<GetCellVoltageData>("查询ocv信息失败");
-        }
-
-        /// <summary>
-        /// 上传自放电数据
-        /// </summary>
-        /// <param name="param">请求数据</param>
-        /// <param name="configId">线别</param>
-        /// <returns></returns>
-        /// 
-        [OperationContract]
-        public RetMessage<nullObject> UploadCellVoltage(selfDischargeParamIn param, string configId)
-        {
-            try
-            {
-                if (configId.IsNullOrEmpty())
-                {
-                    return NewErrorMessage<nullObject>("没有给configId参数赋值");
-                }
-
-                RecordSelfDischargeLogic logic = new RecordSelfDischargeLogic();
-                var ret = logic.Insert(param, configId);
-                if(ret)
-                    return NewSuccessMessage<nullObject>("插入自放电成功");
-                else
-                    return  NewErrorMessage<nullObject>("插入自放电失败");
-            }
-            catch (Exception e)
-            {
-                return NewErrorMessage<nullObject>("插入自放电失败");
-            }
-        }
         #endregion
 
         /**********************************************************************/
         
         
-
+        /// <summary>
+        /// 电芯进站
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="part"></param>
+        /// <param name="process"></param>
+        /// <param name="configId"></param>
+        /// <returns></returns>
         public RetMessage<OutStationData> CellOutStation(OutStationParam param, PartUploadParam part, ProcessUploadParam process, string configId)
         {
             if (configId.IsNullOrEmpty())
@@ -2225,10 +2163,12 @@ namespace FNMES.Service.WebService
                 {
                     foreach (var e in part.partList)
                     {
+                        //物料上传
                         UpAssembleDataParam mesParam = new UpAssembleDataParam(param, e);
                         var partMesRet = APIMethod.Call(Url.UpAssembleData, mesParam, configId).ToObject<MesRet>();
                     }
                 }
+                //工厂出站
                 UploadData_FParam uploadData_FParam = new UploadData_FParam(param, process.processData, ngCodes);
                 var mesRet = APIMethod.Call(Url.UploadData_F, uploadData_FParam, configId).ToObject<MesRet>();
 
@@ -2246,7 +2186,15 @@ namespace FNMES.Service.WebService
                 return NewSuccessMessage<OutStationData>("工厂离线中，已离线上传完成");
             }
         }
-        
+        /// <summary>
+        /// block进站
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="part"></param>
+        /// <param name="process"></param>
+        /// <param name="bindProducts"></param>
+        /// <param name="configId"></param>
+        /// <returns></returns>
         public RetMessage<OutStationData> BlockOutStation(OutStationParam param, PartUploadParam part, ProcessUploadParam process, List<BindProduct> bindProducts, string configId)
         {
             if (configId.IsNullOrEmpty())
@@ -2290,7 +2238,7 @@ namespace FNMES.Service.WebService
                         var partMesRet = APIMethod.Call(Url.UpAssembleData, mesParam, configId).ToObject<MesRet>();
                     }
                 }
-                if (unitProcedure.InStationProductType == "Cell")
+                if (bindProducts !=null && bindProducts.Count>0)
                 {
                     List<RecordCellBindBlock> items = new List<RecordCellBindBlock>();
                     foreach (var e in bindProducts)
@@ -2341,7 +2289,7 @@ namespace FNMES.Service.WebService
             if (param.productCode.IsNullOrEmpty())
                 return NewErrorMessage<OutStationData>("没有给productCode参数赋值");
 
-            //查绑定表
+            //查绑定表,绑定表在BindPallet第一次绑定
             ProcessBind processBind = processBindLogic.GetByProductCode(param.productCode, configId);
             if (processBind == null)
                 return NewErrorMessage<OutStationData>($"条码:<{param.productCode}>未查到绑定数据");
@@ -2398,18 +2346,7 @@ namespace FNMES.Service.WebService
                 return NewErrorMessage<OutStationData>("插入本地数据记录出错");
 
             var unitProcedure = unitProcedureLogic.GetByStation(param.stationCode,configId);
-            if(unitProcedure.OutStationProductType == null)
-                return NewErrorMessage<OutStationData>($"{unitProcedure.Encode}未设置出站产品类型");
-
-            List<RecordBlockBindPack> items = new List<RecordBlockBindPack>();
-            foreach (var e in bindProducts)
-            {
-                RecordBlockBindPack item = new RecordBlockBindPack();
-                item.PackBarcode = param.productCode;
-                item.BlockBarcode = e.productCode;
-                item.Position = e.position;
-                items.Add(item);
-            }
+            
             if (part != null && part.partList != null && part.partList.Count > 0)
             {
                 v = partUploadLogic.Insert(part, configId);
@@ -2439,7 +2376,17 @@ namespace FNMES.Service.WebService
                 }
                 if (bindProducts != null && bindProducts.Count>0)
                 {
-                    //
+                    //block绑定Pack
+                    List<RecordBlockBindPack> items = new List<RecordBlockBindPack>();
+                    foreach (var e in bindProducts)
+                    {
+                        RecordBlockBindPack item = new RecordBlockBindPack();
+                        item.PackBarcode = param.productCode;
+                        item.BlockBarcode = e.productCode;
+                        item.Position = e.position;
+                        items.Add(item);
+                    }
+                    //本地上传
                     UploadData_MZParam uploadData_MZParam = new UploadData_MZParam(param,process.processData,ngCodes,bindProducts);
                     var outMesRet = APIMethod.Call(Url.UploadData_MZ, uploadData_MZParam, configId).ToObject<MesRet>();
                     outRet = new RetMessage<OutStationData>(outMesRet);
@@ -2473,7 +2420,12 @@ namespace FNMES.Service.WebService
         }
 
         
-        //进站 
+        /// <summary>
+        /// Pack进站 
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="configId"></param>
+        /// <returns></returns>
         [OperationContract]
         public RetMessage<InStationData> PackInStation(InStationParam param, string configId)
         {
@@ -2496,10 +2448,11 @@ namespace FNMES.Service.WebService
                     Logger.RunningInfo($"{param.productCode}在{param.stationCode}工位过站失败，工艺路线中不包含{param.stationCode}工序");
                     return NewNgMessage<InStationData>($"{param.productCode}在{param.stationCode}工位过站失败，工艺路线中不包含{param.stationCode}工序");
                 }
+
                 //如果是入口工站，直接厂级进站
                 if (paramLocalRoutes[routStep].IsEntrance)
                 {
-                    //工厂过站
+                    //工厂进站
                     FactoryStatus factoryStatusEntrance = GetStatus(configId);
                     if (factoryStatusEntrance.IsOnline && GlobalContext.SystemConfig.EnableFactoryMes)
                     {
@@ -2515,7 +2468,7 @@ namespace FNMES.Service.WebService
                     }, configId);
                     return NewSuccessMessage<InStationData>("工厂离线中，已离线上传完成"); ;
                 }
-                //首站过站怎么办
+                //普通工位进站
                 ProcessBind processBind = processBindLogic.GetByProductCode(param.productCode, configId);
                 if (processBind == null)
                 {
@@ -2642,6 +2595,7 @@ namespace FNMES.Service.WebService
                     currentRoute.CheckStations = currentRoute.Criterion.Split(',').ToList();
                 else
                     currentRoute.CheckStations = new List<string>();
+
                 //非返修
                 if (!currentRoute.IsAllowRepeat)  //不允许重复判定最新工位是否当前工位
                 {
@@ -2713,19 +2667,22 @@ namespace FNMES.Service.WebService
             }
         }
 
-        //电芯进站要记住档位
+        
+        //OCV测试进来要上传电芯信息
         [OperationContract]
-        public RetMessage<nullObject> UploadCellInfo(string productCode,string gear, string configId)
+        public RetMessage<nullObject> UploadCellInfo(cellInfoParam param, string configId)
         {
             if (configId.IsNullOrEmpty())
                 return NewErrorMessage<nullObject>("没有给configId参数赋值");
-            if (productCode.IsNullOrEmpty())
-                return NewErrorMessage<nullObject>("没有给productCode参数赋值");
+            if (param.IsNullOrEmpty())
+                return NewErrorMessage<nullObject>("没有给param参数赋值");
             try
             {
                 RecordCellStart cellStart = new RecordCellStart();
-                cellStart.ProductCode = productCode;
-                cellStart.Gear = gear;
+                cellStart.ProductCode = param.productCode;
+                cellStart.Grade = param.grade;
+                cellStart.O2Voltage = param.voltage;
+                cellStart.LastOCVDate = param.lastOCVDate;
 
                 var ret = cellStartLogic.InsertSplitTableRow(cellStart);
                 RetMessage<nullObject> retMessage = new RetMessage<nullObject>()
@@ -2738,33 +2695,54 @@ namespace FNMES.Service.WebService
             }
             catch (Exception e)
             {
-                Logger.ErrorInfo($"电芯码:<{productCode}>,档位:<{gear}>,报错误", e);
-                return NewErrorMessage<nullObject>($"电芯码:<{productCode}>,档位:<{gear}>,错误信息:<{e.Message}>");
+                Logger.ErrorInfo($"电芯码:<{param.productCode}>,档位:<{param.grade}>,报错误", e);
+                return NewErrorMessage<nullObject>($"电芯码:<{param.productCode}>,档位:<{param.grade}>,错误信息:<{e.Message}>");
             }
         }
 
+        /// <summary>
+        /// 获取电芯电压，档位和O2测试时间
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="configId"></param>
+        /// <returns></returns>
         [OperationContract]
-        public RetMessage<RecordCellStart> GetCellInfo(string productCode, string configId)
+        public RetMessage<GetSfcInfoData> GetCellInfo(GetSfcInfoParam param, string configId)
         {
             if (configId.IsNullOrEmpty())
-                return NewErrorMessage<RecordCellStart>("没有给configId参数赋值");
-            if (productCode.IsNullOrEmpty())
-                return NewErrorMessage<RecordCellStart>("没有给productCode参数赋值");
+                return NewErrorMessage<GetSfcInfoData>("没有给configId参数赋值");
+            if (param.sfc.IsNullOrEmpty())
+                return NewErrorMessage<GetSfcInfoData>("没有给productCode参数赋值");
+            var retMessage = new RetMessage<GetSfcInfoData>();
             try
             {
-                RecordCellStart cellStart = cellStartLogic.GetCellInfo(productCode, configId);
-                RetMessage<RecordCellStart> retMessage = new RetMessage<RecordCellStart>()
+                if (GlobalContext.SystemConfig.EnableFactoryMes)
                 {
-                    messageType = cellStart != null ? RetCode.Success : RetCode.Error,
-                    message = "上传电芯数据失败",
-                    data = new RecordCellStart()
-                };
-                return retMessage;
+                    var callresult = APIMethod.Call(Url.GetSfcInfo, param, configId).ToObject<MesRet>();
+                    GetSfcInfoRet getSfcInfoRet = new GetSfcInfoRet();
+                    if (callresult != null)
+                    {
+                        if (callresult.code != "00000")
+                        {
+                            if (callresult.data != null && !callresult.data.IsEmpty())
+                            {
+                                getSfcInfoRet = JsonConvert.DeserializeObject<GetSfcInfoRet>(callresult.data);
+                            }
+                            retMessage = new RetMessage<GetSfcInfoData>(getSfcInfoRet.Data);
+                            return retMessage;
+                        }
+                        else
+                            return NewErrorMessage<GetSfcInfoData>($"厂级me返回电芯{param.sfc}错误，信息为:{callresult.msg}");
+                    }
+                    else
+                        return NewErrorMessage<GetSfcInfoData>($"厂级me返回电芯{param.sfc}为空");
+                }
+                return NewSuccessMessage<GetSfcInfoData>("厂级mes屏蔽");
             }
             catch (Exception e)
             {
-                Logger.ErrorInfo($"电芯码:<{productCode}>报错误", e);
-                return NewErrorMessage<RecordCellStart>($"电芯码:<{productCode}>错误信息:<{e.Message}>");
+                Logger.ErrorInfo($"电芯码:<{param.sfc}>报错", e);
+                return NewErrorMessage<GetSfcInfoData>($"电芯码:<{param.sfc}>错误信息:<{e.Message}>");
             }
         }
 
@@ -2869,7 +2847,15 @@ namespace FNMES.Service.WebService
                 return NewErrorMessage<InStationData>($"内控码:<{param.productCode}>,工站:<{param.stationCode}>,错误信息:<{e.Message}>");
             }
         }
-
+        /// <summary>
+        /// 总出站
+        /// </summary>
+        /// <param name="param">过站参数</param>
+        /// <param name="part">物料参数</param>
+        /// <param name="process">工艺参数</param>
+        /// <param name="bindProducts">绑定:电芯绑定模组，模组绑定Pack</param>
+        /// <param name="configId"></param>
+        /// <returns></returns>
         [OperationContract]
         public RetMessage<OutStationData> OutStation(OutStationParam param, PartUploadParam part, ProcessUploadParam process, List<BindProduct> bindProducts, string configId)
         {
@@ -2896,5 +2882,32 @@ namespace FNMES.Service.WebService
                 return NewErrorMessage<OutStationData>($"内控码:<{param.productCode}>,工站:<{param.stationCode}>,出站错误信息:<{e.Message}>");
             }
         }
+        //点检，点检的是什么
+        //[OperationContract]
+        //public RetMessage<OutStationData> GetCheckMaitenance(GetCheckMaitenanceParam param, string configId)
+        //{
+        //    if (configId.IsNullOrEmpty())
+        //        return NewErrorMessage<OutStationData>("没有给configId参数赋值");
+        //    if (param.productCode.IsNullOrEmpty())
+        //        return NewErrorMessage<OutStationData>("没有给productCode参数赋值");
+        //    try
+        //    {
+        //        var unitProcedure = unitProcedureLogic.GetByStation(param.stationCode, configId);
+        //        switch (unitProcedure.OutStationProductType)
+        //        {
+        //            case "Cell":
+        //                return CellOutStation(param, part, process, configId);
+        //            case "Block":
+        //                return BlockOutStation(param, part, process, bindProducts, configId);
+        //            default:
+        //                return PackOutStation(param, part, process, bindProducts, configId);
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Logger.ErrorInfo($"内控码:<{param.productCode}>,工站:<{param.stationCode}>出站错误", e);
+        //        return NewErrorMessage<OutStationData>($"内控码:<{param.productCode}>,工站:<{param.stationCode}>,出站错误信息:<{e.Message}>");
+        //    }
+        //}
     }
 }

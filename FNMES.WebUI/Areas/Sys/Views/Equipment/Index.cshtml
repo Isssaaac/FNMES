@@ -224,7 +224,7 @@
             title: "修改设备",
             width: "670px",
             height: "600px",
-            content: "/system/equipment/form?primaryKey=" + ids[0],
+            content: "/system/equipment/form?primaryKey=" + ids[0] + "&lineId=" + node.id,
             yes: function (iBody) {
                 iBody.find('#btnSubmit').click();
                 initGrid();

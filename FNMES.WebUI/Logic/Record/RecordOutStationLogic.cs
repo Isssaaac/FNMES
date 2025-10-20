@@ -9,6 +9,7 @@ using ServiceStack;
 using OfficeOpenXml;
 using System.Data;
 using FNMES.Entity.DTO.AppData;
+using Newtonsoft.Json;
 
 namespace FNMES.WebUI.Logic.Record
 {
@@ -310,7 +311,7 @@ namespace FNMES.WebUI.Logic.Record
         
 
         //精准导出
-        public List<OutRecord> GetAllRecord(string configId, string startDate, string endDate, string productCode, string order,
+        public List<OutRecord> GetAllRecord(string configId, string startDate, string endDate, string productCode,string conditions,
             ref List<RecordOutStation> outStationData, ref List<ProcRecord> procRecordData, ref List<ParRecord> partRecordData)
         {
             try
@@ -321,9 +322,11 @@ namespace FNMES.WebUI.Logic.Record
                 {
                     queryable = queryable.Where(it => it.ProductCode.Contains(productCode) || it.StationCode.Contains(productCode));
                 }
-                if (!order.IsNullOrEmpty())
+
+                if (!conditions.IsNullOrEmpty())
                 {
-                    queryable = queryable.Where(it => it.TaskOrderNumber.Contains(order));
+                    List<Condition> conditionList = JsonConvert.DeserializeObject<List<Condition>>(conditions);
+                    queryable = BuildQuery(queryable, conditionList);
                 }
 
                 DateTime start = Convert.ToDateTime(startDate);

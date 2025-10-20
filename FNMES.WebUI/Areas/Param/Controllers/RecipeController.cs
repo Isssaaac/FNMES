@@ -15,6 +15,10 @@ using System.Linq;
 using FNMES.WebUI.Logic.Base;
 using Microsoft.AspNetCore.Http;
 using FNMES.Entity.DTO;
+using FNMES.WebUI;
+using Microsoft.Extensions.Localization;
+
+
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -28,19 +32,24 @@ namespace MES.WebUI.Areas.Param.Controllers
         private readonly ParamPartItemLogic paramPartItemLogic;
         private readonly ParamStepItemLogic paramStepItemLogic;
 
-        public RecipeController()
+        private readonly IStringLocalizer<SharedResource> _sharedLocalizer;
+        public RecipeController(IStringLocalizer<SharedResource> sharedLocalizer)
         {
             recipeLogic = new RecipeLogic();
             paramItemLogic = new ParamItemLogic();
             paramPartItemLogic = new ParamPartItemLogic();
             baseLogic = new BaseLogic();
             paramStepItemLogic = new ParamStepItemLogic();
+            _sharedLocalizer = sharedLocalizer;
+
         }
 
         [Route("param/recipe/index")]
         [HttpGet, AuthorizeChecked]
         public ActionResult Index()
         {
+            var i = _sharedLocalizer["ImportParam"];
+            var resourceNames = _sharedLocalizer.GetAllStrings().Select(s => s.Name);
             return View();
         }
 

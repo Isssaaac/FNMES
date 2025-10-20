@@ -1,0 +1,348 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AddEquipment" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="AddPermission" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="AddRole" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="AddRoute" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="AddUnitProcedure" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="AddUser" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Authorization" xml:space="preserve">
+    <value>Authorization</value>
+  </data>
+  <data name="BarcodeRule" xml:space="preserve">
+    <value>BarcodeRule</value>
+  </data>
+  <data name="BindRecord" xml:space="preserve">
+    <value>BindRecord</value>
+  </data>
+  <data name="BlockOutStation" xml:space="preserve">
+    <value>BlockOutStation</value>
+  </data>
+  <data name="CancelOrder" xml:space="preserve">
+    <value>CancelOrder</value>
+  </data>
+  <data name="CellOutStation" xml:space="preserve">
+    <value>CellOutStation</value>
+  </data>
+  <data name="DataRecord" xml:space="preserve">
+    <value>DataRecord</value>
+  </data>
+  <data name="DeleteEquipment" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteErrorLog" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteOperateLog" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeletePermission" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteRole" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteRoute" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteRunningLog" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteUnitProcedure" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteUser" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DetectRecord" xml:space="preserve">
+    <value>DetectRecord</value>
+  </data>
+  <data name="EditEquipment" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="EditPermission" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="EditRole" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="EditRoute" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="EditUnitProcedure" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="EditUser" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="EquipmentRegister" xml:space="preserve">
+    <value>EquipmentRegister</value>
+  </data>
+  <data name="ErrorLog" xml:space="preserve">
+    <value>ErrorLog</value>
+  </data>
+  <data name="ExportErrorLog" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="ExportOperateLog" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="ExportRunningLog" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="ExternelLog" xml:space="preserve">
+    <value>ExternelLog</value>
+  </data>
+  <data name="FastBind" xml:space="preserve">
+    <value>FastBind</value>
+  </data>
+  <data name="FastUnbind" xml:space="preserve">
+    <value>FastUnbind</value>
+  </data>
+  <data name="GetOrder" xml:space="preserve">
+    <value>GetOrder</value>
+  </data>
+  <data name="GetProduct" xml:space="preserve">
+    <value>GetProduct</value>
+  </data>
+  <data name="GetRecipe" xml:space="preserve">
+    <value>GetRecipe</value>
+  </data>
+  <data name="LineMangement" xml:space="preserve">
+    <value>Line</value>
+  </data>
+  <data name="LogMangement" xml:space="preserve">
+    <value>Log</value>
+  </data>
+  <data name="OfflineRecord" xml:space="preserve">
+    <value>OfflineRecord</value>
+  </data>
+  <data name="OperateLog" xml:space="preserve">
+    <value>OperationLog</value>
+  </data>
+  <data name="OperationMangement" xml:space="preserve">
+    <value>Operation</value>
+  </data>
+  <data name="OrderMangement" xml:space="preserve">
+    <value>Order</value>
+  </data>
+  <data name="OutstationRecord" xml:space="preserve">
+    <value>OutstationRecord</value>
+  </data>
+  <data name="PartRecord" xml:space="preserve">
+    <value>PartRecord</value>
+  </data>
+  <data name="PauseOrder" xml:space="preserve">
+    <value>PauseOrder</value>
+  </data>
+  <data name="Permission" xml:space="preserve">
+    <value>Permission</value>
+  </data>
+  <data name="Preprocess" xml:space="preserve">
+    <value>Preprocess</value>
+  </data>
+  <data name="ProcessMangement" xml:space="preserve">
+    <value>ProcessMangement</value>
+  </data>
+  <data name="ProcessRecord" xml:space="preserve">
+    <value>ProcessRecord</value>
+  </data>
+  <data name="Product" xml:space="preserve">
+    <value>Product</value>
+  </data>
+  <data name="ProductMangement" xml:space="preserve">
+    <value>ProductMangement</value>
+  </data>
+  <data name="RecipeESOP" xml:space="preserve">
+    <value>RecipeESOP</value>
+  </data>
+  <data name="RecipeMangement" xml:space="preserve">
+    <value>Recipe</value>
+  </data>
+  <data name="RecipeParam" xml:space="preserve">
+    <value>RecipeParam</value>
+  </data>
+  <data name="RecipePart" xml:space="preserve">
+    <value>RecipePart</value>
+  </data>
+  <data name="RecipeStep" xml:space="preserve">
+    <value>RecipeStep</value>
+  </data>
+  <data name="Record" xml:space="preserve">
+    <value>Record</value>
+  </data>
+  <data name="Repair" xml:space="preserve">
+    <value>Repair</value>
+  </data>
+  <data name="ResetPasswords" xml:space="preserve">
+    <value>ResetPasswords</value>
+  </data>
+  <data name="Role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="RouteMangement" xml:space="preserve">
+    <value>Route</value>
+  </data>
+  <data name="RunningLog" xml:space="preserve">
+    <value>RunningLog</value>
+  </data>
+  <data name="StartOrder" xml:space="preserve">
+    <value>Order</value>
+  </data>
+  <data name="System" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="SystemUser" xml:space="preserve">
+    <value>SystemUser</value>
+  </data>
+  <data name="UnitProcedure" xml:space="preserve">
+    <value>UnitProcedure</value>
+  </data>
+  <data name="ViewEquipment" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="ViewOrder" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="ViewPermission" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="ViewRole" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="ViewUnitProcedure" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="ViewUser" xml:space="preserve">
+    <value>View</value>
+  </data>
+</root>

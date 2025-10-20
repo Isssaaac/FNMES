@@ -251,5 +251,20 @@ namespace FNMES.WebUI.Logic.Record
                 return 0;
             }
         }
+
+        public int InsertStatus(RecordEquipmentStatus model, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                return db.Insertable<RecordEquipmentError>(model).SplitTable().ExecuteCommand();
+
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return 0;
+            }
+        }
     }
 }

@@ -48,6 +48,8 @@ $.layerOpen = function (options) {
     });
 }
 
+
+
 $.layerConditionOpen = function (options) {
     var defaults = {
         id: "default",
@@ -91,6 +93,18 @@ $.layerConditionOpen = function (options) {
     });
 }
 
+
+$.getCurrentDateTime = function (dayadd) {
+    var date = new Date();
+    var year = date.getFullYear();
+    // 月份/日期/小时/分钟/秒 补0（确保格式统一，如 9月→09月，3分→03分）
+    var month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需+1
+    var day = String(date.getDate() + dayadd).padStart(2, '0');
+    // 返回完整格式
+    return `${year}-${month}-${day}` ;
+}
+
+
 /**
  * 关闭模态窗。
  */
@@ -111,6 +125,7 @@ $.layerConfirm = function (options) {
         icon: 3,
         shade: 0.3,
         anim: 4,
+        closed:true,
         btn: ['确认', '取消'],
         btnclass: ['btn btn-primary', 'btn btn-danger'],
         callback: null
@@ -128,7 +143,8 @@ $.layerConfirm = function (options) {
         //if (options.callback && $.isFunction(options.callback)) {
         //    options.callback();
         //}
-        top.layer.close(index)
+        if (closed)
+            top.layer.close(index);
         var loadingIndex = top.layer.load(); // 显示加载中效果  
         setTimeout(function () {
             if (options.callback && $.isFunction(options.callback)) {

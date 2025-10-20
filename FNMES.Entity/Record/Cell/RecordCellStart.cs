@@ -18,8 +18,16 @@ namespace FNMES.Entity.Record
         public string ProductCode { get; set; }
 
         //档位
+        [SugarColumn(ColumnName = "Grade", ColumnDataType = "varchar(10)", IsNullable = true)]
+        public string Grade { get; set; }
+
+        //O2测试时间
+        [SugarColumn(ColumnName = "LastOCVDate", ColumnDataType = "varchar(30)", IsNullable = true)]
+        public string LastOCVDate { get; set; }
+
+        //
         [SugarColumn(ColumnName = "Gear", ColumnDataType = "varchar(10)", IsNullable = true)]
-        public string Gear { get; set; }
+        public string O2Voltage { get; set; }
 
         //标志位
         [SugarColumn(ColumnName = "Flag", ColumnDataType = "varchar(100)", IsNullable = true)]

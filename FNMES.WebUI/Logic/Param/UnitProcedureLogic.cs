@@ -188,7 +188,7 @@ namespace FNMES.WebUI.Logic.Param
             {
                 var db = GetInstance(configId);
                 
-                if (parent == null || parent.Length ==0)
+                if (parent == null || parent.Length ==0 || parent == "null")
                 {
                     return db.MasterQueryable<ParamUnitProcedure>().Where(it => it.IsParent == "0").ToList(); 
                 }

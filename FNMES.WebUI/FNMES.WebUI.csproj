@@ -13,6 +13,7 @@
 		<PackageReference Include="CsvHelper" Version="33.1.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.22" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.21" />
+		<PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.9" />
 		<PackageReference Include="System.Data.SQLite" Version="1.0.118" />
 	</ItemGroup>
 
@@ -33,6 +34,7 @@
 		<Content Remove="Areas\Param\Views\Product\add.cshtml" />
 		<Content Remove="Areas\Record\Views\CellOutStation\part.cshtml" />
 		<Content Remove="Areas\Record\Views\OutStation\Index1.cshtml" />
+		<Content Remove="Areas\Record\Views\OutStation\queryfilter.cshtml" />
 		<Content Remove="wwwroot\Content\jquery\jquery-3.6.0.min.js" />
 		<Content Remove="wwwroot\Content\PDFjs\htmlpage.html" />
 
@@ -75,6 +77,7 @@
 	  <_ContentIncludedByDefault Remove="Areas\Param\Views\Order\add.cshtml" />
 	  <_ContentIncludedByDefault Remove="Areas\Param\Views\Product\add.cshtml" />
 	  <_ContentIncludedByDefault Remove="Areas\Param\Views\UnitProcedure\import.cshtml" />
+	  <_ContentIncludedByDefault Remove="Areas\Record\Views\OutStation\queryfilter.cshtml" />
 	</ItemGroup>
 
 
@@ -82,6 +85,7 @@
 	  <None Include="Areas\Param\Views\Order\add.cshtml" />
 	  <None Include="Areas\Param\Views\Product\add.cshtml" />
 	  <None Include="Areas\Record\Views\CellOutStation\part.cshtml" />
+	  <None Include="Areas\Record\Views\OutStation\queryfilter.cshtml" />
 	</ItemGroup>
 
 
@@ -92,6 +96,11 @@
 
 	<ItemGroup>
 	  <UpToDateCheckInput Remove="Areas\Param\Views\UnitProcedure\import.cshtml" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <UpToDateCheckInput Remove="Areas\Record\Views\OutStation\queryfilter.cshtml" />
 	</ItemGroup>
 
 </Project>

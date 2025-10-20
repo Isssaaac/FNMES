@@ -11,11 +11,11 @@ namespace FNMES.Entity.Record
     [SplitTable(SplitType.Season)]
     [SugarTable("Record_OutStation_{year}{month}{day}")]
     [SugarIndex("index_outStation_productCode", nameof(RecordOutStation.ProductCode), OrderByType.Asc), LineTableInit]    //索引
-    public class RecordOutStation : BaseRecord
+    public class RecordOutStation : RecordBase
     {
-        [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        [SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
-        public long Id { get; set; }
+        //[Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
+        //[SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
+        //public long Id { get; set; }
 
         [SugarColumn(ColumnName = "ProductCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 内控码
@@ -51,9 +51,9 @@ namespace FNMES.Entity.Record
         // 操作工
         public string OperatorNo { get; set; }
 
-        [SplitField]
-        [SugarColumn(ColumnName = "CreateTime")]
-        public DateTime CreateTime { get; set; }
+        //[SplitField]
+        //[SugarColumn(ColumnName = "CreateTime")]
+        //public DateTime CreateTime { get; set; }
 
 
         //2024.5.13添加

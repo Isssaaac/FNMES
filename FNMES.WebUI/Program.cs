@@ -33,14 +33,15 @@ using UEditorNetCore;
 using SoapCore.Extensibility;
 using Microsoft.AspNetCore.StaticFiles;
 using System.Threading.Tasks;
-
-
-
+using Microsoft.Extensions.Localization;
+using Microsoft.AspNetCore.Mvc.Razor;
+using System.Globalization;
+using Newtonsoft.Json;
 
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Configuration.AddCommandLine(args);
-
 builder.WebHost.UseUrls("http://*:8080");
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 //builder.Configuration直接解释了appsettrings.json
@@ -85,7 +86,10 @@ builder.Services.AddSession(options =>
 });
 //使用缓存
 builder.Services.AddMemoryCache();
-builder.Services.AddMvc();
+
+builder.Services.AddMvc().AddViewLocalization()
+    .AddDataAnnotationsLocalization();
+
 //添加基础数据库实例
 builder.Services.AddSqlsugarServer(AppSetting.sysConnection);
 
@@ -130,7 +134,31 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.TryAddSingleton<WebServiceContract>();
 
+builder.Services.AddControllersWithViews()
+    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
+//解决印度日期格式json转datetime的问题
+JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+{
+    Converters = new JsonConverter[]
+    {
+        new MultiCultureDateTimeConverter() // 应用自定义多格式转换器
+    },
+    Culture = CultureInfo.InvariantCulture
+};
+
+
+
 var app = builder.Build();
+
+var supportedCultures = new[] { "en-US", "zh-CN", "id-ID" };
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture(supportedCultures[0])
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+//builder.Services.AddControllersWithViews()
+    
+app.UseRequestLocalization(localizationOptions);
+
 MyHttpContext.ServiceProvider = app.Services;
 //app.UseDeveloperExceptionPage();
 if (app.Environment.IsDevelopment())
@@ -157,6 +185,7 @@ app.UseSwaggerUI(c =>
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+//本地化要在这个之前
 app.UseRouting();
 app.UseAuthorization();
 app.UseEndpoints(endpoints =>

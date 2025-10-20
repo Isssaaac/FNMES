@@ -195,6 +195,7 @@
 
             $("#RecipeItemId").val($.getQueryString("primaryKey"));
             $("#ConfigId").val($.getQueryString("configId"));
+
             form.on('submit(add)', function (form) {
                 $.formSubmit({
                     url: "/param/recipe/paramadd",

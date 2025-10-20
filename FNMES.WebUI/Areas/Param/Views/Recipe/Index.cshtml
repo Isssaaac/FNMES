@@ -1,4 +1,9 @@
-﻿@{
+﻿@using Microsoft.Extensions.Localization
+@using FNMES.WebUI; 
+
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+
+@{
     Layout = null;
 }
 
@@ -55,19 +60,19 @@
                         <div id="toolbar" class="FNMES-table-toolbar">
                             <div class="layui-btn-group"></div>
                             <div class="layui-btn-group">
-                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_import_param()">导入参数</button>
-                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_export_param()">导出参数</button>
-                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_import_part()">导入物料</button>
-                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_export_part()">导出物料</button>
-                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_import_step()">导入工步</button>
-                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_export_step()">导出工步</button>
+                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_import_param()">@SharedLocalizer["ImportParam"]</button>
+                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_export_param()">@SharedLocalizer["ExportParam"]</button>
+                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_import_part()">@SharedLocalizer["ImportPart"]</button>
+                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_export_part()">@SharedLocalizer["ExportPart"]</button>
+                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_import_step()">@SharedLocalizer["ImportStep"]</button>
+                                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_export_step()">@SharedLocalizer["ExportStep"]</button>
                             </div>
-                            <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
+                            @* <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
                                 <i class="layui-icon">&#xe615;</i>
                             </button>
                             <div class="toolbar-search-input">
                                 <input type="text" id="keyWord" placeholder="选项名称或编码" autocomplete="off" class="layui-input" style="height:39px"/>
-                            </div>
+                            </div> *@
                         </div>
                         <table id="gridList" class="layui-form layui-table FNMES-table" lay-skin="line">
                             <thead>
@@ -76,13 +81,13 @@
                                         <input type="checkbox" lay-skin="primary">
                                     </th>
                                     
-                                    <th>大工站</th>
-                                    <th>大工站名</th>
+                                    <th>@SharedLocalizer["StationCode"]</th>
+                                    <th>@SharedLocalizer["StationCodeName"]</th>
                                     @*<th>下一站</th>
                                     <th>首工序</th>
                                     <th>节拍</th>
                                     <th>过站限制</th>*@
-                                    <th>顺序号</th>
+                                    <th>@SharedLocalizer["OrderNo"]</th>
                                 </tr>
                             </thead>
                             <!--内容容器-->
@@ -133,7 +138,7 @@
         $("#lineId").bindSelect({
             type: "POST",
             url: "/system/line/getListTreeSelect",
-            title: '请选择线体'
+            title: '@SharedLocalizer["SelectLine"]'
         });
         $("#lineId").on("select2:select", function (e) {
             // 处理选择事件

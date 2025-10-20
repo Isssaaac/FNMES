@@ -207,6 +207,8 @@ namespace FNMES.Entity.DTO.AppData
 
         [DataMember]
         public string GlueTime { get; set; }    //中段涂胶时间
+        [DataMember]
+        public string Grade { get; set; }    //档位
     }
     #region 原来的RecipeData
     //public class RecipeData

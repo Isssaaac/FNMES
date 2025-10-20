@@ -490,11 +490,11 @@ namespace FNMES.WebUI.Logic.Base
         /// <typeparam name="TTable"></typeparam>
         /// <param name="model"></param>
         /// <returns></returns>
-        public int InsertSplitTableRow<TTable>(TTable model) where TTable : RecordBase, new()
+        public int InsertSplitTableRow<TTable>(TTable model,string cofigId = "default") where TTable : RecordBase, new()
         {
             try
             {
-                var db = GetInstance();
+                var db = GetInstance(cofigId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 model.CreateTime = DateTime.Now;
                 var ret = db.Insertable(model).SplitTable().ExecuteCommand();
@@ -824,8 +824,10 @@ namespace FNMES.WebUI.Logic.Base
                 DateTime start = Convert.ToDateTime(startDate);
                 DateTime end = Convert.ToDateTime(endDate);
                 TimeSpan daysSpan = new TimeSpan(end.Ticks - start.Ticks);
+
                 if (daysSpan.TotalDays > 90)
                     end = start.AddDays(-90);
+
                 queryable = queryable.SplitTable(start, end);
                 if (!conditions.IsNullOrEmpty())
                 {
@@ -833,6 +835,50 @@ namespace FNMES.WebUI.Logic.Base
                     queryable = BuildQuery(queryable, conditionList);
                 }
                 var ret = queryable.ToPageList(pageIndex, pageSize, ref totalCount);
+                return ret;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<T>();
+            }
+        }
+
+        public List<T> GetExportData<T>(int pageIndex, int pageSize, string configId, string startDate, string endDate, string conditions, ref int totalCount) where T : RecordBase
+        {
+            try
+            {
+
+                var db = GetInstance(configId);
+                ISugarQueryable<T> queryable = db.Queryable<T>();
+
+                if (startDate.IsNullOrEmpty())
+                {
+                    DateTime nowTime = DateTime.Now;
+                    startDate = nowTime.AddDays(-30).ToString();
+                }
+
+                if (endDate.IsNullOrEmpty())
+                {
+                    endDate = DateTime.Now.ToString();
+                }
+
+                DateTime start = Convert.ToDateTime(startDate);
+                DateTime end = Convert.ToDateTime(endDate);
+                TimeSpan daysSpan = new TimeSpan(end.Ticks - start.Ticks);
+
+                if (daysSpan.TotalDays > 90)
+                    end = start.AddDays(-90);
+
+                queryable = queryable.SplitTable(start, end);
+                if (!conditions.IsNullOrEmpty())
+                {
+                    List<Condition> conditionList = JsonConvert.DeserializeObject<List<Condition>>(conditions);
+                    queryable = BuildQuery(queryable, conditionList);
+                }
+                
+                var ret = queryable.ToList();
+                totalCount = ret.Count();
                 return ret;
             }
             catch (Exception e)

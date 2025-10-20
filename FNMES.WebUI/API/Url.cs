@@ -2,6 +2,9 @@
 {
     public class Url
     {
+
+        //9、设备状态：设备状态没变化，5分钟一次调用一次，有变化，马上上传。出现任何报警都要发故障，包括测试NG等等。中途报警信息减少了，未为0条的时候不用调接口。
+        //10、设备报警：故障要传故障代码和原因，后续厂级mes给岀字典，出现一次报警上传一次。
         public const string UserLogin_info = "/api/equipment/UserLogin_info";              //P1员工登录
         public const string GetItemData = "/api/equipment/GetItemData";                    //P7进站,这里获取的是电芯档位
         public const string UploadData_S = "/api/equipment/UploadData_S";                  //P13设备状态
@@ -9,6 +12,7 @@
         public const string UploadData_F = "/api/equipment/UploadData_F";                  //P16产品工序批次完成,出站
         public const string UploadData_MZ = "/api/equipment/UploadData_MZ";                //P16-4产品完成-堆叠首站,绑定工站，入箱也是
         public const string UpAssembleData = "/api/equipment/UpAssembleData";              //P32产品物料批次装配接口
+        public const string GetSfcInfo = "/api/equipment/GetSfcInfo";                      //获取电芯信息
 
 
         public const string HeartbeatUrl = "/api/pa/healthCheck";                          //心跳接口

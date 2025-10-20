@@ -28,6 +28,7 @@ namespace FNMES.WebUI.Logic.Param
     public class ProcessBindLogic : BaseLogic
     {
         //删除后再插入
+        //models主要是两个不一样的pack码和一个托盘码
         public long Insert(List<ProcessBind> models,string configId)
         {
             try
@@ -53,6 +54,7 @@ namespace FNMES.WebUI.Logic.Param
                     {
                         foreach (var item in oldagvbind)
                         {
+                            //如果托盘码存在，就更新为空
                             item.PalletNo = "";
                             res = Update(item, configId);
                         }
@@ -78,7 +80,6 @@ namespace FNMES.WebUI.Logic.Param
                         db.Insertable<RecordBindHistory>(histories).SplitTable().ExecuteCommand();
                         //删除了旧的绑定又插入新的
                         db.Deleteable<ProcessBind>(oldprocessBind).ExecuteCommand();
-
                         res = db.Insertable<ProcessBind>(model).ExecuteCommand();
                         Db.CommitTran();
                     }

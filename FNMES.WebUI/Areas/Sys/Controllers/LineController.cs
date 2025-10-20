@@ -7,7 +7,8 @@ using FNMES.Utility.Core;
 using FNMES.Utility.Operator;
 using FNMES.WebUI.Controllers;
 using FNMES.WebUI.Logic.Sys;
-
+using FNMES.WebUI;
+using Microsoft.Extensions.Localization;
 namespace FNMES.WebUI.Areas.Sys.Controllers
 {
     [HiddenApi]
@@ -16,11 +17,13 @@ namespace FNMES.WebUI.Areas.Sys.Controllers
     {
         private readonly SysLineLogic lineLogic;
         private readonly SysEquipmentLogic equipmentLogic;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public LineController()
+        public LineController(IStringLocalizer<SharedResource> localizer)
         {
             lineLogic = new SysLineLogic();
             equipmentLogic = new SysEquipmentLogic();
+            _localizer = localizer;
         }
 
 
@@ -110,7 +113,7 @@ namespace FNMES.WebUI.Areas.Sys.Controllers
                 {
                     id = "1",
                     pId = "0",
-                    name = "线体列表",
+                    name = _localizer["LineList"],
                     open = true
                 }
             };
@@ -137,7 +140,7 @@ namespace FNMES.WebUI.Areas.Sys.Controllers
             var listTree = new List<TreeSelect>() { 
                  new TreeSelect{
                       id = "0",
-                      text = "----请先选择线体----"
+                      text = $"----{_localizer["SelectLine"]}----"
                  }
             };
             foreach (var item in listRole)

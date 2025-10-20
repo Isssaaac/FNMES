@@ -1,4 +1,6 @@
-﻿@{
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+@{
     Layout = null;
 }
 
@@ -45,39 +47,23 @@
                 <img src="/th.jpg" style="width: 200px;height: auto;object-fit: contain;margin-right:10px;"/>
                     @* <a class="layui-header-name" style="margin-left: 10px;">@ViewBag.SoftwareName</a> *@
                     <a class="layui-header-sidebar" title="收缩菜单" style="margin-left: 10px;"><i class="fa fa-dedent" aria-hidden="true"></i></a>
-               
             </div>
             <ul class="layui-nav">
-                @*<li class="layui-nav-item btn-donate">
-                <a href="#">
-                <i class="fa fa fa-heart" aria-hidden="true"></i>
-                </a>
-                </li>
-                <li class="layui-nav-item">
-                <a href="#">
-                <i class="fa fa-envelope" aria-hidden="true"></i>
-                </a>
-                </li>
-                <li class="layui-nav-item">
-                <a href="#">
-                <i class="fa fa-bell" aria-hidden="true"></i>
-                </a>
-                </li>*@
                 <li class="layui-nav-item" style="margin-right: 10px">
                     <a class="layui-header-user" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;"><img style="width: 45px;height: 45px;border-radius: 50%;" src="/avatar.png" />&nbsp;@ViewBag.CurrentUser.Name</a>
                     <dl class="layui-nav-child">
                         <dd>
-                            <a class="user-card" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp;账户管理</a>
+                            <a class="user-card" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp;@Localizer["Account"]</a>
                         </dd>
                         <dd>
-                            <a class="btn-theme" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;"><i class="fa fa-certificate" aria-hidden="true"></i>&nbsp;主题修改</a>
+                            <a class="btn-theme" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;"><i class="fa fa-certificate" aria-hidden="true"></i>&nbsp;@Localizer["Theme"]</a>
                         </dd>
                         <dd>
-                            <a class="lock-user" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;"><i class="fa fa-power-off" aria-hidden="true"></i>&nbsp;锁定屏幕</a>
+                            <a class="lock-user" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;"><i class="fa fa-power-off" aria-hidden="true"></i>&nbsp;@Localizer["Lock"]</a>
                         </dd>
                         <dd>
                             <hr />
-                            <a href="/account/exit" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;"><i class="fa fa-sign-out" aria-hidden="true"></i>&nbsp;安全退出</a>
+                            <a href="/account/exit" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;"><i class="fa fa-sign-out" aria-hidden="true"></i>&nbsp;@Localizer["Quit"]</a>
                         </dd>
                     </dl>
                 </li>
@@ -116,7 +102,14 @@
         </div>
         <!-- 内容主体区域 end -->
         <div class="layui-footer" style="background-color:#FFFFFF">
-            <a id="footer1">@ViewBag.Copyright</a>
+            @* <a id="footer1">@ViewBag.Copyright</a> *@
+            <div class="layui-btn-group">
+                <button id="btn-zh" class="layui-btn layui-btn-primary layui-btn-small lang-btn">中文</button>
+                <button id="btn-en" class="layui-btn layui-btn-primary layui-btn-small lang-btn">English</button>
+                <button id="btn-id" class="layui-btn layui-btn-primary layui-btn-small lang-btn">BahasaIndonesia</button>
+            </div>
+                
+            <a id="footer1">@Localizer["Copyright"]</a>
         </div>
         <!-- 锁屏模板 start -->
         <script type="text/template" class="layui-lock-tpl">
@@ -357,24 +350,56 @@
 
         $('.layui-nav .user-card').click(function() {
             tab.tabAdd({
-                title: '账户管理',
+                title: @Localizer["Account"],
                 href: '/account/infoCard'
             });
         });
 
         $('.layui-nav .btn-system-manage').click(function() {
             tab.tabAdd({
-                title: '系统设置',
+                title: @Localizer["System"],
                 href: '/config'
             });
         });
 
         $('.layui-nav .btn-theme').click(function() {
             tab.tabAdd({
-                title: '主题修改',
+                title: @Localizer["Theme"],
                 href: '/theme'
             });
         });
+
+        $(".lang-btn").click(function () {
+            // 确定要切换的语言（中文：zh-CN，英文：en-US）
+            var culture = $(this).attr("id");
+            if (culture === "btn-zh")
+                culture = "zh-CN";
+            else if (culture === "btn-en")
+                culture = "en-US";
+            else if (culture === "btn-id")
+                culture = "id-ID";
+             // === "btn-zh" ? "zh-CN" : "en-US";
+
+            // 调用AJAX切换语言
+            $.ajax({
+                url: "/home/setlanguage", // 后端接口地址
+                type: "POST",
+                data: { culture: culture }, // 传递语言参数
+                success: function (response) {
+                    if (response.success) {
+                        // 切换成功后刷新页面（使新语言生效）
+                        location.reload();
+
+                        // 若需局部更新而非刷新，可重新加载文本（见下方说明）
+                        // loadLocalizedText();
+                    }
+                },
+                error: function () {
+                    alert("语言切换失败");
+                }
+            });
+        });
+
         //锁屏。
         $('.layui-nav .lock-user').click(function() {
             layer.open({

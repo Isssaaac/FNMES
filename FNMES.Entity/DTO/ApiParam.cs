@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using ServiceStack;
 using Newtonsoft.Json;
+using System.Security.Policy;
+using System.Web;
 
 namespace FNMES.Entity.DTO.ApiParam
 {
@@ -1098,38 +1100,44 @@ namespace FNMES.Entity.DTO.ApiParam
         public string msg;
         public string data;
     }
+
+    public class ResultRet
+    {
+        public string result;
+        public string message;
+    }
+
     public class GetItemDataParam
     {
-        public string resource_no;
-        public string sfc;
-        public string operation_no;
+        public string resource_no;    //资源编号->小工站
+        public string sfc;            //产品条码->ProductCode
+        public string operation_no;   //工序->大工站
         public GetItemDataParam(InStationParam param)
         {
-            operation_no = param.operatorNo;
+            operation_no = param.stationCode;
             sfc = param.productCode;
             resource_no = param.smallStationCode;
         }
     }
 
-    public class GetItemDataRet
+    public class GetItemDataRet: ResultRet
     {
-        public string result;
-        public string message;
         public string sfc;
         public string shoporder;
         public string tech;
         public string qty;
     }
 
+    //上传过程数据
     public class UploadData_FParam
     {
-        public string resource_no;
-        public string operation_no;
-        public string sfc;
-        public string cz_date;
-        public string cz_user;
-        public string flag;
-        public string ng_code;
+        public string resource_no;    //资源编号
+        public string operation_no;   //工序
+        public string sfc;            //产品条码
+        public string cz_date;        //操作时间（格式：yyyy-MM-dd HH:mm:ss）
+        public string cz_user;        //操作人（没有为””）
+        public string flag;           //判定结果（OK/NG）
+        public string ng_code;        //不良代码（多个不良代码，请用”,”隔开）
         public string json_data;
         public UploadData_FParam(OutStationParam param, List<Process> process, List<string> ngCodes)
         {
@@ -1148,24 +1156,23 @@ namespace FNMES.Entity.DTO.ApiParam
         }
     }
 
-    public class UploadData_FRet
+    public class UploadData_FRet : ResultRet
     {
-        public string result;
-        public string message;
         public string SFC;
     }
 
+    ////绑定模组或Pack，并且上传过程数据
     public class UploadData_MZParam
     {
-        public string sfc;
-        public string resource_no;
-        public string operation_no;
-        public string cz_date;
-        public string cz_user;
-        public string flag;
-        public string ng_code;
-        public string item_no; //电芯或模组条码（多个，请用”,”隔开）首站为空
-        public string shop_order;
+        public string sfc;           //模组或PACK条码
+        public string resource_no;   //资源编号
+        public string operation_no;  //工序
+        public string cz_date;       //操作时间（格式：yyyy-MM-dd HH:mm:ss）
+        public string cz_user;       //操作人（没有为””）
+        public string flag;          //判定结果（OK/NG）
+        public string ng_code;       //不良代码（多个不良代码，请用”,”隔开）
+        public string item_no;       //电芯或模组条码（多个，请用”,”隔开）首站为空
+        public string shop_order;    //工单号
         public string json_data;
         public UploadData_MZParam(OutStationParam param, List<Process> process, List<string> ngCodes, List<BindProduct> bindProducts)
         {
@@ -1186,22 +1193,27 @@ namespace FNMES.Entity.DTO.ApiParam
         }
     }
 
-    public class UploadData_MZRet
+    public class UploadData_MZRet: ResultRet
     {
-        public string result;
-        public string message;
     }
 
+    public class BindProduct
+    {
+        public string productCode;
+        public string position;
+    }
+
+    //上传物料
     public class UpAssembleDataParam
     {
-        public string sfc;
-        public string barcode;
-        public string resource_no;
-        public string operation_no;
-        public string cz_date;
-        public string cz_user;
-        public string shop_order;
-        public string qty;
+        public string sfc;    //产品条码
+        public string barcode; //材料批次号
+        public string resource_no; //资源编号
+        public string operation_no;//工序
+        public string cz_date; //操作时间（格式：yyyy-MM-dd HH:mm:ss）
+        public string cz_user; //操作人
+        public string shop_order;  //工单号
+        public string qty; //数量
         public UpAssembleDataParam(OutStationParam param, Part part)
         {
             sfc = param.productCode;
@@ -1215,15 +1227,108 @@ namespace FNMES.Entity.DTO.ApiParam
         }
     }
 
-    public class UpAssembleDataRet
+    public class UpAssembleDataRet : ResultRet
     {
-        public string result;
-        public string message;
+
     }
 
-    public class BindProduct
+    
+    //用户登陆
+    public class UserLoginInfoParam
     {
-        public string productCode;
-        public string position;
+        public string resource_no;
+        public string password;
+        public string user_id;
+    }
+
+    //设备状态
+    public class UploadData_SParam
+    {
+        public string resource_no;  //资源编号
+        public string cz_date;      //时间（格式：yyyy-MM-dd HH:mm:ss）
+        public string status;       //设备状态（A:工作，B:待机，C:故障，D:关机）
+        public string operation_no; //工序
+        public string json_data;    //参数值（按数据字典要求进行参数数据上传，注意区分大小写）
+        public UploadData_SParam(EquipmentState param)
+        {
+            resource_no = param.smallStationCode;
+            cz_date = DateTime.Now.ToString();
+            operation_no = param.stationCode;
+            status = param.equipmentStatus;
+        }
+    }
+
+    //设备报警
+    public class UploadData_WParam
+    {
+        public string resource_no;  //资源编号
+        public string cz_date;      //时间（格式：yyyy-MM-dd HH:mm:ss）
+        public string operation_no; //工序
+        public string json_data;
+        public UploadData_WParam(EquipmentErrorParam param)
+        {
+            resource_no = param.smallStationCode;
+            cz_date= DateTime.Now.ToString();
+            operation_no= param.stationCode;
+        }
+    }
+
+    //获取电芯信息
+    public class GetSfcInfoParam
+    {
+        public string resource_no;  //资源编号
+        public string operation_no; //工序
+        public string sfc;          //电芯条码
+        public string json_data;
+    }
+
+    public class GetSfcInfoRet:ResultRet
+    {
+        public GetSfcInfoData Data;
+    }
+
+    public class GetSfcInfoData
+    {
+        public string Resistance;   //电阻
+        public string Capacity;     //电容
+        public string LastOCVDate;  //O2测试时间
+        public string Voltage;      //电压
+        public string grade;        //档位
+    }
+
+    public class cellInfoParam
+    {
+        public string productCode;  //电芯条码
+        public string lastOCVDate;  //O2测试时间
+        public string voltage;      //电压
+        public string grade;        //档位
+    }
+
+
+    //一键点检
+    public class GetCheckMaitenanceParam
+    {
+        public string operation_no;
+        public string resource_no;
+        public string cz_date;
+        public string cz_user;
+        public string cz_class;
+        public List<CheckMaitenanceItems> json_data;
+    }
+
+    public class CheckMaitenanceItems
+    {
+        public string function;
+        public string actual_value;
+        public string specification_value;
+        public string check_result;
+        public string check_status;
+        public string response_plan;
+        public string check_date;
+        public string check_number;
+    }
+    public class GetCheckMaitenanceRet : ResultRet
+    {
+
     }
 }

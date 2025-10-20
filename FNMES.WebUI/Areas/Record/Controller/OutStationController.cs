@@ -45,7 +45,21 @@ namespace MES.WebUI.Areas.Param.Controllers
         {
             return View();
         }
-        
+
+        [Route("record/outstation/queryfilter")]
+        [HttpGet]
+        public ActionResult QueryFilter()
+        {
+            return View();
+        }
+
+        [Route("record/outstation/queryfilterexport")]
+        [HttpGet]
+        public ActionResult QueryFilterExport()
+        {
+            return View();
+        }
+
         [Route("record/process/index")]
         [HttpPost, AuthorizeChecked]
         public ActionResult Process(int pageIndex, int pageSize, string keyWord, string configId, string productCode, string stationCode)
@@ -80,6 +94,36 @@ namespace MES.WebUI.Areas.Param.Controllers
         public ActionResult Part()
         {
             return View();
+        }
+
+        //带条件查询
+        [Route("record/outstation/condition")]
+        [HttpPost]
+        public ActionResult condition(int pageIndex, int pageSize, string configId, string startDate, string endDate, string productCode, string conditions)
+        {
+            try
+            {
+                int totalCount = 0;
+                List<RecordOutStation> pageData = outStationLogic.GetSplitPageList<RecordOutStation>(pageIndex, pageSize, configId, startDate, endDate, conditions, ref totalCount);
+                LayPadding<RecordOutStation> result = new LayPadding<RecordOutStation>()
+                {
+                    result = true,
+                    msg = "success",
+                    list = pageData,
+                    count = totalCount//pageData.Count
+                };
+                return Content(result.ToJson());
+            }
+            catch (Exception E)
+            {
+                return Content(new LayPadding<RecordOutStation>()
+                {
+                    result = false,
+                    msg = E.Message,
+                    list = new List<RecordOutStation>(),
+                    count = 0
+                }.ToJson());
+            }
         }
 
         //查看物料数据
@@ -139,39 +183,6 @@ namespace MES.WebUI.Areas.Param.Controllers
                     list = new List<RecordOutStation>(),
                     count =0
                 }.ToJson()) ;
-            }
-        }
-
-        [Route("record/outstation/condition")]
-        [HttpPost]
-        public ActionResult condition(int pageIndex, int pageSize,string configId, string startDate, string endDate, string productCode, string order)
-        {
-            try
-            {
-                int totalCount = 0;
-                //index是怎么来的
-                var pageData = outStationLogic.GetList(pageIndex, pageSize, configId, startDate, endDate, productCode, order, ref totalCount);
-                //在分页查询后去重导致页面不足10条，已在查询时去重，分页后去重影响界面显示，pagesize=10，可能不足10条
-                //var pageData1 = pageData.GroupBy(e => new { e.ProductCode, e.StationCode }).Select(e => e.First()).ToList();
-
-                var result = new LayPadding<RecordOutStation>()
-                {
-                    result = true,
-                    msg = "success",
-                    list = pageData,
-                    count = totalCount//pageData.Count
-                };
-                return Content(result.ToJson());
-            }
-            catch (Exception E)
-            {
-                return Content(new LayPadding<RecordOutStation>()
-                {
-                    result = false,
-                    msg = E.Message,
-                    list = new List<RecordOutStation>(),
-                    count = 0
-                }.ToJson());
             }
         }
 
@@ -300,42 +311,6 @@ namespace MES.WebUI.Areas.Param.Controllers
                 List<string> sheetNames = new List<string> { "OutStation", "Process", "Part" };
                 List<DataTable> tables = new List<DataTable>();
 
-                //for (int i = 0; i < 1000; i++)
-                //{
-                //    outStationData.Add(new RecordOutStation()
-                //    {
-                //        Id = 1,
-                //        ProductCode = "1",
-                //        TaskOrderNumber = "1",
-                //        ProductStatus = "2",
-                //        SmallStationCode = "3"
-                //    });
-                //}
-
-                //for (int i = 0; i < 101000; i++)
-                //{
-                //    procRecordData.Add(new ProcRecord()
-                //    {
-                //        productCode = "1",
-                //        stationCode = "1",
-                //        recipeDescription = "1",
-                //        recipeVersion = "1",
-                //        totalFlag = "1",
-                //        paramCode = "1",
-                //        paramName = "1",
-                //        paramValue = "1",
-                //    });
-                //}
-
-                //for (int i = 0; i < 1001000; i++)
-                //{
-                //    partRecordData.Add(new ParRecord()
-                //    {
-                //        productCode = "1",
-                //        stationCode = "2"
-                //    });
-                //}
-
                 //导出的最多能104.7w行，为了避免出现Row out of Range，3个月的数据就会超100w行，需要截断
                 int count = outStationData.Count;
                 int start = Math.Max(0, count - 1000000); 
@@ -381,10 +356,9 @@ namespace MES.WebUI.Areas.Param.Controllers
         }
 
 
-        //"/record/outstation/export?configId=3&startDate=2024-12-01&endDate=2025-01-17&productCode=&order="
         [Route("record/outstation/exportCon")]
         [HttpGet]
-        public ActionResult Export(string configId, string startDate, string endDate, string productCode, string order)
+        public ActionResult Export(string configId, string startDate, string endDate, string productCode, string conditions)
         {
             try
             {
@@ -405,7 +379,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                 List<ProcRecord> procRecordData = new List<ProcRecord>();
                 List<ParRecord> partRecordData = new List<ParRecord>();
 
-                List<OutRecord> outrecords = outStationLogic.GetAllRecord(configId, startDate, endDate, productCode, order, ref outStationData, ref procRecordData, ref partRecordData);
+                List<OutRecord> outrecords = outStationLogic.GetAllRecord(configId, startDate, endDate, productCode, conditions, ref outStationData, ref procRecordData, ref partRecordData);
 
                 // 出站字段
                 Dictionary<string, string> outkeyValuePairs = new Dictionary<string, string>() {
@@ -514,7 +488,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         //仅导出过站数据
         [Route("record/outstation/exportOutstation")]
         [HttpGet]
-        public ActionResult ExportOutstation(string configId, string startDate, string endDate, string productCode, string order)
+        public ActionResult ExportOutstation(string configId, string startDate, string endDate, string productCode, string conditions)
         {
             try
             {
@@ -535,7 +509,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                 List<ProcRecord> procRecordData = new List<ProcRecord>();
                 List<ParRecord> partRecordData = new List<ParRecord>();
 
-                List<OutRecord> outrecords = outStationLogic.GetAllRecord(configId, startDate, endDate, productCode, order, ref outStationData, ref procRecordData, ref partRecordData);
+                List<OutRecord> outrecords = outStationLogic.GetAllRecord(configId, startDate, endDate, productCode,conditions, ref outStationData, ref procRecordData, ref partRecordData);
 
                 // 出站字段
                 Dictionary<string, string> outkeyValuePairs = new Dictionary<string, string>() {
@@ -590,106 +564,6 @@ namespace MES.WebUI.Areas.Param.Controllers
                 return Error();
             }
         }
-
-
-
-        //241209导出表格失败
-        //[Route("record/outstation/export")]
-        //[HttpGet]
-        public ActionResult Export_test(string configId, string index,string keyword)
-        {
-            List<RecordOutStation> outStationData = new List<RecordOutStation>();
-
-            List<ProcRecord> procRecordData = new List<ProcRecord>();
-            List<ParRecord> partRecordData = new List<ParRecord>();
-
-            List<OutRecord> outrecords = outStationLogic.GetAllRecord(configId,index,keyword,ref outStationData,ref procRecordData,ref partRecordData);
-
-
-            // 出站字段
-            Dictionary<string, string> outkeyValuePairs = new Dictionary<string, string>() {
-                    {"ProductCode", "内控码"},
-                    {"TaskOrderNumber", "工单"},
-                    {"ProductStatus","产品状态" },
-                    {"DefectCode","不良代码" },
-                    {"DefectDesc","不良描述" },
-                    {"StationCode","工站" },
-                    {"SmallStationCode","小工站" },
-                    {"EquipmentID","设备编码" },
-                    {"OperatorNo","操作员" },
-                    {"CreateTime","出站时间" },
-                    {"instationTime","进站时间" },
-                    {"palletNo","AGV码" },
-            };
-            // 工艺字段
-            Dictionary<string, string> prockeyValuePairs = new Dictionary<string, string>() {
-                    {"productCode", "内控码"},
-                    {"stationCode", "工站"},
-                    {"recipeNo","配方编号" },
-                    {"recipeDescription","配方名称" },
-                    {"recipeVersion","配方版本" },
-                    {"totalFlag","总结果" },
-                    {"paramCode","参数代码" },
-                    {"paramName","参数名称" },
-                    {"paramValue","值" },
-                    {"itemFlag","项结果" },
-                    {"decisionType","判断类型" },
-                    {"paramType","参数类型" },
-                    {"standValue","标准值" },
-                    {"maxValue","最大值" },
-                    {"minValue","最小值" },
-                    {"setValue","设定值" },
-                    {"uom","单位" },
-                    {"createTime","创建时间" },
-            };
-            // 物料字段
-            Dictionary<string, string> partkeyValuePairs = new Dictionary<string, string>() {
-                    {"productCode", "内控码"},
-                    {"stationCode", "工站"},
-                    {"partNumber","物料数量" },
-                    {"partDescription","物料描述" },
-                    {"partBarcode","物料条码" },
-                    {"traceType","批次" },
-                    {"usageQty","用量" },
-                    {"partuom","单位" },
-                    {"createTime","创建时间" },
-                };
-
-            // 填充数据到工作表
-            List<Dictionary<string, string>> keyValues = new List<Dictionary<string, string>>();
-            //keyValues.Add(keyValuePairs);
-            keyValues.Add(outkeyValuePairs);
-            keyValues.Add(prockeyValuePairs);
-            keyValues.Add(partkeyValuePairs);
-            // 将 ExcelPackage 转换为字节数组
-            //var bytes = ExcelUtils.ExportExcel(outrecords, keyValuePairs, "Data", true);
-            //var outbytes = ExcelUtils.ExportExcel(outStationData, outkeyValuePairs, "OutStation", true);
-            //var procbytes = ExcelUtils.ExportExcel(procRecordData, prockeyValuePairs, "Process", true);
-            //var partbytes = ExcelUtils.ExportExcel(partRecordData, partkeyValuePairs, "Part", true);
-            List<string> sheetNames = new List<string>{ "OutStation", "Process", "Part" };
-            List<DataTable> tables = new List<DataTable>();
-           // DataTable dt1 = outrecords.ToDataTable();
-            DataTable dt2 = outStationData.ToDataTable();
-            DataTable dt3 = procRecordData.ToDataTable();
-            DataTable dt4 = partRecordData.ToDataTable();
-            //tables.Add(dt1);
-            tables.Add(dt2);
-            tables.Add(dt3);
-            tables.Add(dt4);
-            var bytes = ExcelUtils.DtExportExcel(tables, keyValues,sheetNames);
-
-            string path = $"D:\\outStation{DateTime.Now.ToString("yyyyMMddHHmmssffff")}.xlsx";
-            ExcelUtils.DtExportExcel(tables, keyValues, sheetNames , path);
-            
-
-            // 创建文件流
-            var stream = new MemoryStream(bytes);
-
-            // 设置响应头，指定响应的内容类型和文件名
-            Response.Headers.Add("Content-Disposition", "attachment; filename=exported-file.xlsx");
-            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        }
-
 #region
         //[Route("record/outstation/export")]
         //[HttpGet]
