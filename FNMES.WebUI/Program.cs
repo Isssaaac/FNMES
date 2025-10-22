@@ -185,7 +185,7 @@ app.UseSwaggerUI(c =>
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-//本地化要在这个路由之前
+//本地化要在这个之前
 app.UseRouting();
 app.UseAuthorization();
 app.UseEndpoints(endpoints =>

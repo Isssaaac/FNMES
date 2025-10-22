@@ -1,1 +1,1 @@
-http://172.16.1.11/DPFjs/web/viewer.html?file=/DPFjs/hello.pdf
+http://127.0.0.1/DPFjs/web/viewer.html?file=/DPFjs/hello.pdf
