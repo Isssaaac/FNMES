@@ -1,4 +1,9 @@
-﻿﻿@{
+﻿@using Microsoft.Extensions.Localization
+@using FNMES.WebUI;
+
+@inject IStringLocalizer<SharedResource> SharedLocalizer﻿
+
+@{
     Layout = null;
 }
 
@@ -19,17 +24,17 @@
             <div class="col-md-12">
                 <div class="panel container-panel">
                     <div class="panel-heading">
-                        <h1 class="panel-title">数据采集主页 <span class="label label-primary label-sm">New</span></h1>
+                        <h1 class="panel-title">@SharedLocalizer﻿["DataCollectionHomepage "] <span class="label label-primary label-sm">New</span></h1>
                         <div class="panel-actions">
                         </div>
                     </div>
                     <div class="panel-body">
-                        <p style="text-indent: 25px;">主页 </p>
+                        <p style="text-indent: 25px;">@SharedLocalizer["Homepage"] </p>
                     </div>
                 </div>
                 <div class="panel container-panel">
                     <div class="panel-heading">
-                        <h1 class="panel-title">更新日志</h1>
+                        <h1 class="panel-title">@SharedLocalizer["UpdateLog"]</h1>
                         <div class="panel-actions">
                         </div>
                     </div>
@@ -38,11 +43,11 @@
                             <div class="layui-colla-item">
                                 <h2 class="layui-colla-title">
                                     <span class="label label-primary">v1.0.0</span>
-                                    <span class="right">2025年10月11日 14:56:07</span>
+                                    <span class="right">2025/10/11 14:56:07"]</span>
 
                                 </h2>
                                 <div class="layui-colla-content">
-                                    <p>数据采集系统</p>
+                                    <p>@SharedLocalizer﻿["DataCollection"]</p>
                                 </div>
                             </div>
                         </div>
