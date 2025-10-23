@@ -37,6 +37,7 @@
 		<Content Remove="Areas\Record\Views\OutStation\queryfilter.cshtml" />
 		<Content Remove="wwwroot\Content\jquery\jquery-3.6.0.min.js" />
 		<Content Remove="wwwroot\Content\PDFjs\htmlpage.html" />
+		<None Remove="wwwroot\Content\smartscreen.html" />
 
 		<Content Include="favicon.ico">
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -54,10 +55,14 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 	  </Content>
+	  <Content Update="wwwroot\Content\smartscreen.html">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Folder Include="Areas\BigScreen\Controller\" />
+	  <Folder Include="wwwroot\picture\" />
 	</ItemGroup>
 
 

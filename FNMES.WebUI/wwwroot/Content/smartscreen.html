@@ -1,0 +1,435 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width" />
+    <title>添加PLC</title>
+    <link href="/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="/Content/jquery/jquery-3.6.0.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="/Content/layui/layui.js"></script>
+    <script src="/Content/select2/js/select2.min.js"></script>
+    <script src="/Content/framework/js/global.js"></script>
+    <script src="/Content/echarts/echarts.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background-color: #0f1733; /* 深蓝色背景，增强工业感 */
+            /*color: #e0e8ff;*/
+            color: #000000;
+            padding: 20px;
+        }
+
+        .dashboard-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #409eff; /* 主色调：亮蓝色 */
+            letter-spacing: 2px;
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: auto auto;
+            gap: 20px;
+            height: calc(100vh - 80px);
+        }
+
+        /* 数据卡片样式 */
+        .data-card {
+            background: linear-gradient(135deg, #1a2649 0%, #16203d 100%);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.15);
+            border-left: 3px solid #409eff;
+        }
+
+        .data-card-title {
+            font-size: 14px;
+            color: #a0b4ff;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-card-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #409eff;
+            margin: 10px 0;
+        }
+
+        .data-card-desc {
+            font-size: 12px;
+            color: #7aa1ff;
+            display: flex;
+            align-items: center;
+        }
+
+            .data-card-desc i {
+                margin-right: 5px;
+                color: #36d399;
+            }
+        /* 图表容器样式 */
+        .chart-panel {
+            background: linear-gradient(135deg, #1a2649 0%, #16203d 100%);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.15);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            color: #a0b4ff;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(64, 158, 255, 0.2);
+        }
+
+        .chart-container {
+            width: 100%;
+            height: calc(100% - 40px);
+        }
+        /* 布局适配 */
+        .col-1 {
+            grid-column: span 1;
+        }
+
+        .col-2 {
+            grid-column: span 2;
+        }
+
+        .col-3 {
+            grid-column: span 3;
+        }
+
+        .col-4 {
+            grid-column: span 4;
+        }
+
+        .row-1 {
+            grid-row: span 1;
+        }
+
+        .row-2 {
+            grid-row: span 2;
+        }
+        /* 设备状态标签 */
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .status-running {
+            background-color: rgba(54, 211, 153, 0.2);
+            color: #36d399;
+        }
+
+        .status-warning {
+            background-color: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .status-error {
+            background-color: rgba(248, 113, 113, 0.2);
+            color: #f87171;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-title">工业生产实时监控看板</div>
+    <div class="dashboard-container">
+        <!-- 第一行：核心数据卡片 -->
+        <div class="data-card col-1 row-1">
+            <div class="data-card-title">
+                <span>总产量(今日)</span>
+                <span class="status status-running">正常</span>
+            </div>
+            <div class="data-card-value">12,856</div>
+            <div class="data-card-desc">
+                <i>↑</i> 较昨日 +3.2%
+            </div>
+        </div>
+        <div class="data-card col-1 row-1">
+            <div class="data-card-title">
+                <span>设备运行率</span>
+                <span class="status status-running">高效</span>
+            </div>
+            <div class="data-card-value">97.8%</div>
+            <div class="data-card-desc">
+                <i>↑</i> 较昨日 +0.5%
+            </div>
+        </div>
+        <div class="data-card col-1 row-1">
+            <div class="data-card-title">
+                <span>能耗(kWh)</span>
+                <span class="status status-warning">偏高</span>
+            </div>
+            <div class="data-card-value">8,642</div>
+            <div class="data-card-desc">
+                <i>↓</i> 较昨日 -2.1%
+            </div>
+        </div>
+
+        <div class="data-card col-1 row-1">
+            <div class="data-card-title">
+                <span>不合格率</span>
+                <span class="status status-running">正常</span>
+            </div>
+            <div class="data-card-value">0.32%</div>
+            <div class="data-card-desc">
+                <i>↓</i> 较昨日 -0.05%
+            </div>
+        </div>
+
+        <!-- 第二行：生产趋势图 + 设备状态分布 -->
+        <div class="chart-panel col-2 row-1">
+            <div class="chart-title">生产趋势（近12小时）</div>
+            <div id="productionTrend" class="chart-container"></div>
+        </div>
+        <div class="chart-panel col-2 row-1">
+            <div class="chart-title">设备状态分布</div>
+            <div id="equipmentStatus" class="chart-container"></div>
+        </div>
+
+        <!-- 第三行：能耗分析 + 产线效率对比 -->
+        <div class="chart-panel col-2 row-1">
+            <div class="chart-title">能耗分析（按工序）</div>
+            <div id="energyConsumption" class="chart-container"></div>
+        </div>
+        <div class="chart-panel col-2 row-1">
+            <div class="chart-title">产线效率对比</div>
+            <div id="lineEfficiency" class="chart-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化图表
+        window.onload = function () {
+            // 1. 生产趋势图（折线图）
+            const productionTrend = echarts.init(document.getElementById('productionTrend'));
+            productionTrend.setOption({
+                color: ['#409eff', '#69b1ff'], // 主色调：亮蓝、浅蓝
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(22, 32, 61, 0.8)',
+                    borderColor: 'rgba(64, 158, 255, 0.3)',
+                    borderWidth: 1
+                },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+                    axisLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.3)' } },
+                    axisLabel: { color: '#a0b4ff' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.3)' } },
+                    axisLabel: { color: '#a0b4ff' },
+                    splitLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.1)' } }
+                },
+                series: [
+                    {
+                        name: '实际产量',
+                        type: 'line',
+                        data: [850, 780, 650, 920, 1100, 1250, 1320, 1450, 1380, 1200, 1050, 980],
+                        smooth: true,
+                        lineStyle: { width: 3 },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(64, 158, 255, 0.3)' },
+                                { offset: 1, color: 'rgba(64, 158, 255, 0)' }
+                            ])
+                        }
+                    },
+                    {
+                        name: '目标产量',
+                        type: 'line',
+                        data: [800, 800, 700, 900, 1000, 1200, 1300, 1400, 1300, 1100, 1000, 900],
+                        smooth: true,
+                        lineStyle: {
+                            width: 2,
+                            type: 'dashed',
+                            color: 'rgba(105, 177, 255, 0.6)'
+                        },
+                        symbol: 'circle',
+                        symbolSize: 5
+                    }
+                ]
+            });
+
+            // 2. 设备状态分布（饼图）
+            const equipmentStatus = echarts.init(document.getElementById('equipmentStatus'));
+            equipmentStatus.setOption({
+                color: ['#36d399', '#fbbf24', '#f87171', '#94a3b8'], // 运行(绿)、预警(黄)、故障(红)、停机(灰)
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(22, 32, 61, 0.8)',
+                    borderColor: 'rgba(64, 158, 255, 0.3)'
+                },
+                legend: {
+                    top: 'bottom',
+                    textStyle: { color: '#a0b4ff' }
+                },
+                series: [
+                    {
+                        name: '设备状态',
+                        type: 'pie',
+                        radius: ['40%', '70%'], // 环形图
+                        center: ['50%', '40%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: {
+                            borderRadius: 4,
+                            borderColor: '#16203d', // 与背景色一致，增强工业感
+                            borderWidth: 2
+                        },
+                        label: { show: false, position: 'center' },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: 18,
+                                fontWeight: 'bold',
+                                color: '#e0e8ff'
+                            }
+                        },
+                        labelLine: { show: false },
+                        data: [
+                            { value: 78, name: '运行中' },
+                            { value: 12, name: '预警' },
+                            { value: 3, name: '故障' },
+                            { value: 7, name: '停机维护' }
+                        ]
+                    }
+                ]
+            });
+
+            // 3. 能耗分析（柱状图）
+            const energyConsumption = echarts.init(document.getElementById('energyConsumption'));
+            energyConsumption.setOption({
+                color: ['#409eff'],
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(22, 32, 61, 0.8)',
+                    borderColor: 'rgba(64, 158, 255, 0.3)'
+                },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: ['冲压', '焊接', '涂装', '总装', '检测', '包装'],
+                    axisLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.3)' } },
+                    axisLabel: { color: '#a0b4ff' }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'kWh',
+                    nameTextStyle: { color: '#a0b4ff' },
+                    axisLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.3)' } },
+                    axisLabel: { color: '#a0b4ff' },
+                    splitLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.1)' } }
+                },
+                series: [
+                    {
+                        name: '能耗',
+                        type: 'bar',
+                        data: [2150, 1890, 1560, 1280, 950, 812],
+                        itemStyle: {
+                            borderRadius: [4, 4, 0, 0],
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#409eff' },
+                                { offset: 1, color: '#69b1ff' }
+                            ])
+                        },
+                        barWidth: '60%'
+                    }
+                ]
+            });
+
+            // 4. 产线效率对比（雷达图）
+            const lineEfficiency = echarts.init(document.getElementById('lineEfficiency'));
+            lineEfficiency.setOption({
+                color: ['#409eff', '#69b1ff'],
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(22, 32, 61, 0.8)',
+                    borderColor: 'rgba(64, 158, 255, 0.3)'
+                },
+                radar: {
+                    indicator: [
+                        { name: '产能', max: 100 },
+                        { name: '效率', max: 100 },
+                        { name: '能耗', max: 100 },
+                        { name: '合格率', max: 100 },
+                        { name: '设备健康', max: 100 }
+                    ],
+                    splitArea: {
+                        areaStyle: { color: ['rgba(160, 180, 255, 0.05)'] }
+                    },
+                    axisLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.3)' } },
+                    splitLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.1)' } },
+                    name: { textStyle: { color: '#a0b4ff' } }
+                },
+                series: [
+                    {
+                        name: 'A产线',
+                        type: 'radar',
+                        symbolSize: 5,
+                        lineStyle: { width: 2 },
+                        areaStyle: { color: 'rgba(64, 158, 255, 0.2)' },
+                        data: [{ value: [92, 95, 88, 97, 93] }]
+                    },
+                    {
+                        name: 'B产线',
+                        type: 'radar',
+                        symbolSize: 5,
+                        lineStyle: { width: 2 },
+                        areaStyle: { color: 'rgba(105, 177, 255, 0.2)' },
+                        data: [{ value: [88, 90, 92, 95, 89] }]
+                    }
+                ]
+            });
+
+            // 响应窗口大小变化
+            window.addEventListener('resize', function () {
+                productionTrend.resize();
+                equipmentStatus.resize();
+                energyConsumption.resize();
+                lineEfficiency.resize();
+            });
+
+            // 模拟实时数据更新（每5秒更新一次产量趋势）
+            setInterval(function () {
+                const newData = productionTrend.getOption().series[0].data.slice(1);
+                newData.push(Math.floor(Math.random() * 200) + 1000); // 随机生成新数据
+                productionTrend.setOption({
+                    series: [{ data: newData }]
+                });
+            }, 5000);
+        };
+    </script>
+</body>
+</html>

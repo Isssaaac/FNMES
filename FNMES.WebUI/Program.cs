@@ -184,7 +184,9 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+app.UseStaticFiles();  //静态文件也要在路由中间件之前
+
 //本地化要在这个路由之前
 app.UseRouting();
 app.UseAuthorization();
