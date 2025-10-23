@@ -117,27 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Barcode" xml:space="preserve">
-    <value>条码</value>
-  </data>
-  <data name="BigProcedure" xml:space="preserve">
-    <value>大工站</value>
-  </data>
-  <data name="CreateTime" xml:space="preserve">
-    <value>创建时间</value>
-  </data>
-  <data name="DecisionType" xml:space="preserve">
-    <value>判断类型</value>
-  </data>
-  <data name="DefectCode" xml:space="preserve">
-    <value>不良代码</value>
-  </data>
-  <data name="DefectDesc" xml:space="preserve">
-    <value>不良描述</value>
-  </data>
-  <data name="Encode" xml:space="preserve">
-    <value>编码</value>
-  </data>
   <data name="Export" xml:space="preserve">
     <value>导出</value>
   </data>
@@ -162,6 +141,42 @@
   <data name="ImportStep" xml:space="preserve">
     <value>导入工步</value>
   </data>
+  <data name="LineList" xml:space="preserve">
+    <value>线体列表</value>
+  </data>
+  <data name="OrderNo" xml:space="preserve">
+    <value>顺序号</value>
+  </data>
+  <data name="SelectLine" xml:space="preserve">
+    <value>请选择线体</value>
+  </data>
+  <data name="StationCode" xml:space="preserve">
+    <value>大工站</value>
+  </data>
+  <data name="StationCodeName" xml:space="preserve">
+    <value>工站名称</value>
+  </data>
+  <data name="Barcode" xml:space="preserve">
+    <value>条码</value>
+  </data>
+  <data name="BigProcedure" xml:space="preserve">
+    <value>大工站</value>
+  </data>
+  <data name="CreateTime" xml:space="preserve">
+    <value>创建时间</value>
+  </data>
+  <data name="DecisionType" xml:space="preserve">
+    <value>判断类型</value>
+  </data>
+  <data name="DefectCode" xml:space="preserve">
+    <value>不良代码</value>
+  </data>
+  <data name="DefectDesc" xml:space="preserve">
+    <value>不良描述</value>
+  </data>
+  <data name="Encode" xml:space="preserve">
+    <value>编码</value>
+  </data>
   <data name="InStationTime" xml:space="preserve">
     <value>进站时间</value>
   </data>
@@ -171,17 +186,11 @@
   <data name="ItemFlag" xml:space="preserve">
     <value>结果</value>
   </data>
-  <data name="LineList" xml:space="preserve">
-    <value>线体列表</value>
-  </data>
   <data name="MaxValue" xml:space="preserve">
     <value>最大值</value>
   </data>
   <data name="MinValue" xml:space="preserve">
     <value>最小值</value>
-  </data>
-  <data name="OrderNo" xml:space="preserve">
-    <value>顺序号</value>
   </data>
   <data name="palletNo" xml:space="preserve">
     <value>托盘码</value>
@@ -207,20 +216,11 @@
   <data name="Qty" xml:space="preserve">
     <value>数量</value>
   </data>
-  <data name="SelectLine" xml:space="preserve">
-    <value>请选择线体</value>
-  </data>
   <data name="SetValue" xml:space="preserve">
     <value>设定值</value>
   </data>
   <data name="SortCode" xml:space="preserve">
     <value>顺序号</value>
-  </data>
-  <data name="StationCode" xml:space="preserve">
-    <value>大工站</value>
-  </data>
-  <data name="StationCodeName" xml:space="preserve">
-    <value>工站名称</value>
   </data>
   <data name="Status" xml:space="preserve">
     <value>状态</value>
@@ -236,5 +236,23 @@
   </data>
   <data name="UnitProcedure" xml:space="preserve">
     <value>小工站</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>系统首页</value>
+  </data>
+  <data name="DataCollectionHomepage " xml:space="preserve">
+    <value>数据采集主页 </value>
+  </data>
+  <data name="Homepage" xml:space="preserve">
+    <value>主页</value>
+  </data>
+  <data name="UpdateLog" xml:space="preserve">
+    <value>更新日志</value>
+  </data>
+  <data name="DataCollection" xml:space="preserve">
+    <value>采集系统</value>
+  </data>
+  <data name="ShrinkMenu" xml:space="preserve">
+    <value>收缩菜单</value>
   </data>
 </root>

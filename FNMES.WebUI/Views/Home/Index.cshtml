@@ -1,4 +1,9 @@
-﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+﻿@using Microsoft.Extensions.Localization
+@using FNMES.WebUI;
+
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 @{
     Layout = null;
@@ -46,7 +51,7 @@
             <div class="layui-header-title" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;display:flex;align-items: center;width: 100%;">
                 <img src="/th.jpg" style="width: 200px;height: auto;object-fit: contain;margin-right:10px;"/>
                     @* <a class="layui-header-name" style="margin-left: 10px;">@ViewBag.SoftwareName</a> *@
-                    <a class="layui-header-sidebar" title="收缩菜单" style="margin-left: 10px;"><i class="fa fa-dedent" aria-hidden="true"></i></a>
+                <a class="layui-header-sidebar" title=@SharedLocalizer["ShrinkMenu"] style="margin-left: 10px;"><i class="fa fa-dedent" aria-hidden="true"></i></a>
             </div>
             <ul class="layui-nav">
                 <li class="layui-nav-item" style="margin-right: 10px">
@@ -90,7 +95,7 @@
             <div class="layui-tab layui-tab-brief" lay-filter="tab">
                 <ul class="layui-tab-title">
                     <li class="layui-this">
-                        <cite style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;">系统首页</cite>
+                        <cite style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;">@SharedLocalizer["Home"]</cite>
                     </li>
                 </ul>
                 <div class="layui-tab-content">
