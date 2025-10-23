@@ -118,141 +118,27 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Export" xml:space="preserve">
-    <value>Export</value>
-  </data>
-  <data name="ExportParam" xml:space="preserve">
-    <value>ExportParam</value>
-  </data>
-  <data name="ExportPart" xml:space="preserve">
-    <value>ExportPart</value>
-  </data>
-  <data name="ExportStep" xml:space="preserve">
-    <value>ExportStep</value>
+    <value>Ekspor penanda</value>
   </data>
   <data name="Import" xml:space="preserve">
-    <value>Import</value>
-  </data>
-  <data name="ImportParam" xml:space="preserve">
-    <value>ImportParam</value>
-  </data>
-  <data name="ImportPart" xml:space="preserve">
-    <value>ImportPart</value>
-  </data>
-  <data name="ImportStep" xml:space="preserve">
-    <value>ImportStep</value>
-  </data>
-  <data name="LineList" xml:space="preserve">
-    <value>LineList</value>
-  </data>
-  <data name="OrderNo" xml:space="preserve">
-    <value>OrderNo</value>
-  </data>
-  <data name="SelectLine" xml:space="preserve">
-    <value>SelectLine</value>
-  </data>
-  <data name="StationCode" xml:space="preserve">
-    <value>StationCode</value>
-  </data>
-  <data name="StationCodeName" xml:space="preserve">
-    <value>StationCodeName</value>
-  </data>
-  <data name="Barcode" xml:space="preserve">
-    <value>Barcode</value>
-  </data>
-  <data name="BigProcedure" xml:space="preserve">
-    <value>BigProcedure</value>
-  </data>
-  <data name="CreateTime" xml:space="preserve">
-    <value>CreateTime</value>
-  </data>
-  <data name="DecisionType" xml:space="preserve">
-    <value>DecisionType</value>
-  </data>
-  <data name="DefectCode" xml:space="preserve">
-    <value>DefectCode</value>
-  </data>
-  <data name="DefectDesc" xml:space="preserve">
-    <value>DefectDesc</value>
-  </data>
-  <data name="Encode" xml:space="preserve">
-    <value>Encode</value>
-  </data>
-  <data name="InStationTime" xml:space="preserve">
-    <value>InStationTime</value>
-  </data>
-  <data name="IP" xml:space="preserve">
-    <value>IP</value>
-  </data>
-  <data name="ItemFlag" xml:space="preserve">
-    <value>ItemFlag</value>
-  </data>
-  <data name="MaxValue" xml:space="preserve">
-    <value>MaxValue</value>
-  </data>
-  <data name="MinValue" xml:space="preserve">
-    <value>MinValue</value>
-  </data>
-  <data name="palletNo" xml:space="preserve">
-    <value>palletNo</value>
-  </data>
-  <data name="ParamCode" xml:space="preserve">
-    <value>ParamCode</value>
-  </data>
-  <data name="ParamName" xml:space="preserve">
-    <value>ParamName</value>
-  </data>
-  <data name="ParamType" xml:space="preserve">
-    <value>ParamType</value>
-  </data>
-  <data name="ParamValue" xml:space="preserve">
-    <value>ParamValue</value>
-  </data>
-  <data name="ProductCode" xml:space="preserve">
-    <value>ProductCode</value>
-  </data>
-  <data name="ProductStatus" xml:space="preserve">
-    <value>ProductStatus</value>
-  </data>
-  <data name="Qty" xml:space="preserve">
-    <value>Qty</value>
-  </data>
-  <data name="SetValue" xml:space="preserve">
-    <value>SetValue</value>
-  </data>
-  <data name="SortCode" xml:space="preserve">
-    <value>SortCode</value>
-  </data>
-  <data name="Status" xml:space="preserve">
-    <value>Status</value>
-  </data>
-  <data name="TaskOrderNumber" xml:space="preserve">
-    <value>TaskOrderNumber</value>
-  </data>
-  <data name="Type" xml:space="preserve">
-    <value>Type</value>
-  </data>
-  <data name="UnitOfMeasure" xml:space="preserve">
-    <value>UnitOfMeasure</value>
-  </data>
-  <data name="UnitProcedure" xml:space="preserve">
-    <value>UnitProcedure</value>
+    <value>Impor penanda</value>
   </data>
   <data name="Home" xml:space="preserve">
-    <value>Home</value>
+    <value>Halaman</value>
   </data>
   <data name="DataCollectionHomepage " xml:space="preserve">
-    <value>DataCollectionHomepage </value>
+    <value>HalamanAkuisisiData </value>
   </data>
   <data name="Homepage" xml:space="preserve">
-    <value>Homepage</value>
+    <value>Halaman</value>
   </data>
   <data name="UpdateLog" xml:space="preserve">
-    <value>UpdateLog</value>
+    <value>LogPemutakhiran</value>
   </data>
   <data name="DataCollection" xml:space="preserve">
-    <value>DataCollection</value>
+    <value>SistemAkuisisi</value>
   </data>
   <data name="ShrinkMenu" xml:space="preserve">
-    <value>ShrinkMenu</value>
+    <value>MenuPenyusutan</value>
   </data>
 </root>
