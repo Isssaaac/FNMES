@@ -255,4 +255,31 @@
   <data name="ShrinkMenu" xml:space="preserve">
     <value>收缩菜单</value>
   </data>
+  <data name="Account" xml:space="preserve">
+    <value>账号</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>密码</value>
+  </data>
+  <data name="LogIn" xml:space="preserve">
+    <value>登录</value>
+  </data>
+  <data name="ForgetThePassword" xml:space="preserve">
+    <value>忘记密码?</value>
+  </data>
+  <data name="LoggingIn" xml:space="preserve">
+    <value>正在登录...</value>
+  </data>
+  <data name="LoginSuccessful,Redirected" xml:space="preserve">
+    <value>登录成功, 跳转中...</value>
+  </data>
+  <data name="LogInNow" xml:space="preserve">
+    <value>立即登录</value>
+  </data>
+  <data name="AnExceptionOccurredDuringTheLoginProcess" xml:space="preserve">
+    <value>登录过程发生异常</value>
+  </data>
+  <data name="PleaseContactTheAdministratorToResetYourPassword" xml:space="preserve">
+    <value>请联系管理员重置密码</value>
+  </data>
 </root>

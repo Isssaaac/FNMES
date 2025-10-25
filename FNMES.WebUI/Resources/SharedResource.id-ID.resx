@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Export" xml:space="preserve">
-    <value>Ekspor penanda</value>
+    <value>EksporPenanda</value>
   </data>
   <data name="Import" xml:space="preserve">
     <value>Impor penanda</value>
@@ -140,5 +140,32 @@
   </data>
   <data name="ShrinkMenu" xml:space="preserve">
     <value>MenuPenyusutan</value>
+  </data>
+  <data name="Account" xml:space="preserve">
+    <value>AkunKita</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Kode</value>
+  </data>
+  <data name="LogIn" xml:space="preserve">
+    <value>LogMasuk</value>
+  </data>
+  <data name="ForgetThePassword" xml:space="preserve">
+    <value>LupaPassword</value>
+  </data>
+  <data name="LoggingIn" xml:space="preserve">
+    <value>Masuk...</value>
+  </data>
+  <data name="LoginSuccessful,Redirected" xml:space="preserve">
+    <value>LogMasukSukses, Lompat...</value>
+  </data>
+  <data name="LogInNow" xml:space="preserve">
+    <value>MasukSekarang</value>
+  </data>
+  <data name="AnExceptionOccurredDuringTheLoginProcess" xml:space="preserve">
+    <value>SebuahAnomaliDalamProsesLogMasuk</value>
+  </data>
+  <data name="PleaseContactTheAdministratorToResetYourPassword" xml:space="preserve">
+    <value>SilahkanHubungiAdministratorUntukMeresetnya</value>
   </data>
 </root>

@@ -1,6 +1,10 @@
-﻿@{
+﻿@using Microsoft.Extensions.Localization
+@using FNMES.WebUI;
+
+@inject IStringLocalizer<SharedResource> SharedLocalizer﻿
+
+@{
     Layout = null;
-    string loginContext = @SharedLocalizer["LoggingIn"].Value;
 }
 <!DOCTYPE html>
 <style type="text/css">
@@ -44,13 +48,13 @@
             <form class="layui-form">
                 <div class="layui-form-item">
                     <label class="login-icon"><i class="layui-icon">&#xe612;</i></label>
-                    <input type="text" name="username" value="admin" lay-verify="required" autocomplete="off" placeholder="账号" class="layui-input">
+                    <input type="text" name="username" value="admin" lay-verify="required" autocomplete="off" placeholder=@SharedLocalizer﻿["Account"] class="layui-input">
                 </div>
                 <div class="layui-form-item">
                     <label class="login-icon">
                         <i class="layui-icon">&#xe642;</i>
                     </label>
-                    <input type="password" name="password" value="" lay-verify="required" autocomplete="off" placeholder="登陆密码" class="layui-input">
+                    <input type="password" name="password" value="" lay-verify="required" autocomplete="off" placeholder=@SharedLocalizer﻿["Password"] class="layui-input">
                 </div>
 @*                 <div class="layui-form-item">
                     <div class="login-code-box">
@@ -61,10 +65,10 @@
                     <!--<input class="FNMES-pull-right" type="checkbox" lay-skin="primary" name="isSaveAccount" value="true" title="记住账号" />-->
                 </div> *@
                 <div class="layui-form-item">
-                    <button class="layui-btn btn-submit" lay-submit lay-filter="login">立即登录</button>
+                    <button class="layui-btn btn-submit" lay-submit lay-filter="login">@SharedLocalizer["LogIn"]</button>
                 </div>
                  <div class="layui-form-item">
-                    <a style="float: right; text-decoration: underline" href="javascript:showtip()">忘记密码？</a>
+                    <a style="float: right; text-decoration: underline" href="javascript:showtip()">@SharedLocalizer["ForgetThePassword"]</a>
                 </div>
             </form>
         </div>
@@ -92,7 +96,7 @@
         var form = layui.form;
         form.on('submit(login)', function (data) {
             data.field.password = $.md5(data.field.password);
-            $(".btn-submit").html("正在登录...");
+            $(".btn-submit").html('@SharedLocalizer["LoggingIn"]');
             $(".btn-submit").attr('disabled', true).addClass('layui-disabled');
             $.ajax({
                 url: "/account/login",
@@ -102,19 +106,19 @@
                 success: function (result) {
                     if (result.state == 1) {
                         window.location.href = "/home/index";
-                        $(".btn-submit").html("登录成功，跳转中...");
+                        $(".btn-submit").html('@SharedLocalizer["LoginSuccessful,Redirected"]');
                     } else {
-                        $(".btn-submit").html("立即登录");
+                        $(".btn-submit").html('@SharedLocalizer["LogInNow"]');
                         $(".btn-submit").attr('disabled', false).removeClass('layui-disabled');
                          $("#verifyCode").trigger('click');
                         $.layerMsg(result.message, result.state);
                     }
                 },
                 error: function (e) {
-                    $(".btn-submit").html("立即登录");
+                    $(".btn-submit").html('@SharedLocalizer["LogInNow"]');
                     $(".btn-submit").attr('disabled', false).removeClass('layui-disabled');
                      $("#verifyCode").trigger('click');
-                    $.layerMsg("登录过程发生异常");
+                    $.layerMsg('@SharedLocalizer["AnExceptionOccurredDuringTheLoginProcess"]');
                 }
             });
             return false;
@@ -125,6 +129,6 @@
     });
 
     function showtip() {
-        $.layerMsg("请联系管理员重置密码", 6);
+        $.layerMsg('@SharedLocalizer["PleaseContactTheAdministratorToResetYourPassword"]', 6);
     }
 </script>

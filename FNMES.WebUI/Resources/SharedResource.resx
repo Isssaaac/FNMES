@@ -255,4 +255,31 @@
   <data name="ShrinkMenu" xml:space="preserve">
     <value>ShrinkMenu</value>
   </data>
+  <data name="Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="LogIn" xml:space="preserve">
+    <value>LogIn</value>
+  </data>
+  <data name="ForgetThePassword" xml:space="preserve">
+    <value>ForgetThePassword</value>
+  </data>
+  <data name="LoggingIn" xml:space="preserve">
+    <value>LoggingIn...</value>
+  </data>
+  <data name="LoginSuccessful,Redirected" xml:space="preserve">
+    <value>LoginSuccessful,Redirected...</value>
+  </data>
+  <data name="LogInNow" xml:space="preserve">
+    <value>LogInNow</value>
+  </data>
+  <data name="AnExceptionOccurredDuringTheLoginProcess" xml:space="preserve">
+    <value>AnExceptionOccurredDuringTheLoginProcess</value>
+  </data>
+  <data name="PleaseContactTheAdministratorToResetYourPassword" xml:space="preserve">
+    <value>PleaseContactTheAdministratorToResetYourPassword</value>
+  </data>
 </root>
