@@ -1,4 +1,9 @@
-﻿@{
+﻿@using Microsoft.Extensions.Localization
+@using FNMES.WebUI;
+
+@inject IStringLocalizer<SharedResource> SharedLocalizer﻿
+
+@{
     Layout = null;
 }
 
@@ -7,7 +12,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>修改密码</title>
+    <title>@Html.Raw(@SharedLocalizer["ChangePassword"])</title>
     <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
     <!--[if lt IE 9]>
         <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
@@ -26,27 +31,27 @@
 <body>
     <form id="modifyPwdForm" class="layui-form layui-form-pane" style="margin: 30px;">
         <div class="layui-form-item">
-            <label class="layui-form-label">旧密码</label>
+            <label class="layui-form-label">@SharedLocalizer﻿["OldPassword"]</label>
             <div class="layui-input-block">
-                <input type="password" name="oldPassword" lay-verify="password" autocomplete="off" placeholder="请输入旧密码" class="layui-input">
+                <input type="password" name="oldPassword" lay-verify="password" autocomplete="off" placeholder="@SharedLocalizer﻿["Please enter the old password"]" class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">新密码</label>
+            <label class="layui-form-label">@SharedLocalizer﻿["NewPassword"]</label>
             <div class="layui-input-block">
-                <input type="password" name="newPassword" lay-verify="password" autocomplete="off" placeholder="请输入新密码" class="layui-input">
+                <input type="password" name="newPassword" lay-verify="password" autocomplete="off" placeholder="@SharedLocalizer["Please enter the new password"]" class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">确认密码</label>
+            <label class="layui-form-label">@SharedLocalizer﻿["ConfirmPassword"]</label>
             <div class="layui-input-block">
-                <input type="password" name="confirmPassword" lay-verify="password" autocomplete="off" placeholder="请确认新密码" class="layui-input">
+                <input type="password" name="confirmPassword" lay-verify="password" autocomplete="off" placeholder="@SharedLocalizer["Please confirm the new password"]" class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
             <div class="layui-input-block">
-                <button class="layui-btn layui-btn-normal" lay-filter="savePwd" lay-submit>保存</button>
-                <button id="btnReset" class="layui-btn layui-btn-danger" type="reset">重置</button>
+                <button class="layui-btn layui-btn-normal" lay-filter="savePwd" lay-submit>@SharedLocalizer["Save"]</button>
+                <button id="btnReset" class="layui-btn layui-btn-danger" type="reset">@SharedLocalizer["Reset"]</button>
             </div>
         </div>
     </form>
@@ -57,7 +62,7 @@
     layui.use(['form'], function () {
         var form = layui.form;
         form.verify({
-            password: [/^[A-Za-z0-9._-]{6,16}$/, '密码必须6到16位，不能包含特殊字符。']
+            password: [/^[A-Za-z0-9._-]{6,16}$/, '@Html.Raw(@SharedLocalizer["The password must be between 6 and 16 bits and must not contain special characters."])']
         });
         form.on('submit(savePwd)', function (data) {
             data.field.oldPassword = $.md5(data.field.oldPassword);

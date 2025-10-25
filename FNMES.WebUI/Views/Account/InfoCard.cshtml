@@ -1,4 +1,9 @@
-﻿@{
+﻿@using Microsoft.Extensions.Localization
+@using FNMES.WebUI;
+
+@inject IStringLocalizer<SharedResource> SharedLocalizer﻿
+
+@{
     Layout = null;
 }
 
@@ -6,7 +11,7 @@
 
 <html>
 <head>
-    <title>账户管理</title>
+    <title>@Html.Raw(@SharedLocalizer﻿["AccountManagement"])</title>
     <meta name="viewport" content="width=device-width" />
     <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
     <link href="~/Content/framework/css/console.css" rel="stylesheet" />
@@ -123,8 +128,8 @@
                     <div class="panel-body text-center">
                         <div class="account-header">
                             <img class="avatar" src="/avatar.png" alt="" />
-                            <h4 class="username">@@<span id="Name">管理员</span></h4>
-                            <p>上次登录：<span id="lastVisit" class="last-login"></span></p>
+                            <h4 class="username">@@<span id="Name">@SharedLocalizer["Administrator"]</span></h4>
+                            <p>@SharedLocalizer["LastLogin"]：<span id="lastVisit" class="last-login"></span></p>
                         </div>
                         @* <div class="account-footer row">
                             <div class="col-md-4">
@@ -145,7 +150,7 @@
                     <div class="panel-body">
                         <div class="layui-tab layui-tab-brief">
                             <ul class="layui-tab-title">
-                                <li class="layui-this"><i class="fa fa-key" aria-hidden="true"></i>&nbsp;账号</li>
+                                <li class="layui-this"><i class="fa fa-key" aria-hidden="true"></i>&nbsp;@SharedLocalizer["Account"]</li>
                                 @*<li><i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;日志</li>*@
                             </ul>
                             <div class="layui-tab-content">
@@ -157,12 +162,12 @@
                                             </div>
                                             <div class="center">
                                                 <p>
-                                                    <span class="title">密码</span><span class="status">已设置</span>
+                                                    <span class="title">@SharedLocalizer["Password"]</span><span class="status">@SharedLocalizer["Set"]</span>
                                                 </p>
-                                                <p class="font2">用于保护账号信息和登录安全</p>
+                                                <p class="font2">@SharedLocalizer["It is used to protect account information and login security"]</p>
                                             </div>
                                             <div class="right">
-                                                <button id="btnModifyPwd" class="layui-btn layui-btn-primary">修改</button>
+                                                <button id="btnModifyPwd" class="layui-btn layui-btn-primary">@SharedLocalizer["Modify"]</button>
                                             </div>
                                         </div>
                                         @*<div class="bind-box-item">
@@ -275,7 +280,7 @@
         $('#btnModifyPwd').click(function() {
             $.layerOpen({
                 id: "modifyPwd",
-                title: "修改密码",
+                title: '@Html.Raw(@SharedLocalizer["ChangePassword"])',
                 width: "450px",
                 height: "310px",
                 content: "/account/modifyPwd",

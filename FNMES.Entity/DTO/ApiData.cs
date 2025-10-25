@@ -212,6 +212,9 @@ namespace FNMES.Entity.DTO.ApiData
         // 物料描述
         public string partDescription { get; set; }
 
+        // 类型
+        public string partType { get; set; }
+
         // 物料版本
         public string partVersion { get; set; }
 

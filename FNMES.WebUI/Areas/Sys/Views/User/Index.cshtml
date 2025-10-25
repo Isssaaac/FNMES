@@ -1,4 +1,9 @@
-﻿@{
+﻿@using Microsoft.Extensions.Localization
+@using FNMES.WebUI;
+
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+
+@{
     Layout = null;
 }
 <!DOCTYPE html>
@@ -6,7 +11,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>用户列表</title>
+    <title>@Html.Raw(@SharedLocalizer["UserList"])</title>
     <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
     <link href="~/Content/framework/css/console.css" rel="stylesheet" />
     <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
@@ -33,7 +38,7 @@
                     <i class="layui-icon">&#xe615;</i>
                 </button>
                 <div class="toolbar-search-input">
-                    <input type="text" id="keyWord" placeholder="用户账号或姓名" autocomplete="off" class="layui-input" style="height:39px">
+                    <input type="text" id="keyWord" placeholder="@Html.Raw(@SharedLocalizer["User account or name"])" autocomplete="off" class="layui-input" style="height:39px">
                 </div>
             </div>
             <table id="gridList" class="layui-form layui-table table-hover FNMES-table" lay-skin="line">
@@ -42,9 +47,9 @@
                     <tr>
                         <th>
                             <input type="checkbox" lay-skin="primary"></th>
-                        <th>账号</th>
-                        <th>姓名</th>
-                        <th>状态</th>
+                        <th>@Html.Raw(@SharedLocalizer["Account"])</th>
+                        <th>@Html.Raw(@SharedLocalizer["Name"])</th>
+                        <th>@Html.Raw(@SharedLocalizer["Status"])</th>
                     </tr>
                 </thead>
                 <!--内容容器-->
@@ -64,15 +69,15 @@
           <input type="checkbox" lay-skin="primary" value="{{item.Id}}"></td>
         <td>{{item.UserNo}}</td>
       <td>{{item.Name}}</td>
-      <td>{{# if(item.IsEnabled==true){ }}  <span class="label label-success label-sm">启用</span>
-          {{# }else{ }}  <span class="label label-dark label-sm">禁用</span>
+        <td>{{# if(item.IsEnabled==true){ }}  <span class="label label-success label-sm">@Html.Raw(@SharedLocalizer["Enabled"])</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">@Html.Raw(@SharedLocalizer["Disabled"])</span>
           {{# } }}
       </td>
   </tr>
     {{#  }); }}
      {{# if(d.list.length<=0) { }}
         <tr style="color: red">
-            <td colspan="8">查无数据。</td>
+              <td colspan="8">@Html.Raw(@SharedLocalizer["There is no data available."])</td>
         </tr>
     {{# } }}
 </script>
@@ -112,7 +117,7 @@
     function btn_add() {
         $.layerOpen({
             id: "add",
-            title: "新增用户",
+            title: '@Html.Raw(@SharedLocalizer["NewUser"])',
             width: "670px",
             height: "530px",
             content: "/system/user/form",
@@ -126,12 +131,12 @@
     function btn_edit() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
-            $.layerMsg("请勾选单条记录修改。", "warning");
+            $.layerMsg('@Html.Raw(@SharedLocalizer["Please check the option to modify individual records."])', "warning");
             return;
         }
         $.layerOpen({
             id: "edit",
-            title: "修改用户",
+            title: '@Html.Raw(@SharedLocalizer["ModifyUser"])',
             width: "670px",
             height: "530px",
             content: "/system/user/form?primaryKey=" + ids[0],
@@ -145,11 +150,11 @@
     function btn_delete() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length < 1) {
-            $.layerMsg("请勾选需要删除的用户。", "warning");
+            $.layerMsg('@Html.Raw(@SharedLocalizer["Please select the users you need to delete."])', "warning");
             return;
         }
         $.layerConfirm({
-            content: "您已选中" + ids.length + "条数据, 确定删除吗？",
+            content: '@Html.Raw(@SharedLocalizer["You have been selected"])' + ids.length + '@Html.Raw(@SharedLocalizer["piece of data. Are you sure to delete it?"])',
             callback: function () {
                 $.formSubmit({
                     url: '/system/user/delete',
@@ -165,12 +170,12 @@
     function btn_detail() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
-            $.layerMsg("请勾选单条记录查看。", "warning");
+            $.layerMsg('@Html.Raw(@SharedLocalizer["Please check the box for viewing individual records."])', "warning");
             return;
         }
         $.layerOpen({
             id: "detail",
-            title: "查看用户",
+            title: '@SharedLocalizer["ViewUser"]',
             width: "670px",
             height: "530px",
             content: "/system/user/detail?primaryKey=" + ids[0],
@@ -181,18 +186,18 @@
     function btn_reset() {
         var ids = $("#gridList").gridSelectedRowValue();
         if (ids.length != 1) {
-            $.layerMsg("请勾选单条记录查看。", "warning");
+            $.layerMsg('@Html.Raw(@SharedLocalizer["Please check the box for viewing individual records."])', "warning");
             return;
         }
         $.layerConfirm({
-            content: "您已选中" + ids.length + "条数据, 确定重置密码吗？",
+            content: '@Html.Raw(@SharedLocalizer["You have been selected"])' + ids.length + '@Html.Raw(@SharedLocalizer["piece of data. Are you sure you want to reset your password?"])',
             callback: function () {
                 $.formSubmit({
                     url: '/system/user/reset',
                     data: { primaryKey: ids.join() },
                     showMsg: false,
                     success: function () {
-                        $.layerMsg("该用户密码已重置为123456。", "success");
+                        $.layerMsg('@Html.Raw(@SharedLocalizer["The user password has been reset to 123456"])', "success");
                     }
                 });
             }

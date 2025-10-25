@@ -123,6 +123,15 @@
   <data name="Import" xml:space="preserve">
     <value>Impor penanda</value>
   </data>
+  <data name="CreateTime" xml:space="preserve">
+    <value>BuatWaktu</value>
+  </data>
+  <data name="SortCode" xml:space="preserve">
+    <value>NomorSeri</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Keadaan</value>
+  </data>
   <data name="Home" xml:space="preserve">
     <value>Halaman</value>
   </data>
@@ -150,8 +159,8 @@
   <data name="LogIn" xml:space="preserve">
     <value>LogMasuk</value>
   </data>
-  <data name="ForgetThePassword" xml:space="preserve">
-    <value>LupaPassword</value>
+  <data name="ForgetThePassword?" xml:space="preserve">
+    <value>LupaPassword?</value>
   </data>
   <data name="LoggingIn" xml:space="preserve">
     <value>Masuk...</value>
@@ -167,5 +176,182 @@
   </data>
   <data name="PleaseContactTheAdministratorToResetYourPassword" xml:space="preserve">
     <value>SilahkanHubungiAdministratorUntukMeresetnya</value>
+  </data>
+  <data name="AccountManagement" xml:space="preserve">
+    <value>ManajemenAkun</value>
+  </data>
+  <data name="Administrator" xml:space="preserve">
+    <value>Administrator</value>
+  </data>
+  <data name="Set" xml:space="preserve">
+    <value>TelahDiatur</value>
+  </data>
+  <data name="It is used to protect account information and login security" xml:space="preserve">
+    <value>Digunakan untuk menjaga informasi akun dan login yang aman</value>
+  </data>
+  <data name="Modify" xml:space="preserve">
+    <value>Modifikasi</value>
+  </data>
+  <data name="ChangePassword" xml:space="preserve">
+    <value>UbahSandi</value>
+  </data>
+  <data name="LastLogin" xml:space="preserve">
+    <value>TerakhirMasuk</value>
+  </data>
+  <data name="Enter the password to unlock..." xml:space="preserve">
+    <value>Masukkan password untuk membuka..</value>
+  </data>
+  <data name="Please enter the password!" xml:space="preserve">
+    <value>Tolong masukkan kodenya!</value>
+  </data>
+  <data name="The user authentication information has been cleared and needs to be re-authenticated." xml:space="preserve">
+    <value>Informasi sertifikat pengguna telah dibersihkan dan perlu disertifikasi lagi.</value>
+  </data>
+  <data name="Unlock" xml:space="preserve">
+    <value>Membuka</value>
+  </data>
+  <data name="Wire MES" xml:space="preserve">
+    <value>MES Garis</value>
+  </data>
+  <data name="OldPassword" xml:space="preserve">
+    <value>KataSandiLama</value>
+  </data>
+  <data name="NewPassword" xml:space="preserve">
+    <value>KataSandiBaru</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>KonfirmasiSandi</value>
+  </data>
+  <data name="Please enter the old password" xml:space="preserve">
+    <value>Tolong masukkan kode lama</value>
+  </data>
+  <data name="Please enter the new password" xml:space="preserve">
+    <value>Password baru, silakan</value>
+  </data>
+  <data name="Please confirm the new password" xml:space="preserve">
+    <value>Mohon konfirmasi sandi baru</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Simpan</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>AturUlang</value>
+  </data>
+  <data name="The password must be between 6 and 16 bits and must not contain special characters." xml:space="preserve">
+    <value>Kata sandi harus 6 sampai 16 bit dan tidak boleh berisi karakter khusus.</value>
+  </data>
+  <data name="AccessException" xml:space="preserve">
+    <value>PengecualianAkses</value>
+  </data>
+  <data name="Oh my God." xml:space="preserve">
+    <value>Astaga.</value>
+  </data>
+  <data name="The page was buried by heavy snow." xml:space="preserve">
+    <value>Halaman terkubur salju tebal.</value>
+  </data>
+  <data name="If it is very serious, please contact the administrator" xml:space="preserve">
+    <value>Jika memang serius, silahkan hubungi administrator</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>Tema</value>
+  </data>
+  <data name="blue" xml:space="preserve">
+    <value>biru</value>
+  </data>
+  <data name="gray" xml:space="preserve">
+    <value>abu-abu</value>
+  </data>
+  <data name="black" xml:space="preserve">
+    <value>hitam</value>
+  </data>
+  <data name="UserList" xml:space="preserve">
+    <value>DaftarPengguna</value>
+  </data>
+  <data name="User account or name" xml:space="preserve">
+    <value>Nomor akun pengguna atau nama</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Nama</value>
+  </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>DanOnline</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>Dinonaktifkan</value>
+  </data>
+  <data name="There is no data available." xml:space="preserve">
+    <value>Mencari jutaan bukti.</value>
+  </data>
+  <data name="NewUser" xml:space="preserve">
+    <value>PenggunaBaru</value>
+  </data>
+  <data name="Please check the option to modify individual records." xml:space="preserve">
+    <value>Harap centang catatan tunggal untuk merevisi.</value>
+  </data>
+  <data name="ModifyUser" xml:space="preserve">
+    <value>MemodifikasiPengguna</value>
+  </data>
+  <data name="Please select the users you need to delete." xml:space="preserve">
+    <value>Centang pengguna yang ingin dihapus.</value>
+  </data>
+  <data name="You have been selected" xml:space="preserve">
+    <value>Anda telah memilih</value>
+  </data>
+  <data name="piece of data. Are you sure to delete it?" xml:space="preserve">
+    <value>data, apakah anda yakin ingin menghapusnya?</value>
+  </data>
+  <data name="Please check the box for viewing individual records." xml:space="preserve">
+    <value>Centang catatan centang untuk melihat.</value>
+  </data>
+  <data name="ViewUser" xml:space="preserve">
+    <value>LihatPengguna</value>
+  </data>
+  <data name="piece of data. Are you sure you want to reset your password?" xml:space="preserve">
+    <value>data, apakah anda yakin ingin mereset pasword anda?</value>
+  </data>
+  <data name="The user password has been reset to 123456" xml:space="preserve">
+    <value>Sandi pengguna telah direset menjadi 123456</value>
+  </data>
+  <data name="InitialPassword" xml:space="preserve">
+    <value>SandiAwal</value>
+  </data>
+  <data name="RoleAttributes" xml:space="preserve">
+    <value>AtributPeran</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Ya</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Tidak</value>
+  </data>
+  <data name="PersonalSignature" xml:space="preserve">
+    <value>TandaKepribadian</value>
+  </data>
+  <data name="This student is very lazy and said without an autograph" xml:space="preserve">
+    <value>Teman sekelas malas, tidak ada tanda tangan tertulis ~</value>
+  </data>
+  <data name="Creator" xml:space="preserve">
+    <value>BuatPersonil</value>
+  </data>
+  <data name="Reviser" xml:space="preserve">
+    <value>DimodifikasiPersonil</value>
+  </data>
+  <data name="ModificationTime" xml:space="preserve">
+    <value>RevisiWaktu</value>
+  </data>
+  <data name="Please select a role" xml:space="preserve">
+    <value>Silahkan pilih peran</value>
+  </data>
+  <data name="Please enter your account" xml:space="preserve">
+    <value>Silahkan masukkan nomor rekening</value>
+  </data>
+  <data name="Please enter your name" xml:space="preserve">
+    <value>Nama silahkan</value>
+  </data>
+  <data name="Please enter the sortcode" xml:space="preserve">
+    <value>Masukkan kode sortko-nya</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>Pengiriman</value>
   </data>
 </root>

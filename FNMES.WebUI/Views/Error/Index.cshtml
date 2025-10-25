@@ -1,4 +1,9 @@
-﻿@{
+﻿@using Microsoft.Extensions.Localization
+@using FNMES.WebUI;
+
+@inject IStringLocalizer<SharedResource> SharedLocalizer﻿
+
+@{
     Layout = null;
 }
 
@@ -6,7 +11,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>访问异常</title>
+    <title>@SharedLocalizer["AccessException"]</title>
     <style>
         html, body {
             height: 100%;
@@ -209,8 +214,8 @@
     <div class="content">
         <canvas class="snow" id="snow" width="1349" height="400"></canvas>
         <div class="main-text">
-            <h1>天啊。<br />页面被大雪埋了。</h1>
-            <h1>若很严重，请联系我：zhoujunwenno1@gmail.com</h1>
+            <h1>@SharedLocalizer["Oh my God."]<br />@SharedLocalizer["The page was buried by heavy snow."]</h1>
+            <h1>@SharedLocalizer["If it is very serious, please contact the administrator"]</h1>
         </div>
         <div class="ground">
             <div class="mound">

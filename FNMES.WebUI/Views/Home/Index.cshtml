@@ -13,12 +13,15 @@
 
 <html>
 <head>
-    <title>@ViewBag.SoftwareName</title>
+    @* <title>@ViewBag.SoftwareName</title> *@
+    <title>@Html.Raw(@SharedLocalizer["Wire MES"])</title>
     <meta charset="utf-8">
     <meta name="renderer" content="webkit">
     <meta name="viewport" content="width=device-width" />
-    <meta name="keywords" content="@ViewBag.SoftwareName">
-    <meta name="description" content="@ViewBag.SoftwareName">
+    @* <meta name="keywords" content="@ViewBag.SoftwareName">
+    <meta name="description" content="@ViewBag.SoftwareName"> *@
+    <meta name="keywords" content="@Html.Raw(@SharedLocalizer["Wire MES"])">
+    <meta name="description" content="@Html.Raw(@SharedLocalizer["Wire MES"])">
     <link rel="shortcut icon" type="image/ico" href="/th.jpg" />
     <link rel="bookmark" type="image/ico" href="/th.jpg" />
     <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
@@ -51,7 +54,7 @@
             <div class="layui-header-title" style="-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;display:flex;align-items: center;width: 100%;">
                 <img src="/th.jpg" style="width: 200px;height: auto;object-fit: contain;margin-right:10px;"/>
                     @* <a class="layui-header-name" style="margin-left: 10px;">@ViewBag.SoftwareName</a> *@
-                <a class="layui-header-sidebar" title=@SharedLocalizer["ShrinkMenu"] style="margin-left: 10px;"><i class="fa fa-dedent" aria-hidden="true"></i></a>
+                <a class="layui-header-sidebar" title=@Html.Raw(@SharedLocalizer["ShrinkMenu"]) style="margin-left: 10px;"><i class="fa fa-dedent" aria-hidden="true"></i></a>
             </div>
             <ul class="layui-nav">
                 <li class="layui-nav-item" style="margin-right: 10px">
@@ -125,8 +128,8 @@
                     <img id="lockHeadIcon" src="/avatar.png" />
                 </div>
                 <div id="lockUserName" class="layui-lock-name">@ViewBag.CurrentUser.Account</div>
-                <input id="lockPassword" type="text" class="layui-lock-input" value="输入密码解锁.." />
-                <button class="layui-btn layui-btn-small" id="btnUnlock">解锁</button>
+                <input id="lockPassword" type="text" class="layui-lock-input" value='@Html.Raw(@SharedLocalizer["Enter the password to unlock..."])' />
+                <button class="layui-btn layui-btn-small" id="btnUnlock">@Html.Raw(@SharedLocalizer["Unlock"])</button>
             </div>
         </script>
         <!-- 锁屏模板 end -->
@@ -357,21 +360,21 @@
 
         $('.layui-nav .user-card').click(function() {
             tab.tabAdd({
-                title: @Localizer["Account"],
+                title: '@Localizer["Account"]',
                 href: '/account/infoCard'
             });
         });
 
         $('.layui-nav .btn-system-manage').click(function() {
             tab.tabAdd({
-                title: @Localizer["System"],
+                title: '@Localizer["System"]',
                 href: '/config'
             });
         });
 
         $('.layui-nav .btn-theme').click(function() {
             tab.tabAdd({
-                title: @Localizer["Theme"],
+                title: '@Localizer["Theme"]',
                 href: '/theme'
             });
         });
@@ -402,7 +405,7 @@
                     }
                 },
                 error: function () {
-                    alert("语言切换失败");
+                    alert("Language switching failed");
                 }
             });
         });
@@ -420,13 +423,13 @@
                     isShowLock = true;
                     layero.find('#lockPassword').on('focus', function() {
                         var $this = $(this);
-                        if ($this.val() === '输入密码解锁..') {
+                        if ($this.val() === '@Html.Raw(@SharedLocalizer["Enter the password to unlock..."])') {
                             $this.val('').attr('type', 'password');
                         }
                     }).on('blur', function() {
                         var $this = $(this);
                         if ($this.val() === '' || $this.length === 0) {
-                            $this.attr('type', 'text').val('输入密码解锁..');
+                            $this.attr('type', 'text').val('@Html.Raw(@SharedLocalizer["Enter the password to unlock..."])');
                         }
                     });
                     //防止浏览器被刷新，删除服务器登陆用户相关身份认证。
@@ -437,7 +440,7 @@
                         async: false,
                         success: function(data) {
                             if (data) {
-                                console.log("已清除用户认证信息，需要重新认证。");
+                                console.log('@Html.Raw(@SharedLocalizer["The user authentication information has been cleared and needs to be re-authenticated."])');
                             }
                         }
                     });
@@ -458,8 +461,8 @@
                     layero.find('#btnUnlock').on('click', function() {
                         var username = layero.find('#lockUserName').text();
                         var password = layero.find('#lockPassword').val();
-                        if (password === '输入密码解锁..' || password.length === 0) {
-                            layer.tips('请输入密码！', '#lockPassword', {
+                        if (password === '@Html.Raw(@SharedLocalizer["Enter the password to unlock..."])' || password.length === 0) {
+                            layer.tips('@Html.Raw(@SharedLocalizer["Please enter the password!"])', '#lockPassword', {
                                 tips: [1, '#000'],
                                 time: 1000
                             });

@@ -264,7 +264,7 @@
   <data name="LogIn" xml:space="preserve">
     <value>登录</value>
   </data>
-  <data name="ForgetThePassword" xml:space="preserve">
+  <data name="ForgetThePassword?" xml:space="preserve">
     <value>忘记密码?</value>
   </data>
   <data name="LoggingIn" xml:space="preserve">
@@ -281,5 +281,182 @@
   </data>
   <data name="PleaseContactTheAdministratorToResetYourPassword" xml:space="preserve">
     <value>请联系管理员重置密码</value>
+  </data>
+  <data name="AccountManagement" xml:space="preserve">
+    <value>账号管理</value>
+  </data>
+  <data name="Administrator" xml:space="preserve">
+    <value>管理员</value>
+  </data>
+  <data name="Set" xml:space="preserve">
+    <value>已设置</value>
+  </data>
+  <data name="It is used to protect account information and login security" xml:space="preserve">
+    <value>用于保护账号信息和登录安全</value>
+  </data>
+  <data name="Modify" xml:space="preserve">
+    <value>修改</value>
+  </data>
+  <data name="ChangePassword" xml:space="preserve">
+    <value>修改密码</value>
+  </data>
+  <data name="LastLogin" xml:space="preserve">
+    <value>上次登录</value>
+  </data>
+  <data name="Enter the password to unlock..." xml:space="preserve">
+    <value>输入密码解锁..</value>
+  </data>
+  <data name="Please enter the password!" xml:space="preserve">
+    <value>请输入密码</value>
+  </data>
+  <data name="The user authentication information has been cleared and needs to be re-authenticated." xml:space="preserve">
+    <value>已清除用户认证信息，需要重新认证。</value>
+  </data>
+  <data name="Unlock" xml:space="preserve">
+    <value>解锁</value>
+  </data>
+  <data name="Wire MES" xml:space="preserve">
+    <value>线体MES</value>
+  </data>
+  <data name="OldPassword" xml:space="preserve">
+    <value>旧密码</value>
+  </data>
+  <data name="NewPassword" xml:space="preserve">
+    <value>新密码</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>确认密码</value>
+  </data>
+  <data name="Please enter the old password" xml:space="preserve">
+    <value>请输入旧密码</value>
+  </data>
+  <data name="Please enter the new password" xml:space="preserve">
+    <value>请输入新密码</value>
+  </data>
+  <data name="Please confirm the new password" xml:space="preserve">
+    <value>请确认新密码</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>重置</value>
+  </data>
+  <data name="The password must be between 6 and 16 bits and must not contain special characters." xml:space="preserve">
+    <value>密码必须6到16位，不能包含特殊字符。</value>
+  </data>
+  <data name="AccessException" xml:space="preserve">
+    <value>访问异常</value>
+  </data>
+  <data name="Oh my God." xml:space="preserve">
+    <value>天啊。</value>
+  </data>
+  <data name="The page was buried by heavy snow." xml:space="preserve">
+    <value>页面被大雪埋了。</value>
+  </data>
+  <data name="If it is very serious, please contact the administrator" xml:space="preserve">
+    <value>若很严重，请联系管理员</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="blue" xml:space="preserve">
+    <value>蓝色</value>
+  </data>
+  <data name="gray" xml:space="preserve">
+    <value>灰色</value>
+  </data>
+  <data name="black" xml:space="preserve">
+    <value>黑色</value>
+  </data>
+  <data name="UserList" xml:space="preserve">
+    <value>用户列表</value>
+  </data>
+  <data name="User account or name" xml:space="preserve">
+    <value>用户账号或姓名</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>姓名</value>
+  </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>启用</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="There is no data available." xml:space="preserve">
+    <value>查无数据。</value>
+  </data>
+  <data name="NewUser" xml:space="preserve">
+    <value>新增用户</value>
+  </data>
+  <data name="Please check the option to modify individual records." xml:space="preserve">
+    <value>请勾选单条记录修改。</value>
+  </data>
+  <data name="ModifyUser" xml:space="preserve">
+    <value>修改用户</value>
+  </data>
+  <data name="Please select the users you need to delete." xml:space="preserve">
+    <value>请勾选需要删除的用户。</value>
+  </data>
+  <data name="You have been selected" xml:space="preserve">
+    <value>您已选中</value>
+  </data>
+  <data name="piece of data. Are you sure to delete it?" xml:space="preserve">
+    <value>条数据, 确定删除吗？</value>
+  </data>
+  <data name="Please check the box for viewing individual records." xml:space="preserve">
+    <value>请勾选单条记录查看。</value>
+  </data>
+  <data name="ViewUser" xml:space="preserve">
+    <value>查看用户</value>
+  </data>
+  <data name="piece of data. Are you sure you want to reset your password?" xml:space="preserve">
+    <value>条数据, 确定重置密码吗？</value>
+  </data>
+  <data name="The user password has been reset to 123456" xml:space="preserve">
+    <value>该用户密码已重置为123456</value>
+  </data>
+  <data name="InitialPassword" xml:space="preserve">
+    <value>初始密码</value>
+  </data>
+  <data name="RoleAttributes" xml:space="preserve">
+    <value>角色属性</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>是</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>否</value>
+  </data>
+  <data name="PersonalSignature" xml:space="preserve">
+    <value>个性签名</value>
+  </data>
+  <data name="This student is very lazy and said without an autograph" xml:space="preserve">
+    <value>这位同学很懒，木有签名的说～</value>
+  </data>
+  <data name="Creator" xml:space="preserve">
+    <value>创建人员</value>
+  </data>
+  <data name="Reviser" xml:space="preserve">
+    <value>修改人员</value>
+  </data>
+  <data name="ModificationTime" xml:space="preserve">
+    <value>修改时间</value>
+  </data>
+  <data name="Please select a role" xml:space="preserve">
+    <value>请选择角色</value>
+  </data>
+  <data name="Please enter your account" xml:space="preserve">
+    <value>请输入账号</value>
+  </data>
+  <data name="Please enter your name" xml:space="preserve">
+    <value>请输入姓名</value>
+  </data>
+  <data name="Please enter the sortcode" xml:space="preserve">
+    <value>请输入顺序号</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>提交</value>
   </data>
 </root>

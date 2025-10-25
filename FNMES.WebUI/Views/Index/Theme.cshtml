@@ -1,4 +1,9 @@
-﻿@{
+﻿@using Microsoft.Extensions.Localization
+@using FNMES.WebUI;
+
+@inject IStringLocalizer<SharedResource> SharedLocalizer﻿
+
+@{
     Layout = null;
 }
 
@@ -25,37 +30,37 @@
     <form id="form" class="layui-form" style="margin-top: 25px">
 
         <div class="layui-form-item">
-            <label class="layui-form-label" style="width:200px">主题</label>
+            <label class="layui-form-label" style="width:200px">@SharedLocalizer﻿["Theme"]</label>
             <div class="layui-input-inline" style="width:500px">
                 @if (ViewBag.Theme == "blue")
                 {
-                    <input type="radio" name="Theme" value="blue" title="蓝色" checked>
-                    <input type="radio" name="Theme" value="gray" title="灰色">
-                    <input type="radio" name="Theme" value="black" title="黑色">
+                    <input type="radio" name="Theme" value="blue" title=@SharedLocalizer﻿["blue"] checked>
+                    <input type="radio" name="Theme" value="gray" title=@SharedLocalizer﻿["gray"]>
+                    <input type="radio" name="Theme" value="black" title=@SharedLocalizer﻿["black"]>
                 }
                 else if (ViewBag.Theme == "gray")
                 {
-                    <input type="radio" name="Theme" value="blue" title="蓝色">
-                    <input type="radio" name="Theme" value="gray" title="灰色" checked>
-                    <input type="radio" name="Theme" value="black" title="黑色">
+                    <input type="radio" name="Theme" value="blue" title=@SharedLocalizer﻿["blue"]>
+                    <input type="radio" name="Theme" value="gray" title=@SharedLocalizer﻿["gray"] checked>
+                    <input type="radio" name="Theme" value="black" title=@SharedLocalizer﻿["black"]>
                 }
                 else if (ViewBag.Theme == "black")
                 {
-                    <input type="radio" name="Theme" value="blue" title="蓝色">
-                    <input type="radio" name="Theme" value="gray" title="灰色">
-                    <input type="radio" name="Theme" value="black" title="黑色" checked>
+                    <input type="radio" name="Theme" value="blue" title=@SharedLocalizer﻿["blue"]>
+                    <input type="radio" name="Theme" value="gray" title=@SharedLocalizer﻿["gray"]>
+                    <input type="radio" name="Theme" value="black" title=@SharedLocalizer﻿["black"] checked>
                 }
                 else
                 {
-                    <input type="radio" name="Theme" value="blue" title="蓝色" checked>
-                    <input type="radio" name="Theme" value="gray" title="灰色">
-                    <input type="radio" name="Theme" value="black" title="黑色">
+                    <input type="radio" name="Theme" value="blue" title=@SharedLocalizer﻿["blue"] checked>
+                    <input type="radio" name="Theme" value="gray" title=@SharedLocalizer﻿["gray"]>
+                    <input type="radio" name="Theme" value="black" title=@SharedLocalizer﻿["black"]>
                 }
             </div>
         </div>
         <div class="layui-form-item">
             <div class="layui-input-inline" style="margin-left:300px">
-                <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="save">保存</button>
+                <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="save">@SharedLocalizer﻿["Save"]</button>
             </div>
         </div>
     </form>

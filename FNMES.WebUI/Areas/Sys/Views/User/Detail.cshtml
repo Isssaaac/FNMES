@@ -1,4 +1,9 @@
-﻿@{
+﻿@using Microsoft.Extensions.Localization
+@using FNMES.WebUI;
+
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+
+@{
     Layout = null;
 }
 
@@ -36,14 +41,14 @@
     <form id="form" class="layui-form" style="margin-top: 25px">
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label">账号</label>
+                <label class="layui-form-label">@SharedLocalizer["Account"]</label>
                 <div class="layui-input-inline">
                     <input type="hidden" name="Id" disabled />
                     <input type="text" name="UserNo" id="Account" autocomplete="off" class="layui-input" disabled />
                 </div>
             </div>
             <div class="layui-inline">
-                <label class="layui-form-label">初始密码</label>
+                <label class="layui-form-label">@SharedLocalizer["InitialPassword"]</label>
                 <div class="layui-input-inline">
                     <input type="password" name="Password" id="Password" autocomplete="off" class="layui-input" disabled>
                 </div>
@@ -52,7 +57,7 @@
         </div>
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label">姓名</label>
+                <label class="layui-form-label">@SharedLocalizer["Name"]</label>
                 <div class="layui-input-inline">
                     <input type="text" name="Name" autocomplete="off" class="layui-input" disabled />
                 </div>
@@ -62,7 +67,7 @@
 
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label">角色属性</label>
+                <label class="layui-form-label">@SharedLocalizer["RoleAttributes"]</label>
                 <div class="layui-input-inline">
                     <select lay-ignore name="RoleId" class="select2" id="RoleId" multiple="multiple" style="width: 514px;" disabled>
                     </select>
@@ -71,36 +76,36 @@
         </div>
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label">排序码</label>
+                <label class="layui-form-label">@SharedLocalizer["SortCode"]</label>
                 <div class="layui-input-inline">
                     <input type="number" name="SortCode" autocomplete="off" class="layui-input" disabled />
                 </div>
             </div>
             <div class="layui-inline">
-                <label class="layui-form-label">启用</label>
+                <label class="layui-form-label">@SharedLocalizer["Enabled"]</label>
                 <div class="layui-input-inline">
-                    <input type="radio" name="EnableFlag" value="Y" title="是" checked disabled />
-                    <input type="radio" name="EnableFlag" value="N" title="否" disabled />
+                    <input type="radio" name="EnableFlag" value="Y" title=@SharedLocalizer["Yes"] checked disabled />
+                    <input type="radio" name="EnableFlag" value="N" title=@SharedLocalizer["No"] disabled />
                 </div>
             </div>
         </div>
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label">个性签名</label>
+                <label class="layui-form-label">@SharedLocalizer["PersonalSignature"]</label>
                 <div class="layui-input-inline" style="width: 514px;">
-                    <textarea name="Description" class="layui-textarea" disabled placeholder="这位同学很懒，木有签名的说～"></textarea>
+                    <textarea name="Description" class="layui-textarea" disabled placeholder=@SharedLocalizer["This student is very lazy and said without an autograph"]></textarea>
                 </div>
             </div>
         </div>
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label">创建人员</label>
+                <label class="layui-form-label">@SharedLocalizer["Creator"]</label>
                 <div class="layui-input-inline">
                     <input type="text" name="CreateUserName" autocomplete="off" class="layui-input" disabled />
                 </div>
             </div>
             <div class="layui-inline">
-                <label class="layui-form-label">创建时间</label>
+                <label class="layui-form-label">@SharedLocalizer["CreateTime"]</label>
                 <div class="layui-input-inline">
                     <input type="text" name="CreateTime" autocomplete="off" class="layui-input" disabled />
                 </div>
@@ -108,13 +113,13 @@
         </div>
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label">修改人员</label>
+                <label class="layui-form-label">@SharedLocalizer["Reviser"]</label>
                 <div class="layui-input-inline">
                     <input type="text" name="ModifyUserName" autocomplete="off" class="layui-input" disabled />
                 </div>
             </div>
             <div class="layui-inline">
-                <label class="layui-form-label">修改时间</label>
+                <label class="layui-form-label">@SharedLocalizer["ModificationTime"]</label>
                 <div class="layui-input-inline">
                     <input type="text" name="ModifyTime" autocomplete="off" class="layui-input" disabled />
                 </div>
@@ -134,7 +139,7 @@
             $("#RoleId").bindSelect({
                 type: "POST",
                 url: "/system/role/getListTreeSelect",
-                title: '请选择角色'
+                title: '@Html.Raw(@SharedLocalizer["Please select a role"])'
             });
 
             var primaryKey = $.getQueryString("primaryKey");

@@ -15,9 +15,12 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>@ViewBag.SoftwareName</title>
+    @* <title>@ViewBag.SoftwareName</title>
     <meta name="keywords" content="@ViewBag.SoftwareName">
-    <meta name="description" content="@ViewBag.SoftwareName">
+    <meta name="description" content="@ViewBag.SoftwareName"> *@
+    <title>@Html.Raw(@SharedLocalizer["Wire MES"])</title>
+    <meta name="keywords" content="@Html.Raw(@SharedLocalizer["Wire MES"])">
+    <meta name="description" content="@Html.Raw(@SharedLocalizer["Wire MES"])">
     <link rel="shortcut icon" type="image/ico" href="/th.jpg" />
     <link rel="bookmark" type="image/ico" href="/th.jpg" />
     <link href="/Content/layui/css/layui.css" rel="stylesheet" />
@@ -43,18 +46,18 @@
         </div>
     </div>-->
     <div class="FNMES-login-box animated fadeInRight">
-        <div class="FNMES-login-header">@ViewBag.SoftwareName</div>
+        <div class="FNMES-login-header">@Html.Raw(@SharedLocalizer["Wire MES"])</div>
         <div class="FNMES-login-body">
             <form class="layui-form">
                 <div class="layui-form-item">
                     <label class="login-icon"><i class="layui-icon">&#xe612;</i></label>
-                    <input type="text" name="username" value="admin" lay-verify="required" autocomplete="off" placeholder=@SharedLocalizer﻿["Account"] class="layui-input">
+                    <input type="text" name="username" value="admin" lay-verify="required" autocomplete="off" placeholder=@Html.Raw(@SharedLocalizer﻿["Account"]) class="layui-input">
                 </div>
                 <div class="layui-form-item">
                     <label class="login-icon">
                         <i class="layui-icon">&#xe642;</i>
                     </label>
-                    <input type="password" name="password" value="" lay-verify="required" autocomplete="off" placeholder=@SharedLocalizer﻿["Password"] class="layui-input">
+                    <input type="password" name="password" value="" lay-verify="required" autocomplete="off" placeholder=@Html.Raw(@SharedLocalizer﻿["Password"]) class="layui-input">
                 </div>
 @*                 <div class="layui-form-item">
                     <div class="login-code-box">
@@ -65,10 +68,10 @@
                     <!--<input class="FNMES-pull-right" type="checkbox" lay-skin="primary" name="isSaveAccount" value="true" title="记住账号" />-->
                 </div> *@
                 <div class="layui-form-item">
-                    <button class="layui-btn btn-submit" lay-submit lay-filter="login">@SharedLocalizer["LogIn"]</button>
+                    <button class="layui-btn btn-submit" lay-submit lay-filter="login">@Html.Raw(@SharedLocalizer["LogIn"])</button>
                 </div>
                  <div class="layui-form-item">
-                    <a style="float: right; text-decoration: underline" href="javascript:showtip()">@SharedLocalizer["ForgetThePassword"]</a>
+                    <a style="float: right; text-decoration: underline" href="javascript:showtip()">@Html.Raw(@SharedLocalizer["ForgetThePassword?"])</a>
                 </div>
             </form>
         </div>
@@ -96,7 +99,7 @@
         var form = layui.form;
         form.on('submit(login)', function (data) {
             data.field.password = $.md5(data.field.password);
-            $(".btn-submit").html('@SharedLocalizer["LoggingIn"]');
+            $(".btn-submit").html('@Html.Raw(@SharedLocalizer["LoggingIn"])');
             $(".btn-submit").attr('disabled', true).addClass('layui-disabled');
             $.ajax({
                 url: "/account/login",
@@ -106,19 +109,19 @@
                 success: function (result) {
                     if (result.state == 1) {
                         window.location.href = "/home/index";
-                        $(".btn-submit").html('@SharedLocalizer["LoginSuccessful,Redirected"]');
+                        $(".btn-submit").html('@Html.Raw(@SharedLocalizer["LoginSuccessful,Redirected"])');
                     } else {
-                        $(".btn-submit").html('@SharedLocalizer["LogInNow"]');
+                        $(".btn-submit").html('@Html.Raw(@SharedLocalizer["LogInNow"])');
                         $(".btn-submit").attr('disabled', false).removeClass('layui-disabled');
                          $("#verifyCode").trigger('click');
                         $.layerMsg(result.message, result.state);
                     }
                 },
                 error: function (e) {
-                    $(".btn-submit").html('@SharedLocalizer["LogInNow"]');
+                    $(".btn-submit").html('@Html.Raw(@SharedLocalizer["LogInNow"])');
                     $(".btn-submit").attr('disabled', false).removeClass('layui-disabled');
                      $("#verifyCode").trigger('click');
-                    $.layerMsg('@SharedLocalizer["AnExceptionOccurredDuringTheLoginProcess"]');
+                    $.layerMsg('@Html.Raw(@SharedLocalizer["AnExceptionOccurredDuringTheLoginProcess"])');
                 }
             });
             return false;
@@ -129,6 +132,6 @@
     });
 
     function showtip() {
-        $.layerMsg('@SharedLocalizer["PleaseContactTheAdministratorToResetYourPassword"]', 6);
+        $.layerMsg('@Html.Raw(@SharedLocalizer["PleaseContactTheAdministratorToResetYourPassword"])', 6);
     }
 </script>

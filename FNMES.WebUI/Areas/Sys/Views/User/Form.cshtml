@@ -1,4 +1,9 @@
-﻿@{
+﻿@using Microsoft.Extensions.Localization
+@using FNMES.WebUI;
+
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+
+@{
     Layout = null;
 }
 <!DOCTYPE html>
@@ -35,30 +40,30 @@
     <form id="form" class="layui-form" style="margin-top: 25px">
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label label-required">账号</label>
+                <label class="layui-form-label label-required">@SharedLocalizer["Account"]</label>
                 <div class="layui-input-inline">
                     <input type="hidden" name="Id" />
-                    <input type="text" name="UserNo" id="Account" lay-verify="required" placeholder="请输入账号" autocomplete="off" class="layui-input">
+                    <input type="text" name="UserNo" id="Account" lay-verify="required" placeholder=@SharedLocalizer["Please enter your account"] autocomplete="off" class="layui-input">
                 </div>
             </div>
             <div class="layui-inline">
-                <label class="layui-form-label label-required">初始密码</label>
+                <label class="layui-form-label label-required">@SharedLocalizer["InitialPassword"]</label>
                 <div class="layui-input-inline">
-                    <input type="password" name="Password" id="Password" lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                    <input type="password" name="Password" id="Password" lay-verify="required" placeholder=@SharedLocalizer["Please enter the password!"] autocomplete="off" class="layui-input">
                 </div>
             </div>
         </div>
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label label-required">姓名</label>
+                <label class="layui-form-label label-required">@SharedLocalizer["Name"]</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="Name" lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input">
+                    <input type="text" name="Name" lay-verify="required" placeholder=@SharedLocalizer["Please enter your name"] autocomplete="off" class="layui-input">
                 </div>
             </div>
         </div>
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label label-required">角色属性</label>
+                <label class="layui-form-label label-required">@SharedLocalizer["RoleAttributes"]</label>
                 <div class="layui-input-inline">
                     <select lay-ignore name="RoleId" class="select2" id="RoleId" multiple="multiple" style="width: 514px;" lay-verify="required"></select>
                 </div>
@@ -66,30 +71,30 @@
         </div>
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label label-required">排序码</label>
+                <label class="layui-form-label label-required">@SharedLocalizer["SortCode"]</label>
                 <div class="layui-input-inline">
-                    <input type="number" name="SortCode" lay-verify="number" placeholder="请输入排序" autocomplete="off" class="layui-input" value="10000">
+                    <input type="number" name="SortCode" lay-verify="number" placeholder=@SharedLocalizer["Please enter the sortcode"] autocomplete="off" class="layui-input" value="10000">
                 </div>
             </div>
             <div class="layui-inline">
-                <label class="layui-form-label label-required">启用</label>
+                <label class="layui-form-label label-required">@SharedLocalizer["Enabled"]</label>
                 <div class="layui-input-inline">
-                    <input type="radio" name="EnableFlag" value="1" title="是" checked />
-                    <input type="radio" name="EnableFlag" value="0" title="否" />
+                    <input type="radio" name="EnableFlag" value="1" title=@SharedLocalizer["Yes"] checked />
+                    <input type="radio" name="EnableFlag" value="0" title=@SharedLocalizer["No"] />
                 </div>
             </div>
         </div>
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label">个性签名</label>
+                <label class="layui-form-label">@SharedLocalizer["PersonalSignature"]</label>
                 <div class="layui-input-inline" style="width: 514px;">
-                    <textarea name="Description" placeholder="请输入个性签名" class="layui-textarea"></textarea>
+                    <textarea name="Description" placeholder=@SharedLocalizer["Please enter your personal signature"] class="layui-textarea"></textarea>
                 </div>
             </div>
         </div>
         <div class="layui-form-item" style="display: none">
             <div class="layui-input-block">
-                <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="add">提交</button>
+                <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="add">@SharedLocalizer["Submit"]</button>
             </div>
         </div>
     </form>
@@ -108,7 +113,7 @@
             $("#RoleId").bindSelect({
                 type:"POST",
                 url: "/system/role/getListTreeSelect",
-                title: '请选择角色'
+                title: '@Html.Raw(@SharedLocalizer["Please select a role"])'
             });
 
             $('#Account').blur(function () {

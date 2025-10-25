@@ -264,8 +264,8 @@
   <data name="LogIn" xml:space="preserve">
     <value>LogIn</value>
   </data>
-  <data name="ForgetThePassword" xml:space="preserve">
-    <value>ForgetThePassword</value>
+  <data name="ForgetThePassword?" xml:space="preserve">
+    <value>ForgetThePassword?</value>
   </data>
   <data name="LoggingIn" xml:space="preserve">
     <value>LoggingIn...</value>
@@ -281,5 +281,182 @@
   </data>
   <data name="PleaseContactTheAdministratorToResetYourPassword" xml:space="preserve">
     <value>PleaseContactTheAdministratorToResetYourPassword</value>
+  </data>
+  <data name="AccountManagement" xml:space="preserve">
+    <value>AccountManagement</value>
+  </data>
+  <data name="Administrator" xml:space="preserve">
+    <value>Administrator</value>
+  </data>
+  <data name="Set" xml:space="preserve">
+    <value>Set</value>
+  </data>
+  <data name="It is used to protect account information and login security" xml:space="preserve">
+    <value>It is used to protect account information and login security</value>
+  </data>
+  <data name="Modify" xml:space="preserve">
+    <value>Modify</value>
+  </data>
+  <data name="ChangePassword" xml:space="preserve">
+    <value>ChangePassword</value>
+  </data>
+  <data name="LastLogin" xml:space="preserve">
+    <value>LastLogin</value>
+  </data>
+  <data name="Enter the password to unlock..." xml:space="preserve">
+    <value>Enter the password to unlock...</value>
+  </data>
+  <data name="Please enter the password!" xml:space="preserve">
+    <value>Please enter the password!</value>
+  </data>
+  <data name="The user authentication information has been cleared and needs to be re-authenticated." xml:space="preserve">
+    <value>The user authentication information has been cleared and needs to be re-authenticated.</value>
+  </data>
+  <data name="Unlock" xml:space="preserve">
+    <value>Unlock</value>
+  </data>
+  <data name="Wire MES" xml:space="preserve">
+    <value>Wire MES</value>
+  </data>
+  <data name="OldPassword" xml:space="preserve">
+    <value>OldPassword</value>
+  </data>
+  <data name="NewPassword" xml:space="preserve">
+    <value>NewPassword</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>ConfirmPassword</value>
+  </data>
+  <data name="Please enter the old password" xml:space="preserve">
+    <value>Please enter the old password</value>
+  </data>
+  <data name="Please enter the new password" xml:space="preserve">
+    <value>Please enter the new password</value>
+  </data>
+  <data name="Please confirm the new password" xml:space="preserve">
+    <value>Please confirm the new password</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="The password must be between 6 and 16 bits and must not contain special characters." xml:space="preserve">
+    <value>The password must be between 6 and 16 bits and must not contain special characters.</value>
+  </data>
+  <data name="AccessException" xml:space="preserve">
+    <value>AccessException</value>
+  </data>
+  <data name="Oh my God." xml:space="preserve">
+    <value>Oh my God.</value>
+  </data>
+  <data name="The page was buried by heavy snow." xml:space="preserve">
+    <value>The page was buried by heavy snow.</value>
+  </data>
+  <data name="If it is very serious, please contact the administrator" xml:space="preserve">
+    <value>If it is very serious, please contact the administrator</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="blue" xml:space="preserve">
+    <value>blue</value>
+  </data>
+  <data name="gray" xml:space="preserve">
+    <value>gray</value>
+  </data>
+  <data name="black" xml:space="preserve">
+    <value>black</value>
+  </data>
+  <data name="UserList" xml:space="preserve">
+    <value>UserList</value>
+  </data>
+  <data name="User account or name" xml:space="preserve">
+    <value>User account or name</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="There is no data available." xml:space="preserve">
+    <value>There is no data available.</value>
+  </data>
+  <data name="NewUser" xml:space="preserve">
+    <value>NewUser</value>
+  </data>
+  <data name="Please check the option to modify individual records." xml:space="preserve">
+    <value>Please check the option to modify individual records.</value>
+  </data>
+  <data name="ModifyUser" xml:space="preserve">
+    <value>ModifyUser</value>
+  </data>
+  <data name="Please select the users you need to delete." xml:space="preserve">
+    <value>Please select the users you need to delete.</value>
+  </data>
+  <data name="You have been selected" xml:space="preserve">
+    <value>You have been selected</value>
+  </data>
+  <data name="piece of data. Are you sure to delete it?" xml:space="preserve">
+    <value>piece of data. Are you sure to delete it?</value>
+  </data>
+  <data name="Please check the box for viewing individual records." xml:space="preserve">
+    <value>Please check the box for viewing individual records.</value>
+  </data>
+  <data name="ViewUser" xml:space="preserve">
+    <value>ViewUser</value>
+  </data>
+  <data name="piece of data. Are you sure you want to reset your password?" xml:space="preserve">
+    <value>piece of data. Are you sure you want to reset your password?</value>
+  </data>
+  <data name="The user password has been reset to 123456" xml:space="preserve">
+    <value>The user password has been reset to 123456</value>
+  </data>
+  <data name="InitialPassword" xml:space="preserve">
+    <value>InitialPassword</value>
+  </data>
+  <data name="RoleAttributes" xml:space="preserve">
+    <value>RoleAttributes</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="PersonalSignature" xml:space="preserve">
+    <value>PersonalSignature</value>
+  </data>
+  <data name="This student is very lazy and said without an autograph" xml:space="preserve">
+    <value>This student is very lazy and said without an autograph</value>
+  </data>
+  <data name="Creator" xml:space="preserve">
+    <value>Creator</value>
+  </data>
+  <data name="Reviser" xml:space="preserve">
+    <value>Reviser</value>
+  </data>
+  <data name="ModificationTime" xml:space="preserve">
+    <value>ModificationTime</value>
+  </data>
+  <data name="Please select a role" xml:space="preserve">
+    <value>Please select a role</value>
+  </data>
+  <data name="Please enter your account" xml:space="preserve">
+    <value>Please enter your account</value>
+  </data>
+  <data name="Please enter your name" xml:space="preserve">
+    <value>Please enter your name</value>
+  </data>
+  <data name="Please enter the sortcode" xml:space="preserve">
+    <value>Please enter the sortcode</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>Submit</value>
   </data>
 </root>
