@@ -175,7 +175,7 @@
         }
         $.layerOpen({
             id: "detail",
-            title: '@SharedLocalizer["ViewUser"]',
+            title: '@Html.Raw(@SharedLocalizer["ViewUser"])',
             width: "670px",
             height: "530px",
             content: "/system/user/detail?primaryKey=" + ids[0],

@@ -354,4 +354,13 @@
   <data name="Submit" xml:space="preserve">
     <value>Pengiriman</value>
   </data>
+  <data name="DictionaryList" xml:space="preserve">
+    <value>DaftarKamus</value>
+  </data>
+  <data name="NewLineBody" xml:space="preserve">
+    <value>TubuhBarisBaru</value>
+  </data>
+  <data name="ModifyLineBody" xml:space="preserve">
+    <value>MemodifikasiTubuhBaris</value>
+  </data>
 </root>

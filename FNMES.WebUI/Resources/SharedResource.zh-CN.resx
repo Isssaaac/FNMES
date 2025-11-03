@@ -459,4 +459,13 @@
   <data name="Submit" xml:space="preserve">
     <value>提交</value>
   </data>
+  <data name="DictionaryList" xml:space="preserve">
+    <value>字典列表</value>
+  </data>
+  <data name="NewLineBody" xml:space="preserve">
+    <value>新增线体</value>
+  </data>
+  <data name="ModifyLineBody" xml:space="preserve">
+    <value>修改线体</value>
+  </data>
 </root>

@@ -459,4 +459,13 @@
   <data name="Submit" xml:space="preserve">
     <value>Submit</value>
   </data>
+  <data name="DictionaryList" xml:space="preserve">
+    <value>DictionaryList</value>
+  </data>
+  <data name="NewLineBody" xml:space="preserve">
+    <value>NewLineBody</value>
+  </data>
+  <data name="ModifyLineBody" xml:space="preserve">
+    <value>ModifyLineBody</value>
+  </data>
 </root>
