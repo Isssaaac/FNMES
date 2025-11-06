@@ -1,5 +1,6 @@
 ﻿using CCS.WebUI;
 using FNMES.Entity.Param;
+using FNMES.Entity.Record;
 using FNMES.Utility.Core;
 using FNMES.Utility.ResponseModels;
 using FNMES.WebUI.Controllers;
@@ -79,7 +80,26 @@ namespace FNMES.WebUI.Areas.Param.Controllers
             ProcessBind processBind = bindLogic.GetByProductCode(productCode, configId);
             if (processBind == null)
             {
-                return Error();
+                RecordBindHistory oldProcessBind = paramRepairLogic.GetByProductCode(productCode, configId);
+                if (oldProcessBind == null)
+                {
+                    return Error();
+                }
+                oldProcessBind.RepairFlag = "1";
+                if (string.IsNullOrEmpty(oldProcessBind.RepairStations))
+                {
+                    oldProcessBind.RepairStations = stationCode;
+                }
+                else
+                {
+                    oldProcessBind.RepairStations += "," + stationCode;
+                }
+                var str = oldProcessBind.RepairStations.Split(',').ToList()
+                    .Distinct() // 去重
+                    .OrderBy(s => int.Parse(s.Substring(1)));// 排序
+                oldProcessBind.RepairStations = string.Join(",", str);
+                int n = paramRepairLogic.Update(oldProcessBind, configId);
+                return n != 0 ? Success() : Error();
             }
             processBind.RepairFlag = "1";
             if (string.IsNullOrEmpty(processBind.RepairStations))
@@ -107,7 +127,37 @@ namespace FNMES.WebUI.Areas.Param.Controllers
             ProcessBind processBind = bindLogic.GetByProductCode(productCode, configId);
             if (processBind == null)
             {
-                return Error();
+                RecordBindHistory oldProcessBind = paramRepairLogic.GetByProductCode(productCode, configId);
+                if (oldProcessBind == null)
+                {
+                    return Error();
+                }
+                List<string> str = new List<string>(oldProcessBind.RepairStations.Split(","));
+                str.Remove(stationCode);
+
+                Logger.RunningInfo($"内控码{productCode}取消登记工站{stationCode},目前待返修工为<{JsonConvert.SerializeObject(str)}>");
+                if (str.Count == 0 || oldProcessBind.RepairStations.IsNullOrEmpty())
+                {
+                    oldProcessBind.RepairFlag = "0";
+                    oldProcessBind.RepairStations = "";
+
+                }
+                else
+                {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < str.Count; i++)
+                    {
+                        sb.Append(str[i]);
+                        if (i < str.Count - 1)
+                        {
+                            sb.Append(",");
+                        }
+                    }
+                    oldProcessBind.RepairFlag = "1";
+                    oldProcessBind.RepairStations = sb.ToString();
+                }
+                int n = paramRepairLogic.Update(oldProcessBind, configId);
+                return n != 0 ? Success() : Error();
             }
             List<string> strArray = new List<string>(processBind.RepairStations.Split(","));
             strArray.Remove(stationCode);

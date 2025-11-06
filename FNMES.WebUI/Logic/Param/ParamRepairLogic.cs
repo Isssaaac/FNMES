@@ -163,6 +163,37 @@ namespace FNMES.WebUI.Logic.Param
             return lstRepairItem;
         }
 
+        public RecordBindHistory GetByProductCode(string productCode, string configId)
+        {
+            //业务逻辑，必须走主库
+            try
+            {
+                var db = GetInstance(configId);
+                return db.Queryable<RecordBindHistory>().Where(it => it.ProductCode == productCode).SplitTable(tabs => tabs.Take(4)).First();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo($"通过条码<{productCode}>获取绑定信息表数据:", e);
+                return null;
+            }
+        }
+
+        public int Update(RecordBindHistory model, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                return db.Updateable<RecordBindHistory>(model).IgnoreColumns(it => new
+                {
+                    it.CreateTime
+                }).SplitTable(tabs => tabs.Take(4)).ExecuteCommand();
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
         public int Insert(DisAssembleParam model, string configId)
         {
             try
