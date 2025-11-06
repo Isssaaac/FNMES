@@ -92,7 +92,66 @@ namespace FNMES.WebUI.Logic.Param
 
                         return lstRepairItem;
                     }
-                    
+                    else
+                    {
+                        RecordBindHistory oldProcessBind = db.Queryable<RecordBindHistory>().Where(e => e.ProductCode == productCode).SplitTable(tabs => tabs.Take(4)).First();
+                        if (oldProcessBind != null)
+                        {
+                            var onlyRecords = db.Queryable<RecordOutStation>().Where(e => e.ProductCode == oldProcessBind.ProductCode)
+                                .SplitTable(e => e.Take(3))
+                                 .Select(it => new
+                                 {
+                                     index = SqlFunc.RowNumber($"{it.Id} desc", $"{it.ProductCode}, {it.StationCode}"),
+                                     it.Id,
+                                     it.ProductCode,
+                                     it.ProductStatus,
+                                     it.StationCode,
+                                     it.SmallStationCode,
+                                     it.TaskOrderNumber,
+                                     it.OperatorNo,
+                                     it.EquipmentID,
+                                     it.DefectCode,
+                                     it.DefectDesc,
+                                     it.CreateTime
+                                 })
+                                 .MergeTable()
+                                 .Where(it => it.index == 1)
+                                 .Select(it => new RecordOutStation()
+                                 {
+                                     Id = it.Id,
+                                     ProductCode = it.ProductCode,
+                                     ProductStatus = it.ProductStatus,
+                                     StationCode = it.StationCode,
+                                     SmallStationCode = it.SmallStationCode,
+                                     TaskOrderNumber = it.TaskOrderNumber,
+                                     OperatorNo = it.OperatorNo,
+                                     EquipmentID = it.EquipmentID,
+                                     DefectCode = it.DefectCode,
+                                     DefectDesc = it.DefectDesc,
+                                     CreateTime = it.CreateTime
+                                 })
+                                 .OrderByDescending(it => it.Id)
+                                 .ToPageList(pageIndex, pageSize, ref totalCount);
+
+                            foreach (var recordOutStation in onlyRecords)
+                            {
+                                RepairItem repairItem = new RepairItem();
+                                repairItem.ProduceCode = recordOutStation.ProductCode;
+                                repairItem.LineId = item.ConfigId;
+                                repairItem.StationCode = recordOutStation.StationCode;
+                                repairItem.DefectCode = recordOutStation.DefectCode;
+                                repairItem.DefectDesc = recordOutStation.DefectDesc;
+                                ////出站的id没有用
+                                //repairItem.Id = recordOutStation.Id;
+
+                                repairItem.RepairFlag = (oldProcessBind.RepairStations.Contains(recordOutStation.StationCode)
+                                        && oldProcessBind.RepairFlag == "1") ? "1" : "0";
+
+                                lstRepairItem.Add(repairItem);
+                            }
+                            return lstRepairItem;
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
