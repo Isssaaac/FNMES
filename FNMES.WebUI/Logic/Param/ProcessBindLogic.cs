@@ -150,14 +150,54 @@ namespace FNMES.WebUI.Logic.Param
                 return null;
             }
         }
-      
+
         public ProcessBind GetByProductCode(string productCode, string configId)
         {
             //业务逻辑，必须走主库
             try
             {
                 var db = GetInstance(configId);
-                return db.MasterQueryable<ProcessBind>().Where(it => it.ProductCode == productCode).First();
+                return db.MasterQueryable<ProcessBind>().Where(e => e.ProductCode == productCode).First();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo($"通过条码<{productCode}>获取绑定信息表数据:", e);
+                return null;
+            }
+        }
+
+        public ProcessBind GetByProductCode(string productCode, string configId, string startDate, string endDate)
+        {
+            //业务逻辑，必须走主库
+            try
+            {
+                var db = GetInstance(configId);
+                ProcessBind processBind = db.MasterQueryable<ProcessBind>().Where(e => e.ProductCode == productCode).First();
+                if (processBind != null)
+                {
+                    return processBind;
+                }
+                else
+                {
+                    DateTime start = Convert.ToDateTime(startDate);
+                    DateTime end = Convert.ToDateTime(endDate);
+                    RecordBindHistory oldProcessBind = db.Queryable<RecordBindHistory>().Where(e => e.ProductCode == productCode).SplitTable(start, end).First();
+                    if (oldProcessBind != null)
+                    {
+                        ProcessBind bind = new ProcessBind();
+                        bind.CopyField(oldProcessBind);
+                        long v = db.Insertable<ProcessBind>(bind).ExecuteCommand();
+                        if (v != 0)
+                        {
+                            long n = db.Deleteable<RecordBindHistory>().Where(it => it.ProductCode == productCode).SplitTable(tabs => tabs.Take(4)).ExecuteCommand();
+                            if (n != 0)
+                            {
+                                return bind;
+                            }
+                        }
+                    }
+                }
+                return null;
             }
             catch (Exception e)
             {

@@ -48,6 +48,14 @@
                             <div class="layui-btn-group">
                                 <button onclick="btn_CancelMark()" class="layui-btn layui-btn-primary layui-btn-small">取消登记</button>
                             </div>
+                            <div class="layui-inline" id="ID-laydate-range">
+                                <div class="layui-input-inline">
+                                    <input type="text" autocomplete="off" id="ID-laydate-start-date" style="width: 200px;height: 30px;" class="layui-input" placeholder="开始日期">
+                                </div>
+                                <div class="layui-input-inline">
+                                    <input type="text" autocomplete="off" id="ID-laydate-end-date" style="width: 200px;height: 30px;" class="layui-input" placeholder="结束日期">
+                                </div>
+                            </div>
 
                             @*  <div class="layui-btn-group">
                                 <button onclick="btn_edit()" class="layui-btn layui-btn-primary layui-btn-small">修改不良代码</button>
@@ -125,6 +133,13 @@
 <script type="text/javascript">var paging;
     layui.config({ base: parent._baseUrl}).use(['paging', 'form'], function () {
         var form = layui.form;
+        var laydate = layui.laydate;
+        // 日期范围 - 左右面板独立选择模式
+        laydate.render({
+            elem: '#ID-laydate-range',
+            range: ['#ID-laydate-start-date', '#ID-laydate-end-date']
+        });
+
         paging = layui.paging();
         $("#lineId").bindSelect({
             type: "POST",
@@ -181,6 +196,17 @@
 
 
     function initGrid() {
+        var startDate = $('#ID-laydate-start-date').val();
+        var endDate = $('#ID-laydate-end-date').val();
+
+        var stime = Date.parse(new Date(startDate));
+        var etime = Date.parse(new Date(endDate));
+        var usedTime = etime - stime;
+        var days = Math.floor(usedTime / (24 * 3600 * 1000));
+        if (days > 90) {
+            $.layerMsg("日期间隔不能大于90天", "warning");
+            return
+        }
 
         paging.init({
             url: '/param/repair/index',
@@ -188,7 +214,8 @@
             tempElem: '#contentTpl',
             params: {
                 productCode: $("#keyWord").val(),
-                
+                startDate: $('#ID-laydate-start-date').val(),
+                endDate: $('#ID-laydate-end-date').val(),
             },
             pageConfig: {
                 elem: 'paged',
@@ -204,6 +231,18 @@
     }
 
     function btn_MarkRepair() {
+        var startDate = $('#ID-laydate-start-date').val();
+        var endDate = $('#ID-laydate-end-date').val();
+
+        var stime = Date.parse(new Date(startDate));
+        var etime = Date.parse(new Date(endDate));
+        var usedTime = etime - stime;
+        var days = Math.floor(usedTime / (24 * 3600 * 1000));
+        if (days > 90) {
+            $.layerMsg("日期间隔不能大于90天", "warning");
+            return
+        }
+
         var data = $("#gridList").gridSelectedRowData();
         
         var ids = $("#gridList").gridSelectedRowValue();
@@ -220,6 +259,8 @@
                         productCode: data[1],
                         configId: data[2],
                         stationCode: data[3],
+                        startDate: $('#ID-laydate-start-date').val(),
+                        endDate: $('#ID-laydate-end-date').val(),
                     },
                     success: function () {
                         initGrid();
