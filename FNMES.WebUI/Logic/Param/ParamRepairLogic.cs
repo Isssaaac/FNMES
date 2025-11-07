@@ -16,7 +16,7 @@ namespace FNMES.WebUI.Logic.Param
 {
     public class ParamRepairLogic: BaseLogic
     {
-        public List<RepairItem> GetList(int pageIndex, int pageSize, string productCode, ref int totalCount)
+        public List<RepairItem> GetList(int pageIndex, int pageSize, string productCode, string startDate, string endDate, ref int totalCount)
         {
             List<RepairItem> lstRepairItem = new List<RepairItem>();
 
@@ -94,7 +94,9 @@ namespace FNMES.WebUI.Logic.Param
                     }
                     else
                     {
-                        RecordBindHistory oldProcessBind = db.Queryable<RecordBindHistory>().Where(e => e.ProductCode == productCode).SplitTable(tabs => tabs.Take(4)).First();
+                        DateTime start = Convert.ToDateTime(startDate);
+                        DateTime end = Convert.ToDateTime(endDate);
+                        RecordBindHistory oldProcessBind = db.Queryable<RecordBindHistory>().Where(e => e.ProductCode == productCode).SplitTable(start, end).First();
                         if (oldProcessBind != null)
                         {
                             var onlyRecords = db.Queryable<RecordOutStation>().Where(e => e.ProductCode == oldProcessBind.ProductCode)

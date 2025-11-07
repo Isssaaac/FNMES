@@ -167,8 +167,7 @@
             });
         });
 
-        $("#ID-laydate-start-date").val($.getCurrentDateTime(-7));
-        $("#ID-laydate-end-date").val($.getCurrentDateTime(0));
+        var laydate = layui.laydate;
         // 日期范围 - 左右面板独立选择模式
         laydate.render({
             elem: '#ID-laydate-range',

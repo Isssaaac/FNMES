@@ -1,6 +1,5 @@
 ﻿using CCS.WebUI;
 using FNMES.Entity.Param;
-using FNMES.Entity.Record;
 using FNMES.Utility.Core;
 using FNMES.Utility.ResponseModels;
 using FNMES.WebUI.Controllers;
@@ -43,12 +42,12 @@ namespace FNMES.WebUI.Areas.Param.Controllers
 
         [Route("param/repair/index")]
         [HttpPost, AuthorizeChecked]
-        public ActionResult Index(int pageIndex, int pageSize, string productCode)
+        public ActionResult Index(int pageIndex, int pageSize, string productCode, string startDate, string endDate)
         {
             try
             {
                 int totalCount = 0;
-                var pageData = paramRepairLogic.GetList(pageIndex, pageSize, productCode, ref totalCount);
+                var pageData = paramRepairLogic.GetList(pageIndex, pageSize, productCode, startDate, endDate, ref totalCount);
                 var result = new LayPadding<RepairItem>()
                 {
                     result = true,
@@ -74,10 +73,10 @@ namespace FNMES.WebUI.Areas.Param.Controllers
         //线体mes登记为返修，这里只更新了ProcessBind里的StationCode
         [Route("param/repair/mark")]
         [HttpPost]
-        public ActionResult Mark(string productCode,string configId, string stationCode)
+        public ActionResult Mark(string productCode,string configId, string stationCode, string startDate, string endDate)
         {
             Logger.RunningInfo($"登记返修:productCode:{productCode},configId:{configId},stationCode:{stationCode}");
-            ProcessBind processBind = bindLogic.GetByProductCode(productCode, configId);
+            ProcessBind processBind = bindLogic.GetByProductCode(productCode, configId, startDate, endDate);
             if (processBind == null)
             {
                 return Error();

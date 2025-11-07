@@ -2169,7 +2169,7 @@ namespace FNMES.Service.WebService
                     }
                 }
                 //工厂出站
-                UploadData_FParam uploadData_FParam = new UploadData_FParam(param, process.processData, ngCodes);
+                UploadData_FParam uploadData_FParam = new UploadData_FParam(ngCodes, param, process.processData);
                 var mesRet = APIMethod.Call(Url.UploadData_F, uploadData_FParam, configId).ToObject<MesRet>();
 
                 outRet = new RetMessage<OutStationData>(mesRet);
@@ -2224,6 +2224,36 @@ namespace FNMES.Service.WebService
             var unitProcedure = unitProcedureLogic.GetByStation(param.stationCode, configId);
             if (unitProcedure.OutStationProductType == null)
                 return NewErrorMessage<OutStationData>($"{unitProcedure.Encode}未设置出站产品类型");
+
+            //先查询路线，如果路线中无此工位，则直接放行，绑定表中查的工艺路线
+            List<ParamLocalRoute> paramLocalRoutes = routeLogic.Get(param.productCode, configId);
+            //查询当前工位的工位路线
+            int routStep = paramLocalRoutes.FindIndex(it => it.StationCode == param.stationCode);
+            if (routStep == -1)
+            {
+                Logger.RunningInfo($"{param.productCode}在{param.stationCode}工位过站失败，工艺路线中不包含{param.stationCode}工序");
+                return NewNgMessage<OutStationData>($"{param.productCode}在{param.stationCode}工位过站失败，工艺路线中不包含{param.stationCode}工序");
+            }
+
+            //如果是入口工站，直接厂级进站
+            if (paramLocalRoutes[routStep].IsEntrance)
+            {
+                //工厂进站
+                FactoryStatus factoryStatusEntrance = GetStatus(configId);
+                if (factoryStatusEntrance.IsOnline && GlobalContext.SystemConfig.EnableFactoryMes)
+                {
+                    UploadData_MZParam getItemDataParam = new UploadData_MZParam(bindProducts, param, process.processData, ngCodes);
+                    var callresult = APIMethod.Call(Url.GetItemData, getItemDataParam, configId).ToObject<RetMessage<OutStationData>>();
+                    return callresult;
+                }
+                offlineApiLogic.Insert(new RecordOfflineApi()
+                {
+                    Url = Url.InStationUrl,
+                    RequestBody = param.ToJson(),
+                    ReUpload = 0
+                }, configId);
+                return NewSuccessMessage<OutStationData>("工厂离线中，已离线上传完成"); ;
+            }
 
             RetMessage<OutStationData> partRet = new RetMessage<OutStationData>();
             RetMessage<OutStationData> outRet = new RetMessage<OutStationData>();
@@ -2294,6 +2324,37 @@ namespace FNMES.Service.WebService
             if (processBind == null)
                 return NewErrorMessage<OutStationData>($"条码:<{param.productCode}>未查到绑定数据");
 
+            paramItemLogic.GetNgCodes(param.smallStationCode, process.processData, configId, out List<string> ngCodes);
+            
+            List<ParamLocalRoute> paramLocalRoutes = routeLogic.Get(param.productCode, configId);
+            //查询当前工位的工位路线
+            int routStep = paramLocalRoutes.FindIndex(it => it.StationCode == param.stationCode);
+            if (routStep == -1)
+            {
+                Logger.RunningInfo($"{param.productCode}在{param.stationCode}工位过站失败，工艺路线中不包含{param.stationCode}工序");
+                return NewNgMessage<OutStationData>($"{param.productCode}在{param.stationCode}工位过站失败，工艺路线中不包含{param.stationCode}工序");
+            }
+
+            //如果是入口工站，直接厂级进站
+            if (paramLocalRoutes[routStep].IsEntrance)
+            {
+                //工厂进站
+                FactoryStatus factoryStatusEntrance = GetStatus(configId);
+                if (factoryStatusEntrance.IsOnline && GlobalContext.SystemConfig.EnableFactoryMes)
+                {
+                    UploadData_MZParam uploadData_MZParam = new UploadData_MZParam(param, process.processData, ngCodes, bindProducts);
+                    var callresult = APIMethod.Call(Url.UploadData_MZ, uploadData_MZParam, configId).ToObject<RetMessage<OutStationData>>();
+                    return callresult;
+                }
+                offlineApiLogic.Insert(new RecordOfflineApi()
+                {
+                    Url = Url.OutStationUrl,
+                    RequestBody = param.ToJson(),
+                    ReUpload = 0
+                }, configId);
+                return NewSuccessMessage<OutStationData>("工厂离线中，已离线上传完成"); ;
+            }
+
             //出站时更新绑定表的当前工站      //此处出站没有更新绑定表的结果
             processBind.CurrentStation = param.stationCode;
 
@@ -2360,7 +2421,6 @@ namespace FNMES.Service.WebService
                     return NewErrorMessage<OutStationData>("插入本地过程数据记录出错");
             }
 
-            paramItemLogic.GetNgCodes(param.smallStationCode, process.processData, configId, out List<string> ngCodes);
             //要看是否屏蔽了厂级mes
             if (factoryStatus.IsOnline && GlobalContext.SystemConfig.EnableFactoryMes)
             {
@@ -2387,8 +2447,8 @@ namespace FNMES.Service.WebService
                         items.Add(item);
                     }
                     //本地上传
-                    UploadData_MZParam uploadData_MZParam = new UploadData_MZParam(param,process.processData,ngCodes,bindProducts);
-                    var outMesRet = APIMethod.Call(Url.UploadData_MZ, uploadData_MZParam, configId).ToObject<MesRet>();
+                    UploadData_FParam uploadData_FParam = new UploadData_FParam(param, process.processData, ngCodes);
+                    var outMesRet = APIMethod.Call(Url.UploadData_MZ, uploadData_FParam, configId).ToObject<MesRet>();
                     outRet = new RetMessage<OutStationData>(outMesRet);
                 }
                 else

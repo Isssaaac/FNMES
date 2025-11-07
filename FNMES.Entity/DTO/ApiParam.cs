@@ -1154,6 +1154,23 @@ namespace FNMES.Entity.DTO.ApiParam
                 dictionary[item.paramCode] = item.paramValue;
             json_data = JsonConvert.SerializeObject(dictionary);
         }
+
+        //堆叠前的工位，在调用P16出站时，sfc原本只是{条码}，现在要是{条码/工单号}
+        public UploadData_FParam(List<string> ngCodes, OutStationParam param, List<Process> process)
+        {
+            sfc = param.productCode + '/' + param.taskOrderNumber;
+            resource_no = param.smallStationCode;
+            operation_no = param.stationCode;
+            cz_date = DateTime.Now.ToString();
+            cz_user = param.operatorNo;
+            flag = ngCodes.Count > 0 ? "NG" : "OK";
+            ng_code = ngCodes.Join(",");
+
+            var dictionary = new Dictionary<string, string>();
+            foreach (var item in process)
+                dictionary[item.paramCode] = item.paramValue;
+            json_data = JsonConvert.SerializeObject(dictionary);
+        }
     }
 
     public class UploadData_FRet : ResultRet
@@ -1184,6 +1201,23 @@ namespace FNMES.Entity.DTO.ApiParam
             flag = ngCodes.Count > 0 ? "NG" : "OK";
             ng_code = ngCodes.Join(",");
             item_no = bindProducts.Select(it => it.productCode).ToList().ToString();
+            shop_order = param.taskOrderNumber;
+
+            var dictionary = new Dictionary<string, string>();
+            foreach (var item in process)
+                dictionary[item.paramCode] = item.paramValue;
+            json_data = JsonConvert.SerializeObject(dictionary);
+        }
+        public UploadData_MZParam(List<BindProduct> bindProducts, OutStationParam param, List<Process> process, List<string> ngCodes)
+        {
+            sfc = param.productCode;
+            resource_no = param.smallStationCode;
+            operation_no = param.stationCode;
+            cz_date = DateTime.Now.ToString();
+            cz_user = param.operatorNo;
+            flag = ngCodes.Count > 0 ? "NG" : "OK";
+            ng_code = ngCodes.Join(",");
+            item_no = bindProducts.Select((it, Index) => $"{ it.productCode}:{Index + 1}").ToList().ToString();
             shop_order = param.taskOrderNumber;
 
             var dictionary = new Dictionary<string, string>();
