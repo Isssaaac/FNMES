@@ -464,7 +464,7 @@ namespace FNMES.WebUI.Logic.Base
         /// <typeparam name="TTable"></typeparam>
         /// <param name="models"></param>
         /// <returns></returns>
-        public int InsertSplitTableList<TTable>(List<TTable> models ,string configId="default") where TTable : RecordBase
+        public async Task<int> InsertSplitTableList<TTable>(List<TTable> models ,string configId="default") where TTable : RecordBase
         {
             try
             {
@@ -475,7 +475,7 @@ namespace FNMES.WebUI.Logic.Base
                     model.Id = SnowFlakeSingle.Instance.NextId();
                     model.CreateTime = DateTime.Now;
                 }
-                var ret = db.Insertable(models).SplitTable().ExecuteCommand();
+                var ret = await db.Insertable(models).SplitTable().ExecuteCommandAsync();
                 return ret;
             }
             catch (Exception e)
@@ -491,14 +491,14 @@ namespace FNMES.WebUI.Logic.Base
         /// <typeparam name="TTable"></typeparam>
         /// <param name="model"></param>
         /// <returns></returns>
-        public int InsertSplitTableRow<TTable>(TTable model,string cofigId = "default") where TTable : RecordBase, new()
+        public async Task<int> InsertSplitTableRow<TTable>(TTable model,string cofigId = "default") where TTable : RecordBase, new()
         {
             try
             {
                 var db = GetInstance(cofigId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 model.CreateTime = DateTime.Now;
-                var ret = db.Insertable(model).SplitTable().ExecuteCommand();
+                var ret = await db.Insertable(model).SplitTable().ExecuteCommandAsync();
                 return ret;
             }
             catch (Exception e)
@@ -580,7 +580,7 @@ namespace FNMES.WebUI.Logic.Base
         /// <typeparam name="T"></typeparam>
         /// <param name="models"></param>
         /// <returns></returns>
-        public int InsertTableList<T>(List<T> models,string configId) where T : ParamBase, new()
+        public async Task<int> InsertTableList<T>(List<T> models,string configId) where T : ParamBase, new()
         {
             try
             {
@@ -591,7 +591,7 @@ namespace FNMES.WebUI.Logic.Base
                     model.Id = SnowFlakeSingle.Instance.NextId();
                     model.CreateTime = DateTime.Now;
                 }
-                var ret = db.Insertable(models).ExecuteCommand();
+                var ret = await db.Insertable(models).ExecuteCommandAsync();
                 return ret;
             }
             catch (Exception e)
@@ -607,7 +607,7 @@ namespace FNMES.WebUI.Logic.Base
         /// <typeparam name="T"></typeparam>
         /// <param name="models"></param>
         /// <returns></returns>
-        public int InsertTableRow<T>(T model,string configId) where T : ParamBase, new()
+        public async Task<int> InsertTableRow<T>(T model,string configId) where T : ParamBase, new()
         {
             try
             {
@@ -615,7 +615,7 @@ namespace FNMES.WebUI.Logic.Base
                 if(model.Id.IsNullOrEmpty() || model.Id==0)
                     model.Id = SnowFlakeSingle.Instance.NextId();
                 model.CreateTime = DateTime.Now;
-                var ret = db.Insertable(model).ExecuteCommand();
+                var ret = await db.Insertable(model).ExecuteCommandAsync();
                 return ret;
             }
             catch (Exception e)
@@ -633,12 +633,12 @@ namespace FNMES.WebUI.Logic.Base
         /// <typeparam name="T"></typeparam>
         /// <param name="model"></param>
         /// <returns></returns>
-        public int UpdateTable<T>(T model,string configId) where T : ParamBase, new()
+        public async Task<int> UpdateTable<T>(T model,string configId) where T : ParamBase, new()
         {
             try
             {
                 var db = GetInstance(configId);
-                return db.Updateable(model).ExecuteCommand();
+                return await db.Updateable(model).ExecuteCommandAsync();
             }
             catch (Exception e)
             {
@@ -647,12 +647,12 @@ namespace FNMES.WebUI.Logic.Base
             }
         }
 
-        public int UpdateTable<T>(List<T> model) where T : ParamBase, new()
+        public async Task<int> UpdateTable<T>(List<T> model) where T : ParamBase, new()
         {
             try
             {
                 var db = GetInstance();
-                return db.Updateable(model).ExecuteCommand();
+                return await db.Updateable(model).ExecuteCommandAsync();
             }
             catch (Exception e)
             {
@@ -687,12 +687,12 @@ namespace FNMES.WebUI.Logic.Base
         /// <typeparam name="T"></typeparam>
         /// <param name="model"></param>
         /// <returns></returns>
-        public int DeleteTableRowByID<T>(string primaryKey,string configId) where T : ParamBase, new()
+        public async Task<int> DeleteTableRowByID<T>(string primaryKey,string configId) where T : ParamBase, new()
         {
             try
             {
                 var db = GetInstance(configId);
-                return db.Deleteable<T>(it => it.Id == long.Parse(primaryKey)).ExecuteCommand();
+                return await db.Deleteable<T>(it => it.Id == long.Parse(primaryKey)).ExecuteCommandAsync();
             }
             catch (Exception e)
             {
@@ -707,12 +707,12 @@ namespace FNMES.WebUI.Logic.Base
         /// <typeparam name="T"></typeparam>
         /// <param name="model"></param>
         /// <returns></returns>
-        public int DeleteSplitTableRowByID<T>(string primaryKey) where T : RecordBase, new()
+        public async Task<int> DeleteSplitTableRowByID<T>(string primaryKey) where T : RecordBase, new()
         {
             try
             {
                 var db = GetInstance();
-                return db.Deleteable<T>(it => it.Id == long.Parse(primaryKey)).SplitTable(tabs => tabs.Take(3)).ExecuteCommand();
+                return await db.Deleteable<T>(it => it.Id == long.Parse(primaryKey)).SplitTable(tabs => tabs.Take(3)).ExecuteCommandAsync();
             }
             catch (Exception e)
             {
@@ -727,16 +727,16 @@ namespace FNMES.WebUI.Logic.Base
         /// <typeparam name="T"></typeparam>
         /// <param name="model"></param>
         /// <returns></returns>
-        public T GetTableRowByID<T>(string primaryKey,string configId) where T : ParamBase, new()
+        public async Task<T> GetTableRowByID<T>(string primaryKey,string configId) where T : ParamBase, new()
         {
             try
             {
                 var db = GetInstance(configId);
-                return db.Queryable<T>().Where(it => it.Id == long.Parse(primaryKey)).First();
+                return await db.Queryable<T>().Where(it => it.Id == long.Parse(primaryKey)).FirstAsync();
             }
             catch (Exception e)
             {
-                Logger.ErrorInfo("删除单行出错", e);
+                Logger.ErrorInfo("根据ID获取数据行", e);
                 return null;
             }
         }
@@ -747,12 +747,12 @@ namespace FNMES.WebUI.Logic.Base
         /// <typeparam name="T"></typeparam>
         /// <param name="model"></param>
         /// <returns></returns>
-        public T GetSplitTableRowByID<T>(string primaryKey) where T : RecordBase, new()
+        public async Task<T> GetSplitTableRowByID<T>(string primaryKey) where T : RecordBase, new()
         {
             try
             {
                 var db = GetInstance();
-                return db.Queryable<T>().SplitTable(tabs => tabs.Take(3)).Where(it => it.Id == long.Parse(primaryKey)).First();
+                return await db.Queryable<T>().SplitTable(tabs => tabs.Take(3)).Where(it => it.Id == long.Parse(primaryKey)).FirstAsync();
             }
             catch (Exception e)
             {
@@ -766,13 +766,13 @@ namespace FNMES.WebUI.Logic.Base
         /// </summary>
         /// <param name="configId"></param>
         /// <returns></returns>
-        public List<T> GetTableList<T>() where T : ParamBase, new()
+        public async Task<List<T>> GetTableList<T>() where T : ParamBase, new()
         {
             try
             {
                 var db = GetInstance();
                 //业务逻辑强制走主库
-                var paramlist = db.MasterQueryable<T>().OrderBy(it => it.Id, OrderByType.Desc).ToList();
+                var paramlist = await db.MasterQueryable<T>().OrderBy(it => it.Id, OrderByType.Desc).ToListAsync();
                 return paramlist;
             }
             catch (Exception e)
@@ -787,13 +787,13 @@ namespace FNMES.WebUI.Logic.Base
         /// </summary>
         /// <param name="configId"></param>
         /// <returns></returns>
-        public List<T> GetTableList<T>(string configId)
+        public async Task<List<T>> GetTableList<T>(string configId)
         {
             try
             {
                 var db = GetInstance(configId);
                 //业务逻辑强制走主库
-                var paramlist = db.MasterQueryable<T>().ToList();
+                var paramlist = await db.MasterQueryable<T>().ToListAsync();
                 return paramlist;
             }
             catch (Exception e)
