@@ -1,435 +1,277 @@
 ﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width" />
-    <title>添加PLC</title>
-    <link href="/Content/layui/css/layui.css" rel="stylesheet" />
-    <link href="/Content/framework/css/console.css" rel="stylesheet" />
-    <link href="/Content/framework/css/animate.css" rel="stylesheet" />
-    <link href="/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="/Content/select2/css/select2.css" rel="stylesheet" />
-    <!--[if lt IE 9]>
-        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
-    <![endif]-->
-    <!--[if gte IE 9]><!-->
-    <script src="/Content/jquery/jquery-3.6.0.min.js"></script>
-    <!--<![endif]-->
-    <!--[if lt IE 9]>
-    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
-    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-    <script src="/Content/layui/layui.js"></script>
-    <script src="/Content/select2/js/select2.min.js"></script>
-    <script src="/Content/framework/js/global.js"></script>
-    <script src="/Content/echarts/echarts.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Microsoft YaHei", sans-serif;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全屏图片轮播</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
-        body {
-            background-color: #0f1733; /* 深蓝色背景，增强工业感 */
-            /*color: #e0e8ff;*/
-            color: #000000;
-            padding: 20px;
-        }
-
-        .dashboard-title {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #409eff; /* 主色调：亮蓝色 */
-            letter-spacing: 2px;
-        }
-
-        .dashboard-container {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: auto auto;
-            gap: 20px;
-            height: calc(100vh - 80px);
-        }
-
-        /* 数据卡片样式 */
-        .data-card {
-            background: linear-gradient(135deg, #1a2649 0%, #16203d 100%);
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.15);
-            border-left: 3px solid #409eff;
-        }
-
-        .data-card-title {
-            font-size: 14px;
-            color: #a0b4ff;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .data-card-value {
-            font-size: 28px;
-            font-weight: bold;
-            color: #409eff;
-            margin: 10px 0;
-        }
-
-        .data-card-desc {
-            font-size: 12px;
-            color: #7aa1ff;
-            display: flex;
-            align-items: center;
-        }
-
-            .data-card-desc i {
-                margin-right: 5px;
-                color: #36d399;
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
             }
-        /* 图表容器样式 */
-        .chart-panel {
-            background: linear-gradient(135deg, #1a2649 0%, #16203d 100%);
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.15);
-        }
 
-        .chart-title {
-            font-size: 16px;
-            color: #a0b4ff;
-            margin-bottom: 15px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid rgba(64, 158, 255, 0.2);
-        }
+            .carousel-container {
+                @apply relative overflow-hidden w-full h-screen;
+            }
 
-        .chart-container {
-            width: 100%;
-            height: calc(100% - 40px);
-        }
-        /* 布局适配 */
-        .col-1 {
-            grid-column: span 1;
-        }
+            .carousel-image {
+                @apply absolute inset-0 w-full h-full object-cover transition-opacity duration-500;
+            }
 
-        .col-2 {
-            grid-column: span 2;
-        }
+            .carousel-btn {
+                @apply absolute top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50 transition-all duration-300 cursor-pointer z-10;
+            }
 
-        .col-3 {
-            grid-column: span 3;
-        }
+            .carousel-indicator {
+                @apply w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-all duration-300 cursor-pointer;
+            }
 
-        .col-4 {
-            grid-column: span 4;
-        }
-
-        .row-1 {
-            grid-row: span 1;
-        }
-
-        .row-2 {
-            grid-row: span 2;
-        }
-        /* 设备状态标签 */
-        .status {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-
-        .status-running {
-            background-color: rgba(54, 211, 153, 0.2);
-            color: #36d399;
-        }
-
-        .status-warning {
-            background-color: rgba(251, 191, 36, 0.2);
-            color: #fbbf24;
-        }
-
-        .status-error {
-            background-color: rgba(248, 113, 113, 0.2);
-            color: #f87171;
+                .carousel-indicator.active {
+                    @apply bg-white w-8;
+                }
         }
     </style>
 </head>
-<body>
-    <div class="dashboard-title">工业生产实时监控看板</div>
-    <div class="dashboard-container">
-        <!-- 第一行：核心数据卡片 -->
-        <div class="data-card col-1 row-1">
-            <div class="data-card-title">
-                <span>总产量(今日)</span>
-                <span class="status status-running">正常</span>
-            </div>
-            <div class="data-card-value">12,856</div>
-            <div class="data-card-desc">
-                <i>↑</i> 较昨日 +3.2%
-            </div>
+<body class="m-0 p-0 overflow-hidden">
+    <!-- 主轮播容器 - 充满整个网页body -->
+    <div id="mainCarousel" class="carousel-container">
+        <div id="carouselImages" class="w-full h-full"></div>
+
+        <!-- 导航按钮 -->
+        <div id="prevBtn" class="carousel-btn left-6">
+            <i class="fa fa-chevron-left text-2xl"></i>
         </div>
-        <div class="data-card col-1 row-1">
-            <div class="data-card-title">
-                <span>设备运行率</span>
-                <span class="status status-running">高效</span>
-            </div>
-            <div class="data-card-value">97.8%</div>
-            <div class="data-card-desc">
-                <i>↑</i> 较昨日 +0.5%
-            </div>
-        </div>
-        <div class="data-card col-1 row-1">
-            <div class="data-card-title">
-                <span>能耗(kWh)</span>
-                <span class="status status-warning">偏高</span>
-            </div>
-            <div class="data-card-value">8,642</div>
-            <div class="data-card-desc">
-                <i>↓</i> 较昨日 -2.1%
-            </div>
+        <div id="nextBtn" class="carousel-btn right-6">
+            <i class="fa fa-chevron-right text-2xl"></i>
         </div>
 
-        <div class="data-card col-1 row-1">
-            <div class="data-card-title">
-                <span>不合格率</span>
-                <span class="status status-running">正常</span>
-            </div>
-            <div class="data-card-value">0.32%</div>
-            <div class="data-card-desc">
-                <i>↓</i> 较昨日 -0.05%
-            </div>
+        <!-- 全屏控制按钮 -->
+        <div id="fullscreenToggle" class="carousel-btn top-8 right-8 w-10 h-10 translate-y-0">
+            <i class="fa fa-expand text-xl"></i>
         </div>
 
-        <!-- 第二行：生产趋势图 + 设备状态分布 -->
-        <div class="chart-panel col-2 row-1">
-            <div class="chart-title">生产趋势（近12小时）</div>
-            <div id="productionTrend" class="chart-container"></div>
-        </div>
-        <div class="chart-panel col-2 row-1">
-            <div class="chart-title">设备状态分布</div>
-            <div id="equipmentStatus" class="chart-container"></div>
-        </div>
+        <!-- 指示器 -->
+        <div id="indicators" class="absolute bottom-8 left-0 right-0 flex justify-center gap-2 z-10"></div>
 
-        <!-- 第三行：能耗分析 + 产线效率对比 -->
-        <div class="chart-panel col-2 row-1">
-            <div class="chart-title">能耗分析（按工序）</div>
-            <div id="energyConsumption" class="chart-container"></div>
-        </div>
-        <div class="chart-panel col-2 row-1">
-            <div class="chart-title">产线效率对比</div>
-            <div id="lineEfficiency" class="chart-container"></div>
+        <!-- 提示信息 -->
+        <div class="absolute top-8 left-8 text-white bg-black/30 px-4 py-2 rounded-md text-sm z-10">
+            提示: 点击图片或按钮切换，ESC退出全屏，Ctrl+F切换全屏
         </div>
     </div>
 
     <script>
-        // 初始化图表
-        window.onload = function () {
-            // 1. 生产趋势图（折线图）
-            const productionTrend = echarts.init(document.getElementById('productionTrend'));
-            productionTrend.setOption({
-                color: ['#409eff', '#69b1ff'], // 主色调：亮蓝、浅蓝
-                tooltip: {
-                    trigger: 'axis',
-                    backgroundColor: 'rgba(22, 32, 61, 0.8)',
-                    borderColor: 'rgba(64, 158, 255, 0.3)',
-                    borderWidth: 1
-                },
-                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-                xAxis: {
-                    type: 'category',
-                    boundaryGap: false,
-                    data: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
-                    axisLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.3)' } },
-                    axisLabel: { color: '#a0b4ff' }
-                },
-                yAxis: {
-                    type: 'value',
-                    axisLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.3)' } },
-                    axisLabel: { color: '#a0b4ff' },
-                    splitLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.1)' } }
-                },
-                series: [
-                    {
-                        name: '实际产量',
-                        type: 'line',
-                        data: [850, 780, 650, 920, 1100, 1250, 1320, 1450, 1380, 1200, 1050, 980],
-                        smooth: true,
-                        lineStyle: { width: 3 },
-                        areaStyle: {
-                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                { offset: 0, color: 'rgba(64, 158, 255, 0.3)' },
-                                { offset: 1, color: 'rgba(64, 158, 255, 0)' }
-                            ])
+        document.addEventListener('DOMContentLoaded', () => {
+            // 配置
+            const MAX_IMAGES = 20;
+            const IMAGE_FOLDER = 'images/';
+            const AUTO_PLAY_INTERVAL = 5000;
+            let currentIndex = 0;
+            let validImages = [];
+            let autoPlayTimer = null;
+
+            // DOM元素
+            const mainCarousel = document.getElementById('mainCarousel');
+            const carouselImages = document.getElementById('carouselImages');
+            const indicators = document.getElementById('indicators');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const fullscreenToggle = document.getElementById('fullscreenToggle');
+
+            // 预加载图片并检测有效性
+            async function loadImages() {
+                validImages = [];
+
+                for (let i = 1; i <= MAX_IMAGES; i++) {
+                    try {
+                        const response = await fetch(`${IMAGE_FOLDER}Image${i}.jpg`);
+                        if (response.ok) {
+                            validImages.push(i);
                         }
-                    },
-                    {
-                        name: '目标产量',
-                        type: 'line',
-                        data: [800, 800, 700, 900, 1000, 1200, 1300, 1400, 1300, 1100, 1000, 900],
-                        smooth: true,
-                        lineStyle: {
-                            width: 2,
-                            type: 'dashed',
-                            color: 'rgba(105, 177, 255, 0.6)'
-                        },
-                        symbol: 'circle',
-                        symbolSize: 5
+                    } catch (error) {
+                        console.log(`图片 ${IMAGE_FOLDER}Image${i}.jpg 不存在，已跳过`);
                     }
-                ]
-            });
+                }
 
-            // 2. 设备状态分布（饼图）
-            const equipmentStatus = echarts.init(document.getElementById('equipmentStatus'));
-            equipmentStatus.setOption({
-                color: ['#36d399', '#fbbf24', '#f87171', '#94a3b8'], // 运行(绿)、预警(黄)、故障(红)、停机(灰)
-                tooltip: {
-                    trigger: 'item',
-                    backgroundColor: 'rgba(22, 32, 61, 0.8)',
-                    borderColor: 'rgba(64, 158, 255, 0.3)'
-                },
-                legend: {
-                    top: 'bottom',
-                    textStyle: { color: '#a0b4ff' }
-                },
-                series: [
-                    {
-                        name: '设备状态',
-                        type: 'pie',
-                        radius: ['40%', '70%'], // 环形图
-                        center: ['50%', '40%'],
-                        avoidLabelOverlap: false,
-                        itemStyle: {
-                            borderRadius: 4,
-                            borderColor: '#16203d', // 与背景色一致，增强工业感
-                            borderWidth: 2
-                        },
-                        label: { show: false, position: 'center' },
-                        emphasis: {
-                            label: {
-                                show: true,
-                                fontSize: 18,
-                                fontWeight: 'bold',
-                                color: '#e0e8ff'
-                            }
-                        },
-                        labelLine: { show: false },
-                        data: [
-                            { value: 78, name: '运行中' },
-                            { value: 12, name: '预警' },
-                            { value: 3, name: '故障' },
-                            { value: 7, name: '停机维护' }
-                        ]
-                    }
-                ]
-            });
+                if (validImages.length === 0) {
+                    alert('没有找到任何有效图片，请检查images文件夹是否存在且包含图片');
+                    return;
+                }
 
-            // 3. 能耗分析（柱状图）
-            const energyConsumption = echarts.init(document.getElementById('energyConsumption'));
-            energyConsumption.setOption({
-                color: ['#409eff'],
-                tooltip: {
-                    trigger: 'axis',
-                    backgroundColor: 'rgba(22, 32, 61, 0.8)',
-                    borderColor: 'rgba(64, 158, 255, 0.3)'
-                },
-                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-                xAxis: {
-                    type: 'category',
-                    data: ['冲压', '焊接', '涂装', '总装', '检测', '包装'],
-                    axisLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.3)' } },
-                    axisLabel: { color: '#a0b4ff' }
-                },
-                yAxis: {
-                    type: 'value',
-                    name: 'kWh',
-                    nameTextStyle: { color: '#a0b4ff' },
-                    axisLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.3)' } },
-                    axisLabel: { color: '#a0b4ff' },
-                    splitLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.1)' } }
-                },
-                series: [
-                    {
-                        name: '能耗',
-                        type: 'bar',
-                        data: [2150, 1890, 1560, 1280, 950, 812],
-                        itemStyle: {
-                            borderRadius: [4, 4, 0, 0],
-                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                { offset: 0, color: '#409eff' },
-                                { offset: 1, color: '#69b1ff' }
-                            ])
-                        },
-                        barWidth: '60%'
-                    }
-                ]
-            });
+                initCarousel();
+                startAutoPlay();
+            }
 
-            // 4. 产线效率对比（雷达图）
-            const lineEfficiency = echarts.init(document.getElementById('lineEfficiency'));
-            lineEfficiency.setOption({
-                color: ['#409eff', '#69b1ff'],
-                tooltip: {
-                    trigger: 'axis',
-                    backgroundColor: 'rgba(22, 32, 61, 0.8)',
-                    borderColor: 'rgba(64, 158, 255, 0.3)'
-                },
-                radar: {
-                    indicator: [
-                        { name: '产能', max: 100 },
-                        { name: '效率', max: 100 },
-                        { name: '能耗', max: 100 },
-                        { name: '合格率', max: 100 },
-                        { name: '设备健康', max: 100 }
-                    ],
-                    splitArea: {
-                        areaStyle: { color: ['rgba(160, 180, 255, 0.05)'] }
-                    },
-                    axisLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.3)' } },
-                    splitLine: { lineStyle: { color: 'rgba(160, 180, 255, 0.1)' } },
-                    name: { textStyle: { color: '#a0b4ff' } }
-                },
-                series: [
-                    {
-                        name: 'A产线',
-                        type: 'radar',
-                        symbolSize: 5,
-                        lineStyle: { width: 2 },
-                        areaStyle: { color: 'rgba(64, 158, 255, 0.2)' },
-                        data: [{ value: [92, 95, 88, 97, 93] }]
-                    },
-                    {
-                        name: 'B产线',
-                        type: 'radar',
-                        symbolSize: 5,
-                        lineStyle: { width: 2 },
-                        areaStyle: { color: 'rgba(105, 177, 255, 0.2)' },
-                        data: [{ value: [88, 90, 92, 95, 89] }]
-                    }
-                ]
-            });
+            // 初始化轮播
+            function initCarousel() {
+                createIndicators();
+                createImageElements();
+                showImage(currentIndex);
 
-            // 响应窗口大小变化
-            window.addEventListener('resize', function () {
-                productionTrend.resize();
-                equipmentStatus.resize();
-                energyConsumption.resize();
-                lineEfficiency.resize();
-            });
+                // 监听全屏状态变化，更新按钮图标
+                document.addEventListener('fullscreenchange', updateFullscreenButton);
+                document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+                document.addEventListener('mozfullscreenchange', updateFullscreenButton);
+                document.addEventListener('msfullscreenchange', updateFullscreenButton);
+            }
 
-            // 模拟实时数据更新（每5秒更新一次产量趋势）
-            setInterval(function () {
-                const newData = productionTrend.getOption().series[0].data.slice(1);
-                newData.push(Math.floor(Math.random() * 200) + 1000); // 随机生成新数据
-                productionTrend.setOption({
-                    series: [{ data: newData }]
+            // 创建指示器
+            function createIndicators() {
+                indicators.innerHTML = '';
+                validImages.forEach((_, index) => {
+                    const indicator = document.createElement('div');
+                    indicator.className = `carousel-indicator ${index === currentIndex ? 'active' : ''}`;
+                    indicator.addEventListener('click', () => goToImage(index));
+                    indicators.appendChild(indicator);
                 });
-            }, 5000);
-        };
+            }
+
+            // 创建图片元素
+            function createImageElements() {
+                carouselImages.innerHTML = '';
+                validImages.forEach((imageNum, index) => {
+                    const img = document.createElement('img');
+                    img.src = `${IMAGE_FOLDER}Image${imageNum}.jpg`;
+                    img.alt = `图片 ${imageNum}`;
+                    img.className = `carousel-image ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`;
+                    img.dataset.index = index;
+                    img.addEventListener('click', nextImage);
+                    carouselImages.appendChild(img);
+                });
+            }
+
+            // 显示指定图片
+            function showImage(index) {
+                const images = carouselImages.querySelectorAll('img');
+                const dots = indicators.querySelectorAll('.carousel-indicator');
+
+                images.forEach((img, i) => {
+                    if (i === index) {
+                        img.classList.remove('opacity-0');
+                        img.classList.add('opacity-100');
+                    } else {
+                        img.classList.remove('opacity-100');
+                        img.classList.add('opacity-0');
+                    }
+                });
+
+                dots.forEach((dot, i) => {
+                    if (i === index) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+
+                currentIndex = index;
+            }
+
+            // 下一张图片
+            function nextImage() {
+                resetAutoPlay();
+                let nextIndex = currentIndex + 1;
+                if (nextIndex >= validImages.length) {
+                    nextIndex = 0;
+                }
+                showImage(nextIndex);
+            }
+
+            // 上一张图片
+            function prevImage() {
+                resetAutoPlay();
+                let prevIndex = currentIndex - 1;
+                if (prevIndex < 0) {
+                    prevIndex = validImages.length - 1;
+                }
+                showImage(prevIndex);
+            }
+
+            // 跳转到指定图片
+            function goToImage(index) {
+                if (index >= 0 && index < validImages.length) {
+                    resetAutoPlay();
+                    showImage(index);
+                }
+            }
+
+            // 自动播放控制
+            function startAutoPlay() {
+                autoPlayTimer = setInterval(nextImage, AUTO_PLAY_INTERVAL);
+            }
+
+            function resetAutoPlay() {
+                clearInterval(autoPlayTimer);
+                startAutoPlay();
+            }
+
+            // 切换浏览器全屏模式
+            function toggleBrowserFullscreen() {
+                if (document.fullscreenElement ||
+                    document.webkitFullscreenElement ||
+                    document.msFullscreenElement) {
+                    // 退出全屏
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                } else {
+                    // 进入全屏
+                    const element = document.documentElement;
+                    if (element.requestFullscreen) {
+                        element.requestFullscreen();
+                    } else if (element.webkitRequestFullscreen) {
+                        element.webkitRequestFullscreen();
+                    } else if (element.msRequestFullscreen) {
+                        element.msRequestFullscreen();
+                    }
+                }
+            }
+
+            // 更新全屏按钮图标
+            function updateFullscreenButton() {
+                const icon = fullscreenToggle.querySelector('i');
+                if (document.fullscreenElement ||
+                    document.webkitFullscreenElement ||
+                    document.msFullscreenElement) {
+                    icon.classList.remove('fa-expand');
+                    icon.classList.add('fa-compress');
+                } else {
+                    icon.classList.remove('fa-compress');
+                    icon.classList.add('fa-expand');
+                }
+            }
+
+            // 事件监听
+            prevBtn.addEventListener('click', prevImage);
+            nextBtn.addEventListener('click', nextImage);
+            fullscreenToggle.addEventListener('click', toggleBrowserFullscreen);
+
+            // 键盘控制
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') {
+                    nextImage();
+                } else if (e.key === 'ArrowLeft') {
+                    prevImage();
+                } else if (e.key === 'Escape' && (document.fullscreenElement || document.webkitFullscreenElement)) {
+                    toggleBrowserFullscreen();
+                } else if (e.key === 'f' && e.ctrlKey) {
+                    e.preventDefault();
+                    toggleBrowserFullscreen();
+                }
+            });
+
+            // 鼠标悬停暂停自动播放
+            mainCarousel.addEventListener('mouseenter', () => clearInterval(autoPlayTimer));
+            mainCarousel.addEventListener('mouseleave', startAutoPlay);
+
+            // 启动轮播
+            loadImages();
+        });
     </script>
 </body>
 </html>

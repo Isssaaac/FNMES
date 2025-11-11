@@ -2388,11 +2388,13 @@ namespace FNMES.Service.WebService
                     }
                     //本地上传
                     UploadData_MZParam uploadData_MZParam = new UploadData_MZParam(param,process.processData,ngCodes,bindProducts);
+
                     var outMesRet = APIMethod.Call(Url.UploadData_MZ, uploadData_MZParam, configId).ToObject<MesRet>();
                     outRet = new RetMessage<OutStationData>(outMesRet);
                 }
                 else
                 {
+
                     UploadData_FParam uploadData_FParam = new UploadData_FParam(param, process.processData, ngCodes);
                     var outMesRet = APIMethod.Call(Url.UploadData_F, uploadData_FParam, configId).ToObject<MesRet>();
                     outRet = new RetMessage<OutStationData>(outMesRet);

@@ -19,6 +19,7 @@ using System.Data.Entity.Core.Metadata.Edm;
 using FNMES.Utility.Logs;
 using System.ComponentModel;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace FNMES.WebUI.Logic.Base
 {
@@ -666,12 +667,12 @@ namespace FNMES.WebUI.Logic.Base
         /// <typeparam name="T"></typeparam>
         /// <param name="model"></param>
         /// <returns></returns>
-        public int UpdateSplitTable<T>(T model) where T : RecordBase, new()
+        public async Task<int> UpdateSplitTable<T>(T model) where T : RecordBase, new()
         {
             try
             {
                 var db = GetInstance();
-                return db.Updateable(model).SplitTable(tabs => tabs.Take(3)).ExecuteCommand();
+                return await db.Updateable(model).SplitTable(tabs => tabs.Take(3)).ExecuteCommandAsync();
             }
             catch (Exception e)
             {
