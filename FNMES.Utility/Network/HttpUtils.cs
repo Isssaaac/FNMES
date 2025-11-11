@@ -6,6 +6,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Web;
+using System.Threading.Tasks;
 
 namespace FNMES.Utility.Network
 {
@@ -252,6 +253,44 @@ namespace FNMES.Utility.Network
             }
         }
 
+        /// <summary>
+        /// get方法请求服务器
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="parametersDict"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        public static async Task<string> DoGetAsync(string url, Dictionary<string, string> parametersDict, int? timeout)
+        {
+            if (parametersDict != null && parametersDict.Count != 0)
+            {
+                if (!url.Contains("?"))
+                    url = url + "?";
+                foreach (string key in parametersDict.Keys)
+                {
+                    url = url + key + "=" + parametersDict[key] + "&";
+                }
+                url = url.Substring(0, url.Length - 1);
+            }
+            try
+            {
+                HttpWebResponse response = CreateGetHttpResponse(url, timeout, null, null);
+                using (Stream responseStream = response.GetResponseStream())
+                {
+                    using (StreamReader sReader = new StreamReader(responseStream))
+                    {
+                        return await sReader.ReadToEndAsync();
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                return null;
+            }
+        }
+
+
+
         public static string PostFile(string url, Dictionary<string, string> parms, Dictionary<string, string> fileParms, int? timeout)
         {
             try
@@ -358,6 +397,25 @@ namespace FNMES.Utility.Network
             }
         }
 
+        public static async Task<string> DoPostAsync(string url, Dictionary<string, string> parametersDict, int? timeout)
+        {
+            try
+            {
+                HttpWebResponse response = CreatePostHttpResponse(url, parametersDict, timeout, null, Encoding.UTF8, null);
+                using (Stream responseStream = response.GetResponseStream())
+                {
+                    using (StreamReader sReader = new StreamReader(responseStream))
+                    {
+                        return await sReader.ReadToEndAsync();
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                return null;
+            }
+        }
+
 
         public static string DoPostData(string url, string data, string contentType, int? timeout)
         {
@@ -378,9 +436,33 @@ namespace FNMES.Utility.Network
             }
         }
 
+        public static async Task<string> DoPostDataAsync(string url, string data, string contentType, int? timeout)
+        {
+            try
+            {
+                HttpWebResponse response = CreatePostHttpResponse(url, data, contentType, timeout, null, Encoding.UTF8, null);
+                using (Stream responseStream = response.GetResponseStream())
+                {
+                    using (StreamReader sReader = new StreamReader(responseStream))
+                    {
+                        return await sReader.ReadToEndAsync();
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                return null;
+            }
+        }
+
         public static string DoPostData(string url, string data, int? timeout)
         {
             return DoPostData(url, data, "application/json", timeout);
+        }
+
+        public static async Task<string> DoPostDataAsync(string url, string data, int? timeout)
+        {
+            return await DoPostDataAsync(url, data, "application/json", timeout);
         }
 
         #region HttpDownloadFile 下载文件
