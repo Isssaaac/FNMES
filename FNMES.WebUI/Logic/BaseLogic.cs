@@ -459,33 +459,6 @@ namespace FNMES.WebUI.Logic.Base
         }
 
         /// <summary>
-        /// 按照时间分表的表格插入
-        /// </summary>
-        /// <typeparam name="TTable"></typeparam>
-        /// <param name="models"></param>
-        /// <returns></returns>
-        public int InsertSplitTableList<TTable>(List<TTable> models ,string configId="default") where TTable : RecordBase
-        {
-            try
-            {
-                var db = GetInstance(configId);
-                //是否能生效
-                foreach (var model in models)
-                {
-                    model.Id = SnowFlakeSingle.Instance.NextId();
-                    model.CreateTime = DateTime.Now;
-                }
-                var ret = db.Insertable(models).SplitTable().ExecuteCommand();
-                return ret;
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo($"上传批量数据失败", e);
-                return -1;
-            }
-        }
-
-        /// <summary>
         /// ID在这里面定
         /// </summary>
         /// <typeparam name="TTable"></typeparam>
@@ -671,7 +644,7 @@ namespace FNMES.WebUI.Logic.Base
         /// <typeparam name="TTable"></typeparam>
         /// <param name="models"></param>
         /// <returns></returns>
-        public async Task<int> InsertSplitTableList<TTable>(List<TTable> models ,string configId="default") where TTable : RecordBase
+        public async Task<int> InsertSplitTableListAysnc<TTable>(List<TTable> models ,string configId="default") where TTable : RecordBase
         {
             try
             {
