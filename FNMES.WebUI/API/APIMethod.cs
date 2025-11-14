@@ -81,6 +81,68 @@ namespace FNMES.WebUI.API
             }
             return "";
         }
+
+
+        /***************************异步方法******************************/
+        public static async Task<string> CallAsync(string method, object param, string configId, bool disableLog = false)
+        {
+            if (!GlobalContext.SystemConfig.IsDemo)
+            {
+                method = url + method;
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                string response = await WebApiRequest.DoPostJsonAsync(method, param);
+
+                if (response.IsNullOrEmpty())
+                {
+                    //此处用F表示，访问接口失败。。用于区分访问接口失败和调用结果的E
+                    response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+                }
+                stopwatch.Stop();
+                if (!disableLog)
+                {
+                    _ = logic.InsertAsync(new RecordApi()
+                    {
+                        Url = method,
+                        RequestBody = param.ToJson(),
+                        ResponseBody = response,
+                        Elapsed = (int)stopwatch.Elapsed.TotalMilliseconds
+                    }, configId);
+                }
+                return response;
+            }
+            return "";
+        }
+
+        public static async Task<string> Call(string method, string jsonData, string configId, bool disableLog = false)
+        {
+            if (!GlobalContext.SystemConfig.IsDemo)
+            {
+                method = url + method;
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                string response = await WebApiRequest.DoPostJsonDataAsync(method, jsonData);
+
+                if (response.IsNullOrEmpty())
+                {
+                    //此处用F表示，访问接口失败。。用于区分访问接口失败和调用结果的E
+                    response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+                }
+                stopwatch.Stop();
+                if (!disableLog)
+                {
+                    _ = logic.InsertAsync(new RecordApi()
+                    {
+                        Url = method,
+                        RequestBody = jsonData,
+                        ResponseBody = response,
+                        Elapsed = (int)stopwatch.Elapsed.TotalMilliseconds
+                    }, configId);
+                }
+                return response;
+            }
+            return "";
+        }
     }
 }
 

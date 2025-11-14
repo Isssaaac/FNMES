@@ -6,6 +6,7 @@ using FNMES.Entity.Record;
 using System.Collections.Generic;
 using FNMES.Utility.Core;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FNMES.WebUI.Logic.Record
 {
@@ -21,6 +22,22 @@ namespace FNMES.WebUI.Logic.Record
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 model.CreateTime = DateTime.Now;
                 return db.Insertable<RecordApi>(model).SplitTable().ExecuteCommand();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return 0;
+            }
+        }
+
+        public async Task<int> InsertAsync(RecordApi model, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                model.Id = SnowFlakeSingle.Instance.NextId();
+                model.CreateTime = DateTime.Now;
+                return await db.Insertable<RecordApi>(model).SplitTable().ExecuteCommandAsync();
             }
             catch (Exception e)
             {

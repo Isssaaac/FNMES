@@ -157,9 +157,6 @@ namespace FNMES.WebUI.Logic.Base
             }
         }
 
-
-        
-
         public static void InitSeedData(ISqlSugarClient db,bool IsSystemTable)
         {
             try
@@ -372,6 +369,9 @@ namespace FNMES.WebUI.Logic.Base
         }
 
         /**************************通用操作*********************************/
+        #region 分页查询
+        
+
         /// <summary>
         /// 带分表表格查询,带时间
         /// </summary>
@@ -574,6 +574,148 @@ namespace FNMES.WebUI.Logic.Base
             }
         }
 
+
+        public List<T> GetSplitPageList<T>(int pageIndex, int pageSize, string configId, string startDate, string endDate, string conditions, ref int totalCount) where T : RecordBase
+        {
+            try
+            {
+
+                var db = GetInstance(configId);
+                ISugarQueryable<T> queryable = db.Queryable<T>();
+
+                if (startDate.IsNullOrEmpty())
+                {
+                    DateTime nowTime = DateTime.Now;
+                    startDate = nowTime.AddDays(-30).ToString();
+                }
+
+                if (endDate.IsNullOrEmpty())
+                {
+                    endDate = DateTime.Now.ToString();
+                }
+
+                DateTime start = Convert.ToDateTime(startDate);
+                DateTime end = Convert.ToDateTime(endDate);
+                TimeSpan daysSpan = new TimeSpan(end.Ticks - start.Ticks);
+
+                if (daysSpan.TotalDays > 90)
+                    end = start.AddDays(-90);
+
+                queryable = queryable.SplitTable(start, end);
+                if (!conditions.IsNullOrEmpty())
+                {
+                    List<Condition> conditionList = JsonConvert.DeserializeObject<List<Condition>>(conditions);
+                    queryable = BuildQuery(queryable, conditionList);
+                }
+                var ret = queryable.ToPageList(pageIndex, pageSize, ref totalCount);
+                return ret;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<T>();
+            }
+        }
+
+
+        public List<T> GetExportData<T>(int pageIndex, int pageSize, string configId, string startDate, string endDate, string conditions, ref int totalCount) where T : RecordBase
+        {
+            try
+            {
+
+                var db = GetInstance(configId);
+                ISugarQueryable<T> queryable = db.Queryable<T>();
+
+                if (startDate.IsNullOrEmpty())
+                {
+                    DateTime nowTime = DateTime.Now;
+                    startDate = nowTime.AddDays(-30).ToString();
+                }
+
+                if (endDate.IsNullOrEmpty())
+                {
+                    endDate = DateTime.Now.ToString();
+                }
+
+                DateTime start = Convert.ToDateTime(startDate);
+                DateTime end = Convert.ToDateTime(endDate);
+                TimeSpan daysSpan = new TimeSpan(end.Ticks - start.Ticks);
+
+                if (daysSpan.TotalDays > 90)
+                    end = start.AddDays(-90);
+
+                queryable = queryable.SplitTable(start, end);
+                if (!conditions.IsNullOrEmpty())
+                {
+                    List<Condition> conditionList = JsonConvert.DeserializeObject<List<Condition>>(conditions);
+                    queryable = BuildQuery(queryable, conditionList);
+                }
+
+                var ret = queryable.ToList();
+                totalCount = ret.Count();
+                return ret;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo(e.Message);
+                return new List<T>();
+            }
+        }
+        #endregion
+
+        #region 异步方法
+
+        /// <summary>
+        /// 按照时间分表的表格插入
+        /// </summary>
+        /// <typeparam name="TTable"></typeparam>
+        /// <param name="models"></param>
+        /// <returns></returns>
+        public async Task<int> InsertSplitTableList<TTable>(List<TTable> models ,string configId="default") where TTable : RecordBase
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                //是否能生效
+                foreach (var model in models)
+                {
+                    model.Id = SnowFlakeSingle.Instance.NextId();
+                    model.CreateTime = DateTime.Now;
+                }
+                var ret = await db.Insertable(models).SplitTable().ExecuteCommandAsync();
+                return ret;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo($"上传批量数据失败", e);
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// ID在这里面定
+        /// </summary>
+        /// <typeparam name="TTable"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public async Task<int> InsertSplitTableRowAsync<TTable>(TTable model,string cofigId = "default") where TTable : RecordBase, new()
+        {
+            try
+            {
+                var db = GetInstance(cofigId);
+                model.Id = SnowFlakeSingle.Instance.NextId();
+                model.CreateTime = DateTime.Now;
+                var ret = await db.Insertable(model).SplitTable().ExecuteCommandAsync();
+                return ret;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo($"上传单条数据失败", e);
+                return -1;
+            }
+        }
+
+
         /// <summary>
         /// 无分表的表格插入多个
         /// </summary>
@@ -625,8 +767,6 @@ namespace FNMES.WebUI.Logic.Base
             }
         }
 
-
-
         /// <summary>
         /// 无分表表格更新
         /// </summary>
@@ -667,7 +807,7 @@ namespace FNMES.WebUI.Logic.Base
         /// <typeparam name="T"></typeparam>
         /// <param name="model"></param>
         /// <returns></returns>
-        public async Task<int> UpdateSplitTable<T>(T model) where T : RecordBase, new()
+        public async Task<int> UpdateSplitTableAsync<T>(T model) where T : RecordBase, new()
         {
             try
             {
@@ -803,91 +943,9 @@ namespace FNMES.WebUI.Logic.Base
             }
         }
 
-        public List<T> GetSplitPageList<T>(int pageIndex, int pageSize, string configId, string startDate, string endDate,string conditions, ref int totalCount) where T:RecordBase
-        {
-            try
-            {
-                
-                var db = GetInstance(configId);
-                ISugarQueryable<T> queryable = db.Queryable<T>();
+        #endregion
+        #region 条件查询
 
-                if (startDate.IsNullOrEmpty())
-                {
-                    DateTime nowTime = DateTime.Now;
-                    startDate = nowTime.AddDays(-30).ToString();
-                }
-                    
-                if (endDate.IsNullOrEmpty())
-                {
-                    endDate = DateTime.Now.ToString();
-                }
-                    
-                DateTime start = Convert.ToDateTime(startDate);
-                DateTime end = Convert.ToDateTime(endDate);
-                TimeSpan daysSpan = new TimeSpan(end.Ticks - start.Ticks);
-
-                if (daysSpan.TotalDays > 90)
-                    end = start.AddDays(-90);
-
-                queryable = queryable.SplitTable(start, end);
-                if (!conditions.IsNullOrEmpty())
-                {
-                    List<Condition> conditionList = JsonConvert.DeserializeObject<List<Condition>>(conditions);
-                    queryable = BuildQuery(queryable, conditionList);
-                }
-                var ret = queryable.ToPageList(pageIndex, pageSize, ref totalCount);
-                return ret;
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo(e.Message);
-                return new List<T>();
-            }
-        }
-
-        public List<T> GetExportData<T>(int pageIndex, int pageSize, string configId, string startDate, string endDate, string conditions, ref int totalCount) where T : RecordBase
-        {
-            try
-            {
-
-                var db = GetInstance(configId);
-                ISugarQueryable<T> queryable = db.Queryable<T>();
-
-                if (startDate.IsNullOrEmpty())
-                {
-                    DateTime nowTime = DateTime.Now;
-                    startDate = nowTime.AddDays(-30).ToString();
-                }
-
-                if (endDate.IsNullOrEmpty())
-                {
-                    endDate = DateTime.Now.ToString();
-                }
-
-                DateTime start = Convert.ToDateTime(startDate);
-                DateTime end = Convert.ToDateTime(endDate);
-                TimeSpan daysSpan = new TimeSpan(end.Ticks - start.Ticks);
-
-                if (daysSpan.TotalDays > 90)
-                    end = start.AddDays(-90);
-
-                queryable = queryable.SplitTable(start, end);
-                if (!conditions.IsNullOrEmpty())
-                {
-                    List<Condition> conditionList = JsonConvert.DeserializeObject<List<Condition>>(conditions);
-                    queryable = BuildQuery(queryable, conditionList);
-                }
-                
-                var ret = queryable.ToList();
-                totalCount = ret.Count();
-                return ret;
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo(e.Message);
-                return new List<T>();
-            }
-        }
 
         public ISugarQueryable<T> BuildQuery<T>(ISugarQueryable<T> query, List<Condition> conditions)
         {
@@ -945,15 +1003,8 @@ namespace FNMES.WebUI.Logic.Base
                     query = query.Where($"{condition.Field} = @0", condition.Value);
                     break;
             }
-
-            //// 构建查询
-            //var query = db.Queryable<User>()
-            //    .Where(it => it.IsDeleted == false);
-            //query = BuildQuery(query, conditions);
-            //// 执行查询
-            //var result = query.ToList();
-
             return query;
         }
+        #endregion
     }
 }

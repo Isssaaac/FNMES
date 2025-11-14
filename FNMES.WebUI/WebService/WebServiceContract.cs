@@ -23,6 +23,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using FNMES.Utility;
+using System.Threading.Tasks;
 using JinianNet.JNTemplate.Resources;
 using static ICSharpCode.SharpZipLib.Zip.ExtendedUnixData;
 using System.Reflection.Emit;
@@ -202,7 +203,7 @@ namespace FNMES.Service.WebService
         #region 用户及登录
         //登录接口，返回角色、权限         通用             Done
         [OperationContract]
-        public RetMessage<UserInfo> GetUserInfo(LoginParam param, string configId)
+        public async Task<RetMessage<UserInfo>> GetUserInfo(LoginParam param, string configId)
         {
             if (!param.operatorNo.IsNullOrEmpty())
             {
@@ -218,7 +219,7 @@ namespace FNMES.Service.WebService
             RetMessage<LoginData> retMessage;
             if (factoryStatus.IsOnline)
             {
-                string ret = APIMethod.Call(Url.LoginUrl, param, configId);
+                string ret = await APIMethod.CallAsync(Url.LoginUrl, param, configId);
                 retMessage = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<LoginData>>();
             }
             else   //若不在线，则给默认1级别权限，不校验
