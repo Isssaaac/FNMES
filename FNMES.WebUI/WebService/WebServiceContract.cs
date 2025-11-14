@@ -23,6 +23,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using FNMES.Utility;
+using System.Threading.Tasks;
 using JinianNet.JNTemplate.Resources;
 using static ICSharpCode.SharpZipLib.Zip.ExtendedUnixData;
 using System.Reflection.Emit;
@@ -202,7 +203,7 @@ namespace FNMES.Service.WebService
         #region 用户及登录
         //登录接口，返回角色、权限         通用             Done
         [OperationContract]
-        public RetMessage<UserInfo> GetUserInfo(LoginParam param, string configId)
+        public async Task<RetMessage<UserInfo>> GetUserInfo(LoginParam param, string configId)
         {
             if (!param.operatorNo.IsNullOrEmpty())
             {
@@ -218,7 +219,7 @@ namespace FNMES.Service.WebService
             RetMessage<LoginData> retMessage;
             if (factoryStatus.IsOnline)
             {
-                string ret = APIMethod.Call(Url.LoginUrl, param, configId);
+                string ret = await APIMethod.CallAsync(Url.LoginUrl, param, configId);
                 retMessage = ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<LoginData>>();
             }
             else   //若不在线，则给默认1级别权限，不校验
@@ -2195,7 +2196,7 @@ namespace FNMES.Service.WebService
         /// <param name="bindProducts"></param>
         /// <param name="configId"></param>
         /// <returns></returns>
-        public RetMessage<OutStationData> BlockOutStation(OutStationParam param, PartUploadParam part, ProcessUploadParam process, List<BindProduct> bindProducts, string configId)
+        public async Task<RetMessage<OutStationData>> BlockOutStation(OutStationParam param, PartUploadParam part, ProcessUploadParam process, List<BindProduct> bindProducts, string configId)
         {
             if (configId.IsNullOrEmpty())
                 return NewErrorMessage<OutStationData>("没有给configId参数赋值");
@@ -2249,7 +2250,7 @@ namespace FNMES.Service.WebService
                         item.Position = e.position;
                         items.Add(item);
                     }
-                    cellBindBlockLogic.InsertSplitTableList(items, configId);
+                    await cellBindBlockLogic.InsertSplitTableListAsync(items, configId);
 
                     UploadData_MZParam uploadData_MZParam = new UploadData_MZParam(param, process.processData, ngCodes, bindProducts);
                     var mesRet = APIMethod.Call(Url.UploadData_MZ, uploadData_MZParam, configId).ToObject<MesRet>();
@@ -2672,7 +2673,7 @@ namespace FNMES.Service.WebService
         
         //OCV测试进来要上传电芯信息
         [OperationContract]
-        public RetMessage<nullObject> UploadCellInfo(cellInfoParam param, string configId)
+        public async Task<RetMessage<nullObject>> UploadCellInfo(cellInfoParam param, string configId)
         {
             if (configId.IsNullOrEmpty())
                 return NewErrorMessage<nullObject>("没有给configId参数赋值");
@@ -2686,7 +2687,7 @@ namespace FNMES.Service.WebService
                 cellStart.O2Voltage = param.voltage;
                 cellStart.LastOCVDate = param.lastOCVDate;
 
-                var ret = cellStartLogic.InsertSplitTableRow(cellStart);
+                var ret = await cellStartLogic.InsertSplitTableRowAsync(cellStart);
                 RetMessage<nullObject> retMessage = new RetMessage<nullObject>()
                 {
                     messageType = ret != -1 ? RetCode.Success : RetCode.Error,
@@ -2859,7 +2860,7 @@ namespace FNMES.Service.WebService
         /// <param name="configId"></param>
         /// <returns></returns>
         [OperationContract]
-        public RetMessage<OutStationData> OutStation(OutStationParam param, PartUploadParam part, ProcessUploadParam process, List<BindProduct> bindProducts, string configId)
+        public async Task<RetMessage<OutStationData>> OutStation(OutStationParam param, PartUploadParam part, ProcessUploadParam process, List<BindProduct> bindProducts, string configId)
         {
             if (configId.IsNullOrEmpty())
                 return NewErrorMessage<OutStationData>("没有给configId参数赋值");
@@ -2873,7 +2874,7 @@ namespace FNMES.Service.WebService
                     case "Cell":
                         return CellOutStation(param, part, process, configId);
                     case "Block":
-                        return BlockOutStation(param, part, process, bindProducts, configId);
+                        return await BlockOutStation(param, part, process, bindProducts, configId);
                     default:
                         return PackOutStation(param, part, process, bindProducts, configId);
                 }

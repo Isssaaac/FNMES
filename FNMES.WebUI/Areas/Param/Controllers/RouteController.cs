@@ -16,6 +16,7 @@ using System.Drawing.Drawing2D;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using System.Drawing.Printing;
 using SqlSugar;
+using System.Threading.Tasks;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -50,12 +51,12 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/route/index")]
         [HttpPost, AuthorizeChecked]
-        public ActionResult Index(int pageIndex, int pageSize, string keyWord,string configId,string productPartNo)
+        public async Task<ActionResult> Index(int pageIndex, int pageSize, string keyWord,string configId,string productPartNo)
         {
             try
             {
                 int totalCount = 0;
-                var equipList = unitProcedureLogic.GetTableList<ParamUnitProcedure>(configId);
+                var equipList = await unitProcedureLogic.GetTableListAsync<ParamUnitProcedure>(configId);
                 List<ParamLocalRoute> pageData = routeLogic.GetList(pageIndex, pageSize, keyWord, configId, ref totalCount, productPartNo);
                 foreach (var item in pageData)
                 {
@@ -98,12 +99,12 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/route/form")]
         [HttpPost, AuthorizeChecked]
-        public ActionResult Form(ParamLocalRoute model)
+        public async Task<ActionResult> Form(ParamLocalRoute model)
         {
            
-            var equipList = unitProcedureLogic.GetTableList<ParamUnitProcedure>(model.ConfigId);
+            var equipList = await unitProcedureLogic.GetTableListAsync<ParamUnitProcedure>(model.ConfigId);
             var stationName = equipList.Where(it => it.Encode == model.StationCode).Select(it => it.Name).First();
-            var recipId = recipeLogic.GetTableList<ParamRecipe>(model.ConfigId).Where(it => it.ProductPartNo == model.ProductPartNo).Select(e => e.Id).First();
+            var recipId = (await recipeLogic.GetTableListAsync<ParamRecipe>(model.ConfigId)).Where(it => it.ProductPartNo == model.ProductPartNo).Select(e => e.Id).First();
 
             ParamRecipeItem paramRecipeItem = new ParamRecipeItem();
             paramRecipeItem.StationName = stationName;
@@ -115,14 +116,14 @@ namespace MES.WebUI.Areas.Param.Controllers
             {
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 paramRecipeItem.Id = model.Id;
-                recipeItemLogic.InsertTableRow(paramRecipeItem, model.ConfigId);
+                await recipeItemLogic.InsertTableRowAsync(paramRecipeItem, model.ConfigId);
                 int row = routeLogic.Insert(model,long.Parse(OperatorProvider.Instance.Current.UserId));
                 return row > 0 ? Success() : Error();
             }
             else
             {
                 paramRecipeItem.Id = model.Id;
-                int row1 = recipeItemLogic.UpdateTable<ParamRecipeItem>(paramRecipeItem, model.ConfigId);
+                int row1 = await recipeItemLogic.UpdateTableAsync<ParamRecipeItem>(paramRecipeItem, model.ConfigId);
                 int row2 = routeLogic.Update(model, long.Parse(OperatorProvider.Instance.Current.UserId));
                 return row1 > 0 && row2 > 0 ? Success() : Error();
             }
@@ -151,7 +152,7 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/route/getExistStation")]
         [HttpPost]
-        public ActionResult GetExistStation(string productPartNo, string configId)
+        public async Task<ActionResult> GetExistStation(string productPartNo, string configId)
         {
             var entitys = unitProcedureLogic.GetParentList(configId);
             List<ParamLocalRoute> routes = new  List<ParamLocalRoute>();
@@ -168,7 +169,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                 
                 routes.Add(route);
             }
-            bool ret = routeLogic.Align(routes, productPartNo, configId);
+            bool ret = await routeLogic.AlignAsync(routes, productPartNo, configId);
             //ParamLocalRoute entity = routeLogic.Get(long.Parse(primaryKey), configId);
             return ret ? Success():Error() ;
         }
@@ -179,7 +180,7 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/route/delete")]
         [HttpPost, AuthorizeChecked]
-        public ActionResult Delete(string primaryId, string configId)
+        public async Task<ActionResult> Delete(string primaryId, string configId)
         {
 
             /*//过滤系统管理员
@@ -189,7 +190,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             }*/
 
             var v1 =  routeLogic.Delete(long.Parse(primaryId), configId);
-            var v2 = recipeItemLogic.DeleteTableRowByID<ParamRecipeItem>(primaryId, configId);
+            var v2 =  await recipeItemLogic.DeleteTableRowByIDAsync<ParamRecipeItem>(primaryId, configId);
 
             return (v1 > 0 && v2 > 0) ? Success() : Error();
         }

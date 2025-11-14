@@ -51,9 +51,9 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("/param/product/add")]
         [HttpPost]
-        public ActionResult Add(ParamRecipe recipe,string ConfigId)
+        public async Task<ActionResult> Add(ParamRecipe recipe,string ConfigId)
         {
-            var ret = productLogic.InsertTableRow(recipe, ConfigId);
+            var ret = await productLogic.InsertTableRowAsync(recipe, ConfigId);
             return ret == 1 ? Success() : Error();
         }
 
@@ -66,26 +66,26 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("/param/product/getForm")]
         [HttpPost]
-        public ActionResult GetForm(string primaryKey,string configId)
+        public async Task<ActionResult> GetForm(string primaryKey,string configId)
         {
-            var ret = productLogic.GetTableRowByID<ParamRecipe>(primaryKey, configId);
+            var ret = await productLogic.GetTableRowByIDAsync<ParamRecipe>(primaryKey, configId);
             return Content(ret.ToJson());
         }
         
 
         [Route("/param/product/modify")]
         [HttpPost]
-        public ActionResult Modify(ParamRecipe recipe,string configId)
+        public async Task<ActionResult> Modify(ParamRecipe recipe,string configId)
         {
-            var ret = productLogic.UpdateTable(recipe, configId);
+            var ret = await productLogic.UpdateTableAsync(recipe, configId);
             return ret == 1 ? Success() : Error();
         }
 
         [Route("/param/product/delete")]
         [HttpPost]
-        public ActionResult Delete(string primaryKey, string configId)
+        public async Task<ActionResult> Delete(string primaryKey, string configId)
         {
-            var ret = productLogic.DeleteTableRowByID <ParamRecipe>(primaryKey, configId);
+            var ret = await productLogic.DeleteTableRowByIDAsync <ParamRecipe>(primaryKey, configId);
             return ret == 1 ? Success() : Error();
         }
 

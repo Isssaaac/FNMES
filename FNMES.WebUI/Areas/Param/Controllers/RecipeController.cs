@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using FNMES.Entity.DTO;
 using FNMES.WebUI;
 using Microsoft.Extensions.Localization;
+using System.Threading.Tasks;
 
 
 
@@ -236,17 +237,17 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/recipe/stepadd")]
         [HttpPost]
-        public ActionResult StepAdd(ParamStepItem data, string configId)
+        public async Task<ActionResult> StepAdd(ParamStepItem data, string configId)
         {
-            int ret = baseLogic.InsertTableRow(data, configId);
+            int ret = await baseLogic.InsertTableRowAsync(data, configId);
             return ret > 0 ? Success() : Error();
         }
 
         [Route("param/recipe/getstepForm")]
         [HttpPost]
-        public ActionResult GetStepForm(string primaryKey, string configId)
+        public async Task<ActionResult> GetStepForm(string primaryKey, string configId)
         {
-            var entity = baseLogic.GetTableRowByID<ParamStepItem>(primaryKey, configId);
+            var entity = await baseLogic.GetTableRowByIDAsync<ParamStepItem>(primaryKey, configId);
             return Content(entity.ToJson());
         }
 
@@ -259,9 +260,9 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/recipe/paramadd")]
         [HttpPost]
-        public ActionResult ParamAdd(ParamItem data,string configId)
+        public async Task<ActionResult> ParamAdd(ParamItem data,string configId)
         {
-            int ret = paramItemLogic.InsertTableRow(data,configId);
+            int ret = await paramItemLogic.InsertTableRowAsync(data,configId);
             return ret > 0 ? Success() : Error();
         }
 
@@ -274,17 +275,17 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/recipe/partadd")]
         [HttpPost]
-        public ActionResult PartAdd(ParamPartItem data, string configId)
+        public async Task<ActionResult> PartAdd(ParamPartItem data, string configId)
         {
-            int ret = paramPartItemLogic.InsertTableRow(data, configId);
+            int ret = await paramPartItemLogic.InsertTableRowAsync(data, configId);
             return ret > 0 ? Success() : Error();
         }
 
         [Route("param/recipe/getpartForm")]
         [HttpPost]
-        public ActionResult GetPartForm(string primaryKey, string configId)
+        public async  Task<ActionResult> GetPartForm(string primaryKey, string configId)
         {
-            var entity = paramPartItemLogic.GetTableRowByID<ParamPartItem>(primaryKey, configId);
+            var entity = await paramPartItemLogic.GetTableRowByIDAsync<ParamPartItem>(primaryKey, configId);
             return Content(entity.ToJson());
         }
 
@@ -298,9 +299,9 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/recipe/partdelete")]
         [HttpPost]
-        public ActionResult PartDelete(string primaryKey, string configId)
+        public async  Task<ActionResult> PartDelete(string primaryKey, string configId)
         {
-            return paramPartItemLogic.DeleteTableRowByID<ParamPartItem>(primaryKey, configId) > 0 ? Success() : Error();
+            return await paramPartItemLogic.DeleteTableRowByIDAsync<ParamPartItem>(primaryKey, configId) > 0 ? Success() : Error();
         }
         [Route("param/recipe/esopadd")]
         [HttpGet]
@@ -311,9 +312,9 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/recipe/esopadd")]
         [HttpPost]
-        public ActionResult ESOPAdd(ParamEsopItem data, string configId)
+        public async Task<ActionResult> ESOPAdd(ParamEsopItem data, string configId)
         {
-            int ret = baseLogic.InsertTableRow(data, configId);
+            int ret = await  baseLogic.InsertTableRowAsync(data, configId);
             return ret > 0 ? Success() : Error();
         }
 
@@ -333,17 +334,17 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/recipe/partmodify")]
         [HttpPost]
-        public ActionResult PartModify(ParamPartItem data, string configId)
+        public async Task<ActionResult> PartModify(ParamPartItem data, string configId)
         {
-            int ret = baseLogic.UpdateTable(data, configId);
+            int ret = await baseLogic.UpdateTableAsync(data, configId);
             return ret > 0 ? Success() : Error();
         }
 
         [Route("param/recipe/parammodify")]
         [HttpPost]
-        public ActionResult ParamModify(ParamItem data, string configId)
+        public async Task<ActionResult> ParamModify(ParamItem data, string configId)
         {
-            int ret = paramItemLogic.UpdateTable(data, configId);
+            int ret = await paramItemLogic.UpdateTableAsync(data, configId);
             return ret > 0 ? Success() : Error();
         }
 
@@ -351,25 +352,25 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/recipe/getparamForm")]
         [HttpPost]
-        public ActionResult GetParamForm(string primaryKey, string configId)
+        public async Task<ActionResult> GetParamForm(string primaryKey, string configId)
         {
-            var entity = paramItemLogic.GetTableRowByID<ParamItem>(primaryKey,configId);
+            var entity = await paramItemLogic.GetTableRowByIDAsync<ParamItem>(primaryKey,configId);
             return Content(entity.ToJson());
         }
 
         [Route("param/recipe/getesopForm")]
         [HttpPost]
-        public ActionResult GetESOPForm(string primaryKey, string configId)
+        public async Task<ActionResult> GetESOPForm(string primaryKey, string configId)
         {
-            var entity = paramItemLogic.GetTableRowByID<ParamEsopItem>(primaryKey, configId);
+            var entity = await paramItemLogic.GetTableRowByIDAsync<ParamEsopItem>(primaryKey, configId);
             return Content(entity.ToJson());
         }
 
         [Route("param/recipe/paramdelete")]
         [HttpPost]
-        public ActionResult ParamDelete(string primaryKey, string configId)
+        public async Task<ActionResult> ParamDelete(string primaryKey, string configId)
         {
-            return paramItemLogic.DeleteTableRowByID<ParamItem>(primaryKey, configId) > 0 ? Success() : Error();
+            return await paramItemLogic.DeleteTableRowByIDAsync<ParamItem>(primaryKey, configId) > 0 ? Success() : Error();
         }
 
         [Route("param/recipe/stepmodify")]
@@ -381,17 +382,17 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/recipe/stepmodify")]
         [HttpPost]
-        public ActionResult StepModify(ParamStepItem data, string configId)
+        public async Task<ActionResult> StepModify(ParamStepItem data, string configId)
         {
-            int ret = baseLogic.UpdateTable(data, configId);
+            int ret = await baseLogic.UpdateTableAsync(data, configId);
             return ret > 0 ? Success() : Error();
         }
 
         [Route("param/recipe/stepdelete")]
         [HttpPost]
-        public ActionResult StepDelete(string primaryKey, string configId)
+        public async Task<ActionResult> StepDelete(string primaryKey, string configId)
         {
-            return paramPartItemLogic.DeleteTableRowByID<ParamStepItem>(primaryKey, configId) > 0 ? Success() : Error();
+            return await paramPartItemLogic.DeleteTableRowByIDAsync<ParamStepItem>(primaryKey, configId) > 0 ? Success() : Error();
         }
 
         [Route("param/recipe/esopmodify")]
@@ -403,9 +404,9 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/recipe/esopmodify")]
         [HttpPost]
-        public ActionResult EsopModify(ParamEsopItem data, string configId)
+        public async Task<ActionResult> EsopModify(ParamEsopItem data, string configId)
         {
-            int ret = baseLogic.UpdateTable(data, configId);
+            int ret = await baseLogic.UpdateTableAsync(data, configId);
             return ret > 0 ? Success() : Error();
         }
 

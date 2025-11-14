@@ -608,9 +608,9 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/order/add")]
         [HttpPost]
-        public ActionResult Add(ParamOrder order, string ConfigId)
+        public async Task<ActionResult> Add(ParamOrder order, string ConfigId)
         {
-            var ret = orderLogic.InsertTableRow(order, ConfigId);
+            var ret = await orderLogic.InsertTableRowAsync(order, ConfigId);
             return ret == 1 ? Success() : Error();
         }
 
@@ -623,26 +623,26 @@ namespace MES.WebUI.Areas.Param.Controllers
 
         [Route("param/order/getFormModify")]
         [HttpPost]
-        public ActionResult GetFormModify(string primaryKey, string configId)
+        public async Task<ActionResult> GetFormModify(string primaryKey, string configId)
         {
-            var ret = orderLogic.GetTableRowByID<ParamOrder>(primaryKey, configId);
+            var ret = await orderLogic.GetTableRowByIDAsync<ParamOrder>(primaryKey, configId);
             return Content(ret.ToJson());
         }
 
 
         [Route("param/order/modify")]
         [HttpPost]
-        public ActionResult Modify(ParamOrder order, string configId)
+        public async Task<ActionResult> Modify(ParamOrder order, string configId)
         {
-            var ret = orderLogic.UpdateTable(order, configId);
+            var ret = await orderLogic.UpdateTableAsync(order, configId);
             return ret == 1 ? Success() : Error();
         }
 
         [Route("param/order/delete")]
         [HttpPost]
-        public ActionResult Delete(string primaryKey, string configId)
+        public async Task<ActionResult> Delete(string primaryKey, string configId)
         {
-            var ret = orderLogic.DeleteTableRowByID<ParamOrder>(primaryKey, configId);
+            var ret = await orderLogic.DeleteTableRowByIDAsync<ParamOrder>(primaryKey, configId);
             return ret == 1 ? Success() : Error();
         }
     }

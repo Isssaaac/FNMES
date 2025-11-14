@@ -9,6 +9,8 @@ using FNMES.WebUI.Controllers;
 using FNMES.WebUI.Logic.Base;
 using FNMES.Entity.Param;
 using FNMES.WebUI.Logic.Param;
+using System.Threading.Tasks;
+using System.Threading.Tasks;
 
 namespace FNMES.WebUI.Logic.Sys
 {
@@ -33,10 +35,9 @@ namespace FNMES.WebUI.Logic.Sys
 
         [Route("param/barcoderule/index")]
         [HttpPost]
-        public ActionResult Index(string configId)
+        public async Task<ActionResult> Index(string configId)
         {
-            int totalCount = 0;
-            var pageData = baseLogic.GetTableList<ParamBarcodeRule>(configId);
+            var pageData = await baseLogic.GetTableListAsync<ParamBarcodeRule>(configId);
             var result = new LayPadding<ParamBarcodeRule>()
             {
                 result = true,
@@ -57,18 +58,18 @@ namespace FNMES.WebUI.Logic.Sys
 
         [Route("/param/barcoderule/getFormModify")]
         [HttpPost]
-        public ActionResult GetFormModify(string primaryKey, string configId)
+        public async Task<ActionResult> GetFormModify(string primaryKey, string configId)
         {
-            var ret = baseLogic.GetTableRowByID<ParamBarcodeRule>(primaryKey, configId);
+            var ret = await baseLogic.GetTableRowByIDAsync<ParamBarcodeRule>(primaryKey, configId);
             return Content(ret.ToJson());
         }
 
 
         [Route("/param/barcoderule/modify")]
         [HttpPost]
-        public ActionResult Modify(ParamBarcodeRule param, string configId)
+        public async Task<ActionResult> Modify(ParamBarcodeRule param, string configId)
         {
-            var ret = baseLogic.UpdateTable(param, configId);
+            var ret = await baseLogic.UpdateTableAsync(param, configId);
             return ret == 1 ? Success() : Error();
         }
 

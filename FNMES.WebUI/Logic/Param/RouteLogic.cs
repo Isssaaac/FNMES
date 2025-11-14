@@ -18,6 +18,7 @@ using FNMES.Entity.Param;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using Microsoft.AspNetCore.Routing;
 using static System.Collections.Specialized.BitVector32;
+using System.Threading.Tasks;
 
 namespace FNMES.WebUI.Logic.Param
 {
@@ -171,13 +172,13 @@ namespace FNMES.WebUI.Logic.Param
             }
         }
 
-        public bool Align(List<ParamLocalRoute> list,string productPartNo, string configId)
+        public async Task<bool> AlignAsync(List<ParamLocalRoute> list,string productPartNo, string configId)
         {
             try
             {
                 var db = GetInstance(configId);
                 List<ParamRecipeItem> recipeItems = new List<ParamRecipeItem>();
-                var recipId = GetTableList<ParamRecipe>(configId).Where(it => it.ProductPartNo == productPartNo).Select(e => e.Id).First();
+                var recipId = (await GetTableListAsync<ParamRecipe>(configId)).Where(it => it.ProductPartNo == productPartNo).Select(e => e.Id).First();
 
                 for (int i=0;i<list.Count;i++)
                 {

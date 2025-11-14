@@ -7,6 +7,7 @@ using FNMES.Utility.Core;
 using FNMES.Utility.Operator;
 using FNMES.WebUI.Controllers;
 using FNMES.WebUI.Logic.Base;
+using System.Threading.Tasks;
 
 namespace FNMES.WebUI.Logic.Sys
 {
@@ -53,24 +54,24 @@ namespace FNMES.WebUI.Logic.Sys
 
         [Route("system/operation/add")]
         [HttpPost]
-        public ActionResult Add(SysOperation data)
+        public async Task<ActionResult> Add(SysOperation data)
         {
-            int ret = baseLogic.InsertTableRow(data, "default");
+            int ret = await baseLogic.InsertTableRowAsync(data, "default");
             return ret > 0 ? Success() : Error();
         }
 
         [Route("system/operation/delete")]
         [HttpPost]
-        public ActionResult Delete(string primaryKey, string configId)
+        public async Task<ActionResult> Delete(string primaryKey, string configId)
         {
-            return baseLogic.DeleteTableRowByID<SysOperation>(primaryKey, "default") > 0 ? Success() : Error();
+            return await baseLogic.DeleteTableRowByIDAsync<SysOperation>(primaryKey, "default") > 0 ? Success() : Error();
         }
 
         [Route("system/operation/getoperaion")]
         [HttpPost]
-        public ActionResult GetOperaion()
+        public async Task<ActionResult> GetOperaion()
         {
-            var operations = baseLogic.GetTableList<SysOperation>();
+            var operations = await baseLogic.GetTableListAsync<SysOperation>();
             var treeList = new List<TreeSelect>();
             //{
             //   new TreeSelect

@@ -212,7 +212,7 @@ namespace FNMES.WebUI.Logic.Param
         }
 
         //导入step
-        public int ImportRecipeSteps(string productId, string configId,List<ParamStepItem> data)
+        public async Task<int> ImportRecipeSteps(string productId, string configId,List<ParamStepItem> data)
         {
             try
             {
@@ -220,7 +220,7 @@ namespace FNMES.WebUI.Logic.Param
                 //通过productPartNo查
                 ParamRecipe paramRecipe = db.MasterQueryable<ParamRecipe>().First(it => it.Id == long.Parse(productId));
                 db.Deleteable<ParamStepItem>().Where(it=> it.RecipeItemId == paramRecipe.Id);
-                var ret = InsertTableList(data, configId);
+                var ret = await InsertTableListAsync(data, configId);
                 return ret;
             }
             catch (Exception E)

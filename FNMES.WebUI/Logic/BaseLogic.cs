@@ -157,9 +157,6 @@ namespace FNMES.WebUI.Logic.Base
             }
         }
 
-
-        
-
         public static void InitSeedData(ISqlSugarClient db,bool IsSystemTable)
         {
             try
@@ -372,6 +369,9 @@ namespace FNMES.WebUI.Logic.Base
         }
 
         /**************************通用操作*********************************/
+        #region 分页查询
+        
+
         /// <summary>
         /// 带分表表格查询,带时间
         /// </summary>
@@ -458,56 +458,6 @@ namespace FNMES.WebUI.Logic.Base
             }
         }
 
-        /// <summary>
-        /// 按照时间分表的表格插入
-        /// </summary>
-        /// <typeparam name="TTable"></typeparam>
-        /// <param name="models"></param>
-        /// <returns></returns>
-        public async Task<int> InsertSplitTableList<TTable>(List<TTable> models ,string configId="default") where TTable : RecordBase
-        {
-            try
-            {
-                var db = GetInstance(configId);
-                //是否能生效
-                foreach (var model in models)
-                {
-                    model.Id = SnowFlakeSingle.Instance.NextId();
-                    model.CreateTime = DateTime.Now;
-                }
-                var ret = await db.Insertable(models).SplitTable().ExecuteCommandAsync();
-                return ret;
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo($"上传批量数据失败", e);
-                return -1;
-            }
-        }
-
-        /// <summary>
-        /// ID在这里面定
-        /// </summary>
-        /// <typeparam name="TTable"></typeparam>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public async Task<int> InsertSplitTableRow<TTable>(TTable model,string cofigId = "default") where TTable : RecordBase, new()
-        {
-            try
-            {
-                var db = GetInstance(cofigId);
-                model.Id = SnowFlakeSingle.Instance.NextId();
-                model.CreateTime = DateTime.Now;
-                var ret = await db.Insertable(model).SplitTable().ExecuteCommandAsync();
-                return ret;
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo($"上传单条数据失败", e);
-                return -1;
-            }
-        }
-
         public List<TTable> GetTableList<TTable>(int pageIndex, int pageSize, ref int totalCount, string index, Expression<Func<TTable, bool>>? express = null) where TTable : ParamBase
         {
             try
@@ -574,240 +524,12 @@ namespace FNMES.WebUI.Logic.Base
             }
         }
 
-        /// <summary>
-        /// 无分表的表格插入多个
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="models"></param>
-        /// <returns></returns>
-        public async Task<int> InsertTableList<T>(List<T> models,string configId) where T : ParamBase, new()
+
+        public List<T> GetSplitPageList<T>(int pageIndex, int pageSize, string configId, string startDate, string endDate, string conditions, ref int totalCount) where T : RecordBase
         {
             try
             {
-                var db = GetInstance(configId);
-                //是否能生效
-                foreach (var model in models)
-                {
-                    model.Id = SnowFlakeSingle.Instance.NextId();
-                    model.CreateTime = DateTime.Now;
-                }
-                var ret = await db.Insertable(models).ExecuteCommandAsync();
-                return ret;
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo($"上传失败", e);
-                return -1;
-            }
-        }
 
-        /// <summary>
-        /// 无分表的表格插入单个
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="models"></param>
-        /// <returns></returns>
-        public async Task<int> InsertTableRow<T>(T model,string configId) where T : ParamBase, new()
-        {
-            try
-            {
-                var db = GetInstance(configId);
-                if(model.Id.IsNullOrEmpty() || model.Id==0)
-                    model.Id = SnowFlakeSingle.Instance.NextId();
-                model.CreateTime = DateTime.Now;
-                var ret = await db.Insertable(model).ExecuteCommandAsync();
-                return ret;
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo($"上传单个数据失败", e);
-                return -1;
-            }
-        }
-
-
-
-        /// <summary>
-        /// 无分表表格更新
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public async Task<int> UpdateTable<T>(T model,string configId) where T : ParamBase, new()
-        {
-            try
-            {
-                var db = GetInstance(configId);
-                return await db.Updateable(model).ExecuteCommandAsync();
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo("更新出错", e);
-                return -1;
-            }
-        }
-
-        public async Task<int> UpdateTable<T>(List<T> model) where T : ParamBase, new()
-        {
-            try
-            {
-                var db = GetInstance();
-                return await db.Updateable(model).ExecuteCommandAsync();
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo("更新出错", e);
-                return -1;
-            }
-        }
-
-        /// <summary>
-        /// 分表表格更新
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public async Task<int> UpdateSplitTable<T>(T model) where T : RecordBase, new()
-        {
-            try
-            {
-                var db = GetInstance();
-                return await db.Updateable(model).SplitTable(tabs => tabs.Take(3)).ExecuteCommandAsync();
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo("更新出错", e);
-                return -1;
-            }
-        }
-
-        /// <summary>
-        /// 无分表表格删除
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public async Task<int> DeleteTableRowByID<T>(string primaryKey,string configId) where T : ParamBase, new()
-        {
-            try
-            {
-                var db = GetInstance(configId);
-                return await db.Deleteable<T>(it => it.Id == long.Parse(primaryKey)).ExecuteCommandAsync();
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo("删除单行出错", e);
-                return -1;
-            }
-        }
-
-        /// <summary>
-        /// 无分表表格删除
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public async Task<int> DeleteSplitTableRowByID<T>(string primaryKey) where T : RecordBase, new()
-        {
-            try
-            {
-                var db = GetInstance();
-                return await db.Deleteable<T>(it => it.Id == long.Parse(primaryKey)).SplitTable(tabs => tabs.Take(3)).ExecuteCommandAsync();
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo("删除单行出错", e);
-                return -1;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public async Task<T> GetTableRowByID<T>(string primaryKey,string configId) where T : ParamBase, new()
-        {
-            try
-            {
-                var db = GetInstance(configId);
-                return await db.Queryable<T>().Where(it => it.Id == long.Parse(primaryKey)).FirstAsync();
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo("根据ID获取数据行", e);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public async Task<T> GetSplitTableRowByID<T>(string primaryKey) where T : RecordBase, new()
-        {
-            try
-            {
-                var db = GetInstance();
-                return await db.Queryable<T>().SplitTable(tabs => tabs.Take(3)).Where(it => it.Id == long.Parse(primaryKey)).FirstAsync();
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo("删除单行出错", e);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// 获取ParamPLC表格数据
-        /// </summary>
-        /// <param name="configId"></param>
-        /// <returns></returns>
-        public async Task<List<T>> GetTableList<T>() where T : ParamBase, new()
-        {
-            try
-            {
-                var db = GetInstance();
-                //业务逻辑强制走主库
-                var paramlist = await db.MasterQueryable<T>().OrderBy(it => it.Id, OrderByType.Desc).ToListAsync();
-                return paramlist;
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo("查询P出错", e);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// 获取表格数据
-        /// </summary>
-        /// <param name="configId"></param>
-        /// <returns></returns>
-        public async Task<List<T>> GetTableList<T>(string configId)
-        {
-            try
-            {
-                var db = GetInstance(configId);
-                //业务逻辑强制走主库
-                var paramlist = await db.MasterQueryable<T>().ToListAsync();
-                return paramlist;
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo("查询出错", e);
-                return null;
-            }
-        }
-
-        public List<T> GetSplitPageList<T>(int pageIndex, int pageSize, string configId, string startDate, string endDate,string conditions, ref int totalCount) where T:RecordBase
-        {
-            try
-            {
-                
                 var db = GetInstance(configId);
                 ISugarQueryable<T> queryable = db.Queryable<T>();
 
@@ -816,12 +538,12 @@ namespace FNMES.WebUI.Logic.Base
                     DateTime nowTime = DateTime.Now;
                     startDate = nowTime.AddDays(-30).ToString();
                 }
-                    
+
                 if (endDate.IsNullOrEmpty())
                 {
                     endDate = DateTime.Now.ToString();
                 }
-                    
+
                 DateTime start = Convert.ToDateTime(startDate);
                 DateTime end = Convert.ToDateTime(endDate);
                 TimeSpan daysSpan = new TimeSpan(end.Ticks - start.Ticks);
@@ -844,6 +566,7 @@ namespace FNMES.WebUI.Logic.Base
                 return new List<T>();
             }
         }
+
 
         public List<T> GetExportData<T>(int pageIndex, int pageSize, string configId, string startDate, string endDate, string conditions, ref int totalCount) where T : RecordBase
         {
@@ -877,7 +600,7 @@ namespace FNMES.WebUI.Logic.Base
                     List<Condition> conditionList = JsonConvert.DeserializeObject<List<Condition>>(conditions);
                     queryable = BuildQuery(queryable, conditionList);
                 }
-                
+
                 var ret = queryable.ToList();
                 totalCount = ret.Count();
                 return ret;
@@ -888,6 +611,291 @@ namespace FNMES.WebUI.Logic.Base
                 return new List<T>();
             }
         }
+        #endregion
+
+        #region 异步方法
+
+        /// <summary>
+        /// 按照时间分表的表格插入
+        /// </summary>
+        /// <typeparam name="TTable"></typeparam>
+        /// <param name="models"></param>
+        /// <returns></returns>
+        public async Task<int> InsertSplitTableListAsync<TTable>(List<TTable> models ,string configId="default") where TTable : RecordBase
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                //是否能生效
+                foreach (var model in models)
+                {
+                    model.Id = SnowFlakeSingle.Instance.NextId();
+                    model.CreateTime = DateTime.Now;
+                }
+                var ret = await db.Insertable(models).SplitTable().ExecuteCommandAsync();
+                return ret;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo($"上传批量数据失败", e);
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// ID在这里面定
+        /// </summary>
+        /// <typeparam name="TTable"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public async Task<int> InsertSplitTableRowAsync<TTable>(TTable model,string cofigId = "default") where TTable : RecordBase, new()
+        {
+            try
+            {
+                var db = GetInstance(cofigId);
+                model.Id = SnowFlakeSingle.Instance.NextId();
+                model.CreateTime = DateTime.Now;
+                var ret = await db.Insertable(model).SplitTable().ExecuteCommandAsync();
+                return ret;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo($"上传单条数据失败", e);
+                return -1;
+            }
+        }
+
+
+        /// <summary>
+        /// 无分表的表格插入多个
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="models"></param>
+        /// <returns></returns>
+        public async Task<int> InsertTableListAsync<T>(List<T> models,string configId) where T : ParamBase, new()
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                //是否能生效
+                foreach (var model in models)
+                {
+                    model.Id = SnowFlakeSingle.Instance.NextId();
+                    model.CreateTime = DateTime.Now;
+                }
+                var ret = await db.Insertable(models).ExecuteCommandAsync();
+                return ret;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo($"上传失败", e);
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// 无分表的表格插入单个
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="models"></param>
+        /// <returns></returns>
+        public async Task<int> InsertTableRowAsync<T>(T model,string configId) where T : ParamBase, new()
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                if(model.Id.IsNullOrEmpty() || model.Id==0)
+                    model.Id = SnowFlakeSingle.Instance.NextId();
+                model.CreateTime = DateTime.Now;
+                var ret = await db.Insertable(model).ExecuteCommandAsync();
+                return ret;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo($"上传单个数据失败", e);
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// 无分表表格更新
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public async Task<int> UpdateTableAsync<T>(T model,string configId) where T : ParamBase, new()
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                return await db.Updateable(model).ExecuteCommandAsync();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo("更新出错", e);
+                return -1;
+            }
+        }
+
+        public async Task<int> UpdateTableAsync<T>(List<T> model) where T : ParamBase, new()
+        {
+            try
+            {
+                var db = GetInstance();
+                return await db.Updateable(model).ExecuteCommandAsync();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo("更新出错", e);
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// 分表表格更新
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public async Task<int> UpdateSplitTableAsync<T>(T model) where T : RecordBase, new()
+        {
+            try
+            {
+                var db = GetInstance();
+                return await db.Updateable(model).SplitTable(tabs => tabs.Take(3)).ExecuteCommandAsync();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo("更新出错", e);
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// 无分表表格删除
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public async Task<int> DeleteTableRowByIDAsync<T>(string primaryKey,string configId) where T : ParamBase, new()
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                return await db.Deleteable<T>(it => it.Id == long.Parse(primaryKey)).ExecuteCommandAsync();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo("删除单行出错", e);
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// 无分表表格删除
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public async Task<int> DeleteSplitTableRowByIDAsync<T>(string primaryKey) where T : RecordBase, new()
+        {
+            try
+            {
+                var db = GetInstance();
+                return await db.Deleteable<T>(it => it.Id == long.Parse(primaryKey)).SplitTable(tabs => tabs.Take(3)).ExecuteCommandAsync();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo("删除单行出错", e);
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public async Task<T> GetTableRowByIDAsync<T>(string primaryKey,string configId) where T : ParamBase, new()
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                return await db.Queryable<T>().Where(it => it.Id == long.Parse(primaryKey)).FirstAsync();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo("根据ID获取数据行", e);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public async Task<T> GetSplitTableRowByIDAsync<T>(string primaryKey) where T : RecordBase, new()
+        {
+            try
+            {
+                var db = GetInstance();
+                return await db.Queryable<T>().SplitTable(tabs => tabs.Take(3)).Where(it => it.Id == long.Parse(primaryKey)).FirstAsync();
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo("删除单行出错", e);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 获取ParamPLC表格数据
+        /// </summary>
+        /// <param name="configId"></param>
+        /// <returns></returns>
+        public async Task<List<T>> GetTableListAsync<T>() where T : ParamBase, new()
+        {
+            try
+            {
+                var db = GetInstance();
+                //业务逻辑强制走主库
+                var paramlist = await db.MasterQueryable<T>().OrderBy(it => it.Id, OrderByType.Desc).ToListAsync();
+                return paramlist;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo("查询P出错", e);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 获取表格数据
+        /// </summary>
+        /// <param name="configId"></param>
+        /// <returns></returns>
+        public async Task<List<T>> GetTableListAsync<T>(string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                //业务逻辑强制走主库
+                var paramlist = await db.MasterQueryable<T>().ToListAsync();
+                return paramlist;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorInfo("查询出错", e);
+                return null;
+            }
+        }
+
+        #endregion
+        #region 条件查询
+
 
         public ISugarQueryable<T> BuildQuery<T>(ISugarQueryable<T> query, List<Condition> conditions)
         {
@@ -945,15 +953,8 @@ namespace FNMES.WebUI.Logic.Base
                     query = query.Where($"{condition.Field} = @0", condition.Value);
                     break;
             }
-
-            //// 构建查询
-            //var query = db.Queryable<User>()
-            //    .Where(it => it.IsDeleted == false);
-            //query = BuildQuery(query, conditions);
-            //// 执行查询
-            //var result = query.ToList();
-
             return query;
         }
+        #endregion
     }
 }

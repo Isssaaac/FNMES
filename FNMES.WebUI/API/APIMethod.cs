@@ -114,7 +114,7 @@ namespace FNMES.WebUI.API
             return "";
         }
 
-        public static async Task<string> Call(string method, string jsonData, string configId, bool disableLog = false)
+        public static async Task<string> CallAsync(string method, string jsonData, string configId, bool disableLog = false)
         {
             if (!GlobalContext.SystemConfig.IsDemo)
             {
