@@ -100,7 +100,7 @@ namespace FNMES.WebUI.Logic.Param
                         if (oldProcessBind != null)
                         {
                             var onlyRecords = db.Queryable<RecordOutStation>().Where(e => e.ProductCode == oldProcessBind.ProductCode)
-                                .SplitTable(e => e.Take(3))
+                                .SplitTable(start, end)
                                  .Select(it => new
                                  {
                                      index = SqlFunc.RowNumber($"{it.Id} desc", $"{it.ProductCode}, {it.StationCode}"),

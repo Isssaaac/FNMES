@@ -205,7 +205,7 @@ namespace FNMES.WebUI.Logic.Record
         }
 
         //20241125添加，解绑后应删除对应物料记录
-        public bool UnBindPartBarcode(string partBarcode)
+        public bool UnBindPartBarcode(string productCode, string stationCode, string partBarcode)
         {
             //需要查询每条线的数据
             try
@@ -214,7 +214,8 @@ namespace FNMES.WebUI.Logic.Record
                 {
                     var db = GetInstance(i.ToString());
                     //所有线体的对应条码数据全部删除
-                    var count = db.Deleteable<RecordPartData>().Where(it => it.PartBarcode == partBarcode).SplitTable(tables => tables.Take(7)).ExecuteCommand();
+                    List<long> pids = db.Queryable<RecordPartUpload>().Where(it => it.ProductCode == productCode && it.StationCode == stationCode).SplitTable(tables => tables.Take(2)).Select(it => it.Id).ToList();//20250623修改 XY
+                    var count = db.Deleteable<RecordPartData>().Where(it => pids.Contains(it.PartUploadId) && it.PartBarcode == partBarcode).SplitTable(tables => tables.Take(2)).ExecuteCommand();
                 }
                 Logger.RunningInfo($"解绑物料条码{partBarcode}完成");
                 return true;

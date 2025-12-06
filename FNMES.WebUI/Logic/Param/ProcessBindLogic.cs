@@ -186,10 +186,12 @@ namespace FNMES.WebUI.Logic.Param
                     {
                         ProcessBind bind = new ProcessBind();
                         bind.CopyField(oldProcessBind);
+                        bind.CreateTime = DateTime.Now;
                         long v = db.Insertable<ProcessBind>(bind).ExecuteCommand();
                         if (v != 0)
                         {
-                            long n = db.Deleteable<RecordBindHistory>().Where(it => it.ProductCode == productCode).SplitTable(tabs => tabs.Take(4)).ExecuteCommand();
+                            var name = db.SplitHelper<RecordBindHistory>().GetTableName(oldProcessBind.CreateTime);
+                            long n = db.Deleteable<RecordBindHistory>().AS(name).Where(it => it.ProductCode == productCode).ExecuteCommand();
                             if (n != 0)
                             {
                                 return bind;

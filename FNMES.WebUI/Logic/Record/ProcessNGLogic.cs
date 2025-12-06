@@ -78,15 +78,22 @@ namespace FNMES.WebUI.Logic.Record
             try
             {
                 var db = GetInstance(configId);
-                RecordPartUpload recordPartUpload = db.Queryable<RecordPartUpload>().Where(it => it.ProductCode == productCode && it.StationCode == stationCode).SplitTable(tabs => tabs.Take(4)).OrderByDescending(it => it.Id).First();
-                //250514修改，原本查不到4个月之前的物料数据
-                DateTime start = recordPartUpload.CreateTime.AddMonths(-1);
-                DateTime end = recordPartUpload.CreateTime.AddMonths(6);
-
-                if (recordPartUpload != null)
+                List<RecordPartUpload> recordPartUploads = db.Queryable<RecordPartUpload>().Where(it => it.ProductCode == productCode && it.StationCode == stationCode)
+                    .SplitTable(tabs => tabs.Take(4)).ToList();
+                if (recordPartUploads != null)
                 {
-                    return db.Queryable<RecordPartData>().Where(it => it.PartUploadId == recordPartUpload.Id)
-                        .SplitTable(start, end).ToList();
+                    List<RecordPartData> partDatas = new List<RecordPartData>();
+                    foreach (var part in recordPartUploads)
+                    {
+                        var parts = db.Queryable<RecordPartData>().Where(it => it.PartUploadId == part.Id)
+                            .SplitTable(tabs => tabs.Take(4)).ToList();
+                        if (parts != null)
+                        {
+                            partDatas.AddRange(parts);
+                        }
+                    }
+                    partDatas = partDatas.DistinctBy(it => it.PartBarcode).ToList();
+                    return partDatas;
                 }
                 else
                 {

@@ -1906,10 +1906,10 @@ namespace FNMES.Service.WebService
             FactoryStatus factoryStatus = GetStatus(configId);
 
             //要删除物料绑定记录，没删除process_bind的数据
-            RecordPartUploadLogic l = new RecordPartUploadLogic();
+            RecordPartUploadLogic recordPartUploadLogic = new RecordPartUploadLogic();
             foreach (var e in param.partList)
             {
-                bool ret = l.UnBindPartBarcode(e.partBarcode);
+                bool ret = recordPartUploadLogic.UnBindPartBarcode(param.productCode, param.stationCode, e.partBarcode);
                 Logger.RunningInfo($"物料条码:<{e.partBarcode}>解绑,结果:<{ret}>");
             }
 
