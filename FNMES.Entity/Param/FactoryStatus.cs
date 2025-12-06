@@ -29,8 +29,8 @@ namespace FNMES.Entity.Param
        
         [SugarColumn(IsIgnore = true)]
         public bool IsOnline {
-            get{ return Status == 1; }
-                }
+            get{ return true; }
+        }
         /// <summary>
         ///  
         ///</summary>

@@ -255,4 +255,7 @@
   <data name="ShrinkMenu" xml:space="preserve">
     <value>ShrinkMenu</value>
   </data>
+  <data name="Assembly" xml:space="preserve">
+    <value>Assembly</value>
+  </data>
 </root>

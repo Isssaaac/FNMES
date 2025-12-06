@@ -27,5 +27,11 @@ namespace FNMES.Entity.Param
         ///</summary>
         [SugarColumn(ColumnName = "SerialNumber", IsNullable = true)]
         public int SerialNumber { get; set; }
+
+        /// <summary>
+        ///  是否由厂级mes生成
+        ///</summary>
+        [SugarColumn(ColumnName = "IsFactoryGen", IsNullable = true)]
+        public bool IsFactoryGen { get; set; }
     }
 }

@@ -35,7 +35,8 @@ namespace FNMES.WebUI.Logic.Param
             {
                 var db = GetInstance(configId);
                 //业务逻辑强制走主库
-                FactoryStatus factoryStatus = db.MasterQueryable<FactoryStatus>().OrderBy(it => it.Id ,OrderByType.Desc).First();
+                //FactoryStatus factoryStatus = db.MasterQueryable<FactoryStatus>().OrderBy(it => it.Id ,OrderByType.Desc).First();
+                FactoryStatus factoryStatus = new FactoryStatus();
                 return factoryStatus;
             }
             catch (Exception e)
@@ -58,10 +59,11 @@ namespace FNMES.WebUI.Logic.Param
             {
                 var db = GetInstance(model.ConfigId);
 
-                return db.Updateable<FactoryStatus>(model).IgnoreColumns(it => new
-                {
-                    it.CreateTime
-                }).ExecuteCommand();
+                //return db.Updateable<FactoryStatus>(model).IgnoreColumns(it => new
+                //{
+                //    it.CreateTime
+                //}).ExecuteCommand();
+                return 1;
             }
             catch (Exception e)
             {

@@ -80,11 +80,7 @@
         <td>{{item.StepDesc}}</td>
         <td>{{item.Operation}}</td>
         <td>{{item.Identity}}</td>
-        <td>
-            {{# if(item.IsGroup==true){ }}  <span class="label label-success label-sm">是</span>
-            {{# }else{ }}  <span class="label label-dark label-sm">否</span>
-            {{# } }}
-        </td>
+        <td>{{item.Group}} </td>
     </tr>
      {{#  }); }}
        {{# if(d.list.length<=0) { }}

@@ -30,11 +30,13 @@
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<Compile Remove="Areas\Record\Views\OutStation\Index1.cshtml.cs" />
+		<Compile Remove="WebService\WebServiceContract_FN.cs" />
 		<Content Remove="Areas\Param\Views\Order\add.cshtml" />
 		<Content Remove="Areas\Param\Views\Product\add.cshtml" />
 		<Content Remove="Areas\Record\Views\CellOutStation\part.cshtml" />
 		<Content Remove="Areas\Record\Views\OutStation\Index1.cshtml" />
 		<Content Remove="Areas\Record\Views\OutStation\queryfilter.cshtml" />
+		<Content Remove="Areas\Sys\Views\Operation\form.cshtml" />
 		<Content Remove="wwwroot\Content\jquery\jquery-3.6.0.min.js" />
 		<Content Remove="wwwroot\Content\PDFjs\htmlpage.html" />
 		<None Remove="wwwroot\Content\smartscreen.html" />
@@ -54,6 +56,12 @@
 	  <Content Update="Areas\Param\Views\Recipe\Index.cshtml">
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	  </Content>
+	  <Content Update="Configs\log4net.config">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Configs\log4netmes.config">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="wwwroot\Content\smartscreen.html">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -91,6 +99,7 @@
 	  <None Include="Areas\Param\Views\Product\add.cshtml" />
 	  <None Include="Areas\Record\Views\CellOutStation\part.cshtml" />
 	  <None Include="Areas\Record\Views\OutStation\queryfilter.cshtml" />
+	  <None Include="Areas\Sys\Views\Operation\form.cshtml" />
 	</ItemGroup>
 
 

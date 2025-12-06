@@ -12,6 +12,7 @@ using System.Security.Policy;
 using System.Threading.Tasks;
 using FNMES.Entity.Param;
 using FNMES.WebUI.Logic.Param;
+using System.Threading.Tasks;
 
 namespace FNMES.WebUI.Logic.Record
 {
@@ -19,14 +20,14 @@ namespace FNMES.WebUI.Logic.Record
     {
         //注意，分表数据需要加SplitTable()
 
-        public int Insert(RecordOfflineApi model,string configId)
+        public async Task<int> InsertAsync(RecordOfflineApi model,string configId)
         {
             try
             {
                 var db = GetInstance(configId);
                 model.Id = SnowFlakeSingle.Instance.NextId();
                 model.CreateTime = DateTime.Now;
-                return db.Insertable<RecordOfflineApi>(model).SplitTable().ExecuteCommand();
+                return await db.Insertable<RecordOfflineApi>(model).SplitTable().ExecuteCommandAsync();
             }
             catch (Exception e)
             {

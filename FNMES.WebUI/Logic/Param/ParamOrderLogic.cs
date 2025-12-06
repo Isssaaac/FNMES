@@ -56,6 +56,20 @@ namespace FNMES.WebUI.Logic.Param
             }
         }
 
+        public async Task<string> GetPartNoAsync(string taskOrderNumber, string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                return await db.Queryable<ParamOrder>().Where(e => e.TaskOrderNumber == taskOrderNumber).Select(e => e.ProductPartNo).FirstAsync(); 
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return "";
+            }
+        }
+
         public int Insert(List<WorkOrder> models, string configId)
         {
             try

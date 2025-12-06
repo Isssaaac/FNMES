@@ -24,7 +24,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 using SoapCore;
@@ -38,6 +37,10 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using System.Globalization;
 using Newtonsoft.Json;
 
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
@@ -46,6 +49,8 @@ builder.WebHost.UseUrls("http://*:8080");
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 //builder.Configuration直接解释了appsettrings.json
 builder.Services.Init(builder.Configuration);
+
+
 
 builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
 {

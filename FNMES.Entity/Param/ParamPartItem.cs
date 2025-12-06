@@ -41,7 +41,7 @@ namespace FNMES.Entity.Param
         [SugarColumn(ColumnName = "PartDescription", IsNullable = true)]
         public string PartDescription { get; set; }
 
-        // 物料类型：精准追溯/批次追溯 2024.5.10增加
+        // 物料类型：精准追溯/批次追溯/绑定追溯，绑定追溯用于Pack绑定模组，模组绑定电芯，电2024.5.10增加
         [SugarColumn(ColumnName = "PartType", IsNullable = true)]
         public string PartType { get; set; }
 
@@ -53,9 +53,21 @@ namespace FNMES.Entity.Param
         [SugarColumn(ColumnName = "PartQty", IsNullable = true)]
         public string PartQty { get; set; }
 
+        // 校验方式：None，Prefix，Suffix，Regular 
+        [SugarColumn(ColumnName = "CheckType", IsNullable = true)]
+        public string CheckType { get; set; }
+
+        // 关键字
+        [SugarColumn(ColumnName = "TagWord", IsNullable = true)]
+        public string TagWord { get; set; }
+
         // 单位
         [SugarColumn(ColumnName = "Uom", IsNullable = true)]
         public string Uom { get; set; }
+
+        // 条码长度，用这个可以单机校验，也可以线体MES校验
+        [SugarColumn(ColumnName = "CodeLength", IsNullable = true)]
+        public string CodeLength { get; set; }
 
 
         [Navigate(NavigateType.OneToMany, nameof(ParamAlternativePartItem.PartItemId)), SugarColumn(IsIgnore = true)]//一对多

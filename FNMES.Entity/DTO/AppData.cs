@@ -26,6 +26,8 @@ namespace FNMES.Entity.DTO.AppData
         public string SmallStationCode { get; set; }
         [DataMember]
         public string ConfigId { get; set; }
+        [DataMember]
+        public string Identity { get; set; }
     }
 
     [DataContract]
@@ -209,6 +211,13 @@ namespace FNMES.Entity.DTO.AppData
         public string GlueTime { get; set; }    //中段涂胶时间
         [DataMember]
         public string Grade { get; set; }    //档位
+
+        [DataMember]
+        public string PackQtyOnPallet { get; set; }    //一个托盘上有多少个Pack
+
+        [DataMember]
+        public string PlcProductPartNo { get; set; }
+
     }
     #region 原来的RecipeData
     //public class RecipeData
@@ -358,6 +367,7 @@ namespace FNMES.Entity.DTO.AppData
                         No = step.No,
                         stepDesc = step.StepDesc,
                         operation = step.Operation,
+                        group = step.Group,
                         paramList = new List<Param>(),
                         partList = new List<Part>()
                     });
@@ -372,6 +382,7 @@ namespace FNMES.Entity.DTO.AppData
                         No = step.No,
                         stepDesc = step.StepDesc,
                         operation = step.Operation,
+                        group = step.Group,
                         paramList = new List<Param>(),
                         partList = new List<Part>()
                     });
@@ -380,6 +391,7 @@ namespace FNMES.Entity.DTO.AppData
             }
             foreach (var item in paramRecipeItem.ParamList)
             {
+                //这里会把paramgroup赋值
                 Param param = ConvertHelper.Mapper<Param, ParamItem>(item);
                 if (item.StepNo.IsNullOrEmpty() || 0 == int.Parse(item.StepNo))
                 {
@@ -508,8 +520,9 @@ namespace FNMES.Entity.DTO.AppData
         [DataMember]
         // 结束页码
         public string endPageNo { get; set; }
-
-
+        //是否合并
+        [DataMember]
+        public string group { get; set; }
     }
 
 
@@ -554,6 +567,8 @@ namespace FNMES.Entity.DTO.AppData
         [DataMember]
         // 单位
         public string uom { get; set; }
+        [DataMember]
+        public string paramGroup { get; set; }
     }
     [DataContract]
     public class Part
@@ -576,6 +591,16 @@ namespace FNMES.Entity.DTO.AppData
         [DataMember]
         // 单位
         public string uom { get; set; }
+        [DataMember]
+        // 编码长度
+        public string codeLength { get; set; }
+
+        [DataMember]
+        // 校验类型
+        public string checkType { get; set; }
+        [DataMember]
+        // 特征字
+        public string tagWord { get; set; }
         [DataMember]
         // 替代物料
         public List<AlternativePartItem> alternativePartList { get; set; }

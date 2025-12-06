@@ -68,7 +68,7 @@ namespace FNMES.Entity.Record
         ///  
         ///</summary>
         [SplitField]
-        [SugarColumn(ColumnName= "CreateTime")]
+        [SugarColumn(ColumnName= "CreateTime", IsNullable = true)]
          public DateTime? CreateTime { get; set; }
     }
 }

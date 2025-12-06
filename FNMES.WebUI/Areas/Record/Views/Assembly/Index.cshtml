@@ -1,0 +1,282 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>装配记录</title>
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="~/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="~/Content/jquery/jquery.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/layui/layui.js"></script>
+    <script src="~/Content/ztree/js/jquery.ztree.all.min.js"></script>
+    <link href="~/Content/ztree/css/metroStyle/metroStyle.css" rel="stylesheet" />
+    <script src="~/Content/select2/js/select2.min.js"></script>
+    <script src="~/Content/framework/js/global.js"></script>
+</head>
+<style>
+    #gridList td {
+        width: 50px
+    }
+</style>
+<body>
+    <div class="container-fluid fadeIn animated">
+        <div class="layui-inline" style="margin-bottom: 1px;margin-top: 10px">
+            <select lay-ignore name="lineId" class="select2" id="lineId" style="width: 250px;height: 30px;" lay-verify="required"></select>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <div class="FNMES-panel container-panel">
+                    <ul id="treeItem" class="ztree"></ul>
+                </div>
+            </div>
+            <div class="col-md-10">
+                <div class="panel container-panel">
+                    <div class="panel-body">
+                        <div id="toolbar" class="FNMES-table-toolbar">
+                            <div class="layui-btn-group"> </div>
+                            <div class="layui-inline" style="margin-bottom: 10px;">
+                                <div class="layui-inline" id="ID-laydate-range">
+                                    <div class="layui-input-inline">
+                                        <input type="text" autocomplete="off" id="ID-laydate-start-date" style="width: 200px;height: 30px;" class="layui-input" placeholder="开始日期">
+                                    </div>
+                                    <div class="layui-input-inline">
+                                        <input type="text" autocomplete="off" id="ID-laydate-end-date" style="width: 200px;height: 30px;" class="layui-input" placeholder="结束日期">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button id="btnSearch" class="toolbar-search-button layui-btn layui-btn-normal layui-btn-small" style="line-height:20px">
+                                <i class="layui-icon">&#xe615;</i>
+                            </button>
+                            <div class="toolbar-search-input">
+                                <input type="text" id="keyWord" placeholder="关键字" autocomplete="off" class="layui-input" style="height:39px">
+                            </div>
+                        </div>
+                        <table id="gridList" lay-filter="gridList" class="layui-table" lay-skin="line"></table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<!--内容模板-->
+<script id="statusTpl" type="text/html">
+     {{# if(d.Status == "OK"){ }}
+     <span class="label label-success label-sm">OK</span>
+    {{# } else { }}
+       <span  class="label label-red label-sm">NG</span>
+        <!-- 其他状态的处理，可以根据实际需求添加更多条件 -->
+    {{# } }}
+</script>
+
+<script id="selectTpl" type="text/html">
+     {{# if(d.RepairFlag == "1"){ }}
+     <span class="label label-success label-sm">是</span>
+    {{# } else { }}
+       <span  class="label label-dark label-sm">否</span>
+        <!-- 其他状态的处理，可以根据实际需求添加更多条件 -->
+    {{# } }}
+</script>
+
+<script type="text/javascript">
+    var paging;
+    layui.config({
+        base: parent._baseUrl
+    }).use(['paging', 'form', 'layer', "table","laydate"], function () {
+        var layer = parent.layer || layui.layer;
+        var form = layui.form;
+        var table = layui.table;
+        var laydate = layui.laydate;
+        paging = layui.paging();
+
+        $("#ID-laydate-start-date").val($.getCurrentDateTime(-7));
+        $("#ID-laydate-end-date").val($.getCurrentDateTime(1));
+        // 日期范围 - 左右面板独立选择模式
+        laydate.render({
+            elem: '#ID-laydate-range',
+            range: true
+        });
+
+        $("#lineId").bindSelect({
+            type: "POST",
+            url: "/system/line/getListTreeSelect",
+            title: '请选择线体'
+        });
+        $("#toolbar").authorizeButton();
+        $('#btnSearch').click(initGrid);
+        $('#keyWord').bindEnterEvent(initGrid);
+        // initGrid();
+        initTree();
+    });
+    //$("#lineId").bindChangeEvent(initGrid);
+    $("#lineId").on("select2:select", function (e) {
+        // 处理选择事件
+        if ($("#lineId").val() == "0") {
+            return
+        };
+        initGrid();
+    });
+
+    $('#queryDate').find('button').click(function (i, v) {
+        $(this).addClass('active');
+        $(this).siblings('button').removeClass('active');
+        initGrid();
+    });
+
+    function initTree() {
+        var setting = {
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            check: {
+                enable: false,
+                chkStyle: "checkbox",
+                chkDisabledInherit: false
+            },
+            callback: {
+                onClick: function (event, treeId, treeNode) {
+                    initGrid();
+                }
+            }
+        };
+        var zNodes = [
+            { id: 1, pId: 0, name: "数据列表", open: true },
+            { id: 11, pId: 1, name: "电芯绑定模组", checked: true },
+            { id: 12, pId: 1, name: "模组绑定PACK" }
+        ];
+        var zTreeObj = $.fn.zTree.init($("#treeItem"), setting, zNodes);
+        // 通过节点 ID 选中节点
+        var node = zTreeObj.getNodeByParam("id", 11, null); // 假设要选中 ID 为 11 的节点
+        zTreeObj.selectNode(node);
+    };
+
+    function initGrid() {
+        if ($("#lineId").val() == "0") {
+            return
+        };
+        var treeObj = $.fn.zTree.getZTreeObj("treeItem");
+        var selectedNode = treeObj.getSelectedNodes()[0];
+        if (selectedNode.pId == 0) {
+            return;
+        }
+        var selectUrl = '/record/assembly/cellbindblock';
+        if (selectedNode.id == "11") {
+            selectUrl = '/record/assembly/cellbindblock';
+        } else if (selectedNode.id == "12") {
+            selectUrl = '/record/assembly/blockbindpack';
+        };
+        layui.table.render({
+            elem: '#gridList',
+            url: selectUrl, // 替换成实际的接口地址
+            where: {
+                keyWord: $("#keyWord").val(),
+                configId: $("#lineId").val(),
+                startDate: $('#ID-laydate-start-date').val(),
+                endDate: $('#ID-laydate-end-date').val(),
+            },
+            cols: [getCols(selectedNode.id)],
+            parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "msg": res.msg,
+                    "count": res.count,
+                    "data": res.list,
+                };
+            },
+            page: true, // 开启表格默认分页
+            limit: 15, // 每页显示条数
+            limits: [10, 15]
+        });
+    };
+
+
+
+    function getCols(condition) {
+        if (condition === 11) {
+            return [
+                // Define your columns for condition 1
+                { field: 'CellBarcode', title: '电芯码' },
+                { field: 'BlockBarcode', title: '模组码' },
+                { field: 'Position', title: '位置' },
+                { field: 'CreateTime', title: '创建时间' },
+            ];
+        } else if (condition === 12) {
+            return [
+                // Define your columns for condition 1
+                { field: 'BlockBarcode', title: '模组码' },
+                { field: 'PackBarcode', title: 'PACK码' },
+                { field: 'Position', title: '位置' },
+                { field: 'CreateTime', title: '创建时间' },
+            ];
+        };
+        if (condition) {
+            return [
+                // Define your columns for condition 1
+                { field: 'field1', title: 'Column 1' },
+                { field: 'field2', title: 'Column 2' },
+                // ... other columns
+            ];
+        } else {
+            return [
+                // Define your columns for condition 2
+                { field: 'fieldA', title: 'Column A' },
+                { field: 'fieldB', title: 'Column B' },
+                // ... other columns
+            ];
+        }
+    }
+    function initGridList(condition) {
+        // 获取表格的 thead
+        var thead = document.getElementById('gridList').getElementsByTagName('thead')[0];
+        var headerRow = thead.getElementsByTagName('tr')[0]; // 获取表头的第一行
+
+        // 清空现有的表头
+        headerRow.innerHTML = '';
+
+        // 创建复选框
+        var checkboxTh = document.createElement('th');
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'checkboxClass'; // 添加类名
+        checkbox.setAttribute('lay-skin', 'primary');
+        checkboxTh.appendChild(checkbox);
+        headerRow.appendChild(checkboxTh);
+
+        var headers = ["电芯码", "模组码", "位置", "创建时间"];
+        // 根据不同条件生成或修改 th 的内容
+        if (condition === 11) {
+            headers = ["电芯码", "模组码", "位置", "创建时间"];
+        } else if (condition === 12) {
+            var headers = ["模组码", "PACK码", "位置", "创建时间"];
+        } 
+
+        // 创建其余表头
+        headers.forEach(function (header) {
+            var th = document.createElement('th');
+            th.appendChild(document.createTextNode(header));
+            th.style.width = '150px'; // 设置宽度为150像素，您可以根据需要调整
+            headerRow.appendChild(th);
+        });
+    }
+</script>

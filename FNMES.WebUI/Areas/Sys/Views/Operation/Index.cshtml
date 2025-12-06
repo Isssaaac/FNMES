@@ -30,6 +30,7 @@
         <div id="toolbar" class="FNMES-table-toolbar">
             <div class="layui-btn-group">
                 <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_add()">增加</button>
+                <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_edit()">修改</button>
                 <button class="layui-btn layui-btn-primary layui-btn-small" onclick="btn_delete()">删除</button>
             </div>
         </div>
@@ -89,7 +90,7 @@
             },
             pageConfig: {
                 elem: 'paged',
-                pageSize: 10,
+                pageSize: 17,
             },
             success: function () {
 
@@ -130,6 +131,25 @@
                         initGrid();
                     }
                 });
+            }
+        });
+    }
+
+    function btn_edit() {
+        var ids = $("#gridList").gridSelectedRowValue();
+        if (ids.length != 1) {
+            $.layerMsg("请勾选单条记录修改。", "warning");
+            return;
+        }
+        $.layerOpen({
+            id: "edit",
+            title: "修改字典",
+            width: "670px",
+            height: "410px",
+            content: "/system/operation/form?primaryKey=" + ids[0],
+            yes: function (iBody) {
+                iBody.find('#btnSubmit').click();
+                initGrid();
             }
         });
     }

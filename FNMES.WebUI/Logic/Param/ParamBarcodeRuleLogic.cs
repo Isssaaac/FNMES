@@ -3,6 +3,7 @@ using FNMES.WebUI.Logic.Base;
 using System.Diagnostics.Metrics;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FNMES.WebUI.Logic.Param
 {
@@ -115,6 +116,21 @@ namespace FNMES.WebUI.Logic.Param
                 Logger.ErrorInfo(E.Message);
                 barcode = "";
                 return false;
+            }
+        }
+
+        public async Task<ParamBarcodeRule> getRule(string configId)
+        {
+            try
+            {
+                var db = GetInstance(configId);
+                var paramBarcodeRule = await db.Queryable<ParamBarcodeRule>().FirstAsync();
+                return paramBarcodeRule;
+            }
+            catch (Exception E)
+            {
+                Logger.ErrorInfo(E.Message);
+                return null;
             }
         }
     }

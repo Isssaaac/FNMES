@@ -51,6 +51,7 @@
                     <th>追溯信息码</th>
                     <th>厂商地址</th>
                     <th>流水码</th>
+                    <th>厂级MES生成</th>
                 </tr>
             </thead>
             <!--内容容器-->
@@ -72,6 +73,11 @@
         <td>{{item.TraceInfoCode}}</td>
         <td>{{item.VendorAddress}}</td>
         <td>{{item.SerialNumber}}</td>
+        <td>
+            {{# if(item.IsFactoryGen=="1"){ }}  <span class="label label-success label-sm">是</span>
+            {{# }else{ }}  <span class="label label-dark label-sm">否</span>
+            {{# } }}
+        </td>
     </tr>
       {{#  }); }}
        {{# if(d.list.length<=0) { }}

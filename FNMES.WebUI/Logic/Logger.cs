@@ -83,5 +83,12 @@ namespace FNMES.WebUI.Logic
             Log("Error", message);
             LogHelper.Error(message,ex);
         }
+
+        public static void MESInfo(string interfaceName,string message)
+        {
+            //MethodBase methodBase = new StackTrace(true).GetFrame(1).GetMethod();
+            //string methodName = $"{methodBase.DeclaringType.Name}.{methodBase.Name}";
+            LogHelper.MESInfo(interfaceName, message);
+        }
     }
 }

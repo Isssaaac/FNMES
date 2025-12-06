@@ -7,6 +7,9 @@ using ServiceStack;
 using Newtonsoft.Json;
 using System.Security.Policy;
 using System.Web;
+using FNMES.Entity.Record;
+using Newtonsoft.Json.Linq;
+using ZXing.QrCode.Internal;
 
 namespace FNMES.Entity.DTO.ApiParam
 {
@@ -271,8 +274,6 @@ namespace FNMES.Entity.DTO.ApiParam
         [DataMember]
         public string operatorNo { get; set; }
 
-        #region 20240408增加
-        //预装件条码（M305 FPC预装或M306喷胶贴泡棉预装件必填） 
         [DataMember]
         public string semBarcode { get; set; }
 
@@ -282,8 +283,6 @@ namespace FNMES.Entity.DTO.ApiParam
         [DataMember]
         public string uom { get; set; }
 
-        #endregion
-        // 请求时间(时间戳)
 
 
         // 零件列表
@@ -529,6 +528,10 @@ namespace FNMES.Entity.DTO.ApiParam
 
         [DataMember]
         public string palletNo { get; set; }
+
+        //单机强制出站等作为标识传过来
+        [DataMember]
+        public string Identity { get; set; }
     }
 
     [DataContract]
@@ -1094,11 +1097,13 @@ namespace FNMES.Entity.DTO.ApiParam
     }
 
     /**************************************瑞浦****************************************/
-    public class MesRet
+
+
+    public  class MesRet<T>
     {
         public string code;
         public string msg;
-        public string data;
+        public T data;
     }
 
     public class ResultRet
@@ -1107,6 +1112,9 @@ namespace FNMES.Entity.DTO.ApiParam
         public string message;
     }
 
+    /// <summary>
+    /// P7进站参数
+    /// </summary>
     public class GetItemDataParam
     {
         public string resource_no;    //资源编号->小工站
@@ -1119,7 +1127,9 @@ namespace FNMES.Entity.DTO.ApiParam
             resource_no = param.smallStationCode;
         }
     }
-
+    /// <summary>
+    /// P7进站返回
+    /// </summary>
     public class GetItemDataRet: ResultRet
     {
         public string sfc;
@@ -1128,7 +1138,9 @@ namespace FNMES.Entity.DTO.ApiParam
         public string qty;
     }
 
-    //上传过程数据
+    /// <summary>
+    /// P16上传过程数据，出站
+    /// </summary>
     public class UploadData_FParam
     {
         public string resource_no;    //资源编号
@@ -1138,10 +1150,10 @@ namespace FNMES.Entity.DTO.ApiParam
         public string cz_user;        //操作人（没有为””）
         public string flag;           //判定结果（OK/NG）
         public string ng_code;        //不良代码（多个不良代码，请用”,”隔开）
-        public string json_data;
+        public Dictionary<string, string> json_data;
         public UploadData_FParam(OutStationParam param, List<Process> process, List<string> ngCodes)
         {
-            sfc = param.productCode;
+            sfc = param.productCode + "//" + param.taskOrderNumber;
             resource_no = param.smallStationCode;
             operation_no = param.stationCode;
             cz_date = DateTime.Now.ToString();
@@ -1152,16 +1164,22 @@ namespace FNMES.Entity.DTO.ApiParam
             var dictionary = new Dictionary<string, string>();
             foreach (var item in process)
                 dictionary[item.paramCode] = item.paramValue;
-            json_data = JsonConvert.SerializeObject(dictionary);
+            json_data = dictionary;
+            //json_data = JsonConvert.SerializeObject(dictionary);
         }
     }
 
+    /// <summary>
+    /// P16上传过程返回
+    /// </summary>
     public class UploadData_FRet : ResultRet
     {
         public string SFC;
     }
 
-    ////绑定模组或Pack，并且上传过程数据
+    /// <summary>
+    /// P16-4绑定模组或Pack，并且上传过程数据
+    /// </summary>
     public class UploadData_MZParam
     {
         public string sfc;           //模组或PACK条码
@@ -1173,7 +1191,7 @@ namespace FNMES.Entity.DTO.ApiParam
         public string ng_code;       //不良代码（多个不良代码，请用”,”隔开）
         public string item_no;       //电芯或模组条码（多个，请用”,”隔开）首站为空
         public string shop_order;    //工单号
-        public string json_data;
+        public Dictionary<string, string> json_data;
         public UploadData_MZParam(OutStationParam param, List<Process> process, List<string> ngCodes, List<BindProduct> bindProducts)
         {
             sfc = param.productCode;
@@ -1189,10 +1207,58 @@ namespace FNMES.Entity.DTO.ApiParam
             var dictionary = new Dictionary<string, string>();
             foreach (var item in process)
                 dictionary[item.paramCode] = item.paramValue;
-            json_data = JsonConvert.SerializeObject(dictionary);
+            json_data = dictionary;
+            //json_data = JsonConvert.SerializeObject(dictionary);
+        }
+
+        public UploadData_MZParam(OutStationParam param, List<Process> process, List<string> ngCodes, List<RecordCellBindBlock> bindProducts)
+        {
+            sfc = param.productCode;
+            resource_no = param.smallStationCode;
+            operation_no = param.stationCode;
+            cz_date = DateTime.Now.ToString();
+            cz_user = param.operatorNo;
+            flag = ngCodes.Count > 0 ? "NG" : "OK";
+            ng_code = ngCodes.Join(",");
+            List<string> cells = new List<string>();
+            for (int i = 0; i < bindProducts.Count; i++)
+            {
+                cells.Add($"{bindProducts[i].CellBarcode}:{i + 1}");
+            }
+            item_no = cells.Join(",");
+            shop_order = param.taskOrderNumber;
+
+            var dictionary = new Dictionary<string, string>();
+            foreach (var item in process)
+                dictionary[item.paramCode] = item.paramValue;
+            json_data = dictionary;
+            //json_data = JsonConvert.SerializeObject(dictionary);
+        }
+
+        public UploadData_MZParam(OutStationParam param, List<Process> process, List<string> ngCodes)
+        {
+            sfc = param.productCode;
+            resource_no = param.smallStationCode;
+            operation_no = param.stationCode;
+            cz_date = DateTime.Now.ToString();
+            cz_user = param.operatorNo;
+            flag = ngCodes.Count > 0 ? "NG" : "OK";
+            ng_code = ngCodes.Join(",");
+            List<string> cells = new List<string>();
+            item_no = "";
+            shop_order = param.taskOrderNumber;
+
+            var dictionary = new Dictionary<string, string>();
+            foreach (var item in process)
+                dictionary[item.paramCode] = item.paramValue;
+            json_data = dictionary;
+            //json_data = JsonConvert.SerializeObject(dictionary);
         }
     }
 
+    /// <summary>
+    /// P16-4绑定模组或Pack，并且上传过程数据返回
+    /// </summary>
     public class UploadData_MZRet: ResultRet
     {
     }
@@ -1203,7 +1269,9 @@ namespace FNMES.Entity.DTO.ApiParam
         public string position;
     }
 
-    //上传物料
+    /// <summary>
+    /// P32上传物料数据
+    /// </summary>
     public class UpAssembleDataParam
     {
         public string sfc;    //产品条码
@@ -1227,6 +1295,9 @@ namespace FNMES.Entity.DTO.ApiParam
         }
     }
 
+    /// <summary>
+    /// P32上传物料数据返回
+    /// </summary>
     public class UpAssembleDataRet : ResultRet
     {
 
@@ -1258,6 +1329,11 @@ namespace FNMES.Entity.DTO.ApiParam
         }
     }
 
+    public class UploadData_SRet:ResultRet
+    {
+
+    }
+
     //设备报警
     public class UploadData_WParam
     {
@@ -1273,15 +1349,25 @@ namespace FNMES.Entity.DTO.ApiParam
         }
     }
 
-    //获取电芯信息
+    public class UploadData_WRet : ResultRet
+    {
+
+    }
+
+    /// <summary>
+    /// P34获取电芯信息
+    /// </summary>
     public class GetSfcInfoParam
     {
         public string resource_no;  //资源编号
         public string operation_no; //工序
         public string sfc;          //电芯条码
-        public string json_data;
+        public Dictionary<string, string> json_data;
     }
 
+    /// <summary>
+    /// P34获取电芯信息返回
+    /// </summary>
     public class GetSfcInfoRet:ResultRet
     {
         public GetSfcInfoData Data;
@@ -1308,7 +1394,7 @@ namespace FNMES.Entity.DTO.ApiParam
     //一键点检
     public class GetCheckMaitenanceParam
     {
-        public string operation_no;
+        public string operation_no;      
         public string resource_no;
         public string cz_date;
         public string cz_user;
@@ -1318,17 +1404,59 @@ namespace FNMES.Entity.DTO.ApiParam
 
     public class CheckMaitenanceItems
     {
-        public string function;
-        public string actual_value;
-        public string specification_value;
-        public string check_result;
-        public string check_status;
-        public string response_plan;
-        public string check_date;
-        public string check_number;
+        public string function;                //"包膜屏蔽上工序",--点检功能
+        public string actual_value;            //--实际值：参数点检时填入
+        public string specification_value;     //--规格值：参数点检时填入
+        public string check_result;            //--点检结果
+        public string check_status;            //--点检状态
+        public string response_plan;           //--反应计划
+        public string check_date;              //--点检时间
+        public string check_number;            //--点检次数
     }
     public class GetCheckMaitenanceRet : ResultRet
     {
 
+    }
+
+    public class GetSfcData
+    {
+        public string resource_no;      //资源编号
+        public string operation_no;     //工序
+        public string shop_order;       //工单
+        public string sfc;              //产品条码条码
+        public string qty;              //赋码数量
+    }
+
+    public class GetSfcRet: ResultRet
+    {
+        public List<string> Data; 
+    }
+
+
+    public class GetFeedLoadData
+    {
+        public string resource_no;      //资源编号
+        public string shop_order;       //工单
+        public string operation_no;     //工序
+        public string barCode;          //批次物料号
+        public string qty;              //赋码数量
+        public string cz_date;          //操作时间
+        public string cz_user;          //操作人
+
+        public GetFeedLoadData(OutStationParam param, Part part)
+        {
+            barCode = part.partBarcode;
+            resource_no = param.smallStationCode;
+            operation_no = param.stationCode;
+            cz_date = DateTime.Now.ToString();
+            cz_user = param.operatorNo;
+            shop_order = param.taskOrderNumber;
+            qty = part.usageQty;
+        }
+    }
+
+    public class GetFeedLoadRet : ResultRet
+    {
+        
     }
 }

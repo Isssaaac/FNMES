@@ -16,6 +16,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using FNMES.Entity.DTO.ApiData;
+using FNMES.Utility.Logs;
+using System.Diagnostics;
 
 namespace FNMES.WebUI
 {
@@ -35,6 +37,7 @@ namespace FNMES.WebUI
         {
             //日志配置 
             Utility.Logs.LogHelper.Init(File.ReadAllText(Utility.Extension.MyEnvironment.RootPath("Configs/log4net.config")));
+
             Logger.RunningInfo("日志框架初始化");
             //初始化表
             sysLineLogic = new SysLineLogic();
@@ -45,7 +48,7 @@ namespace FNMES.WebUI
 
             if (AppSetting.WorkId == 1)
             {
-                _timer = new Timer(DoHeartbeat, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
+               // _timer = new Timer(DoHeartbeat, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
             }
             return Task.CompletedTask;
         }

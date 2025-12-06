@@ -50,7 +50,7 @@ namespace FNMES.Entity.Param
 
         [SugarColumn(ColumnName = "CurrentStation", IsNullable = true)]
         public string CurrentStation { get; set; }
-
+        //结果
         [SugarColumn(ColumnName = "Status", IsNullable = true)]
          public string Status { get; set; }
         /// <summary>`

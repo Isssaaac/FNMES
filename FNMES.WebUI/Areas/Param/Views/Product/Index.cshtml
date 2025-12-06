@@ -141,6 +141,8 @@
                         <th>路线名称</th>
                         <th>路线版本</th>
                         <th>时间</th>
+                        <th>托盘Pack数量</th>
+                        <th>PLC产品编码</th>
                     </tr>
                 </thead>
                 <!--内容容器-->
@@ -169,7 +171,8 @@
         <td>{{item.RouteName}}</td>
         <td>{{item.RouteVersion}}</td>
         <td>{{item.CreateTime}}</td>
-       
+        <td>{{item.PackQtyOnPallet}}</td>
+        <td>{{item.PlcProductPartNo}}</td>
     </tr>
       {{#  }); }}
        {{# if(d.list.length<=0) { }}

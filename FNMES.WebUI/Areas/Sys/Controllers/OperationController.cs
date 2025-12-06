@@ -91,5 +91,28 @@ namespace FNMES.WebUI.Logic.Sys
             }
             return Content(treeList.ToJson());
         }
+
+        [Route("system/operation/form")]
+        [HttpGet, LoginChecked]
+        public ActionResult Form()
+        {
+            return View();
+        }
+
+        [Route("system/operation/getForm")]
+        [HttpPost, LoginChecked]
+        public async Task<ActionResult> GetForm(string primaryKey)
+        {
+            SysOperation entity = await baseLogic.GetTableRowByIDAsync<SysOperation>(primaryKey, "default");
+            return Content(entity.ToJson());
+        }
+
+        [Route("system/operation/form")]
+        [HttpPost, LoginChecked]
+        public async Task<ActionResult> Form(SysOperation model)
+        {
+            int row = await baseLogic.UpdateTableAsync(model, "default");
+            return row > 0 ? Success() : Error();
+        }
     }
 }

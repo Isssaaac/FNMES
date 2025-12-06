@@ -60,6 +60,7 @@ namespace FNMES.WebUI.Logic.Param
                         }
                     }
                 }
+                Db.BeginTran();
                 foreach (var model in models)
                 {
                     //旧的产品条码绑定，说明产品重新上线
@@ -67,13 +68,11 @@ namespace FNMES.WebUI.Logic.Param
                     //假如旧的产品条码存在
                     if (oldprocessBind != null && oldprocessBind.Count != 0)
                     {
-
-                        Db.BeginTran();
                         List<RecordBindHistory> histories = new List<RecordBindHistory>();
                         oldprocessBind.ForEach(it =>
                         {
                             RecordBindHistory history = new RecordBindHistory();
-                            history.CopyField(it);
+                            history.CopyMatchingProperties(it);
                             histories.Add(history);
                         });
 
@@ -81,17 +80,19 @@ namespace FNMES.WebUI.Logic.Param
                         //删除了旧的绑定又插入新的
                         db.Deleteable<ProcessBind>(oldprocessBind).ExecuteCommand();
                         res = db.Insertable<ProcessBind>(model).ExecuteCommand();
-                        Db.CommitTran();
+                        
                     }
                     else
                     {
                         res = db.Insertable<ProcessBind>(model).ExecuteCommand();
                     }
                 }
+                Db.CommitTran();
                 return 1L; //两个都绑定成功
             }
             catch (Exception e)
             {
+                Db.RollbackTran();
                 Logger.ErrorInfo(e.Message);
                 return 0L;
             }
@@ -136,13 +137,13 @@ namespace FNMES.WebUI.Logic.Param
 
 
       
-        public List<ProcessBind> GetByPalletNo(string palletNo, string configId)
+        public async  Task<List<ProcessBind>> GetByPalletNo(string palletNo, string configId)
         {
             try
             {
                 //业务逻辑，必须走主库
                 var db = GetInstance(configId);
-                return db.MasterQueryable<ProcessBind>().Where(it => it.PalletNo == palletNo).ToList();
+                return await db.MasterQueryable<ProcessBind>().Where(it => it.PalletNo == palletNo).ToListAsync();
             }
             catch (Exception e)
             {

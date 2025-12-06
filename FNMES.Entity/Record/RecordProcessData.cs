@@ -44,6 +44,10 @@ namespace FNMES.Entity.Record
         [SugarColumn(ColumnName = "ParamType", IsNullable = true)]
         public string ParamType { get; set; }
 
+        //规定该参数属于什么类型，拧紧角度，拧紧扭矩这些
+        [SugarColumn(ColumnName = "ParamGroup", IsNullable = true)]
+        public string ParamGroup { get; set; }
+
         // 工艺参数标准值，针对定量类型的
         [SugarColumn(ColumnName = "StandValue", IsNullable = true)]
         public string StandValue { get; set; }

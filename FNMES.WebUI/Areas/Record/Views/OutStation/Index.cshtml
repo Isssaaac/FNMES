@@ -127,6 +127,7 @@
 
         var laydate = layui.laydate;
 
+
         $('#btnfilter').on('click', function () {
             var index = layer.open({
                 type: 2,
@@ -168,11 +169,11 @@
         });
 
         $("#ID-laydate-start-date").val($.getCurrentDateTime(-7));
-        $("#ID-laydate-end-date").val($.getCurrentDateTime(0));
+        $("#ID-laydate-end-date").val($.getCurrentDateTime(1));
         // 日期范围 - 左右面板独立选择模式
         laydate.render({
             elem: '#ID-laydate-range',
-            range: ['#ID-laydate-start-date', '#ID-laydate-end-date']
+            range: true
         });
 
         paging = layui.paging();
@@ -229,7 +230,6 @@
 
         //var days = $.calDays(startDate, endDate);
         if (days > 90) { 
-
             $.layerMsg("日期间隔不能大于90天。", "warning");
             return
         }
@@ -277,8 +277,8 @@
                     $.layerOpen({
                         id: "detail",
                         title: "查看数据",
-                        width: "800px",
-                        height: "500px",
+                        width: '1200px',
+                        height: '800px',
                         content: "/record/process/index?productCode=" + data[1] + "&stationCode=" + data[2] + "&configId=" + $("#lineId").val(),
                         btn: null
                     });
@@ -316,8 +316,8 @@
                     $.layerOpen({
                         id: "detail",
                         title: "查看物料",
-                        width: "800px",
-                        height: "500px",
+                        width: '1200px',
+                        height: '800px',
                         content: "/record/part/index?productCode=" + data[1] + "&stationCode=" + data[2] + "&configId=" + $("#lineId").val(),
                         btn: null
                     });

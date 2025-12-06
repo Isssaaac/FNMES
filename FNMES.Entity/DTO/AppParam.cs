@@ -250,6 +250,7 @@ namespace FNMES.Entity.DTO
         public string SetValue { get; set; }
         public string IsDoubleCheck { get; set; }
         public string UnitOfMeasure { get; set; }
+        public string ParamGroup { get; set; }
     }
 
     public class UnitProcedure

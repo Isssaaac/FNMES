@@ -13,10 +13,6 @@ namespace FNMES.Entity.Record
     [SugarIndex("index_outStation_productCode", nameof(RecordOutStation.ProductCode), OrderByType.Asc), LineTableInit]    //索引
     public class RecordOutStation : RecordBase
     {
-        //[Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
-        //[SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
-        //public long Id { get; set; }
-
         [SugarColumn(ColumnName = "ProductCode", ColumnDataType = "varchar(100)", IsNullable = true)]
         // 内控码
         public string ProductCode { get; set; }

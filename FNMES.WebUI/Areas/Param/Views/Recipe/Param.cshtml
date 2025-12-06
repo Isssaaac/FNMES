@@ -46,7 +46,6 @@
                             <th>
                                 <input type="checkbox" lay-skin="primary">
                             </th>
-                    @*<th>小工位</th>*@
                             <th>工步编码</th>
                             <th>工步名称</th>
                             <th>参数编码</th>
@@ -59,9 +58,9 @@
                             <th>上限</th>
                             <th>下限</th>
                             <th>设定值</th>
-                    @*<th>工厂校验</th>*@
                             <th>单位</th>
                             <th>NG代码</th>
+                            <th>分组</th>
                         </tr>
                     </thead>
                     <!--内容容器-->
@@ -96,13 +95,9 @@
         <td>{{item.MaxValue}}</td>
         <td>{{item.MinValue}}</td>
         <td>{{item.SetValue}}</td>
-        <td>{{item.NgCode}}</td>
-        @*<td>
-            {{# if(item.IsDoubleCheck=="true"){ }}  <span class="label label-success label-sm">是</span>
-            {{# }else{ }}  <span class="label label-dark label-sm">否</span>
-            {{# } }}
-        </td>*@
         <td>{{item.UnitOfMeasure}}</td>
+        <td>{{item.NgCode}}</td>
+        <td>{{item.ParamGroup}}</td>
     </tr>
      {{#  }); }}
        {{# if(d.list.length<=0) { }}
@@ -136,7 +131,7 @@
             },
             pageConfig: {
                 elem: 'paged',
-                pageSize: 8,
+                pageSize: 14,
             },
             success: function () {
 

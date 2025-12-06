@@ -112,7 +112,6 @@ namespace FNMES.Entity.DTO.ApiData
         public string passStationRestriction { get; set; }
 
 
-
         // 工艺参数，可以到小工位下的工步
         public List<ParamItem> paramList { get; set; }
 
@@ -174,6 +173,8 @@ namespace FNMES.Entity.DTO.ApiData
 
         // 单位
         public string uom { get; set; }
+        
+        public string ParamGroup { get; set; }
     }
 
     public class EsopItem

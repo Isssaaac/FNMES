@@ -9,14 +9,16 @@ namespace FNMES.Entity.Record
 {
     [SplitTable(SplitType.Month), LineTableInit]
     [SugarTable("Record_Api_{year}{month}{day}")]
+    
     public class RecordApi : BaseRecord
     {
         [Newtonsoft.Json.JsonConverter(typeof(ValueToStringConverter))]
         [SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
         public long Id { get; set; }
-        /// <summary>
-        /// 编码 
-        ///</summary>
+
+        [SugarColumn(ColumnName = "Method", ColumnDataType = "varchar(100)", IsNullable = true)]
+        public string Method { get; set; }
+
         [SugarColumn(ColumnName = "Url", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string Url { get; set; }
       

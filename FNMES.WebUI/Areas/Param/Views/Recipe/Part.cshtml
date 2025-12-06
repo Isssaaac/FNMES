@@ -54,6 +54,10 @@
                             <th>版本</th>
                             <th>数量</th>
                             <th>单位</th>
+                            <th>追溯类型</th>
+                            <th>编码长度</th>
+                            <th>校验方式</th>
+                            <th>特征字</th>
                         </tr>
                     </thead>
                     <!--内容容器-->
@@ -103,6 +107,10 @@
         <td>{{item.PartVersion}}</td>
         <td>{{item.PartQty}}</td>
         <td>{{item.Uom}}</td>
+        <td>{{item.PartType}}</td>
+        <td>{{item.CodeLength}}</td>
+        <td>{{item.CheckType}}</td>
+        <td>{{item.TagWord}}</td>
     </tr>
      {{#  }); }}
        {{# if(d.list.length<=0) { }}
@@ -121,6 +129,8 @@
         <td>{{item.PartQty}}</td>
         <td>{{item.PartRate}}</td>
         <td>{{item.Uom}}</td>
+        <td>{{item.PartType}}</td>
+        <td>{{item.CodeLength}}</td>
     </tr>
      {{#  }); }}
        {{# if(d.list.length<=0) { }}

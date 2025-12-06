@@ -32,6 +32,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         private readonly ParamItemLogic paramItemLogic;
         private readonly ParamPartItemLogic paramPartItemLogic;
         private readonly ParamStepItemLogic paramStepItemLogic;
+        private readonly ParamESOPItemLogic paramESOPItemLogic;
 
         private readonly IStringLocalizer<SharedResource> _sharedLocalizer;
         public RecipeController(IStringLocalizer<SharedResource> sharedLocalizer)
@@ -41,6 +42,7 @@ namespace MES.WebUI.Areas.Param.Controllers
             paramPartItemLogic = new ParamPartItemLogic();
             baseLogic = new BaseLogic();
             paramStepItemLogic = new ParamStepItemLogic();
+            paramESOPItemLogic = new ParamESOPItemLogic();
             _sharedLocalizer = sharedLocalizer;
 
         }
@@ -410,6 +412,13 @@ namespace MES.WebUI.Areas.Param.Controllers
             return ret > 0 ? Success() : Error();
         }
 
+        [Route("param/recipe/esopdelete")]
+        [HttpPost]
+        public async Task<ActionResult> ESOPDelete(string primaryKey, string configId)
+        {
+            return await paramESOPItemLogic.DeleteTableRowByIDAsync<ParamEsopItem>(primaryKey, configId) > 0 ? Success() : Error();
+        }
+
         [Route("param/recipe/step")]
         [HttpPost]
         public ActionResult Step(int pageIndex, int pageSize, string keyWord, string configId, string primaryKey)
@@ -578,6 +587,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                     processParam.SetValue = item.SetValue;
                     processParam.IsDoubleCheck = item.IsDoubleCheck;
                     processParam.UnitOfMeasure = item.UnitOfMeasure;
+                    processParam.ParamGroup = item.ParamGroup;
                     processParams.Add(processParam);
                 }
             }
@@ -601,6 +611,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                     {"SetValue","定性的设定值" },
                     {"IsDoubleCheck","二次校验" },
                     {"UnitOfMeasure","单位" },
+                    {"ParamGroup","参数分组" },
                 };
 
             // 将 ExcelPackage 转换为字节数组
@@ -647,6 +658,7 @@ namespace MES.WebUI.Areas.Param.Controllers
                     {"定性的设定值","SetValue" },
                     {"二次校验","IsDoubleCheck" },
                     {"单位","UnitOfMeasure" },
+                    {"参数分组","ParamGroup" },
                 };
                 List<RecipeProcessParam> models = ExcelUtils.ImportExcel<RecipeProcessParam>(stream, keyValuePairs);
 

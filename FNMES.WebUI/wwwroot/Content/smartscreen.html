@@ -3,274 +3,438 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全屏图片轮播</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <title>设备状态监控</title>
+    <!-- 引入layui -->
+    <link href="/Content/layui/css/layui.css" rel="stylesheet" />
+    <link href="/Content/framework/css/console.css" rel="stylesheet" />
+    <link href="/Content/framework/css/animate.css" rel="stylesheet" />
+    <link href="/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/Content/select2/css/select2.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="/Content/jquery/jquery-1.9.1.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="/Content/jquery/jquery-3.6.0.min.js"></script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="/Content/layui/layui.js"></script>
+    <script src="/Content/select2/js/select2.min.js"></script>
+    <script src="/Content/framework/js/global.js"></script>
+    <script src="/Content/echarts/echarts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@7.0.7/dist/browser/signalr.min.js"></script>
+    <style>
+        body {
+            background-color: #f2f3f5;
+            padding: 15px;
+        }
 
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .device-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .device-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             }
 
-            .carousel-container {
-                @apply relative overflow-hidden w-full h-screen;
+        .device-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-running {
+            background-color: #009688; /* 绿色-运行中 */
+        }
+
+        .status-alarm {
+            background-color: #FF5722; /* 红色-报警 */
+            animation: blink 1.5s infinite;
+        }
+
+        .status-maintain {
+            background-color: #FFB800; /* 橙色-停机维护 */
+        }
+
+        .device-info {
+            padding: 10px 0;
+        }
+
+            .device-info p {
+                margin: 5px 0;
+                font-size: 14px;
             }
 
-            .carousel-image {
-                @apply absolute inset-0 w-full h-full object-cover transition-opacity duration-500;
+        .status-text {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: white;
+        }
+
+        .table-container {
+            margin-top: 20px;
+        }
+
+        .refresh-btn {
+            padding: 2px 10px !important;
+            height: auto !important;
+            font-size: 12px !important;
+        }
+
+        .last-update {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
             }
 
-            .carousel-btn {
-                @apply absolute top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50 transition-all duration-300 cursor-pointer z-10;
+            50% {
+                opacity: 0.4;
             }
 
-            .carousel-indicator {
-                @apply w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-all duration-300 cursor-pointer;
+            100% {
+                opacity: 1;
             }
-
-                .carousel-indicator.active {
-                    @apply bg-white w-8;
-                }
         }
     </style>
 </head>
-<body class="m-0 p-0 overflow-hidden">
-    <!-- 主轮播容器 - 充满整个网页body -->
-    <div id="mainCarousel" class="carousel-container">
-        <div id="carouselImages" class="w-full h-full"></div>
-
-        <!-- 导航按钮 -->
-        <div id="prevBtn" class="carousel-btn left-6">
-            <i class="fa fa-chevron-left text-2xl"></i>
-        </div>
-        <div id="nextBtn" class="carousel-btn right-6">
-            <i class="fa fa-chevron-right text-2xl"></i>
-        </div>
-
-        <!-- 全屏控制按钮 -->
-        <div id="fullscreenToggle" class="carousel-btn top-8 right-8 w-10 h-10 translate-y-0">
-            <i class="fa fa-expand text-xl"></i>
+<body>
+    <div class="layui-container">
+        <div class="layui-row">
+            <div class="layui-col-md12">
+                <fieldset class="layui-elem-field">
+                    <legend>设备状态监控</legend>
+                    <div class="layui-field-box">
+                        <!-- 设备栅格 -->
+                        <div class="device-grid" id="deviceGrid">
+                            <!-- 设备卡片将通过JS动态生成 -->
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
         </div>
 
-        <!-- 指示器 -->
-        <div id="indicators" class="absolute bottom-8 left-0 right-0 flex justify-center gap-2 z-10"></div>
-
-        <!-- 提示信息 -->
-        <div class="absolute top-8 left-8 text-white bg-black/30 px-4 py-2 rounded-md text-sm z-10">
-            提示: 点击图片或按钮切换，ESC退出全屏，Ctrl+F切换全屏
+        <!-- 报警信息表格 -->
+        <div class="layui-row table-container">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>报警信息列表</span>
+                            <button class="layui-btn layui-btn-primary refresh-btn" id="refreshAlarm">
+                                <i class="layui-icon layui-icon-refresh"></i> 刷新
+                            </button>
+                        </div>
+                    </div>
+                    <div class="layui-card-body">
+                        <table class="layui-table" lay-size="sm" lay-even>
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>机台名称</th>
+                                    <th>报警信息</th>
+                                    <th>报警时间</th>
+                                    <th>报警级别</th>
+                                    <th>处理状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="alarmTableBody">
+                                <!-- 表格内容将通过JS动态生成 -->
+                            </tbody>
+                        </table>
+                        <div id="alarmPage" style="text-align: right;"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- 引入layui JS -->
+    <script src="https://cdn.jsdelivr.net/npm/layui-src/dist/layui.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // 配置
-            const MAX_IMAGES = 20;
-            const IMAGE_FOLDER = 'images/';
-            const AUTO_PLAY_INTERVAL = 5000;
-            let currentIndex = 0;
-            let validImages = [];
-            let autoPlayTimer = null;
+        layui.use(['element', 'laypage', 'layer'], function () {
+            var element = layui.element;
+            var laypage = layui.laypage;
+            var layer = layui.layer;
 
-            // DOM元素
-            const mainCarousel = document.getElementById('mainCarousel');
-            const carouselImages = document.getElementById('carouselImages');
-            const indicators = document.getElementById('indicators');
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
-            const fullscreenToggle = document.getElementById('fullscreenToggle');
+            // 设备数据 - 6台设备
+            const devices = [
+                {
+                    id: 1,
+                    name: '包膜机',
+                    status: 'running', // running, alarm, maintain
+                    statusText: '运行中',
+                    lastUpdate: '2023-06-15 14:30:22',
+                    params: { 温度: '185℃', 压力: '8.5MPa', 速度: '32rpm' },
+                    alarmInfo: ''
+                },
+                {
+                    id: 2,
+                    name: 'PACK入箱',
+                    status: 'alarm',
+                    statusText: '报警',
+                    lastUpdate: '2023-06-15 14:25:11',
+                    params: { 压力: '12.3MPa', 次数: '1258次' },
+                    alarmInfo: '压力传感器异常'
+                },
+                {
+                    id: 3,
+                    name: '极柱定位',
+                    status: 'running',
+                    statusText: '运行中',
+                    lastUpdate: '2023-06-15 14:31:05',
+                    params: { 速度: '15m/min', 合格率: '99.2%' },
+                    alarmInfo: ''
+                },
+                {
+                    id: 4,
+                    name: '极柱焊接',
+                    status: 'maintain',
+                    statusText: '停机维护',
+                    lastUpdate: '2023-06-15 13:45:33',
+                    params: { 维护人员: '张三', 预计完成: '16:30' },
+                    alarmInfo: ''
+                },
+                {
+                    id: 5,
+                    name: '气密性测试',
+                    status: 'alarm',
+                    statusText: '报警',
+                    lastUpdate: '2023-06-15 14:18:47',
+                    params: { 电流: '220A', 电压: '380V' },
+                    alarmInfo: '温度过高，已停机'
+                },
+                {
+                    id: 6,
+                    name: '静态测试',
+                    status: 'running',
+                    statusText: '运行中',
+                    lastUpdate: '2023-06-15 14:29:18',
+                    params: { 检测速度: '20个/分钟', 准确率: '99.8%' },
+                    alarmInfo: ''
+                }
+            ];
 
-            // 预加载图片并检测有效性
-            async function loadImages() {
-                validImages = [];
+            // 报警信息数据
+            const alarmData = [
+                { id: 1, deviceId: 2, deviceName: '包膜机', info: '压力传感器异常', time: '2023-06-15 14:25:11', level: '中级', status: '未处理' },
+                { id: 2, deviceId: 5, deviceName: '包膜机', info: '温度过高，已停机', time: '2023-06-15 14:18:47', level: '高级', status: '处理中' },
+                { id: 3, deviceId: 2, deviceName: '包膜机', info: '润滑油不足', time: '2023-06-15 13:42:05', level: '低级', status: '已处理' },
+                { id: 4, deviceId: 1, deviceName: '包膜机', info: '原料余量不足', time: '2023-06-15 12:15:33', level: '低级', status: '已处理' },
+                { id: 5, deviceId: 5, deviceName: '包膜机', info: '电流波动', time: '2023-06-15 11:08:22', level: '中级', status: '已处理' }
+            ];
 
-                for (let i = 1; i <= MAX_IMAGES; i++) {
-                    try {
-                        const response = await fetch(`${IMAGE_FOLDER}Image${i}.jpg`);
-                        if (response.ok) {
-                            validImages.push(i);
+            // 渲染设备栅格
+            function renderDeviceGrid() {
+                const gridContainer = document.getElementById('deviceGrid');
+                gridContainer.innerHTML = '';
+
+                devices.forEach(device => {
+                    const card = document.createElement('div');
+                    card.className = `layui-card device-card`;
+
+                    // 构建参数信息HTML
+                    let paramsHtml = '';
+                    for (const [key, value] of Object.entries(device.params)) {
+                        paramsHtml += `<p>${key}: <span style="font-weight: 500;">${value}</span></p>`;
+                    }
+
+                    // 报警信息显示
+                    let alarmHtml = '';
+                    if (device.status === 'alarm') {
+                        alarmHtml = `<div style="margin-top: 10px; padding: 5px; background-color: #fff3e0; border-left: 3px solid #FF5722; font-size: 13px; color: #e64340;">
+                                  <i class="layui-icon layui-icon-warning"></i> ${device.alarmInfo}
+                                </div>`;
+                    }
+
+                    card.innerHTML = `
+                    <div class="layui-card-header">
+                      <h3 style="margin: 0;">${device.name}</h3>
+                      <div class="device-status status-${device.status}"></div>
+                    </div>
+                    <div class="layui-card-body">
+                      <div class="device-info">
+                        <p>状态: <span class="status-text ${device.status === 'running' ? 'layui-bg-green' : device.status === 'alarm' ? 'layui-bg-red' : 'layui-bg-orange'}">${device.statusText}</span></p>
+                        ${paramsHtml}
+                        ${alarmHtml}
+                        <div class="last-update">最后更新: ${device.lastUpdate}</div>
+                      </div>
+                    </div>
+                  `;
+
+                    // 点击设备卡片事件
+                    card.addEventListener('click', () => {
+                        layer.open({
+                            title: `设备详情 - ${device.name}`,
+                            content: `
+                        <div style="padding: 10px;">
+                          <p><strong>设备ID:</strong> ${device.id}</p>
+                          <p><strong>状态:</strong> <span class="status-text ${device.status === 'running' ? 'layui-bg-green' : device.status === 'alarm' ? 'layui-bg-red' : 'layui-bg-orange'}">${device.statusText}</span></p>
+                          <p><strong>最后更新:</strong> ${device.lastUpdate}</p>
+                          <hr>
+                          <p><strong>运行参数:</strong></p>
+                          <ul style="padding-left: 20px;">
+                            ${Object.entries(device.params).map(([key, value]) => `<li>${key}: ${value}</li>`).join('')}
+                          </ul>
+                          ${device.status === 'alarm' ? `<hr><p style="color: #e64340;"><strong>报警信息:</strong> ${device.alarmInfo}</p>` : ''}
+                        </div>
+                      `,
+                            area: ['400px', '350px'],
+                            btn: ['关闭']
+                        });
+                    });
+
+                    gridContainer.appendChild(card);
+                });
+            }
+
+            // 渲染报警表格
+            function renderAlarmTable(page = 1) {
+                const tableBody = document.getElementById('alarmTableBody');
+                tableBody.innerHTML = '';
+
+                const pageSize = 3;
+                const startIndex = (page - 1) * pageSize;
+                const endIndex = startIndex + pageSize;
+                const currentPageData = alarmData.slice(startIndex, endIndex);
+
+                currentPageData.forEach((alarm, index) => {
+                    const row = document.createElement('tr');
+
+                    // 处理状态样式
+                    let statusClass = '';
+                    switch (alarm.status) {
+                        case '未处理': statusClass = 'layui-btn-danger'; break;
+                        case '处理中': statusClass = 'layui-btn-warm'; break;
+                        case '已处理': statusClass = 'layui-btn-normal'; break;
+                    }
+
+                    // 报警级别样式
+                    let levelClass = '';
+                    switch (alarm.level) {
+                        case '高级': levelClass = 'layui-bg-red'; break;
+                        case '中级': levelClass = 'layui-bg-orange'; break;
+                        case '低级': levelClass = 'layui-bg-blue'; break;
+                    }
+
+                    row.innerHTML = `
+                    <td>${startIndex + index + 1}</td>
+                    <td>${alarm.deviceName}</td>
+                    <td>${alarm.info}</td>
+                    <td>${alarm.time}</td>
+                    <td><span class="layui-badge ${levelClass}">${alarm.level}</span></td>
+                    <td><span class="layui-btn ${statusClass} layui-btn-xs">${alarm.status}</span></td>
+                    <td>
+                      <button class="layui-btn layui-btn-xs layui-btn-primary handle-alarm" data-id="${alarm.id}">
+                        处理
+                      </button>
+                    </td>
+                  `;
+                    tableBody.appendChild(row);
+                });
+
+                // 绑定处理按钮事件
+                document.querySelectorAll('.handle-alarm').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const alarmId = this.getAttribute('data-id');
+                        const alarm = alarmData.find(a => a.id == alarmId);
+
+                        layer.open({
+                            title: '处理报警',
+                            content: `
+                        <div style="padding: 10px;">
+                          <p><strong>设备:</strong> ${alarm.deviceName}</p>
+                          <p><strong>报警信息:</strong> ${alarm.info}</p>
+                          <p><strong>报警时间:</strong> ${alarm.time}</p>
+                          <p><strong>报警级别:</strong> <span class="layui-badge ${alarm.level === '高级' ? 'layui-bg-red' : alarm.level === '中级' ? 'layui-bg-orange' : 'layui-bg-blue'}">${alarm.level}</span></p>
+                          <div class="layui-form-item" style="margin-top: 15px;">
+                            <label class="layui-form-label">处理结果</label>
+                            <div class="layui-input-block">
+                              <textarea name="result" placeholder="请输入处理结果" class="layui-textarea"></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      `,
+                            area: ['400px', '380px'],
+                            btn: ['确认处理', '取消'],
+                            yes: function (index) {
+                                // 更新报警状态
+                                const targetAlarm = alarmData.find(a => a.id == alarmId);
+                                if (targetAlarm) {
+                                    targetAlarm.status = '已处理';
+                                }
+
+                                // 更新对应设备状态（如果需要）
+                                const targetDevice = devices.find(d => d.id == alarm.deviceId);
+                                if (targetDevice) {
+                                    targetDevice.status = 'running';
+                                    targetDevice.statusText = '运行中';
+                                    targetDevice.alarmInfo = '';
+                                }
+
+                                // 重新渲染表格和设备栅格
+                                renderAlarmTable(page);
+                                renderDeviceGrid();
+
+                                layer.close(index);
+                                layer.msg('报警已处理完成');
+                            }
+                        });
+                    });
+                });
+
+                // 渲染分页
+                laypage.render({
+                    elem: 'alarmPage',
+                    count: alarmData.length,
+                    limit: pageSize,
+                    curr: page,
+                    theme: '#1E9FFF',
+                    jump: function (obj, first) {
+                        if (!first) {
+                            renderAlarmTable(obj.curr);
                         }
-                    } catch (error) {
-                        console.log(`图片 ${IMAGE_FOLDER}Image${i}.jpg 不存在，已跳过`);
-                    }
-                }
-
-                if (validImages.length === 0) {
-                    alert('没有找到任何有效图片，请检查images文件夹是否存在且包含图片');
-                    return;
-                }
-
-                initCarousel();
-                startAutoPlay();
-            }
-
-            // 初始化轮播
-            function initCarousel() {
-                createIndicators();
-                createImageElements();
-                showImage(currentIndex);
-
-                // 监听全屏状态变化，更新按钮图标
-                document.addEventListener('fullscreenchange', updateFullscreenButton);
-                document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
-                document.addEventListener('mozfullscreenchange', updateFullscreenButton);
-                document.addEventListener('msfullscreenchange', updateFullscreenButton);
-            }
-
-            // 创建指示器
-            function createIndicators() {
-                indicators.innerHTML = '';
-                validImages.forEach((_, index) => {
-                    const indicator = document.createElement('div');
-                    indicator.className = `carousel-indicator ${index === currentIndex ? 'active' : ''}`;
-                    indicator.addEventListener('click', () => goToImage(index));
-                    indicators.appendChild(indicator);
-                });
-            }
-
-            // 创建图片元素
-            function createImageElements() {
-                carouselImages.innerHTML = '';
-                validImages.forEach((imageNum, index) => {
-                    const img = document.createElement('img');
-                    img.src = `${IMAGE_FOLDER}Image${imageNum}.jpg`;
-                    img.alt = `图片 ${imageNum}`;
-                    img.className = `carousel-image ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`;
-                    img.dataset.index = index;
-                    img.addEventListener('click', nextImage);
-                    carouselImages.appendChild(img);
-                });
-            }
-
-            // 显示指定图片
-            function showImage(index) {
-                const images = carouselImages.querySelectorAll('img');
-                const dots = indicators.querySelectorAll('.carousel-indicator');
-
-                images.forEach((img, i) => {
-                    if (i === index) {
-                        img.classList.remove('opacity-0');
-                        img.classList.add('opacity-100');
-                    } else {
-                        img.classList.remove('opacity-100');
-                        img.classList.add('opacity-0');
                     }
                 });
-
-                dots.forEach((dot, i) => {
-                    if (i === index) {
-                        dot.classList.add('active');
-                    } else {
-                        dot.classList.remove('active');
-                    }
-                });
-
-                currentIndex = index;
             }
 
-            // 下一张图片
-            function nextImage() {
-                resetAutoPlay();
-                let nextIndex = currentIndex + 1;
-                if (nextIndex >= validImages.length) {
-                    nextIndex = 0;
-                }
-                showImage(nextIndex);
-            }
-
-            // 上一张图片
-            function prevImage() {
-                resetAutoPlay();
-                let prevIndex = currentIndex - 1;
-                if (prevIndex < 0) {
-                    prevIndex = validImages.length - 1;
-                }
-                showImage(prevIndex);
-            }
-
-            // 跳转到指定图片
-            function goToImage(index) {
-                if (index >= 0 && index < validImages.length) {
-                    resetAutoPlay();
-                    showImage(index);
-                }
-            }
-
-            // 自动播放控制
-            function startAutoPlay() {
-                autoPlayTimer = setInterval(nextImage, AUTO_PLAY_INTERVAL);
-            }
-
-            function resetAutoPlay() {
-                clearInterval(autoPlayTimer);
-                startAutoPlay();
-            }
-
-            // 切换浏览器全屏模式
-            function toggleBrowserFullscreen() {
-                if (document.fullscreenElement ||
-                    document.webkitFullscreenElement ||
-                    document.msFullscreenElement) {
-                    // 退出全屏
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    } else if (document.webkitExitFullscreen) {
-                        document.webkitExitFullscreen();
-                    } else if (document.msExitFullscreen) {
-                        document.msExitFullscreen();
-                    }
-                } else {
-                    // 进入全屏
-                    const element = document.documentElement;
-                    if (element.requestFullscreen) {
-                        element.requestFullscreen();
-                    } else if (element.webkitRequestFullscreen) {
-                        element.webkitRequestFullscreen();
-                    } else if (element.msRequestFullscreen) {
-                        element.msRequestFullscreen();
-                    }
-                }
-            }
-
-            // 更新全屏按钮图标
-            function updateFullscreenButton() {
-                const icon = fullscreenToggle.querySelector('i');
-                if (document.fullscreenElement ||
-                    document.webkitFullscreenElement ||
-                    document.msFullscreenElement) {
-                    icon.classList.remove('fa-expand');
-                    icon.classList.add('fa-compress');
-                } else {
-                    icon.classList.remove('fa-compress');
-                    icon.classList.add('fa-expand');
-                }
-            }
-
-            // 事件监听
-            prevBtn.addEventListener('click', prevImage);
-            nextBtn.addEventListener('click', nextImage);
-            fullscreenToggle.addEventListener('click', toggleBrowserFullscreen);
-
-            // 键盘控制
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowRight') {
-                    nextImage();
-                } else if (e.key === 'ArrowLeft') {
-                    prevImage();
-                } else if (e.key === 'Escape' && (document.fullscreenElement || document.webkitFullscreenElement)) {
-                    toggleBrowserFullscreen();
-                } else if (e.key === 'f' && e.ctrlKey) {
-                    e.preventDefault();
-                    toggleBrowserFullscreen();
-                }
+            // 刷新按钮事件
+            document.getElementById('refreshAlarm').addEventListener('click', function () {
+                const loading = layer.load(1);
+                setTimeout(() => {
+                    renderAlarmTable();
+                    renderDeviceGrid();
+                    layer.close(loading);
+                    layer.msg('数据已刷新');
+                }, 800);
             });
 
-            // 鼠标悬停暂停自动播放
-            mainCarousel.addEventListener('mouseenter', () => clearInterval(autoPlayTimer));
-            mainCarousel.addEventListener('mouseleave', startAutoPlay);
-
-            // 启动轮播
-            loadImages();
+            // 初始化页面
+            renderDeviceGrid();
+            renderAlarmTable();
         });
     </script>
 </body>

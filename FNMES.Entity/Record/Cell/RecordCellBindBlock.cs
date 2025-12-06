@@ -1,4 +1,5 @@
-﻿using SqlSugar;
+﻿using OfficeOpenXml.Table.PivotTable;
+using SqlSugar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace FNMES.Entity.Record
 {
     [SplitTable(SplitType.Month), LineTableInit]
     [SugarTable("Record_CellBindBlock_{year}{month}{day}")]
+    [SugarIndex("index_cellBindBlock_cell_block", nameof(RecordCellBindBlock.CellBarcode), OrderByType.Asc,nameof(RecordCellBindBlock.BlockBarcode), OrderByType.Asc)]
     public class RecordCellBindBlock : RecordBase
     {
         /// <summary>
@@ -19,7 +21,6 @@ namespace FNMES.Entity.Record
         /// <summary>
         /// Block条码
         /// </summary>
-
         [SugarColumn(ColumnName = "BlockBarcode", ColumnDataType = "varchar(100)", IsNullable = true)]
         public string BlockBarcode { get; set; }
         /// <summary>

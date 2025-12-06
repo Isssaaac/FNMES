@@ -15,10 +15,22 @@ namespace FNMES.Utility.Logs
         public static readonly ILog logerror = LogManager.GetLogger("logerror");
         public static readonly ILog logoperate = LogManager.GetLogger("logoperate");
 
+        //private static readonly ILog mesLogger = LogManager.GetLogger("MESLogger");
+
         public static void Init(string configContent)
         {
             MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(configContent));
             XmlConfigurator.Configure(stream);
+        }
+
+        public static void MESInfo(string interfaceName, string message)
+        {
+            
+            log4net.GlobalContext.Properties["InterfaceName"] = interfaceName;
+            log4net.ThreadContext.Properties["InterfaceName"] = interfaceName;
+            object s = ThreadContext.Properties["InterfaceName"];
+            var mesLogger = log4net.LogManager.GetLogger("MESLogger");
+            mesLogger.Info(message);
         }
 
         public static void Info(string message)

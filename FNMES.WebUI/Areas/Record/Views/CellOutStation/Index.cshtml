@@ -35,20 +35,17 @@
         <div class="panel-body">
             <div class="layui-inline" style="margin-bottom: 10px;">
                 <select lay-ignore name="lineId" class="select2" id="lineId" style="width: 250px;height: 30px;" lay-verify="required"></select>
-
                 <div class="layui-inline" id="ID-laydate-range">
                     <div class="layui-input-inline">
                         <input type="text" autocomplete="off" id="ID-laydate-start-date" style="width: 200px;height: 30px;" class="layui-input" placeholder="开始日期">
                     </div>
+                    <div class="layui-form-mid">-</div>
                     <div class="layui-input-inline">
                         <input type="text" autocomplete="off" id="ID-laydate-end-date" style="width: 200px;height: 30px;" class="layui-input" placeholder="结束日期">
                     </div>
                 </div>
-
             </div>
-
             <div id="toolbar" class="FNMES-table-toolbar">
-
                 <div class="layui-btn-group">
                     <button onclick="btn_process()" class="layui-btn layui-btn-primary layui-btn-small">过程数据</button>
                     <button onclick="btn_part()" class="layui-btn layui-btn-primary layui-btn-small">物料数据</button>
@@ -136,14 +133,14 @@
             });
 
         $("#ID-laydate-start-date").val($.getCurrentDateTime(-7));
-        $("#ID-laydate-end-date").val($.getCurrentDateTime(0));
+        $("#ID-laydate-end-date").val($.getCurrentDateTime(1));
             // 日期范围 - 左右面板独立选择模式
             laydate.render({
                 elem: '#ID-laydate-range',
-                range: ['#ID-laydate-start-date', '#ID-laydate-end-date'],
-                
+                type: 'datetime',
+                range: true
             });
-
+       
             paging = layui.paging();
             $("#lineId").bindSelect({
                 type: "POST",

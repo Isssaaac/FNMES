@@ -33,6 +33,9 @@ namespace FNMES.Entity.Sys
         [SugarColumn(ColumnName = "BigProcedure", IsNullable = true)]
         public string BigProcedure { get; set; }
 
+        [SugarColumn(ColumnName = "Identity", IsNullable = true)]
+        public string Identity { get; set; }
+
         [Navigate(NavigateType.OneToOne, nameof(LineId), nameof(SysLine.Id)), SugarColumn(IsIgnore = true)]//一对一
         public SysLine Line { get; set; } //不能赋值只能是null
     }

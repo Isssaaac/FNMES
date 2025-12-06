@@ -25,6 +25,5 @@ namespace FNMES.Entity.Enum
         public const int APPMenu = 3;
         public const int APPSubMenu = 4;
         public const int APPButton = 5;
-     
     }
 }

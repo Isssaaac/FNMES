@@ -196,7 +196,8 @@ namespace FNMES.WebUI.Logic.Sys
                     it.EnableFlag,
                     it.Description,
                     it.ModifyUserId,
-                    it.ModifyTime
+                    it.ModifyTime,
+                    it.Identity
                 }).ExecuteCommand();
             }
             catch (Exception e)

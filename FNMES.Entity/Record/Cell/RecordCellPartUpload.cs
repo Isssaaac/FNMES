@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.Record
 {
-    [SplitTable(SplitType.Season)]
+    [SplitTable(SplitType.Month)]
     [SugarTable("Record_CellPartUpload_{year}{month}{day}")]
     [SugarIndex("index_cell_partUpload_productCode", nameof(RecordCellPartUpload.ProductCode), OrderByType.Asc), LineTableInit]    //索引
     public class RecordCellPartUpload:RecordBase

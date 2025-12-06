@@ -12,7 +12,10 @@
         public const string UploadData_F = "/api/equipment/UploadData_F";                  //P16产品工序批次完成,出站
         public const string UploadData_MZ = "/api/equipment/UploadData_MZ";                //P16-4产品完成-堆叠首站,绑定工站，入箱也是
         public const string UpAssembleData = "/api/equipment/UpAssembleData";              //P32产品物料批次装配接口
+        public const string GetSfc = "/api/equipment/GetSfc";                              //P33产品条码规则校验及赋码
         public const string GetSfcInfo = "/api/equipment/GetSfcInfo";                      //获取电芯信息
+        public const string GetCheckMaitenance = "/api/equipment/GetCheckMaitenance";      //P38设备自动点检上传
+        public const string GetFeedLoad = "/api/equipment/GetFeedLoad";                    //P30物料批次上料接口
 
 
         public const string HeartbeatUrl = "/api/pa/healthCheck";                          //心跳接口

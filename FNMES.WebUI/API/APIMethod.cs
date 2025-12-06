@@ -26,22 +26,24 @@ namespace FNMES.WebUI.API
         {
             if (!GlobalContext.SystemConfig.IsDemo)
             {
-                method = url + method;
+                string link = url + method;
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
-                string response = WebApiRequest.DoPostJson(method, param);
+                string response = WebApiRequest.DoPostJson(link, param);
 
                 if (response.IsNullOrEmpty())
                 {
                     //此处用F表示，访问接口失败。。用于区分访问接口失败和调用结果的E
-                    response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+                    //response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+                    response = "{\"code\":\"99999\",\"msg\":\"工厂接口超时或无响应\",\"data\":null}";
                 }
                 stopwatch.Stop();
                 if (!disableLog)
                 {
                     logic.Insert(new RecordApi()
                     {
-                        Url = method,
+                        Url = link,
+                        Method =method,
                         RequestBody = param.ToJson(),
                         ResponseBody = response,
                         Elapsed = (int)stopwatch.Elapsed.TotalMilliseconds
@@ -56,22 +58,24 @@ namespace FNMES.WebUI.API
         {
             if (!GlobalContext.SystemConfig.IsDemo)
             {
-                method = url + method;
+                string link = url + method;
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
-                string response = WebApiRequest.DoPostJsonData(method, jsonData);
+                string response = WebApiRequest.DoPostJsonData(link, jsonData);
 
                 if (response.IsNullOrEmpty())
                 {
                     //此处用F表示，访问接口失败。。用于区分访问接口失败和调用结果的E
-                    response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+                    //response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+                    response = "{\"code\":\"99999\",\"msg\":\"工厂接口超时或无响应\",\"data\":null}";
                 }
                 stopwatch.Stop();
                 if (!disableLog)
                 {
                     logic.Insert(new RecordApi()
                     {
-                        Url = method,
+                        Url = link,
+                        Method = method,
                         RequestBody = jsonData,
                         ResponseBody = response,
                         Elapsed = (int)stopwatch.Elapsed.TotalMilliseconds
@@ -88,22 +92,24 @@ namespace FNMES.WebUI.API
         {
             if (!GlobalContext.SystemConfig.IsDemo)
             {
-                method = url + method;
+                string link = url + method;
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
-                string response = await WebApiRequest.DoPostJsonAsync(method, param);
-
+                string response = await WebApiRequest.DoPostJsonAsync(link, param);
+                MesLogManager.LogInfo(method, $"request:{param.ToJson()},response:{response}");
                 if (response.IsNullOrEmpty())
                 {
                     //此处用F表示，访问接口失败。。用于区分访问接口失败和调用结果的E
-                    response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+                    //response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+                    response = "{\"code\":\"99999\",\"msg\":\"工厂接口超时或无响应\",\"data\":null}";
                 }
                 stopwatch.Stop();
                 if (!disableLog)
                 {
                     _ = logic.InsertAsync(new RecordApi()
                     {
-                        Url = method,
+                        Url = link,
+                        Method = method,
                         RequestBody = param.ToJson(),
                         ResponseBody = response,
                         Elapsed = (int)stopwatch.Elapsed.TotalMilliseconds
@@ -118,22 +124,24 @@ namespace FNMES.WebUI.API
         {
             if (!GlobalContext.SystemConfig.IsDemo)
             {
-                method = url + method;
+                string link = url + method;
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
-                string response = await WebApiRequest.DoPostJsonDataAsync(method, jsonData);
+                string response = await WebApiRequest.DoPostJsonDataAsync(link, jsonData);
 
                 if (response.IsNullOrEmpty())
                 {
                     //此处用F表示，访问接口失败。。用于区分访问接口失败和调用结果的E
-                    response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+                    //response = "{\"messageType\":\"F\",\"message\":\"工厂接口超时或无响应\",\"data\":null}";
+                    response = "{\"code\":\"99999\",\"msg\":\"工厂接口超时或无响应\",\"data\":null}";
                 }
                 stopwatch.Stop();
                 if (!disableLog)
                 {
                     _ = logic.InsertAsync(new RecordApi()
                     {
-                        Url = method,
+                        Url = link,
+                        Method = method,
                         RequestBody = jsonData,
                         ResponseBody = response,
                         Elapsed = (int)stopwatch.Elapsed.TotalMilliseconds

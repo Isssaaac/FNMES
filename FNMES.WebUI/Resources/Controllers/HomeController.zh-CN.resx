@@ -135,6 +135,9 @@
   <data name="AddUser" xml:space="preserve">
     <value>添加</value>
   </data>
+  <data name="Assembly" xml:space="preserve">
+    <value>装配记录</value>
+  </data>
   <data name="Authorization" xml:space="preserve">
     <value>授权</value>
   </data>
@@ -257,6 +260,9 @@
   </data>
   <data name="OutstationRecord" xml:space="preserve">
     <value>出站记录</value>
+  </data>
+  <data name="ParamGroup" xml:space="preserve">
+    <value>参数分组</value>
   </data>
   <data name="PartRecord" xml:space="preserve">
     <value>物料记录</value>

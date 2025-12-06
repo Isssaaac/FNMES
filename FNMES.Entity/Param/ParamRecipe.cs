@@ -57,6 +57,12 @@ namespace FNMES.Entity.Param
         [SugarColumn(ColumnName = "RouteVersion", IsNullable = true)]
         public string RouteVersion { get; set; }
 
+        [SugarColumn(ColumnName = "PackQtyOnPallet", IsNullable = true)]
+        public string PackQtyOnPallet { get; set; }
+
+        [SugarColumn(ColumnName = "PlcProductPartNo", IsNullable = true)]
+        public string PlcProductPartNo { get; set; }
+
 
         [Navigate(NavigateType.OneToMany, nameof(ParamRecipeItem.RecipeId)), SugarColumn(IsIgnore = true)]//一对多
 

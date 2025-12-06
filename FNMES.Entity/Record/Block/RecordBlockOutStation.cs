@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.Record
 {
-    [SplitTable(SplitType.Season)]
+    [SplitTable(SplitType.Month)]
     [SugarTable("Record_BlockOutStation_{year}{month}{day}")]
     [SugarIndex("index_blockoutStation_productCode", nameof(RecordBlockOutStation.ProductCode), OrderByType.Asc), LineTableInit]    //索引
     public class RecordBlockOutStation:RecordBase

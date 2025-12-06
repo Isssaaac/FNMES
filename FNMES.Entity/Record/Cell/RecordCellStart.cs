@@ -7,14 +7,15 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.Record
 {
-    [SplitTable(SplitType.Season)]
+    [SplitTable(SplitType.Month)]
     [SugarTable("Record_Cell_Start_{year}{month}{day}"), LineTableInit]
+    [SugarIndex("index_cellStart_productCode", nameof(RecordCellStart.ProductCode), OrderByType.Asc)]    //索引
     public class RecordCellStart:RecordBase
     {
         /// <summary>
         /// 电芯条码
         ///</summary>
-        [SugarColumn(ColumnName = "ProductCode", ColumnDataType = "varchar(100)", IsNullable = true)]
+        [SugarColumn(ColumnName = "ProductCode", ColumnDataType = "varchar(100)")]
         public string ProductCode { get; set; }
 
         //档位
@@ -26,7 +27,7 @@ namespace FNMES.Entity.Record
         public string LastOCVDate { get; set; }
 
         //
-        [SugarColumn(ColumnName = "Gear", ColumnDataType = "varchar(10)", IsNullable = true)]
+        [SugarColumn(ColumnName = "O2Voltage", ColumnDataType = "varchar(10)", IsNullable = true)]
         public string O2Voltage { get; set; }
 
         //标志位

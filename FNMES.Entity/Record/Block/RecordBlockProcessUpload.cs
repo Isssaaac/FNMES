@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FNMES.Entity.Record
 {
-    [SplitTable(SplitType.Season)]
+    [SplitTable(SplitType.Month)]
     [SugarTable("Record_BlockProcessUpload_{year}{month}{day}")]
     [SugarIndex("index_block_processUpload_productCode", nameof(RecordBlockProcessUpload.ProductCode), OrderByType.Asc), LineTableInit]    //索引
     public class RecordBlockProcessUpload: RecordBase

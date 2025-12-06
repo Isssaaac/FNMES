@@ -37,6 +37,11 @@
             <div class="layui-input-inline">
                 <input type="text" name="Name" id="Name" lay-verify="required" placeholder="请输入名称" autocomplete="off" class="layui-input">
             </div>
+
+            <label class="layui-form-label">标识</label>
+            <div class="layui-input-inline">
+                <input type="text" name="Identity" id="Identity" placeholder="请输入标识" autocomplete="off" class="layui-input">
+            </div>
         </div>
      </div>
 
@@ -56,12 +61,12 @@
     </div>
 
     <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label">备注</label>
-                <div class="layui-input-inline" style="width: 514px;">
-                    <textarea name="Description" class="layui-textarea" placeholder="请输入备注"></textarea>
-                </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-inline" style="width: 514px;">
+                <textarea name="Description" class="layui-textarea" placeholder="请输入备注"></textarea>
             </div>
+        </div>
      </div>
     
     
@@ -82,21 +87,6 @@
         $("#BigProcedure").bindSelect({
             type: "POST",
             url: "/param/unitProcedure/getParentByLine?lineId=" + lineId,
-            // change: function (selectedData) {
-
-            //     if (selectedData.id) {
-            //         // 通过选择器选择你要清空的<select>元素
-            //         var selectElement = $("#UnitProcedure");
-
-            //         // 使用.empty()方法来清空选项
-            //         selectElement.empty();
-            //         $("#UnitProcedure").bindSelect({
-            //             type: "POST",
-            //             url: "/param/unitProcedure/getProcedureByline?lineId=" + lineId + "&parent=" + selectedData.id
-            //         });
-            //         form.render('select');
-            //     }
-            // }
         });
 
         $("#UnitProcedure").bindSelect({
@@ -146,9 +136,6 @@
 
         
         form.render();
-
-        
-
         form.on('submit(add)', function (data) {
             $.formSubmit({
                 url: "/system/equipment/form",

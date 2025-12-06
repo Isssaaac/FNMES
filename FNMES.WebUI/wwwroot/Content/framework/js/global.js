@@ -95,15 +95,10 @@ $.layerConditionOpen = function (options) {
 
 
 $.getCurrentDateTime = function (dayadd) {
-    var date = new Date();
-    var year = date.getFullYear();
-    // 月份/日期/小时/分钟/秒 补0（确保格式统一，如 9月→09月，3分→03分）
-    var month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需+1
-    var day = String(date.getDate() + dayadd).padStart(2, '0');
-    // 返回完整格式
-    return `${year}-${month}-${day}` ;
+    var now = new Date();
+    var currentdate = new Date(now.getTime() + dayadd * 24 * 60 * 60 * 1000); 
+    return layui.util.toDateString(currentdate, 'yyyy-MM-dd HH:mm:ss');
 }
-
 
 /**
  * 关闭模态窗。

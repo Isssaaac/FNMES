@@ -19,12 +19,11 @@ namespace FNMES.Entity.Param
         [SugarColumn(ColumnName = "SmallStationCode", IsNullable = true)]
         public string SmallStationCode { get; set; }
 
-
         // SOP文件存储在文件服务器URL路径
         [SugarColumn(ColumnName = "FilePath", ColumnDataType = "varchar(MAX)", IsNullable = true)]
         public string FilePath { get; set; }
 
-        // 顺序号（有多本时）
+        // 顺序号（有多本时,用这个作为工步号）
         [SugarColumn(ColumnName = "No", IsNullable = true)]
         public string No { get; set; }
 

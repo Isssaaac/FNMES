@@ -624,7 +624,7 @@ namespace FNMES.Service.WebService.FN
         //重新AGV工装与箱体  中转工位使用  绑定信息上传
 
         [OperationContract]
-        public RetMessage<nullObject> TranshipStationBindPallet(TranshipStationBindProcessParam param, string configId)
+        public async Task<RetMessage<nullObject>> TranshipStationBindPallet(TranshipStationBindProcessParam param, string configId)
         {
             if (configId.IsNullOrEmpty())
             {
@@ -672,7 +672,7 @@ namespace FNMES.Service.WebService.FN
                 return ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();
             }
             //不在线，新建未传内容的表，等后续再人工恢复上传。  
-            offlineApiLogic.Insert(new RecordOfflineApi()
+            await offlineApiLogic.InsertAsync(new RecordOfflineApi()
             {
                 Url = Url.BindPalletUrl,
                 RequestBody = param.ToJson(),
@@ -1308,7 +1308,7 @@ namespace FNMES.Service.WebService.FN
 
         //过程数据接口         有空参数先用“0”“NG”填充
         [OperationContract]
-        public RetMessage<nullObject> ProcessUpload(ProcessUploadParam param, string configId)
+        public async Task<RetMessage<nullObject>> ProcessUpload(ProcessUploadParam param, string configId)
         {
             if (configId.IsNullOrEmpty())
             {
@@ -1353,7 +1353,7 @@ namespace FNMES.Service.WebService.FN
             {
                 return APIMethod.Call(Url.ProcessUploadUrl, processUploadParamA, configId).ToObject<RetMessage<nullObject>>();
             }
-            offlineApiLogic.Insert(new RecordOfflineApi()
+            await offlineApiLogic.InsertAsync(new RecordOfflineApi()
             {
                 Url = Url.ProcessUploadUrl,
                 RequestBody = param.ToJson(),
@@ -1440,7 +1440,7 @@ namespace FNMES.Service.WebService.FN
 
         //设备状态    检测到设备状态恢复时需要上传一条停机统计信息
         [OperationContract]
-        public RetMessage<nullObject> EquipmentState(EquipmentState param, string configId)
+        public async RetMessage<nullObject> EquipmentState(EquipmentState param, string configId)
         {
             if (configId.IsNullOrEmpty())
             {

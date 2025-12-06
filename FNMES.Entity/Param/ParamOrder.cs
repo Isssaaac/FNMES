@@ -107,9 +107,15 @@ namespace FNMES.Entity.Param
          [SugarColumn(ColumnName = "OperatorNo", IsNullable = true)]
          public string OperatorNo { get; set; }
         /// <summary>
-        ///  241206新增字段
+        ///  241206新增字段，档位
         ///</summary>
         [SugarColumn(ColumnName = "PackCellGear", IsNullable = true)]
         public string PackCellGear { get; set; }
+
+        /// <summary>
+        ///  在托盘上有多少个PACK
+        ///</summary>
+        [SugarColumn(ColumnName = "PackQtyOnPallet", IsNullable = true)]
+        public string PackQtyOnPallet { get; set; }
     }
 }

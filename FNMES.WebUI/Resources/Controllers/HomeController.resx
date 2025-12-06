@@ -135,6 +135,9 @@
   <data name="AddUser" xml:space="preserve">
     <value>Add</value>
   </data>
+  <data name="Assembly" xml:space="preserve">
+    <value>Assembly</value>
+  </data>
   <data name="Authorization" xml:space="preserve">
     <value>Authorization</value>
   </data>

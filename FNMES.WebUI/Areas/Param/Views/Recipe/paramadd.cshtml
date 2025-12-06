@@ -103,6 +103,10 @@
                         <option value="定量" selected>定量</option>
                     </select>
                 </div>
+                <label class="layui-form-label label-required">分组</label>
+                <div class="layui-input-inline">
+                    <select class="select2 layui-input-inline" lay-ignore name="ParamGroup" id="ParamGroup"></select>
+                </div>
             </div>
 
             <div class="layui-inline">
@@ -191,6 +195,11 @@
                         $("#StepName").val(data);
                     }
                 });
+            });
+
+            $("#ParamGroup").bindSelect({
+                type: "POST",
+                url: "/system/paramgroup/getparamgroup"
             });
 
             $("#RecipeItemId").val($.getQueryString("primaryKey"));

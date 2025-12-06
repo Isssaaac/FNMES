@@ -84,5 +84,9 @@ namespace FNMES.Entity.Param
         // NgCode
         [SugarColumn(ColumnName = "NgCode", IsNullable = true)]
         public string NgCode { get; set; }
+
+        // 参数分组名称
+        [SugarColumn(ColumnName = "ParamGroup", IsNullable = true)]
+        public string ParamGroup { get; set; }
     }
 }

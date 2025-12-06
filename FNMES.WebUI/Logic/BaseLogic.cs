@@ -616,31 +616,33 @@ namespace FNMES.WebUI.Logic.Base
         #region 异步方法
 
         /// <summary>
-        /// 按照时间分表的表格插入
+        /// 按照时间分表的表格插入,会报错
         /// </summary>
         /// <typeparam name="TTable"></typeparam>
         /// <param name="models"></param>
         /// <returns></returns>
-        public async Task<int> InsertSplitTableListAsync<TTable>(List<TTable> models ,string configId="default") where TTable : RecordBase
-        {
-            try
-            {
-                var db = GetInstance(configId);
-                //是否能生效
-                foreach (var model in models)
-                {
-                    model.Id = SnowFlakeSingle.Instance.NextId();
-                    model.CreateTime = DateTime.Now;
-                }
-                var ret = await db.Insertable(models).SplitTable().ExecuteCommandAsync();
-                return ret;
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorInfo($"上传批量数据失败", e);
-                return -1;
-            }
-        }
+        //public async Task<int> InsertSplitTableListAsync<TTable>(List<TTable> models ,string configId="default") where TTable : RecordBase
+        //{
+        //    try
+        //    {
+        //        var db = GetInstance(configId);
+        //        //是否能生效
+        //        foreach (var model in models)
+        //        {
+        //            model.Id = SnowFlakeSingle.Instance.NextId();
+        //            model.CreateTime = DateTime.Now;
+        //        }
+        //        var ret = await db.Insertable(models).SplitTable().ExecuteCommandAsync();
+        //        return ret;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Logger.ErrorInfo($"上传批量数据失败", e);
+        //        return -1;
+        //    }
+        //}
+
+
 
         /// <summary>
         /// ID在这里面定

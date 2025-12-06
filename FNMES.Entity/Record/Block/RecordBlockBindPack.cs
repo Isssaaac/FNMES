@@ -9,6 +9,7 @@ namespace FNMES.Entity.Record
 {
     [SplitTable(SplitType.Month), LineTableInit]
     [SugarTable("Record_BlockBindPack_{year}{month}{day}")]
+    [SugarIndex("index_blockbindpack_block_pack", nameof(RecordBlockBindPack.BlockBarcode), OrderByType.Asc, nameof(RecordBlockBindPack.PackBarcode), OrderByType.Asc)]
     public class RecordBlockBindPack:RecordBase
     {
         /// <summary>

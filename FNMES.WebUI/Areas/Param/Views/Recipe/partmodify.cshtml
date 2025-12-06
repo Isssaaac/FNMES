@@ -79,6 +79,16 @@
                 <div class="layui-input-inline">
                     <input type="number" name="OrderNo" id="OrderNo" placeholder="序号" autocomplete="off" class="layui-input">
                 </div>
+
+                <label class="layui-form-label">追溯类型</label>
+                <div class="layui-input-inline">
+                    <select name="PartType" id="PartType">
+                        <option value="">请选择</option>
+                        <option value="Precise">Precise</option>
+                        <option value="Batch" selected>Batch</option>
+                        <option value="Binding">Binding</option>
+                    </select>
+                </div>
             </div>
 
             <div class="layui-inline">
@@ -89,6 +99,29 @@
                 <label class="layui-form-label">单位</label>
                 <div class="layui-input-inline">
                     <input type="text" name="Uom" id="Uom" placeholder="单位" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">校验方式</label>
+                <div class="layui-input-inline">
+                    <select name="CheckType" id="CheckType">
+                        <option value="" >请选择</option>
+                        <option value="Regular" selected>Regular</option>
+                        <option value="Prefix">Prefix</option>
+                        <option value="Suffix">Suffix</option>
+                    </select>
+                </div>
+                <label class="layui-form-label">特征字</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="TagWord" id="TagWord" placeholder="" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">编码长度</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="CodeLength" id="CodeLength" placeholder="1" autocomplete="off" class="layui-input">
                 </div>
             </div>
 

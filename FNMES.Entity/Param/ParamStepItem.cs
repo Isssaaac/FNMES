@@ -44,17 +44,17 @@ namespace FNMES.Entity.Param
         [SugarColumn(ColumnName = "Group", IsNullable = true)]
         public string Group { get; set; }
 
-        [SugarColumn(IsIgnore = true)]
-        public bool IsGroup
-        {
-            get
-            {
-                return Group == "1";
-            }
-            set
-            {
-                Group = value ? "1" : "0";
-            }
-        }
+        //[SugarColumn(IsIgnore = true)]
+        //public bool IsGroup
+        //{
+        //    get
+        //    {
+        //        return Group == "1";
+        //    }
+        //    set
+        //    {
+        //        Group = value ? "1" : "0";
+        //    }
+        //}
     }
 }
