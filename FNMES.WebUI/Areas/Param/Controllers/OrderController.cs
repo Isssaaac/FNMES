@@ -1,31 +1,30 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
-using FNMES.WebUI.Filters;
-using FNMES.Utility.ResponseModels;
-using FNMES.Utility.Core;
-using FNMES.Utility.Operator;
-using FNMES.WebUI.Controllers;
-using FNMES.WebUI.Logic.Param;
-using FNMES.WebUI.Logic;
-using FNMES.Entity.Param;
-using System.Collections.Generic;
-using System.Drawing.Drawing2D;
-using FNMES.Utility.Network;
-using FNMES.WebUI.API;
+﻿using FNMES.Entity.DTO.ApiData;
 using FNMES.Entity.DTO.ApiParam;
-using FNMES.WebUI.Logic.Sys;
-using FNMES.Entity.Sys;
-using FNMES.Entity.DTO.ApiData;
-using System.Linq;
-using SqlSugar;
+using FNMES.Entity.Param;
 using FNMES.Entity.Record;
+using FNMES.Entity.Sys;
+using FNMES.Utility;
+using FNMES.Utility.Core;
+using FNMES.Utility.Files;
+using FNMES.Utility.Network;
+using FNMES.Utility.Operator;
 using FNMES.Utility.ResponseModels;
+using FNMES.WebUI.API;
+using FNMES.WebUI.Controllers;
+using FNMES.WebUI.Filters;
+using FNMES.WebUI.Logic;
+using FNMES.WebUI.Logic.Param;
+using FNMES.WebUI.Logic.Sys;
+using Microsoft.AspNetCore.Mvc;
+using SqlSugar;
+using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Drawing.Drawing2D;
 using System.IO;
-using FNMES.Utility.Files;
+using System.Linq;
 using System.Threading.Tasks;
-using FNMES.Utility;
 
 namespace MES.WebUI.Areas.Param.Controllers
 {
@@ -234,8 +233,8 @@ namespace MES.WebUI.Areas.Param.Controllers
                 };
 
                 //准备开工，先请求工厂接口，再更新本地数据
-                RetMessage<object> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, orderParam, configId).ToObject<RetMessage<object>>();
-
+                //RetMessage<object> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, orderParam, configId).ToObject<RetMessage<object>>();
+                RetMessage<object> retMessage = new RetMessage<object>();
                 if (retMessage.messageType == "S")
                 {
                     int v = orderLogic.Update(order, configId);
@@ -283,7 +282,8 @@ namespace MES.WebUI.Areas.Param.Controllers
                 };
 
                 //准备开工，先请求工厂接口，再更新本地数据
-                RetMessage<object> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, orderParam, configId).ToObject<RetMessage<object>>();
+                //RetMessage<object> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, orderParam, configId).ToObject<RetMessage<object>>();
+                RetMessage<object> retMessage = new RetMessage<object>();
 
                 if (retMessage.messageType == "S")
                 {
@@ -305,88 +305,89 @@ namespace MES.WebUI.Areas.Param.Controllers
             }
         }
 
-        object GetOrderLock = new object();
-        [Route("param/order/getOrder")]
-        [HttpPost, LoginChecked]
-        public ActionResult GetOrder(string configId)
-        {
-            lock (GetOrderLock)
-            {
-                SysLine sysLine = sysLineLogic.GetByConfigId(configId);
+        //object GetOrderLock = new object();
+        //[Route("param/order/getOrder")]
+        //[HttpPost, LoginChecked]
+        //public async Task<RetMessage<nullObject>> GetOrder(string configId)
+        //{
+        //    lock (GetOrderLock)
+        //    {
+        //        SysLine sysLine = sysLineLogic.GetByConfigId(configId);
 
-                GetOrderParam getOrderParam = new GetOrderParam()
-                {
-                    productionLine = sysLine.EnCode,
-                    stationCode = "M300",
-                    operatorNo = OperatorProvider.Instance.Current.Name
-                };
-                //应该是这里同步工单
-                RetMessage<GetOrderData> retMessage = APIMethod.Call(FNMES.WebUI.API.Url.GetOrderUrl, getOrderParam, configId).ToObject<RetMessage<GetOrderData>>();
-                if (retMessage.messageType == "S")
-                {
-                    List<ParamOrder> paramOrders = new List<ParamOrder>();
-                    foreach (var model in retMessage.data.workOrderList)
-                    {
-                        //241205同步工单岀档位数据
-                        paramOrders.Add(new ParamOrder()
-                        {
-                            Id = SnowFlakeSingle.instance.NextId(),
-                            TaskOrderNumber = model.taskOrderNumber,
-                            ProductPartNo = model.productPartNo,
-                            ProductDescription = model.productDescription,
-                            PlanQty = Convert.ToInt16(model.planQty),
-                            Uom = model.uom,
-                            PlanStartTime = model.planStartTime,
-                            PlanEndTime = model.planEndTime,
-                            ReceiveTime = DateTime.Now,
-                            Flag = "0",
-                            FinishFlag = "0",
-                            OperatorNo = "",
-                            //广州和赣州的不确定是否能同步，如果不同步的话，这里会不会报错，241217证实有无都不会报错
-                            PackCellGear = model.packCellGear
-                        });
-                        Logger.RunningInfo($"工单:{model.taskOrderNumber},档位:{model.packCellGear}");
-                    }
-                    //这里插入工单信息到线体mes数据库，后面插入
-                    int v = orderLogic.Insert(retMessage.data.workOrderList, configId);
-                    //同步后需要再向工厂发送一个已接收到的指令
-                    //List<ParamOrder> paramOrders = orderLogic.GetNew(configId);
+        //        GetShopParam getShopParam = new GetShopParam()
+        //        {
+        //            productionLine = sysLine.EnCode,
+        //            stationCode = "OP010",
+        //            smallStationCode = "YN1-PL01-OP010-001"
+        //        };
+        //        //应该是这里同步工单
+        //        var response = APIMethod.Call(FNMES.WebUI.API.Url.GetShopOrders, getShopParam, configId);
+        //        var retMessage = RetMessage<nullObject>.Convert<GetShopOrdersRet>(response);
+        //        if (retMessage.data != null)
+        //        {
+        //            List<ParamOrder> paramOrders = new List<ParamOrder>();
+        //            foreach (var model in retMessage.data)
+        //            {
+        //                //241205同步工单岀档位数据
+        //                paramOrders.Add(new ParamOrder()
+        //                {
+        //                    Id = SnowFlakeSingle.instance.NextId(),
+        //                    TaskOrderNumber = model.taskOrderNumber,
+        //                    ProductPartNo = model.productPartNo,
+        //                    ProductDescription = model.productDescription,
+        //                    PlanQty = Convert.ToInt16(model.planQty),
+        //                    Uom = model.uom,
+        //                    PlanStartTime = model.planStartTime,
+        //                    PlanEndTime = model.planEndTime,
+        //                    ReceiveTime = DateTime.Now,
+        //                    Flag = "0",
+        //                    FinishFlag = "0",
+        //                    OperatorNo = "",
+        //                    //广州和赣州的不确定是否能同步，如果不同步的话，这里会不会报错，241217证实有无都不会报错
+        //                    PackCellGear = model.packCellGear
+        //                });
+        //                Logger.RunningInfo($"工单:{model.taskOrderNumber},档位:{model.packCellGear}");
+        //            }
+        //            //这里插入工单信息到线体mes数据库，后面插入
+        //            int v = orderLogic.Insert(retMessage.data.workOrderList, configId);
+        //            //同步后需要再向工厂发送一个已接收到的指令
+        //            //List<ParamOrder> paramOrders = orderLogic.GetNew(configId);
 
-                    if (!paramOrders.IsNullOrEmpty() && paramOrders.Count > 0)
-                    {
-                        List<SelectOrder> orders = paramOrders.Select(it => new SelectOrder()
-                        {
-                            taskOrderNumber = it.TaskOrderNumber,
-                            actionCode = ActionCode.Received
-                        }).ToList();
-                        SelectOrderParam selectOrderParam = new SelectOrderParam()
-                        {
-                            taskOrderNumbers = orders,
-                            productionLine = sysLine.EnCode,
-                            stationCode = "M300",
-                            equipmentID = "FN-GZ-XTSX-03-M300-A",//20240409FN-GZXNY-PACK-024     更改设备编码20240409
-                            operatorNo = OperatorProvider.Instance.Current.Name,
-                            actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
-                        };
-                        //回传在这里
-                        RetMessage<object> retMessage1 = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, selectOrderParam, configId).ToObject<RetMessage<object>>();
-                        if (retMessage1.messageType == "S")
-                        {
-                            return Success("同步完成");
-                        }
-                        else
-                        {
-                            return Error("同步完成后回传失败");
-                        }
-                    }
-                    return Success("同步完成");
-                }
-                else
-                {
-                    return Error("工厂接口访问失败");
-                }
-            }
-        }
+        //            if (!paramOrders.IsNullOrEmpty() && paramOrders.Count > 0)
+        //            {
+        //                List<SelectOrder> orders = paramOrders.Select(it => new SelectOrder()
+        //                {
+        //                    taskOrderNumber = it.TaskOrderNumber,
+        //                    actionCode = ActionCode.Received
+        //                }).ToList();
+        //                SelectOrderParam selectOrderParam = new SelectOrderParam()
+        //                {
+        //                    taskOrderNumbers = orders,
+        //                    productionLine = sysLine.EnCode,
+        //                    stationCode = "M300",
+        //                    equipmentID = "FN-GZ-XTSX-03-M300-A",//20240409FN-GZXNY-PACK-024     更改设备编码20240409
+        //                    operatorNo = OperatorProvider.Instance.Current.Name,
+        //                    actualStartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+        //                };
+        //                //回传在这里
+        //                RetMessage<object> retMessage1 = APIMethod.Call(FNMES.WebUI.API.Url.SelectOrderUrl, selectOrderParam, configId).ToObject<RetMessage<object>>();
+        //                if (retMessage1.messageType == "S")
+        //                {
+        //                    return Success("同步完成");
+        //                }
+        //                else
+        //                {
+        //                    return Error("同步完成后回传失败");
+        //                }
+        //            }
+        //            return Success("同步完成");
+        //        }
+        //        else
+        //        {
+        //            return Error("工厂接口访问失败");
+        //        }
+        //    }
+        //}
 
         //同步产品配方
         [Route("param/order/getRecipe")]
@@ -610,6 +611,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         [HttpPost]
         public async Task<ActionResult> Add(ParamOrder order, string ConfigId)
         {
+            order.Flag = "0";
             var ret = await orderLogic.InsertTableRowAsync(order, ConfigId);
             return ret == 1 ? Success() : Error();
         }
@@ -634,6 +636,7 @@ namespace MES.WebUI.Areas.Param.Controllers
         [HttpPost]
         public async Task<ActionResult> Modify(ParamOrder order, string configId)
         {
+            order.Flag = "0";
             var ret = await orderLogic.UpdateTableAsync(order, configId);
             return ret == 1 ? Success() : Error();
         }

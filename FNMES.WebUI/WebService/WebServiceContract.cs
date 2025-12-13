@@ -399,29 +399,29 @@ namespace FNMES.Service.WebService
                     sfc = barcode, //如果是厂级mes生成，这里是赋值空
                 };
 
-                if (GlobalContext.SystemConfig.EnableFactoryMes)
-                {
-                    //由厂级mes生成条码
-                    var response = await APIMethod.CallAsync(Url.GetSfc, getSfcData, configId);
-                    var getSfcRet = ApiParser.Parse<GetSfcRet>(response);
+                //if (GlobalContext.SystemConfig.EnableFactoryMes)
+                //{
+                //    //由厂级mes生成条码
+                //    var response = await APIMethod.CallAsync(Url.GetSfc, getSfcData, configId);
+                //    var getSfcRet = ApiParser.Parse<GetSfcRet>(response);
                     
 
-                    if (getSfcRet.code == "00000")
-                    {
-                        if (getSfcRet.data != null)
-                        {
-                            retMessage = new RetMessage<LabelAndOrderData>();
-                            retMessage.messageType = RetCode.Success;
-                            retMessage.message = getSfcRet.data.message;
-                            barcode = getSfcRet.data.Data[0];
-                        }
-                        else
-                            retMessage = NewErrorMessage<LabelAndOrderData>("厂级mes返回data为空");
-                        return retMessage;
-                    }
-                    else
-                        return NewErrorMessage<LabelAndOrderData>($"厂级mes返回电芯码错误，信息为:{getSfcRet.msg}");
-                }
+                //    if (getSfcRet.code == "00000")
+                //    {
+                //        if (getSfcRet.data != null)
+                //        {
+                //            retMessage = new RetMessage<LabelAndOrderData>();
+                //            retMessage.messageType = RetCode.Success;
+                //            retMessage.message = getSfcRet.data.message;
+                //            barcode = getSfcRet.data.Data[0];
+                //        }
+                //        else
+                //            retMessage = NewErrorMessage<LabelAndOrderData>("厂级mes返回data为空");
+                //        return retMessage;
+                //    }
+                //    else
+                //        return NewErrorMessage<LabelAndOrderData>($"厂级mes返回PACK码错误，信息为:{getSfcRet.msg}");
+                //}
                 
                 if (barcode.Length != 24)
                 {
@@ -800,28 +800,28 @@ namespace FNMES.Service.WebService
                 return NewErrorMessage<nullObject>($"绑定载盘<{param[0].palletNo}>和内控码<{productCodes}>失败");
             }
             
-            if (GlobalContext.SystemConfig.EnableFactoryMes)
-            {
-                FactoryStatus factoryStatus = GetStatus(configId);
-                SysLine sysLine = lineLogic.GetByConfigId(configId);
-                param[0].productionLine = sysLine.EnCode;
-                BindPalletParam bindPalletParam = new();
-                bindPalletParam.CopyField(param);
+            //if (GlobalContext.SystemConfig.EnableFactoryMes)
+            //{
+            //    FactoryStatus factoryStatus = GetStatus(configId);
+            //    SysLine sysLine = lineLogic.GetByConfigId(configId);
+            //    param[0].productionLine = sysLine.EnCode;
+            //    BindPalletParam bindPalletParam = new();
+            //    bindPalletParam.CopyField(param);
 
-                //在线则上传工厂，agv和内控码要上传到厂级mes的
-                if (factoryStatus.IsOnline)
-                {
-                    string ret = await APIMethod.CallAsync(Url.BindPalletUrl, bindPalletParam, configId);
-                    return ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();
-                }
-                //不在线，新建未传内容的表，等后续再人工恢复上传。  
-                await offlineApiLogic.InsertAsync(new RecordOfflineApi()
-                {
-                    Url = Url.BindPalletUrl,
-                    RequestBody = param.ToJson(),
-                    ReUpload = 0
-                }, configId);
-            }
+            //    //在线则上传工厂，agv和内控码要上传到厂级mes的
+            //    if (factoryStatus.IsOnline)
+            //    {
+            //        string ret = await APIMethod.CallAsync(Url.BindPalletUrl, bindPalletParam, configId);
+            //        return ret.IsNullOrEmpty() ? null : ret.ToObject<RetMessage<nullObject>>();
+            //    }
+            //    //不在线，新建未传内容的表，等后续再人工恢复上传。  
+            //    await offlineApiLogic.InsertAsync(new RecordOfflineApi()
+            //    {
+            //        Url = Url.BindPalletUrl,
+            //        RequestBody = param.ToJson(),
+            //        ReUpload = 0
+            //    }, configId);
+            //}
             return NewSuccessMessage<nullObject>("工厂离线中，已离线绑定完成");
         }
 
@@ -2193,7 +2193,7 @@ namespace FNMES.Service.WebService
             {
                 if (part != null && part.partList != null && part.partList.Count > 0)
                 {
-                    var precisePart = part.partList.Where(it => it.traceType == "Binding" || it.traceType == "precise").ToList();
+                    var precisePart = part.partList.Where(it => it.traceType == "Binding" || it.traceType == "Precise").ToList();
                     foreach (var e in precisePart)
                     {
                         UpAssembleDataParam mesParam = new UpAssembleDataParam(param, e);
@@ -2201,7 +2201,7 @@ namespace FNMES.Service.WebService
                         var upAssembleDataRet = ApiParser.Parse<UploadData_FRet>(upAssembleDataResponse);
                     }
 
-                    var batchPart = part.partList.Where(it => it.traceType == "batch").ToList();
+                    var batchPart = part.partList.Where(it => it.traceType == "Batch").ToList();
                     foreach (var e in batchPart)
                     {
                         GetFeedLoadData mesParam = new GetFeedLoadData(param, e);
@@ -2296,7 +2296,7 @@ namespace FNMES.Service.WebService
             {
                 if (part != null && part.partList != null)
                 {
-                    var precisePart = part.partList.Where(it => it.traceType == "Binding" || it.traceType == "precise").ToList();
+                    var precisePart = part.partList.Where(it => it.traceType == "Binding" || it.traceType == "Precise").ToList();
                     foreach (var e in precisePart)
                     {
                         UpAssembleDataParam mesParam = new UpAssembleDataParam(param,e);
@@ -2304,7 +2304,7 @@ namespace FNMES.Service.WebService
                         var upAssembleDataRet = ApiParser.Parse<UploadData_FRet>(upAssembleDataResponse);
                     }
 
-                    var batchPart = part.partList.Where(it => it.traceType == "batch").ToList();
+                    var batchPart = part.partList.Where(it => it.traceType == "Batch").ToList();
                     foreach (var e in batchPart)
                     {
                         GetFeedLoadData mesParam = new GetFeedLoadData(param, e);
@@ -2469,15 +2469,32 @@ namespace FNMES.Service.WebService
                 if (part != null && part.partList != null)
                 {
                     //物料上传可以不和出站绑定，看是否要拆开，让单机一个个调
-                    var precisePart = part.partList.Where(it => it.traceType == "Binding" || it.traceType == "precise").ToList();
-                    foreach (var e in precisePart)
+                    var precisePart = part.partList.Where(it => it.traceType == "Binding" || it.traceType == "Precise").ToList();
+                    if (part.stationCode == "OP130")
                     {
-                        UpAssembleDataParam upAssembleDataParam = new UpAssembleDataParam(param, e);
-                        var upAssembleDataResponse = await APIMethod.CallAsync(Url.UpAssembleData, upAssembleDataParam, configId);
-                        var upAssembleDataRet = ApiParser.Parse<UploadData_FRet>(upAssembleDataResponse);
+                        for(int i = 0; i < precisePart.Count(); i++)
+                        {
+                            int num = i + 1;
+                            part.partList[i].partBarcode += ":" + num;
+                        }
+                        foreach (var e in precisePart)
+                        {
+                            UpAssembleDataParam upAssembleDataParam = new UpAssembleDataParam(param, e);
+                            var upAssembleDataResponse = await APIMethod.CallAsync(Url.UpAssembleData, upAssembleDataParam, configId);
+                            var upAssembleDataRet = ApiParser.Parse<UploadData_FRet>(upAssembleDataResponse);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var e in precisePart)
+                        {
+                            UpAssembleDataParam upAssembleDataParam = new UpAssembleDataParam(param, e);
+                            var upAssembleDataResponse = await APIMethod.CallAsync(Url.UpAssembleData, upAssembleDataParam, configId);
+                            var upAssembleDataRet = ApiParser.Parse<UploadData_FRet>(upAssembleDataResponse);
+                        }
                     }
 
-                    var batchPart = part.partList.Where(it => it.traceType == "batch").ToList();
+                    var batchPart = part.partList.Where(it => it.traceType == "Batch").ToList();
                     foreach (var e in batchPart)
                     {
                         GetFeedLoadData getFeedLoadParam = new GetFeedLoadData(param, e);
@@ -3016,7 +3033,6 @@ namespace FNMES.Service.WebService
                 return NewErrorMessage<nullObject>($"{param.operation_no}点检错误, 错误信息:{e.Message}");
             }
         }
-
 
         private static RetMessage<T> NewErrorMessage<T>(string message) where T : new()
         {

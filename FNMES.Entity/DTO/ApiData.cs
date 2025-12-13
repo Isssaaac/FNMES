@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FNMES.Entity.DTO.ApiParam;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -681,5 +682,33 @@ namespace FNMES.Entity.DTO.ApiData
         public string intervalVoltageDrop { get; set; }
         //压降
         public string voltageDrop { get; set; }
+    }
+
+    public class GetShopOrdersRet : ResultRet
+    {
+        public List<GetShopOrdersData> Data;
+    }
+
+    public class GetShopOrdersData
+    {
+        public string shop_order;
+    }
+
+    public class GetShopOrderInforRet : ResultRet
+    {
+        public GetShopOrderInforData Data;
+    }
+
+    public class GetShopOrderInforData
+    {
+        public string shop_order;           //工单
+        public string qty_cell;             //
+        public string standard;             //工艺标准
+        public string qty_order;            //工单数
+        public string tech_no;              //型号
+        public string qty_over;             //超产数
+        public string item_no;              //料号
+        public string qty_sfc;              //生产数
+        public string qty_left;             //剩余数
     }
 }

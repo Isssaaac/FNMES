@@ -4,12 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using ServiceStack;
-using Newtonsoft.Json;
-using System.Security.Policy;
-using System.Web;
 using FNMES.Entity.Record;
-using Newtonsoft.Json.Linq;
-using ZXing.QrCode.Internal;
 
 namespace FNMES.Entity.DTO.ApiParam
 {
@@ -917,10 +912,10 @@ namespace FNMES.Entity.DTO.ApiParam
         public string operatorNo { get; set; } // 操作工
     }
 
-    public class GetSopParam:BaseParam
+    public class GetShopParam:BaseParam
     {
-        public string productPartNo { get; set; } // 产品物料号，从当前生产的工单中获取
-        public string operatorNo { get; set; } // 操作工
+        public string stationCode { get; set; } // 工位号
+        public string smallStationCode { get; set; } // 小工位
     }
     [DataContract]
     public class BindPalletParam:BaseParam
@@ -1153,10 +1148,10 @@ namespace FNMES.Entity.DTO.ApiParam
         public Dictionary<string, string> json_data;
         public UploadData_FParam(OutStationParam param, List<Process> process, List<string> ngCodes)
         {
-            sfc = param.productCode + "//" + param.taskOrderNumber;
+            sfc = param.productCode + "/" + param.taskOrderNumber;
             resource_no = param.smallStationCode;
             operation_no = param.stationCode;
-            cz_date = DateTime.Now.ToString();
+            cz_date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             cz_user = param.operatorNo;
             flag = ngCodes.Count > 0 ? "NG" : "OK";
             ng_code = ngCodes.Join(",");
@@ -1197,7 +1192,7 @@ namespace FNMES.Entity.DTO.ApiParam
             sfc = param.productCode;
             resource_no = param.smallStationCode;
             operation_no = param.stationCode;
-            cz_date = DateTime.Now.ToString();
+            cz_date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             cz_user = param.operatorNo;
             flag = ngCodes.Count > 0 ? "NG" : "OK";
             ng_code = ngCodes.Join(",");
@@ -1213,10 +1208,10 @@ namespace FNMES.Entity.DTO.ApiParam
 
         public UploadData_MZParam(OutStationParam param, List<Process> process, List<string> ngCodes, List<RecordCellBindBlock> bindProducts)
         {
-            sfc = param.productCode;
+            sfc = param.productCode + "-T";
             resource_no = param.smallStationCode;
             operation_no = param.stationCode;
-            cz_date = DateTime.Now.ToString();
+            cz_date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             cz_user = param.operatorNo;
             flag = ngCodes.Count > 0 ? "NG" : "OK";
             ng_code = ngCodes.Join(",");
@@ -1240,7 +1235,7 @@ namespace FNMES.Entity.DTO.ApiParam
             sfc = param.productCode;
             resource_no = param.smallStationCode;
             operation_no = param.stationCode;
-            cz_date = DateTime.Now.ToString();
+            cz_date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             cz_user = param.operatorNo;
             flag = ngCodes.Count > 0 ? "NG" : "OK";
             ng_code = ngCodes.Join(",");
@@ -1288,7 +1283,7 @@ namespace FNMES.Entity.DTO.ApiParam
             barcode = part.partBarcode;
             resource_no = param.smallStationCode;
             operation_no = param.stationCode;
-            cz_date = DateTime.Now.ToString();
+            cz_date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             cz_user = param.operatorNo;
             shop_order = param.taskOrderNumber;
             qty = part.usageQty;
@@ -1304,7 +1299,9 @@ namespace FNMES.Entity.DTO.ApiParam
     }
 
     
-    //用户登陆
+    /// <summary>
+    /// P1用户登陆
+    /// </summary>
     public class UserLoginInfoParam
     {
         public string resource_no;
@@ -1312,20 +1309,30 @@ namespace FNMES.Entity.DTO.ApiParam
         public string user_id;
     }
 
-    //设备状态
+    /// <summary>
+    /// P13设备状态
+    /// </summary>
     public class UploadData_SParam
     {
         public string resource_no;  //资源编号
         public string cz_date;      //时间（格式：yyyy-MM-dd HH:mm:ss）
         public string status;       //设备状态（A:工作，B:待机，C:故障，D:关机）
         public string operation_no; //工序
-        public string json_data;    //参数值（按数据字典要求进行参数数据上传，注意区分大小写）
+        public Dictionary<string, string> json_data;   //参数值（按数据字典要求进行参数数据上传，注意区分大小写）
+        
         public UploadData_SParam(EquipmentState param)
         {
             resource_no = param.smallStationCode;
-            cz_date = DateTime.Now.ToString();
+            cz_date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             operation_no = param.stationCode;
             status = param.equipmentStatus;
+            json_data = new Dictionary<string, string>
+            {
+                {"DATA1", "1"},
+                {"DATA7", "1"},
+                {"DATA8", "2"},
+                {"DATA13", "3"}
+            };
         }
     }
 
@@ -1334,18 +1341,25 @@ namespace FNMES.Entity.DTO.ApiParam
 
     }
 
-    //设备报警
+    /// <summary>
+    /// P14设备报警
+    /// </summary>
     public class UploadData_WParam
     {
         public string resource_no;  //资源编号
         public string cz_date;      //时间（格式：yyyy-MM-dd HH:mm:ss）
         public string operation_no; //工序
-        public string json_data;
+        public Dictionary<string, string> json_data;  //参数值（按数据字典要求进行参数数据上传，注意区分大小写）
         public UploadData_WParam(EquipmentErrorParam param)
         {
             resource_no = param.smallStationCode;
-            cz_date= DateTime.Now.ToString();
-            operation_no= param.stationCode;
+            cz_date= DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            operation_no = param.stationCode;
+            json_data = new Dictionary<string, string>
+            {
+                {"DATA1", "2"},
+                {"DATA2", "1"}
+            };
         }
     }
 
@@ -1390,8 +1404,9 @@ namespace FNMES.Entity.DTO.ApiParam
         public string grade;        //档位
     }
 
-
-    //一键点检
+    /// <summary>
+    /// P38一键点检
+    /// </summary>
     public class GetCheckMaitenanceParam
     {
         public string operation_no;      
@@ -1418,6 +1433,9 @@ namespace FNMES.Entity.DTO.ApiParam
 
     }
 
+    /// <summary>
+    /// P33获取PACK条码
+    /// </summary>
     public class GetSfcData
     {
         public string resource_no;      //资源编号
@@ -1448,7 +1466,7 @@ namespace FNMES.Entity.DTO.ApiParam
             barCode = part.partBarcode;
             resource_no = param.smallStationCode;
             operation_no = param.stationCode;
-            cz_date = DateTime.Now.ToString();
+            cz_date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             cz_user = param.operatorNo;
             shop_order = param.taskOrderNumber;
             qty = part.usageQty;
@@ -1458,5 +1476,26 @@ namespace FNMES.Entity.DTO.ApiParam
     public class GetFeedLoadRet : ResultRet
     {
         
+    }
+
+    /// <summary>
+    /// P2获取未完成工单
+    /// </summary>
+    public class GetShopOrdersParam
+    {
+        public string resource_no;
+        public string shop_order;
+        public string so_type;
+    }
+
+
+    /// <summary>
+    /// P3获取工单信息
+    /// </summary>
+    public class GetShopOrderInforParam
+    {
+        public string resource_no;
+        public string shop_order;
+        public string operation_no;
     }
 }

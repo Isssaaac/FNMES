@@ -234,6 +234,7 @@ namespace FNMES.WebUI.Logic.Record
                 {
                     RecordEquipmentError buf = new();
                     buf.CopyField(item);
+                    buf.Id = SnowFlakeSingle.Instance.NextId();
                     buf.StationCode = model.stationCode;
                     buf.SmallStationCode = model.smallStationCode;
                     buf.EquipmentID = model.equipmentID;
@@ -257,6 +258,7 @@ namespace FNMES.WebUI.Logic.Record
             try
             {
                 var db = GetInstance(configId);
+                model.Id = SnowFlakeSingle.Instance.NextId();
                 return db.Insertable<RecordEquipmentError>(model).SplitTable().ExecuteCommand();
 
             }
